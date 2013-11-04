@@ -13,17 +13,20 @@
 (defun quotify-list (l)
   (mapcar #'(lambda (x) (if (symbolp x) (list 'quote x) x)) l))
 
+;;; This retains the order and possible duplicates of the arguments.
 (defun list-union (list1 list2 &key (test #'eql))
   (cond ((null list1) list2)
 	((null list2) list1)
 	(t
 	 (append list1 (filter #'(lambda (x) (not (member x list1 :test test))) list2)))))
 
+;;; The result is in the same order as list1 and it contains the matching duplicate elements in list1.
 (defun list-intersection (list1 list2 &key (test #'eql))
   (cond ((or (null list1) (null list2)) nil)
 	(t
 	 (filter #'(lambda (x) (member x list2 :test test)) list1))))
 
+;;; The result is in the same order as list1 and it contains the matching duplicate elements in list1.
 (defun list-difference (list1 list2 &key (test #'eql))
   (filter #'(lambda (x) (not (member x list2 :test test))) list1))
 
@@ -41,6 +44,7 @@
 	     hash-table)
     result))
 
+;;; Used by define-class
 (defun predicate-name (name)
   (cond ((find #\- (coerce (string name) 'list))
 	 (fmt-intern "~:@(~A-p~)" name))
@@ -69,5 +73,4 @@
 #+sbcl
 (defun shell-script (script &rest args)
   (let ((process (sb-ext:run-program "/bin/sh" (cons script args) :output t :error :output)))
-					;(barf "status=~A, exit code=~A~&" (sb-ext:process-status process) (sb-ext:process-exit-code process))
     process))

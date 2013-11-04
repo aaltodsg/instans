@@ -26,6 +26,7 @@
     (setf (rest (last colors)) colors)
     (loop for algebra-expr in algebra-expr-list
 	  for color in colors
+	  do (warn "Color ~A, expr ~S" color algebra-expr)
 	  do (compile-sparql-algebra-expr network algebra-expr color))
     (unless (null output-dir)
       (let ((name-part (pathname-name file))
@@ -54,7 +55,7 @@
 
 (defun compile-sparql-algebra-expr (network algebra-expr &optional (color "Black"))
   (declare (special *node-color-alist*))
-  (inform "compiling ~S" algebra-expr)
+  (inform "compiling ~S~%" algebra-expr)
   (let* ((canonic (canonize-sparql-algebra-variables algebra-expr (network-bindings network)))
 	 (new-nodes (translate-sparql-algebra-to-rete canonic network)))
     (compute-node-uses-defs-and-vars new-nodes)
@@ -98,17 +99,17 @@
 	do (setf (getf overriding-keylist default-key) default-value))
   overriding-keylist)
 
-(defun build-system-from-rules (&rest keys &key network rules-file (output-dir "parser/output") overriding-keys &allow-other-keys)
-  (remf keys :rules-file)
-  (remf keys :output-dir)
-  (remf keys :overriding-keys)
-  (when overriding-keys
-    (setf keys (supply-defaults overriding-keys keys)))
-  (when (null network)
-    (setf network (apply #'make-instance 'network keys)))
-  (inform "Adding rules from ~A~%" rules-file)
-  (add-rules-from-file network rules-file :output-dir output-dir)
-  network)
+;; (defun build-system-from-rules (&rest keys &key network rules-file (output-dir "parser/output") overriding-keys &allow-other-keys)
+;;   (remf keys :rules-file)
+;;   (remf keys :output-dir)
+;;   (remf keys :overriding-keys)
+;;   (when overriding-keys
+;;     (setf keys (supply-defaults overriding-keys keys)))
+;;   (when (null network)
+;;     (setf network (apply #'make-instance 'network keys)))
+;;   (inform "Adding rules from ~A~%" rules-file)
+;;   (add-rules-from-file network rules-file :output-dir output-dir)
+;;   network)
 
 (defun report-execution (network)
   (let ((queue (network-rule-instance-queue network)))
@@ -121,3 +122,36 @@
 	    (rule-instance-queue-modify-count queue)
 	    (rule-instance-queue-construct-count queue))
     network))
+
+(defun build-and-execute-sparql-system (rules-file triples-file &key (report-function ) (report-function-arguments ) (output-dir "/Users/enu/cl-instans/testing/output"));  (show-turtle-parse-p nil))
+  (catch 'done
+  (let* ((network nil))
+    (with-open-file (triples-stream triples-file)
+      (setf network (compile-sparql-file rules-file :output-dir output-dir))
+      (setf (network-select-function network) report-function)
+      (setf (network-select-function-arguments network) report-function-arguments)
+      (let* ((triples-lexer (make-turtle-lexer triples-stream))
+	     (triples-parser (make-turtle-parser :triples-callback #'(lambda (triples)
+								       (inform "~%Event callback: ~D triples~%" (length triples))
+								       (loop for tr in triples do (inform " ~S~%" tr))
+								       (process-triple-input network triples '(:add :execute))))))
+	(initialize-execution network)
+	(warn "~%Processing triples triples:~%")
+	(time (funcall triples-parser triples-lexer)))))))
+
+(defgeneric process-triple-input (network triples ops &key graph)
+  (:method ((this network) triples ops &key graph)
+    (when (symbolp ops)
+      (setf ops (list ops)))
+    (loop for op in ops 
+	 do (case op
+	      (:add
+	       (loop for (subj pred obj) in triples
+		     do (rete-add this subj pred obj graph)))
+	      (:remove
+	       (loop for (subj pred obj) in triples 
+		     do (rete-remove this subj pred obj graph)))
+	      (:execute
+	       (execute-rules this))
+	      (t
+	       (error* "Illegal op ~S" op))))))

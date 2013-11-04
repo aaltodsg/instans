@@ -1,0 +1,65 @@
+#!/bin/sh
+LOGFILE=MKHTML_LOG
+
+msg() {
+    if test "${LOGFILE}" != ""; then
+	test -f ${LOGFILE} || touch ${LOGFILE}
+	echo `date`: $* >> ${LOGFILE}
+    fi
+    echo $*
+}
+
+if test $# -eq 1 ; then
+    SPARQL=$1
+    BN=`basename $1 .rq`
+    BN=`basename $BN .sparql`
+    DN=`dirname $1`
+    ODN=${DN%input}output
+    SA=${ODN}/$BN.sa
+    DOT=${ODN}/$BN.dot
+    OUTPUT=${ODN}/$BN.html
+elif test $# -eq 5 ; then
+    SPARQL=$1
+    SA=$2
+    DOT=$3
+    OUTPUT=$4
+else
+    msg "Usage: mk-html sparql [sa re dot output]"
+    exit 1
+fi
+msg SPARQL=${SPARQL}, SA=${SA}, DOT=${DOT}, OUTPUT=${OUTPUT}
+{
+cat > $OUTPUT <<EOF
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<title></title>
+</head>
+<body>
+<table border="1" cellspacing="0" cellpadding="4"><tr><td>
+<pre>
+EOF
+cat $SPARQL | sed '/</s//\&lt;/g' | sed '/>/s//\&gt;/g' >> $OUTPUT
+cat >> $OUTPUT <<EOF
+</pre>
+</td>
+<td>
+<pre>
+EOF
+cat $SA >> $OUTPUT
+cat >> $OUTPUT <<EOF
+</pre>
+</td>
+</tr>
+</table>
+<hr/>
+EOF
+dot -Tsvg -O $DOT
+cat $DOT.svg >> $OUTPUT
+cat >> $OUTPUT <<EOF
+<hr/>
+</body>
+</html>
+EOF
+} >> ${LOGFILE} 2>&1
