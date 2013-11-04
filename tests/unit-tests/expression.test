@@ -1,0 +1,487 @@
+# -*- Mode: Sparql -*-
+
+TEST
+
+# 17.2.2 Effective Boolean Value (EBV)
+# ------------------------------------
+# Effective boolean value is used to calculate the arguments to the logical functions logical-and,
+# logical-or, and fn:not, as well as evaluate the result of a FILTER expression.
+#
+# The XQuery Effective Boolean Value rules rely on the definition of XPath's fn:boolean. The following
+# rules reflect the rules for fn:boolean applied to the argument types present in SPARQL queries:
+#
+#    * The EBV of any literal whose type is xsd:boolean or numeric is false if the lexical form is not
+#      valid for that datatype (e.g. "abc"^^xsd:integer).
+#    * If the argument is a typed literal with a datatype of xsd:boolean, and it has a valid lexical
+#      form, the EBV is the value of that argument.
+#    * If the argument is a plain literal or a typed literal with a datatype of xsd:string, the EBV is
+#      false if the operand value has zero length, otherwise the EBV is true.
+#    * If the argument is a numeric type or a typed literal with a datatype derived from a numeric
+#      type, and it has a valid lexical form, the EBV is false if the operand value is NaN or is
+#      numerically equal to zero, otherwise the EBV is true.
+#    * All other arguments, including unbound arguments, produce a type error.
+#
+# An EBV of true is represented as a typed literal with a datatype of xsd:boolean and a lexical value
+# of "true", an EBV of false is represented as a typed literal with a datatype of xsd:boolean and a
+# lexical value of "false".
+
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+ASSERT "ebv" FILTER(?x)
+INPUT ?x
+  { true false ""    "some" 0     123  1.3  1.2e10 UNDEF "2013-10-22T12:34:56"^^xsd:datetime foaf:known }
+OUTPUT
+  { true false false true   false true true true   ERROR ERROR                 ERROR }
+
+# XQuery Unary Operators
+# ======================
+# ! A	xsd:boolean (EBV) -> xsd:boolean  =>  fn:not(A)
+ASSERT "!" (! ?x)
+INPUT ?x
+  { true  false ""   "some" 0    123   1.3   1.2e10  UNDEF "2013-10-22T12:34:56"^^xsd:datetime foaf:known }
+OUTPUT
+  { false true  true false  true false false false   ERROR ERROR				 ERROR }
+
+# + A 	numeric           -> numeric      =>  op:numeric-unary-plus(A)
+ASSERT "+" (+?x)
+INPUT ?x
+  { 0 -1 10 100 10.0 -2.222e22 true  false foaf:known "2013-10-22T12:34:56"^^xsd:datetime }
+OUTPUT
+  { 0 -1 10 100 10.0 -2.222e22 ERROR ERROR ERROR      ERROR }
+
+# - A 	numeric           -> numeric      =>  op:numeric-unary-minus(A)
+ASSERT "-" (-?x)
+INPUT ?x
+  { 0 1 -10 100 -10.0 -2.222e22 true  false foaf:known "2013-10-22T12:34:56"^^xsd:datetime }
+OUTPUT
+  { 0 -1 10 -100 10.0 2.222e22  ERROR ERROR ERROR      ERROR }
+
+# Logical Connectives
+# ===================
+# A || B	xsd:boolean (EBV), xsd:boolean (EBV) -> xsd:boolean  =>  logical-or(A, B)
+
+
+# A && B	xsd:boolean (EBV), xsd:boolean (EBV) -> xsd:boolean  =>  logical-and(A, B)
+
+# XPath Tests
+# ===========
+# A = B	numeric, numeric		-> xsd:boolean  =>  op:numeric-equal(A, B) 
+# A = B	simple literal,simple literal	-> xsd:boolean  =>  op:numeric-equal(fn:compare(A, B), 0) 
+# A = B	xsd:string, xsd:string		-> xsd:boolean  =>  op:numeric-equal(fn:compare(STR(A), STR(B)), 0) 
+# A = B	xsd:boolean, xsd:boolean	-> xsd:boolean  =>  op:boolean-equal(A, B) 
+# A = B	xsd:dateTime, xsd:dateTime	-> xsd:boolean  =>  op:dateTime-equal(A, B) 
+# SPARQL Tests
+# ============
+# A = B	RDF term, RDF term -> xsd:boolean  =>  RDFterm-equal(A, B) 
+ASSERT "=" (?x = ?y)
+INPUT (?x ?y)
+{ (1   1.0  1.0e0 -1)
+  (1   1    1.0   10) }
+OUTPUT
+{ true true true  false }
+
+ASSERT "=" (?x = ?y)
+INPUT (?x ?y)
+{ (""   "Some" "Some"             "Some"@en "Some"@fi "Some"@en)
+  (""   ""     "Some"^^xsd:string "Some"@en "Some"@en "Some") }
+OUTPUT
+{  true false  true                true      ERROR     ERROR} 
+
+# true true  false false true                                false                               true       false      true                           false
+# true false false true  "2013-10-23T22:34:56"^^xsd:datetime "2013-09-23T22:34:56"^^xsd:datetime foaf:known foaf:known "huup"^^<http://some.type.org> "puup"^^<http://some.type.org>
+# true false true  false "2013-10-23T22:34:56"^^xsd:datetime "2013-10-23T22:34:56"^^xsd:datetime foaf:known foaf:mbox  "huup"^^<http://some.type.org> "huup"^^<http://some.type.org>
+# A != B	numeric, numeric		-> xsd:boolean  =>  fn:not(op:numeric-equal(A, B)) 
+# A != B	simple literal, simple literal	-> xsd:boolean  =>  fn:not(op:numeric-equal(fn:compare(A, B), 0)) 
+# A != B	xsd:string, xsd:string		-> xsd:boolean  =>  fn:not(op:numeric-equal(fn:compare(STR(A), STR(B)), 0)) 
+# A != B	xsd:boolean, xsd:boolean	-> xsd:boolean  =>  fn:not(op:boolean-equal(A, B)) 
+# A != B	xsd:dateTime, xsd:dateTime	-> xsd:boolean  =>  fn:not(op:dateTime-equal(A, B)) 
+# SPARQL Tests
+# ============
+# A != B	RDF term, RDF term -> xsd:boolean  =>  fn:not(RDFterm-equal(A, B))
+ASSERT "!=" (?x != ?y)
+INPUT (?x ?y)
+{ (1    1.0   1.0e0 -1)
+  (1    1     1.0   10) }
+OUTPUT
+{ false false false true }
+
+ASSERT "!=" (?x != ?y)
+INPUT (?x ?y)
+{ (""   "Some" "Some"             "Some"@en "Some"@fi "Some"@en)
+  (""   ""     "Some"^^xsd:string "Some"@en "Some"@en "Some") }
+OUTPUT
+{ false true   false              false     ERROR     ERROR} 
+
+# A < B	numeric, numeric		-> xsd:boolean  =>  op:numeric-less-than(A, B) 
+# A < B	simple literal, simple literal	-> xsd:boolean  =>  op:numeric-equal(fn:compare(A, B), -1) 
+# A < B	xsd:string, xsd:string		-> xsd:boolean  =>  op:numeric-equal(fn:compare(STR(A), STR(B)), -1) 
+# A < B	xsd:boolean, xsd:boolean	-> xsd:boolean  =>  op:boolean-less-than(A, B) 
+# A < B	xsd:dateTime, xsd:dateTime	-> xsd:boolean  =>  op:dateTime-less-than(A, B) 
+
+# A > B	numeric, numeric		-> xsd:boolean  =>  op:numeric-greater-than(A, B) 
+# A > B	simple literal, simple literal	-> xsd:boolean  =>  op:numeric-equal(fn:compare(A, B), 1) 
+# A > B	xsd:string, xsd:string		-> xsd:boolean  =>  op:numeric-equal(fn:compare(STR(A), STR(B)), 1) 
+# A > B	xsd:boolean, xsd:boolean	-> xsd:boolean  =>  op:boolean-greater-than(A, B) 
+# A > B	xsd:dateTime, xsd:dateTime	-> xsd:boolean  =>  op:dateTime-greater-than(A, B) 
+
+# A <= B	numeric, numeric		-> xsd:boolean  =>  logical-or(op:numeric-less-than(A, B), op:numeric-equal(A, B)) 
+# A <= B	simple literal,	simple literal	-> xsd:boolean  =>  fn:not(op:numeric-equal(fn:compare(A, B), 1)) 
+# A <= B	xsd:string, xsd:string		-> xsd:boolean  =>  fn:not(op:numeric-equal(fn:compare(STR(A), STR(B)), 1)) 
+# A <= B	xsd:boolean, xsd:boolean	-> xsd:boolean  =>  fn:not(op:boolean-greater-than(A, B)) 
+# A <= B	xsd:dateTime, xsd:dateTime	-> xsd:boolean  =>  fn:not(op:dateTime-greater-than(A, B)) 
+
+# A >= B	numeric, numeric		-> xsd:boolean  =>  logical-or(op:numeric-greater-than(A, B), op:numeric-equal(A, B)) 
+# A >= B	simple literal, simple literal	-> xsd:boolean  =>  fn:not(op:numeric-equal(fn:compare(A, B), -1)) 
+# A >= B	xsd:string, xsd:string		-> xsd:boolean  =>  fn:not(op:numeric-equal(fn:compare(STR(A), STR(B)), -1)) 
+# A >= B	xsd:boolean, xsd:boolean	-> xsd:boolean  =>  fn:not(op:boolean-less-than(A, B)) 
+# A >= B	xsd:dateTime, xsd:dateTime	-> xsd:boolean  =>  fn:not(op:dateTime-less-than(A, B)) 
+
+# XPath Arithmetic
+# ================
+# A * B	numeric, numeric 	 -> numeric  	 => op:numeric-multiply(A, B)
+
+# A / B	xsd:integer, xsd:integer -> xsd:decimal  => op:numeric-divide(A, B)
+# A / B	numeric, numeric 	 -> numeric  	 => op:numeric-divide(A, B)
+
+# A + B	numeric, numeric 	 -> numeric  	 => op:numeric-add(A, B)
+
+# A - B	numeric, numeric	 -> numeric  	 => op:numeric-subtract(A, B)
+
+# SPARQL Tests (See = and != above)
+# ============
+# A = B	RDF term, RDF term -> xsd:boolean  =>  RDFterm-equal(A, B) 
+# A != B	RDF term, RDF term -> xsd:boolean  =>  fn:not(RDFterm-equal(A, B))
+
+# 17.4.1 Functional Forms
+# =======================
+
+# 17.4.1.1 bound
+# --------------
+# xsd:boolean  BOUND (variable var)
+#
+# Note! The variables are evaluated before calling the function. Unbound variables are replaced by sparql-unbound.
+
+# 17.4.1.2 IF
+# -----------
+# rdfTerm  IF (expression1, expression2, expression3)
+
+# 17.4.1.3 COALESCE !!! Missing !!!
+# -----------------
+# rdfTerm  COALESCE(expression, ....)
+
+# 17.4.1.4 NOT EXISTS and EXISTS (Implemented at RETE level)
+# ------------------------------
+# xsd:boolean  EXISTS { pattern }
+# xsd:boolean  NOT EXISTS { pattern } is equivalent to fn:not(EXISTS { pattern })
+
+# 17.4.1.5 logical-or (See above A || B)
+# -------------------
+# logical-or	xsd:boolean, xsd:boolean -> xsd:boolean  =>  left || right
+
+# 17.4.1.6 logical-and (See above A && B)
+# --------------------
+# logical-and	xsd:boolean, xsd:boolean -> xsd:boolean  =>  left && right
+
+# 17.4.1.7 RDFterm-equal
+# ----------------------
+# RDFterm-equal	RDF term, RDF term -> xsd:boolean	 =>  term1 = term2
+
+#    Returns TRUE if term1 and term2 are the same RDF term as defined in Resource Description Framework (RDF): Concepts and Abstract Syntax [CONCEPTS],
+#    produces a type error if the arguments are both literal but are not the same RDF term *, returns FALSE otherwise.
+#    term1 and term2 are the same if any of the following is true:
+
+#      term1 and term2 are equivalent IRIs as defined in 6.4 RDF URI References of [CONCEPTS].
+#      term1 and term2 are equivalent literals as defined in 6.5.1 Literal Equality of [CONCEPTS].
+#      term1 and term2 are the same blank node as described in 6.6 Blank Nodes of [CONCEPTS].
+
+# 17.4.1.8 sameTerm
+# -----------------
+# sameTerm	RDF term, RDF term -> xsd:boolean	 => term1 = term2
+#    Returns TRUE iff term1 and term2 are the same RDF term as defined in Resource Description Framework (RDF): Concepts and Abstract Syntax [CONCEPTS]
+
+# 17.4.1.9 IN
+# -----------
+# xsd:boolean rdfTerm IN(expression, ...)
+#    The IN operator is equivalent to the SPARQL expression: (lhs = expression1) || (lhs = expression2) || ...
+
+# 17.4.1.10 NOT IN
+# ----------------
+# xsd:boolean rdfTerm NOT IN(expression, ...)
+#    Equivalent to (lhs != expression1) && (lhs != expression2) && ... and !(IN (expression1, expression2, ...))
+#
+
+# 17.4.2 Functions on RDF Terms
+# =============================
+
+# 17.4.2.1 isIRI
+# --------------
+# xsd:boolean  isIRI (RDF term term)
+# xsd:boolean  isURI (RDF term term)
+
+
+# 17.4.2.2 isBlank
+# ----------------
+# xsd:boolean  isBlank (RDF term term)
+
+# 17.4.2.3 isLiteral
+# ------------------
+# xsd:boolean  isLiteral (RDF term term)
+
+# 17.4.2.4 isNumeric
+# ------------------
+# xsd:boolean  isNumeric (RDF term term)
+
+# 17.4.2.5 str
+# ------------
+# simple literal  STR (literal ltrl)
+# simple literal  STR (IRI rsrc)
+
+# 17.4.2.6 lang
+# -------------
+# simple literal  LANG (literal ltrl)
+
+# 17.4.2.7 datatype
+# -----------------
+# iri  DATATYPE (literal literal)
+
+# 17.4.2.8 IRI
+# ------------
+# iri  IRI(simple literal)
+# iri  IRI(xsd:string)
+# iri  IRI(iri)
+# iri  URI(simple literal)
+# iri  URI(xsd:string)
+# iri  URI(iri)
+
+
+# 17.4.2.9 BNODE
+# --------------
+# blank node  BNODE()
+# blank node  BNODE(simple literal)
+# blank node  BNODE(xsd:string)
+
+# 17.4.2.10 STRDT
+# ---------------
+# <**> literal  STRDT(simple literal lexicalForm, IRI datatypeIRI)
+
+# 17.4.2.11 STRLANG
+# -----------------
+# <**> literal  STRLANG(simple literal lexicalForm, simple literal langTag)
+
+# 17.4.2.12 UUID !!! Missing !!!
+# --------------
+# iri  UUID()
+
+# 17.4.2.13 STRUUID !!! Missing !!!
+# -----------------
+# simple literal  STRUUID()
+
+# 17.4.3 Functions on Strings
+# ===========================
+# string literal = simple literal, plain literal with tag, or literal with type string
+
+# 17.4.3.1 Strings in SPARQL Functions
+# ------------------------------------
+
+# 17.4.3.1.1 String arguments
+
+# Certain functions (e.g. REGEX, STRLEN, CONTAINS) take a string literal as an argument and accept a simple literal, a plain literal with language tag, or a literal with datatype xsd:string. They then act on the lexcial form of the literal.
+
+# The term string literal is used in the function descriptions for this. Use of any other RDF term will cause a call to the function to raise an error.
+
+# 17.4.3.1.2 Argument Compatibility Rules
+
+# The functions STRSTARTS, STRENDS, CONTAINS, STRBEFORE and STRAFTER take two arguments. These arguments must be compatible otherwise invocation of one of these functions raises an error.
+
+# Compatibility of two arguments is defined as:
+
+#     The arguments are simple literals or literals typed as xsd:string
+#     The arguments are plain literals with identical language tags
+#     The first argument is a plain literal with language tag and the second argument is a simple literal or literal typed as xsd:string
+
+# Argument1	  Argument2	  Compatible?
+# ---------------------------------------------
+# "abc"		  "b"		  yes
+# "abc"		  "b"^^xsd:string yes
+# "abc"^^xsd:string "b"		  yes
+# "abc"^^xsd:string "b"^^xsd:string yes
+# "abc"@en	  "b"		  yes
+# "abc"@en	  "b"^^xsd:string yes
+# "abc"@en	  "b"@en	  yes
+# "abc"@fr	  "b"@ja	  no
+# "abc"	          "b"@ja	  no
+# "abc"	          "b"@en	  no
+# "abc"^^xsd:string "b"@en	  no
+
+# 17.4.3.1.3 String Literal Return Type
+
+# Functions that return a string literal do so with the string literal of the same kind as the first argument (simple literal, plain literal with same language tag, xsd:string). This includes SUBSTR, STRBEFORE and STRAFTER.
+
+# The function CONCAT returns a string literal based on the details of all its arguments.
+
+# 7.4.3.2 STRLEN
+# --------------
+# xsd:integer  STRLEN(string literal str)
+
+# 17.4.3.3 SUBSTR
+# ---------------
+# string literal  SUBSTR(string literal source, xsd:integer startingLoc)
+# string literal  SUBSTR(string literal source, xsd:integer startingLoc, xsd:integer length)
+
+# 17.4.3.4 UCASE
+# --------------
+# string literal  UCASE(string literal str)
+
+# 17.4.3.5 LCASE
+# --------------
+# string literal  LCASE(string literal str)
+
+# 17.4.3.6 STRSTARTS
+# ------------------
+# xsd:boolean  STRSTARTS(string literal arg1, string literal arg2)
+
+# 17.4.3.7 STRENDS
+# ----------------
+# xsd:boolean  STRENDS(string literal arg1, string literal arg2)
+
+# 17.4.3.8 CONTAINS
+# -----------------
+# xsd:boolean  CONTAINS(string literal arg1, string literal arg2)
+
+# 17.4.3.9 STRBEFORE
+# ------------------
+# literal  STRBEFORE(string literal arg1, string literal arg2)
+
+# 17.4.3.10 STRAFTER
+# ------------------
+# literal  STRAFTER(string literal arg1, string literal arg2)
+
+# 17.4.3.11 ENCODE_FOR_URI !!! Missing !!!
+# ------------------------
+# simple literal  ENCODE_FOR_URI(string literal ltrl)
+
+# 17.4.3.12 CONCAT
+# ----------------
+# string literal  CONCAT(string literal ltrl1 ... string literal ltrln)
+
+# 17.4.3.13 langMatches !!! Missing !!!
+# ---------------------
+# xsd:boolean  langMatches (simple literal language-tag, simple literal language-range)
+
+# 17.4.3.14 REGEX !!! Missing !!!
+# ---------------
+# xsd:boolean  REGEX (string literal text, simple literal pattern)
+# xsd:boolean  REGEX (string literal text, simple literal pattern, simple literal flags)
+
+# 17.4.3.15 REPLACE !!! Missing !!!
+# -----------------
+# string literal  REPLACE (string literal arg, simple literal pattern, simple literal replacement )
+# string literal  REPLACE (string literal arg, simple literal pattern, simple literal replacement,  simple literal flags)
+
+# 17.4.4 Functions on Numerics
+# ============================
+
+# 17.4.4.1 abs
+# ------------
+# numeric  ABS (numeric term)
+
+# 17.4.4.2 round
+# --------------
+# numeric  ROUND (numeric term)
+
+# 17.4.4.3 ceil
+# -------------
+# numeric  CEIL (numeric term)
+
+# 17.4.4.4 floor
+# --------------
+# numeric  FLOOR (numeric term)
+
+# 17.4.4.5 RAND
+# -------------
+# xsd:double  RAND ( )
+
+# 17.4.5 Functions on Dates and Times
+# ===================================
+
+# 17.4.5.1 now
+# ------------
+# xsd:dateTime  NOW ()
+
+# 17.4.5.2 year
+# -------------
+# xsd:integer  YEAR (xsd:dateTime arg)
+
+# 17.4.5.3 month
+# --------------
+# xsd:integer  MONTH (xsd:dateTime arg)
+
+# 17.4.5.4 day
+# ------------
+# xsd:integer  DAY (xsd:dateTime arg)
+
+# 17.4.5.5 hours
+# --------------
+# xsd:integer  HOURS (xsd:dateTime arg)
+
+# 17.4.5.6 minutes
+# ----------------
+# xsd:integer  MINUTES (xsd:dateTime arg)
+
+# 17.4.5.7 seconds
+# ----------------
+# xsd:decimal SECONDS (xsd:dateTime arg)
+
+# 17.4.5.8 timezone
+# -----------------
+# xsd:dayTimeDuration  TIMEZONE (xsd:dateTime arg)
+
+# 17.4.5.9 tz
+# -----------
+# simple literal  TZ (xsd:dateTime arg)
+
+# 17.4.6 Hash Functions
+# =====================
+#
+# There is a problem with these: could not find an implementation in Common Lisp for these! Maybe we could use foreign c function calls for these.
+
+# 17.4.6.1 MD5 !!! Missing !!!
+# -------------
+# simple literal  MD5 (simple literal arg)
+# simple literal  MD5 (xsd:string arg)
+
+# 17.4.6.2 SHA1 !!! Missing !!!
+# -------------
+# simple literal  SHA1 (simple literal arg)
+# simple literal  SHA1 (xsd:string arg)
+
+# 17.4.6.3 SHA256 !!! Missing !!!
+# ---------------
+# simple literal  SHA256 (simple literal arg)
+# simple literal  SHA256 (xsd:string arg)
+
+# 17.4.6.4 SHA384 !!! Missing !!!
+# ---------------
+# simple literal  SHA384 (simple literal arg)
+# simple literal  SHA384 (xsd:string arg)
+
+# 17.4.6.5 SHA512 !!! Missing !!!
+# ---------------
+# simple literal  SHA512 (simple literal arg)
+# simple literal  SHA512 (xsd:string arg)
+
+# 17.5 XPath Constructor Functions !!! Missing !!!
+# ================================
+
+# From \ To	str	flt	dbl	dec	int	dT	bool
+# str		Y	M	M	M	M	M	M
+# flt		Y	Y	Y	M	M	N	Y
+# dbl		Y	Y	Y	M	M	N	Y
+# dec		Y	Y	Y	Y	Y	N	Y
+# int		Y	Y	Y	Y	Y	N	Y
+# dT		Y	N	N	N	N	Y	N
+# bool		Y	Y	Y	Y	Y	N	Y
+# IRI		Y	N	N	N	N	N	N
+# ltrl		Y	M	M	M	M	M	M
+
+

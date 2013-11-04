@@ -1,0 +1,17 @@
+Problem:
+- Alpha nodes should produce normal tokens that contain only variable bindings, nothing else
+- Thus, we could have several kinds of alpha nodes with different kinds of inputs, not only triples (or quads)
+- Graph matcher should then produce only the needed parts of the inputs, not the whole quads.
+- Does this cause other problems?
+
+What to change:
++ graph-matcher.lisp: match-quad and add-alpha-node
++ interpreter.lisp: rete-add, rete-remove, initialize-node, add/remove-beta/alpha-token
++ Change alpha-node to triple-pattern-node everywhere.
++ Remove join-var-mapping from join-node
++ Remove def-indices from join-node?
++ Alpha-matcher -> triple-matcher
++ Check variable propagation
+- Quad store matching tokens?
+
+- Maybe change graph-matcher to test the graph too. This would be simpler then?

@@ -1,0 +1,15 @@
+# -*- Mode: Sparql -*-
+
+TEST
+
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+BASE <example.org/>
+
+ASSERT "xpx"
+SELECT ?p1 ?p2 {
+       ?p1 <foaf:knows> ?p2
+}
+TRIPLES { <esko> <foaf:knows> <seppo>. <esko> <foaf:knows> <mikko> . <seppo> <foaf:knows> <mikko> . <seppo> <foaf:mbox> "sto@cs.hut.fi" . <esko> <foaf:knows> <mikko> }
+SOLUTIONS (?p1 ?p2) { (<esko>  <esko>  <seppo> <esko>)
+                      (<seppo> <mikko> <mikko> <mikko>) }
+

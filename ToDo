@@ -1,3 +1,5 @@
 - Aquamacs home directory
 - .config/common-lisp/source-registry.conf.d
-
+- Parser generator: :RESULT nil not working. Replaced it by :RESULT (progn nil), but should fix the generator.
+- indices.lisp: are the hash functions OK?
+- Split barf to two different functions: one for debugging and another for informing the user
