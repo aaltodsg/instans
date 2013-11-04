@@ -1,4 +1,7 @@
 *.fasl
 *~
+*.dot
+*.svg
+*.sa
 .DS_Store
 

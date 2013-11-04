@@ -6,9 +6,18 @@ PREFIX qt:     <http://www.w3.org/2001/sw/DataAccess/tests/test-query#>
 PREFIX dawgt:  <http://www.w3.org/2001/sw/DataAccess/tests/test-dawg#>
 PREFIX its:    <http://instans.aalto.fi/testsuite/#>
 
-INSERT { its:work its:member ?entries }
-WHERE { ?testset rdf:type mf:Manifest ;
-       rdfs:label "BIND" ;
-       mf:entries ?entries .
+# INSERT { its:work its:member ?entries }
+# WHERE { ?testset rdf:type mf:Manifest ;
+#        rdfs:label "BIND" ;
+#        mf:entries ?entries .
+# }
+
+SELECT ?test ?name ?queryfile ?datafile ?resultfile WHERE {
+       ?test a 	       mf:QueryEvaluationTest ;
+             mf:name   ?name ;
+    	     mf:action [ qt:query  ?queryfile ;
+    	                 qt:data   ?datafile ] ;
+    	     mf:result ?resultfile
+       .
 }
 
