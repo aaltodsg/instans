@@ -1,0 +1,13 @@
+
+"
+(DELETE-INSERT :INSERT-CLAUSE
+ (BGP
+  (#&lt;RDF-IRI http://instans.aalto.fi/testsuite/#work&gt; #&lt;RDF-IRI http://instans.aalto.fi/testsuite/#member&gt;
+   #&lt;SPARQL-VAR ?ENTRIES&gt;))
+ :WHERE
+ (BGP
+  (#&lt;SPARQL-VAR ?TESTSET&gt; #&lt;RDF-IRI http://www.w3.org/1999/02/22-rdf-syntax-ns#type&gt;
+   #&lt;RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#Manifest&gt;)
+  (#&lt;SPARQL-VAR ?TESTSET&gt; #&lt;RDF-IRI http://www.w3.org/2000/01/rdf-schema#label&gt; \"BIND\")
+  (#&lt;SPARQL-VAR ?TESTSET&gt; #&lt;RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#entries&gt;
+   #&lt;SPARQL-VAR ?ENTRIES&gt;))) " 

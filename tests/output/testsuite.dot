@@ -1,0 +1,61 @@
+
+digraph NIL{
+  { rank=same; 
+    triple_pattern_node2[class="TRIPLE-PATTERN-NODE" id="triple_pattern_node2",color=Black, shape=oval, label=<&tau;<sub><font point-size="10">2</font></sub>: ?1 type manifest>, margin=0, tooltip="TRIPLE-PATTERN-NODE2: 
+def (?TESTSET)
+vars-out (?TESTSET)"];
+    triple_pattern_node6[class="TRIPLE-PATTERN-NODE" id="triple_pattern_node6",color=Black, shape=oval, label=<&tau;<sub><font point-size="10">6</font></sub>: ?1 label bind>, margin=0, tooltip="TRIPLE-PATTERN-NODE6: 
+def (?TESTSET)
+vars-out (?TESTSET)"];
+    triple_pattern_node10[class="TRIPLE-PATTERN-NODE" id="triple_pattern_node10",color=Black, shape=oval, label=<&tau;<sub><font point-size="10">10</font></sub>: ?1 entries ?0>, margin=0, tooltip="TRIPLE-PATTERN-NODE10: 
+def (?TESTSET ?ENTRIES)
+vars-out (?TESTSET ?ENTRIES)"];
+  }
+  { rank=same; 
+    alpha_memory3[class="ALPHA-MEMORY" id="alpha_memory3",color=Black, shape=oval, label=<&alpha;<sub>m</sub><sub><font point-size="10">3</font></sub>>, margin=0, tooltip="ALPHA-MEMORY3: 
+vars-in (?TESTSET)
+vars-out (?TESTSET)"];
+    alpha_memory7[class="ALPHA-MEMORY" id="alpha_memory7",color=Black, shape=oval, label=<&alpha;<sub>m</sub><sub><font point-size="10">7</font></sub>>, margin=0, tooltip="ALPHA-MEMORY7: 
+vars-in (?TESTSET)
+vars-out (?TESTSET)"];
+    alpha_memory11[class="ALPHA-MEMORY" id="alpha_memory11",color=Black, shape=oval, label=<&alpha;<sub>m</sub><sub><font point-size="10">11</font></sub>>, margin=0, tooltip="ALPHA-MEMORY11: 
+vars-in (?TESTSET ?ENTRIES)
+vars-out (?TESTSET ?ENTRIES)"];
+  }
+  {
+    beta_memory1[class="BETA-MEMORY" id="beta_memory1",color=Black, shape=oval, label=<&beta;<sub>m</sub><sub><font point-size="10">1</font></sub>>, margin=0, tooltip="BETA-MEMORY1: "];
+    join_node4[class="JOIN-NODE" id="join_node4",color=Black, shape=oval, label=<J<sub><font point-size="10">4</font></sub>>, margin=0, tooltip="JOIN-NODE4: 
+def (?TESTSET)
+vars-out (?TESTSET)"];
+    beta_memory5[class="BETA-MEMORY" id="beta_memory5",color=Black, shape=oval, label=<&beta;<sub>m</sub><sub><font point-size="10">5</font></sub>>, margin=0, tooltip="BETA-MEMORY5: 
+vars-in (?TESTSET)
+vars-out (?TESTSET)"];
+    join_node8[class="JOIN-NODE" id="join_node8",color=Black, shape=oval, label=<J<sub><font point-size="10">8</font></sub>>, margin=0, tooltip="JOIN-NODE8: 
+use (?TESTSET)
+vars-in (?TESTSET)
+vars-out (?TESTSET)"];
+    beta_memory9[class="BETA-MEMORY" id="beta_memory9",color=Black, shape=oval, label=<&beta;<sub>m</sub><sub><font point-size="10">9</font></sub>>, margin=0, tooltip="BETA-MEMORY9: 
+vars-in (?TESTSET)
+vars-out (?TESTSET)"];
+    join_node12[class="JOIN-NODE" id="join_node12",color=Black, shape=oval, label=<J<sub><font point-size="10">12</font></sub>>, margin=0, tooltip="JOIN-NODE12: 
+def (?ENTRIES)
+use (?TESTSET)
+vars-in (?TESTSET)
+vars-out (?TESTSET ?ENTRIES)"];
+    modify_node13[class="MODIFY-NODE" id="modify_node13",color=Black, shape=oval, label=<DI<sub><font point-size="10">13</font></sub>>, margin=0, tooltip="MODIFY-NODE13: 
+vars-in (?TESTSET ?ENTRIES)
+vars-out (?TESTSET ?ENTRIES)"];
+  }
+  triple_pattern_node2 -> alpha_memory3[label=<>];
+  beta_memory1 -> join_node4:nw[label=<>];
+  alpha_memory3 -> join_node4:ne[label=<>, style="dashed"];
+  join_node4 -> beta_memory5[label=<>];
+  triple_pattern_node6 -> alpha_memory7[label=<>];
+  beta_memory5 -> join_node8:nw[label=<>];
+  alpha_memory7 -> join_node8:ne[label=<>, style="dashed"];
+  join_node8 -> beta_memory9[label=<>];
+  triple_pattern_node10 -> alpha_memory11[label=<>];
+  beta_memory9 -> join_node12:nw[label=<>];
+  alpha_memory11 -> join_node12:ne[label=<>, style="dashed"];
+  join_node12 -> modify_node13[label=<>];
+}

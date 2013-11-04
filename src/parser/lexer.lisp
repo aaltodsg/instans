@@ -398,7 +398,7 @@
 						   (when (char=* (aref (chbuf-contents buf) (1- (chbuf-index buf))) #\.)
 						     (unget-char lexer #\.)
 						     (chbuf-drop-last-char buf))
-						   (pname-to-iri lexer prefix-binding (canonize-string lexer buf))))))))))))
+						   (list prefix-binding (canonize-string lexer buf))))))))))))
 
 (defun slurp-hex (lexer buf)
   (let ((ch1 (peekch lexer)))

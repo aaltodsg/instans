@@ -123,7 +123,7 @@
 	    (rule-instance-queue-construct-count queue))
     network))
 
-(defun build-and-execute-sparql-system (rules-file triples-file &key (report-function ) (report-function-arguments ) (output-dir "/Users/enu/cl-instans/testing/output"));  (show-turtle-parse-p nil))
+(defun build-and-execute-sparql-system (rules-file triples-file &key (report-function ) (report-function-arguments ) (output-dir "/Users/enu/instans/tests/output"));  (show-turtle-parse-p nil))
   (catch 'done
   (let* ((network nil))
     (with-open-file (triples-stream triples-file)
