@@ -3,6 +3,8 @@
 ;;; Author: Esko Nuutila (esko.nuutila@aalto.fi)
 ;;;
 
+(in-package :instans)
+
 (defvar *char-buffer* nil)
 
 ;;; ^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?

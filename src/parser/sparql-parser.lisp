@@ -59,7 +59,9 @@
 	       (when reduced (setf ggp (list 'REDUCED ggp)))
 	       (when (or limit offset) (setf ggp (list 'slice ggp limit offset)))))
 	   (get-existing-property-and-value (property list)
-	     (if (find property list) (list property (getf list property)))))
+	     (if (find property list) (list property (getf list property))))
+	   (get-existing-properties-and-values (properties list)
+	     (apply #'append (mapcar #'(lambda (property) (get-existing-property-and-value property list)) properties))))
     (let ((form (getf clauses :query-form)))
       (case form
 	(SELECT
