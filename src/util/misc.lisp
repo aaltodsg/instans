@@ -5,10 +5,7 @@
 
 (in-package #:instans)
 
-(defvar *barf-indent* 0)
-
-(defun barf (&rest args)
-  (apply #'format *error-output* (concatenate 'string "~%~V@T" (first args)) *barf-indent* (rest args)))
+(define-output-function inform)
 
 (defun error* (fmt &rest args)
   (error (apply #'format nil fmt args)))

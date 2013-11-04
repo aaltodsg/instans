@@ -5,8 +5,6 @@
 
 (in-package #:instans)
 
-(defvar *char-buffer* nil)
-
 (define-class abstract-sparql-turtle-lexer (abstract-lexer)
   ((base :accessor lexer-base :initarg :base :initform nil)
    (prefix-table :accessor lexer-prefix-table :initarg :prefix-table :initform (make-binding-table))
@@ -532,7 +530,7 @@
 		 (cond ((get-char-if-looking-at lexer #\.)
 			(cond ((digit-char-p* (peekch lexer)) (eat-fraction lexer (empty-chbuf #\- #\.)))
 			      ((turtlep lexer) (lexer-error lexer "Unrecognized input-token ~C" (peekch lexer)))
-			      (t (unget-char lexer #\.) (barf "~%peekch = ~S" (peekch lexer)) (return-input-token lexer '--TERMINAL "-"))))
+			      (t (unget-char lexer #\.) (return-input-token lexer '--TERMINAL "-"))))
 		       ((digit-char-p* (peekch lexer)) (eat-number lexer (empty-chbuf #\-)))
 		       ((turtlep lexer) (lexer-error lexer "Unrecognized input-token ~C" (peekch lexer)))
 		       (t (return-input-token lexer '--TERMINAL "-"))))

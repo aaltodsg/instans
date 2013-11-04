@@ -117,7 +117,6 @@
     (let ((type (rdf-literal-type this)))
       (when type
 	(let ((descriptor (find-type-descriptor (rdf-iri-string type))))
-;	  (barf "initializing ~S, type = ~S, descriptor = ~S" this type descriptor)
 	  (when descriptor
 	    (setf (rdf-literal-value this) (funcall (type-descriptor-value-parser descriptor) (rdf-literal-string this)))))))))
 
@@ -199,7 +198,7 @@
 
 (defgeneric generate-object-with-unique-name (factory &rest keys &key name-prefix &allow-other-keys)
   (:method ((factory uniquely-named-object-factory) &rest keys &key name-prefix &allow-other-keys)
-;    (let ((generated-name (format nil "~A~@[~A~]~@[~D~]" (slot-value factory 'name-prefix) name-modifier (and (slot-value factory 'name-counter) (incf (slot-value factory 'name-counter))))))
+					;    (let ((generated-name (format nil "~A~@[~A~]~@[~D~]" (slot-value factory 'name-prefix) name-modifier (and (slot-value factory 'name-counter) (incf (slot-value factory 'name-counter))))))
     (let ((generated-name (format nil "~@[~A~]-~D" name-prefix (incf (slot-value factory 'name-counter)))))
       (cond ((null (gethash generated-name (slot-value factory 'objects-by-name)))
 	     (let ((object (apply #'make-instance (slot-value factory 'object-type) :name generated-name keys)))
@@ -254,9 +253,9 @@
 
 (defun list-sparql-ops (&key library-name (sparql-ops *sparql-ops*))
   (cond ((null library-name)
-	 (maphash #'(lambda (key value) (barf "~A -> ~A" key value)) (sparql-ops-ops sparql-ops)))
+	 (maphash #'(lambda (key value) (inform "~A -> ~A" key value)) (sparql-ops-ops sparql-ops)))
 	(t
-	 (maphash #'(lambda (key value) (barf "~A -> ~A" key value)) (sparql-op-library-ops (find-sparql-op-library library-name :sparql-ops sparql-ops))))))
+	 (maphash #'(lambda (key value) (inform "~A -> ~A" key value)) (sparql-op-library-ops (find-sparql-op-library library-name :sparql-ops sparql-ops))))))
 
 (eval-when (:load-toplevel :execute)
   (setf *sparql-unbound* (make-instance 'sparql-unbound))

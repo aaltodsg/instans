@@ -97,11 +97,9 @@
 	    (current-position 0))
 	(labels ((looking-at (ch) (and (< current-position strlen) (char= (char str current-position) ch)))
 		 (eat-int (&optional length delim)
-					;(barf "eat-int ~S ~S ~S" current-position length delim)
 		   (loop with result = 0
 			 with start = current-position
 			 with max = (if (null length) strlen (min strlen (+ start length)))
-					;do (barf "cp = ~D" current-position)
 			 while (and (< current-position max)
 				    (let ((ch (char str current-position)))
 				      (if (digit-char-p ch)

@@ -21,7 +21,7 @@
 (defun sparql-error (fmt &rest args)
   (let ((result (make-instance 'sparql-error :format fmt :arguments args)))
     (case *sparql-error-op*
-      (:warn (barf "Warning: ~S" result))
+      (:warn (warn "Warning: ~S" result))
       (:throw (throw :sparql-error result))
       (:error (error* "~S" result)))
     result))

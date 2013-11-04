@@ -13,7 +13,7 @@
 	   (setf *sparql-error-op* (if warn-on-errors-p :warn nil))	
 	   (loop for file in (directory directory-path)
 		 for parsing = (apply #'sparql-parse-file file :test-mode-p t keys)
-		 when (parsing-failed-p parsing) do (barf "Parsing failed: ~A" (parsing-error-message parsing))
+		 when (parsing-failed-p parsing) do (inform "Parsing failed: ~A" (parsing-error-message parsing))
 		 else do (let ((results (parsing-result parsing)))
 			   (cond ((getf (rest (first results)) :select)
 				  (do-select-tests (first results) file))
@@ -26,13 +26,13 @@
 	with failed = 0
 	for form in forms
         for test = (translate-filter/expression-test form)
-	do (barf "~S" test)
+	do (inform "~S" test)
 	do (multiple-value-bind (p f)
 	       (let ((func (compile nil test)))
 		 (funcall func))
 	     (incf passed p)
 	     (incf failed f))
-	finally (barf "~A: Passed ~D tests, failed ~D tests~%" input-file passed failed)))
+	finally (inform "~A: Passed ~D tests, failed ~D tests~%" input-file passed failed)))
 
 (defun translate-filter/expression-test (form)
   (let* ((attrs (cdr form))
@@ -58,8 +58,8 @@
 		       nconc `(for ,arg in (list ,@(loop for arg-value in arg-values collect (quotify-sparql-value arg-value)))))
 	    for ,expect-var in (list ,@(loop for output in output collect (quotify-sparql-value output)))
 	    for ,result-var = (handler-case 
-				 ,test-expr
-			       (t (v) (describe v) (make-instance 'sparql-runtime-exception :data v)))
+				  ,test-expr
+				(t (v) (describe v) (make-instance 'sparql-runtime-exception :data v)))
 	    count (compare-and-report-filter/expression-test-results ,name (list ,@args) ,expect-var ,result-var) into passed
 	    count t into tests
 	    finally (return (values passed (- tests passed))))))))
@@ -72,10 +72,10 @@
 			   (string= (apply #'format nil (sparql-error-format result) (sparql-error-message-arguments result))
 				    (apply #'format nil (sparql-error-format expect) (sparql-error-message-arguments expect))))))
 	     (and (sparql-runtime-exception-p expect) (sparql-runtime-exception-p result)))
-	 (barf "Test passed: ~@[~A~] (~{~S~^ ~}) -> ~S" name args result)
+	 (inform "Test passed: ~@[~A~] (~{~S~^ ~}) -> ~S" name args result)
 	 t)
 	(t
-	 (barf "Test failed: ~@[~A~] (~{~S~^ ~}) -> ~S does not match expected value ~S" name args result expect)
+	 (inform "Test failed: ~@[~A~] (~{~S~^ ~}) -> ~S does not match expected value ~S" name args result expect)
 	 nil)))
 
 (defun quotify-sparql-value (x)
@@ -126,15 +126,15 @@
 	      (unexpected-solution-tuples (list-difference actual-solution-tuples expected-solution-tuples :test #'sparql-tuple=))
 	      (equal-number-of-solutions (= (length expected-solution-tuples) (length actual-solution-tuples))))
 	  (cond ((and equal-number-of-solutions (every #'sparql-tuple= expected-solution-tuples actual-solution-tuples))
-		 (barf "~A: Test passed, expected and actual solutions are the same and in the same order" input-file))
+		 (inform "~A: Test passed, expected and actual solutions are the same and in the same order" input-file))
 		((and (null unexpected-solution-tuples))
-		 (barf "~A: Test failed, expected and actual solutions are the same, but in a different order" input-file))
+		 (inform "~A: Test failed, expected and actual solutions are the same, but in a different order" input-file))
 		(t
-		 (barf "~A: Test failed." input-file)
+		 (inform "~A: Test failed." input-file)
 		 (when missing-solutions
-		   (barf "~D missing solutions: ~S" (length missing-solutions) missing-solutions))
+		   (inform "~D missing solutions: ~S" (length missing-solutions) missing-solutions))
 		 (when unexpected-solution-tuples
-		   (barf "~D unexpected solutions: ~S" (length unexpected-solution-tuples) unexpected-solution-tuples)))))))))
+		   (inform "~D unexpected solutions: ~S" (length unexpected-solution-tuples) unexpected-solution-tuples)))))))))
 
 (defun sparql-tuple= (t1 t2)
   (and (equal (length t1) (length t2))

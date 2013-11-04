@@ -122,16 +122,16 @@
     (collect-expression-variables (aggregate-join-group this)))
   (:method ((this solution-modifiers-node))
     (list-union (if (eq (solution-modifiers-project-vars this) '*)
-	       (node-def-preceq (node-prev this)) ;;; <- when is this computed?
-	       (solution-modifiers-project-vars this))
-	   (loop for ord in (solution-modifiers-order-by this)
-		 nconc (cond ((member (car ord) '(ASC DESC))
-			      (collect-expression-variables (second ord)))
-			     (t
-			      (collect-expression-variables ord))))))
+		    (node-def-preceq (node-prev this)) ;;; <- when is this computed?
+		    (solution-modifiers-project-vars this))
+		(loop for ord in (solution-modifiers-order-by this)
+		      nconc (cond ((member (car ord) '(ASC DESC))
+				   (collect-expression-variables (second ord)))
+				  (t
+				   (collect-expression-variables ord))))))
   (:method ((this modify-node))
     (list-union (modify-delete-parameters this) (modify-insert-parameters this)
-	   :test #'equal))
+		:test #'equal))
   (:method ((this node)) nil))
 
 ;;; The main operation
@@ -241,7 +241,7 @@
 (defun show-stores (network)
   (loop for node in (network-nodes network)
 	when (and (typep node 'memory) (memory-store node))
-	do (barf "~A:~{~%  ~A~}" node (maph #'(lambda (k v) (declare (ignorable k)) (token-to-pretty-string node v)) (memory-store node)))))
+	do (inform "~A:~{~%  ~A~}" node (maph #'(lambda (k v) (declare (ignorable k)) (token-to-pretty-string node v)) (memory-store node)))))
 
 (defun show-indices (network)
   (let ((index-item-format "~%~A: ~A ~{~%  ~{~A~^ ->~}~}")
@@ -250,13 +250,13 @@
 	  when (typep node 'join-node)
 	  do (progn
 	       (when (join-beta-index node)
-		 (barf index-item-format node "beta"
-		       (maph #'(lambda (k v) (list k (format nil index-values-format (mapcar #'(lambda (tok) (token-to-pretty-string node tok)) v))))
-			     (hash-token-index-table (join-beta-index node)))))
+		 (inform index-item-format node "beta"
+			 (maph #'(lambda (k v) (list k (format nil index-values-format (mapcar #'(lambda (tok) (token-to-pretty-string node tok)) v))))
+			       (hash-token-index-table (join-beta-index node)))))
 	       (when (join-alpha-index node)
-		 (barf index-item-format node "alpha"
-		       (maph #'(lambda (k v) (list k (format nil index-values-format (mapcar #'(lambda (tok) (token-to-pretty-string node tok)) v))))
-			     (hash-token-index-table (join-alpha-index node)))))))))
+		 (inform index-item-format node "alpha"
+			 (maph #'(lambda (k v) (list k (format nil index-values-format (mapcar #'(lambda (tok) (token-to-pretty-string node tok)) v))))
+			       (hash-token-index-table (join-alpha-index node)))))))))
 
 (defun term-to-pretty-string (term)
   (cond ((rdf-iri-p term)

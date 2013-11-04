@@ -93,6 +93,6 @@
        (with-open-file (stream file)
 	 (let ((lexer (make-turtle-lexer stream)))
 	   (funcall parser lexer show-parse-p)
-	   (barf "~%triple-count = ~D, triple-sizes = ~D~%strings: ~D elems, prefixes: ~D elems, keywords: ~D elems"
-		 *triple-count* *triple-sizes* (hash-table-count (lexer-string-table lexer)) (hash-table-count (lexer-prefix-table lexer)) (hash-table-count (lexer-keyword-table lexer)))))))))
+	   (inform "~%triple-count = ~D, triple-sizes = ~D~%strings: ~D elems, prefixes: ~D elems, keywords: ~D elems"
+		   *triple-count* *triple-sizes* (hash-table-count (lexer-string-table lexer)) (hash-table-count (lexer-prefix-table lexer)) (hash-table-count (lexer-keyword-table lexer)))))))))
 

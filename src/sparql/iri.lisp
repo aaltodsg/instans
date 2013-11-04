@@ -5,8 +5,6 @@
 
 (in-package :instans)
 
-(defvar *char-buffer* nil)
-
 ;;; ^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?
 ;;;  12            3  4          5       6  7        8 9
 ;;; scheme    = $2
@@ -32,23 +30,23 @@
 	      finally (progn
 			(setf (rdf-iri-authority result) (result-component authority))
 			(setf chars rest))))
-    (loop for rest on chars
-	  for char = (car rest)
-	  while (not (char-in-set-p* char "?#")) collect char into path
-	  finally (multiple-value-bind (cleaned dotsp) (remove-dot-segments path)
-		    (setf (rdf-iri-path result) (result-component cleaned))
-		    (setf (rdf-iri-had-dot-segments-p result) dotsp)
-		    (setf chars rest)))
-    (when (char=* (first chars) #\?)
-      (loop for rest on (cdr chars)
+      (loop for rest on chars
 	    for char = (car rest)
-	    while (not (char-in-set-p* char "#")) collect char into query
-	    finally (progn
-		      (setf (rdf-iri-query result) (result-component query))
-		      (setf chars rest))))
-    (when (char=* (first chars) #\#)
-      (setf (rdf-iri-fragment result) (result-component (cdr chars))))
-    result)))
+	    while (not (char-in-set-p* char "?#")) collect char into path
+	    finally (multiple-value-bind (cleaned dotsp) (remove-dot-segments path)
+		      (setf (rdf-iri-path result) (result-component cleaned))
+		      (setf (rdf-iri-had-dot-segments-p result) dotsp)
+		      (setf chars rest)))
+      (when (char=* (first chars) #\?)
+	(loop for rest on (cdr chars)
+	      for char = (car rest)
+	      while (not (char-in-set-p* char "#")) collect char into query
+	      finally (progn
+			(setf (rdf-iri-query result) (result-component query))
+			(setf chars rest))))
+      (when (char=* (first chars) #\#)
+	(setf (rdf-iri-fragment result) (result-component (cdr chars))))
+      result)))
 
 (defun remove-dot-segments (list)
   (flet ((prefixp (prefix list)
@@ -59,7 +57,6 @@
 		      finally (return t)))))
     (loop with output = nil
 	  while list
-;	  do (barf "list = ~S, output = ~S~%" (coerce list 'string) (mapcar #'(lambda (x) (coerce x 'string)) output))
 	  do (cond ((prefixp '(#\. #\/) list)
 		    (setf list (cddr list)))
 		   ((prefixp '(#\. #\. #\/) list)
@@ -81,7 +78,7 @@
 		      (loop while (and list (not (char= (car list) #\/)))
 			    do (push (pop list) segment))
 		      (push (nreverse segment) output))))
-	 finally (return (apply #'append (nreverse output))))))
+	  finally (return (apply #'append (nreverse output))))))
 
 (defun recompose-iri (iri)
   (let ((parts nil))

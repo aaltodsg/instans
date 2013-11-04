@@ -586,7 +586,7 @@
 	 (displayed-bindings (loop for var in used-vars
 				   for var-orig-name = (car (rassoc (second var) (second (node-bindings node))))
 				   collect (list var-orig-name (token-value node token var)))))
-    (barf "Rule ~A~%~{~{       ~A = ~S~}~^,~%~}~%" node displayed-bindings)))
+    (inform "Rule ~A~%~{~{       ~A = ~S~}~^,~%~}~%" node displayed-bindings)))
 
 (defgeneric execute-rule-node (node token)
   (:method ((this select-node) token)

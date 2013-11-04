@@ -55,7 +55,6 @@
        (when (null base-previous)
 	 (setf base-previous (list base))
 	 (push base-previous *generated-nonterminals*))
-       ;(barf "~%~A~%" base-previous)
        (let* ((prime-count (length base-previous))
 
 	      (name (intern (format nil "~A~{~A~}~@['~]" base (loop for i from 1 to (floor prime-count 2) collect #\") (oddp prime-count)))))

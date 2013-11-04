@@ -55,12 +55,10 @@
 	(true-condition-found-p nil)
 	(default-body nil)
 	(default-body-present-p nil))
-;    (barf "specs ~A" specs)
     (when (eq (car (car (last specs))) :default)
       (setf default-body-present-p t)
       (setf default-body (cdr (car (last specs))))
-      (setf specs (butlast specs))
-      (barf "Found default: ~S, specs now ~S" default-body specs))
+      (setf specs (butlast specs)))
     (list `(cond ,@(loop for (method-sym inner-args-spec . body) in specs
 			 for inner-lambda-list = (make-sparql-function-lambda-list inner-args-spec)
 			 for inner-ignorable = (collect-ignorable inner-lambda-list)
@@ -71,7 +69,6 @@
 			 collect (loop for inner-item in inner-args-spec
 				       for prev-optional-p = nil then optionalp
 				       for optionalp = (eq inner-item '&optional)
-					;				 do (barf "~A: inner-item = ~A, optionalp = ~A, prev-optional-p = ~A" name inner-item optionalp prev-optional-p)
 				       unless (or prev-optional-p (symbolp inner-item))
 				       collect `(typep ,(car inner-item) ',(second inner-item)) into tests
 				       finally (progn
@@ -166,7 +163,7 @@
 		,(if (eq return-type 'literal-or-string)
 		     `(make-instance 'rdf-literal :string (,string-operation (rdf-literal-string arg1) (rdf-literal-string arg2)) :lang (rdf-literal-lang arg1))
 		     `(,string-operation (rdf-literal-string arg1) (rdf-literal-string arg2)))))))))
-  
+
 (defmacro sparql-call (name &rest args)
   (multiple-value-bind (library-name op-name)
       (split-sparql-op-prefixed-name name)
