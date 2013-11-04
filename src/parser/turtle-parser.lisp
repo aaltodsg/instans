@@ -38,6 +38,7 @@
 	     (emit (s p o)
 	       (incf *triple-count*)
 	       (incf *triple-sizes* (+ (term-size s) (term-size p) (term-size o)))
+	       (inform "emit ~S ~S ~S" s p o)
 	       (setf (cdr triples-last) (list (list s p o)))
 	       (setf triples-last (cdr triples-last)))
 	     (emit-subj-pred-obj-list (s pol)

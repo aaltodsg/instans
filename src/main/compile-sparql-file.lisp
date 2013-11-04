@@ -137,7 +137,8 @@
 								       (process-triple-input network triples '(:add :execute))))))
 	(initialize-execution network)
 	(warn "~%Processing triples triples:~%")
-	(time (funcall triples-parser triples-lexer)))))))
+	(time (funcall triples-parser triples-lexer))
+	network)))))
 
 (defgeneric process-triple-input (network triples ops &key graph)
   (:method ((this network) triples ops &key graph)

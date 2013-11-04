@@ -2,4 +2,8 @@
 - .config/common-lisp/source-registry.conf.d
 - Parser generator: :RESULT nil not working. Replaced it by :RESULT (progn nil), but should fix the generator.
 - indices.lisp: are the hash functions OK?
-- Split barf to two different functions: one for debugging and another for informing the user
+- Check that triple emitting produces the results in the right order
+- Fix the hashing of rdf-iri's and other values in triple-pattern-matcher
+  - Or canonize all values, so that eql (or equal) would work.
+  - Maybe has to use weak hash tables?
+

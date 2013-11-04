@@ -64,7 +64,7 @@
   ((string-map :accessor type-descriptors-string-map :initform (make-hash-table :test #'equal))))
 
 (define-class uniquely-named-object-factory ()
-  ((object-type :initarg :object-type :allocation :class)
+  ((object-type :initarg :object-type)
    (name-counter :initform -1)
    (objects-by-name :initform (make-hash-table))))
 
@@ -209,7 +209,7 @@
 (defun make-rdf-blank-node (name)
   (make-uniquely-named-object *rdf-blank-node-factory* name))
 
-(defun generate-rdf-blank-node (&optional name-prefix)
+(defun generate-rdf-blank-node (&optional (name-prefix "_:!"))
   (generate-object-with-unique-name *rdf-blank-node-factory* :name-prefix name-prefix))
 
 (defun make-sparql-var (name)

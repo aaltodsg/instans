@@ -61,7 +61,7 @@
 	 (obj (third triple-pattern))
 	 (graph (triple-pattern-node-dataset triple-pattern-node))
 	 (existsp t))
-    (flet ((add-node () (setf existsp nil) (if graph (cons triple-pattern-node graph) graph)))
+    (flet ((add-node () (setf existsp nil) (if graph (cons triple-pattern-node graph) triple-pattern-node)))
       (let ((result (cond ((sparql-var-p subj)
 			   (cond ((sparql-var-p pred)
 				  (cond ((sparql-var-p obj) ;;; xxx
@@ -86,7 +86,7 @@
 
 (defun match-quad (tm subj pred obj graph)
   (let ((result nil))
-    (flet ((match? (triple &rest args) (if triple (push (cons triple (cons graph args)) result))))
+    (flet ((match? (triple-node &rest args) (if triple-node (push (cons triple-node (cons graph args)) result))))
       (match? (triple-pattern-matcher-xxx tm) subj pred obj)
       (let ((table (triple-pattern-matcher-sxx tm))) (if table (match? (gethash subj table) pred obj)))
       (let ((table (triple-pattern-matcher-xpx tm))) (if table (match? (gethash pred table) graph subj obj)))
