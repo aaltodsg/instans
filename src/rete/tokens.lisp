@@ -29,7 +29,7 @@
 	   (new-token (cdr prev-token))) ; We eliminate the key of prev-token
       (loop for var in new-vars for value in new-values
 	 do (push (list var value) new-token)
-	 do (setf key (mix (sxhash (list var value)) key)))
+	 do (setf key (mix (sxhash (list (hashable-key var) (hashable-key value))) key)))
       (cons (list nil key) new-token))))
 
 ;;; We can freely skip the first item of token, since it should be (nil key)!

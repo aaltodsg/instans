@@ -362,7 +362,7 @@
 	(index-put-token (join-alpha-index this) key alpha-token))
       (loop for beta-token in (cond ((null key) (store-tokens (join-beta this)))
 				    (t (index-get-tokens (join-beta-index this) key)))
-	    for new-token = (make-token this beta-token (node-def this) alpha-token)
+	    for new-token = (make-token this beta-token (node-def this) (loop for var in (node-def this) collect (second (assoc var alpha-token))))
 	    do (call-succ-nodes #'add-token this new-token stack)))))
 
 (defgeneric add-beta-token (join beta-token &optional stack)
@@ -584,7 +584,7 @@
 (defun report-rule-execution (node token)
   (let* ((used-vars (if (select-node-p node) (node-use (node-prev node)) (node-use node)))
 	 (displayed-bindings (loop for var in used-vars
-				   for var-orig-name = (car (rassoc (second var) (second (node-bindings node))))
+				   for var-orig-name = (car (rassoc var (bindings-alist (node-bindings node))))
 				   collect (list var-orig-name (token-value node token var)))))
     (inform "Rule ~A~%~{~{       ~A = ~S~}~^,~%~}~%" node displayed-bindings)))
 
