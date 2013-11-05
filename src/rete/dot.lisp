@@ -35,7 +35,7 @@
   (:method ((this union-end-node)) (dot-default-pretty-name-format "}U"))
   (:method ((this filter-node)) (dot-default-pretty-name-format "F"))
   (:method ((this filter-memory)) (dot-default-pretty-name-format "FM"))
-  (:method ((this bind-node)) (dot-default-pretty-name-format (format nil "B[~A]" (second (bind-variable this)))))
+  (:method ((this bind-node)) (dot-default-pretty-name-format (format nil "B[~A]" (uniquely-named-object-name (bind-variable this)))))
   (:method ((this aggregate-join-node)) (dot-default-pretty-name-format "AJ"))
   (:method ((this solution-modifiers-node)) (dot-default-pretty-name-format "SM"))
   (:method ((this select-node)) (dot-default-pretty-name-format "S"))
@@ -56,11 +56,6 @@
 							 (shorten-string (rdf-literal-string x)))
 							(t x)))
 				    triple-pattern))))
-
-(defun dot-tooltip (node)
-  (format nil "def=~A, use=~A"
-	  (if (slot-boundp node 'def) (mapcar #'second (node-def node)) 'unbound)
-	  (if (slot-boundp node 'use) (mapcar #'second (node-use node)) 'unbound)))
 
 (defun var-name (node var)
   (let* ((to (second var))
@@ -128,6 +123,12 @@
     (format nil "~A: ~@[~%def ~A~]~@[~%use ~A~]~@[~%vars-in ~A~]~@[~%vars-out ~A~]" (node-name this)
 	    (var-orig-names this (node-def this)) (var-orig-names this (node-use this))
 	    (var-orig-names this (node-vars-in this)) (var-orig-names this (node-vars-out this)))))
+
+(defmethod dot-node-tooltip :around ((this bind-node))
+  (format nil "~A~%~A" (call-next-method) (bind-form-lambda this)))
+
+(defmethod dot-node-tooltip :around ((this filter-node))
+  (format nil "~A~%~A" (call-next-method) (filter-test-lambda this)))
 
 (defgeneric dot-node-description (node &key html-labels-p shape show-vars-p)
   (:documentation "Returns a dot node description.")

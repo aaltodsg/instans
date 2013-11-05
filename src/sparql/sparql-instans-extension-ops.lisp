@@ -14,3 +14,8 @@
 (define-sparql-function "datetime:datetime_in_seconds" (:arguments ((x xsd-datetime-value)) :returns xsd-number-value)
   (:method ((x xsd-datetime-value)) (datetime-in-seconds x)))
 
+(define-sparql-function "instans:create_rete" (:arguments ((rules rdf-iri)) :returns rdf-iri)
+  (:method ((rules rdf-iri))
+    (instans-compile-rules rules)))
+
+

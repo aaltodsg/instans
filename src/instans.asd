@@ -6,6 +6,7 @@
 
 (ql:quickload "cl-ppcre")
 (ql:quickload "cl-unicode")
+(ql:quickload "drakma")
 (ql:quickload "xmls")
 ;(ql:quickload "lisp-unit")
 ;(ql:quickload "cl-json")

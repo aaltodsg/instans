@@ -509,12 +509,16 @@
 	    (setf mode (if testingp :testing :query))
 	    (apply #'sparql-parser lexer keys))))))
 
-(defun sparql-parse-file (query-file &key show-parse-p (newline-positions (list nil)) test-mode-p)
-  (declare (ignorable show-parse-p))
+(defun sparql-parse-file (query-file &rest keys &key show-parse-p (newline-positions (list nil)) test-mode-p)
+  (declare (ignorable show-parse-p newline-positions test-mode-p))
   (with-open-file (input-stream query-file)
-    (let* ((lexer (make-instance 'sparql-lexer :input-stream input-stream :newline-positions newline-positions))
-	   (parser (make-sparql-parser test-mode-p)))
-      (funcall parser lexer :show-parse-p show-parse-p))))
+    (apply #'sparql-parse-stream input-stream keys)))
+
+(defun sparql-parse-stream (input-stream &key show-parse-p (newline-positions (list nil)) test-mode-p)
+  (declare (ignorable show-parse-p))
+  (let* ((lexer (make-instance 'sparql-lexer :input-stream input-stream :newline-positions newline-positions))
+	 (parser (make-sparql-parser test-mode-p)))
+    (funcall parser lexer :show-parse-p show-parse-p)))
 
 (defun sparql-parse-files (directory-path &key show-parse-p print-input-p print-result-p test-mode-p)
   (loop for file in (directory directory-path)

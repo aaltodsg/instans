@@ -11,22 +11,20 @@ msg() {
 
 if test $# -eq 1 ; then
     SPARQL=$1
-    BN=`basename $1 .rq`
-    BN=`basename $BN .sparql`
-    DN=`dirname $1`
-    ODN=${DN%input}output
-    SA=${ODN}/$BN.sa
-    DOT=${ODN}/$BN.dot
-    OUTPUT=${ODN}/$BN.html
-elif test $# -eq 5 ; then
+    OUTPUT_DIR="."
+elif test $# -eq 2; then
     SPARQL=$1
-    SA=$2
-    DOT=$3
-    OUTPUT=$4
+    OUTPUT_DIR=$2
 else
-    msg "Usage: mk-html sparql [sa re dot output]"
+    msg "Usage: mk-html sparql [output]"
     exit 1
 fi
+BN=`basename $SPARQL .rq`
+BN=`basename $BN .sparql`
+SA=${OUTPUT_DIR}/$BN.sa
+DOT=${OUTPUT_DIR}/$BN.dot
+OUTPUT=${OUTPUT_DIR}/$BN.html
+
 msg SPARQL=${SPARQL}, SA=${SA}, DOT=${DOT}, OUTPUT=${OUTPUT}
 {
 cat > $OUTPUT <<EOF
@@ -40,7 +38,12 @@ cat > $OUTPUT <<EOF
 <table border="1" cellspacing="0" cellpadding="4"><tr><td>
 <pre>
 EOF
+if test `expr $SPARQL : 'http://'` -eq 7 -o `expr $SPARQL : 'https://'` -eq 8 ; then
+msg "curl $SPARQL"
+curl $SPARQL | sed '/</s//\&lt;/g' | sed '/>/s//\&gt;/g' >> $OUTPUT
+else
 cat $SPARQL | sed '/</s//\&lt;/g' | sed '/>/s//\&gt;/g' >> $OUTPUT
+fi
 cat >> $OUTPUT <<EOF
 </pre>
 </td>
@@ -63,3 +66,4 @@ cat >> $OUTPUT <<EOF
 </html>
 EOF
 } >> ${LOGFILE} 2>&1
+rm -f $SA $DOT

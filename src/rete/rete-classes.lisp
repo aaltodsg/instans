@@ -74,7 +74,7 @@
  ((variable :accessor bind-variable :initarg :variable)
    (form :accessor bind-form :initarg :form)
    (form-parameters :accessor bind-form-parameters :initarg :form-parameters)
-   (form-lambda :accessor filter-form-lambda :initarg :form-lambda)
+   (form-lambda :accessor bind-form-lambda :initarg :form-lambda)
    (form-func :accessor bind-form-func)))
 
 (define-class union-start-node (subgraph-start-node) ())

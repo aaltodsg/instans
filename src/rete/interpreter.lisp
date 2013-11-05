@@ -41,9 +41,9 @@
 ;;; Rule add/remove
 ;;; ---------------
 
-(defgeneric add-rules-from-file (network rules-file &key output-dir)
-  (:method ((this network) rules-file &key output-dir)
-    (compile-sparql-file rules-file :network this :output-dir output-dir)))
+(defgeneric add-rules-from-file (network rules-file &key output-directory)
+  (:method ((this network) rules-file &key output-directory)
+    (compile-sparql-file rules-file :network this :output-directory output-directory)))
 
 (defgeneric rete-add-rule-instance (network node token)
   (:method ((this network) (node node) token)

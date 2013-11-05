@@ -503,8 +503,14 @@
 	(loop with input-token = (next-input-token)
 	      for round from 0
 	      while (and (parsing-stack parsing) input-token)
-	      do (when show-parse-p (inform "~%Round ~D:~&input-token =  ~S~&stack =  ~A~&result ="
-					  round input-token (reverse (parsing-stack parsing)))
+	      do (when show-parse-p
+		   (inform "~%Round ~D:~&input-token = ~A~&stack = "
+			   round (if (and (consp input-token) (eq (car input-token) 'input-token))
+				     (format nil "(~A ~S ~{~S~^ ~})" (car input-token) (number-to-symbol-or-production (second input-token) parser) (cddr input-token))
+				     input-token))
+		       (loop for x in (reverse (parsing-stack parsing))
+			     do (inform "~S " (number-to-symbol-or-production x parser)))
+		       (inform "~&result = ")
 		       (loop for v in (parsing-result-stack parsing) do (let ((*print-right-margin* 150)) (inform "  ~S" v))))
 	      do (progn
 		   (setf (parsing-position parsing) (input-token-position input-token))

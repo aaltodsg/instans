@@ -320,10 +320,11 @@
 	finally (cond ((char=* ch #\.)
 		       (chbuf-put-char buf (get-char lexer))
 		       (eat-fraction lexer buf))
-		      (t (return-input-token lexer 'INTEGER-TERMINAL ;(if (turtlep lexer)
-					     (instans::parse-xsd-integer (chbuf-contents buf) :start 0 :end (chbuf-index buf))
-					;(chbuf-string buf))
-					     )))))
+		      (t (return-input-token lexer (cond ((turtlep lexer) 'INTEGER-TERMINAL)
+							 ((char= #\+ (elt (chbuf-contents buf) 0)) 'INTEGER_POSITIVE-TERMINAL)
+							 ((char= #\- (elt (chbuf-contents buf) 0)) 'INTEGER_NEGATIVE-TERMINAL)
+							 (t 'INTEGER-TERMINAL))
+					     (instans::parse-xsd-integer (chbuf-contents buf) :start 0 :end (chbuf-index buf)))))))
 
 (defun eat-fraction (lexer buf) ; There may be a sign and integral part. Last of buf is #\., which we have already consumed. We are looking at a digit.
   (loop for ch = (peekch lexer)
@@ -331,11 +332,11 @@
 	do (chbuf-put-char buf (get-char lexer))
 	finally (cond ((char-in-set-p* (peekch lexer) "Ee")
 		       (return (eat-exponent lexer buf)))
-		      (t
-		       (return-input-token lexer 'DECIMAL-TERMINAL ;(if (turtlep lexer) 
-					   (instans::parse-xsd-decimal (chbuf-contents buf) :start 0 :end (chbuf-index buf))
-					; (chbuf-string buf))
-					   )))))
+		      (t (return-input-token lexer (cond ((turtlep lexer) 'DECIMAL-TERMINAL)
+							 ((char= #\+ (elt (chbuf-contents buf) 0)) 'DECIMAL_POSITIVE-TERMINAL)
+							 ((char= #\- (elt (chbuf-contents buf) 0)) 'DECIMAL_NEGATIVE-TERMINAL)
+							 (t 'DECIMAL-TERMINAL))
+					     (instans::parse-xsd-decimal (chbuf-contents buf) :start 0 :end (chbuf-index buf)))))))
 
 (defun eat-exponent (lexer buf) ;; (peekch lexer) in "eE"
   (chbuf-put-char buf (get-char lexer))
@@ -346,10 +347,11 @@
   (loop for ch = (peekch lexer)
 	while (digit-char-p* ch)
 	do (chbuf-put-char buf (get-char lexer))
-	finally (return-input-token lexer 'DOUBLE-TERMINAL ;(if (turtlep lexer)
-				    (instans::parse-xsd-double (chbuf-contents buf) :start 0 :end (chbuf-index buf))
-					;(chbuf-string buf))
-				    )))
+	finally (return-input-token lexer (cond ((turtlep lexer) 'DOUBLE-TERMINAL)
+						((char= #\+ (elt (chbuf-contents buf) 0)) 'DOUBLE_POSITIVE-TERMINAL)
+						((char= #\- (elt (chbuf-contents buf) 0)) 'DOUBLE_NEGATIVE-TERMINAL)
+						(t 'DOUBLE-TERMINAL))
+				    (instans::parse-xsd-double (chbuf-contents buf) :start 0 :end (chbuf-index buf)))))
 
 (defun eat-blank-node-label (lexer) ; We saw _:, must get-char : first
   (let* ((first-char (get-char lexer))
@@ -523,7 +525,7 @@
 			(cond ((digit-char-p* (peekch lexer)) (eat-fraction lexer (empty-chbuf #\.)))
 			      ((turtlep lexer) (lexer-error lexer "Unrecognized input-token ~C" (peekch lexer)))
 			      (t (unget-char lexer #\.) (return-input-token lexer '+-TERMINAL "+"))))
-		       ((digit-char-p* (peekch lexer)) (eat-number lexer (empty-chbuf)))
+		       ((digit-char-p* (peekch lexer)) (eat-number lexer (empty-chbuf #\+)))
 		       ((turtlep lexer) (lexer-error lexer "Unrecognized input-token ~C" (peekch lexer)))
 		       (t (return-input-token lexer '+-TERMINAL "+"))))
 		((get-char-if-looking-at lexer #\,) (return-input-token lexer '|,-TERMINAL| ","))

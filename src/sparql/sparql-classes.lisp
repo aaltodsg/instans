@@ -20,6 +20,7 @@
 (defvar *sparql-var-factory*)
 (defvar *sparql-ops*)
 (defvar *sparql-standard-op-library*)
+(defvar *instans-op-library*)
 (defvar *instans-math-extension-op-library*)
 (defvar *instans-datetime-extension-op-library*)
 
@@ -268,7 +269,8 @@
   (setf *sparql-ops* (make-instance 'sparql-ops))
   (setf *sparql-standard-op-library* (add-sparql-op-library :prefix "" :iri-string "http://www.w3.org/TR/sparql11-query/#SparqlOps#"))
   (setf *instans-math-extension-op-library* (add-sparql-op-library :prefix "math" :iri-string "http://instans.org/extensions/math#"))
-  (setf *instans-datetime-extension-op-library* (add-sparql-op-library :prefix "datetime" :iri-string "http://instans.org/extensions/datetime#")))
+  (setf *instans-datetime-extension-op-library* (add-sparql-op-library :prefix "datetime" :iri-string "http://instans.org/extensions/datetime#"))
+  (setf *instans-op-library* (add-sparql-op-library :prefix "instans" :iri-string "http://instans.org/extensions/instans#")))
 
 (defun initialize-uniquely-named-object-factories ()
   (setf *rdf-blank-node-factory* (make-instance 'uniquely-named-object-factory :object-type 'rdf-blank-node))
