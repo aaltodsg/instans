@@ -66,4 +66,3 @@ cat >> $OUTPUT <<EOF
 </html>
 EOF
 } >> ${LOGFILE} 2>&1
-rm -f $SA $DOT

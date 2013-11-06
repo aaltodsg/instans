@@ -13,7 +13,7 @@
   (:method ((this network) subj pred obj graph)
     (let ((quad-store (network-quad-store this)))
       (when quad-store (add-quad quad-store (list subj pred obj graph))))
-    (incf (network-add-quad-count this))
+;    (incf (network-add-quad-count this))
     (loop for (alpha . args) in (match-quad (network-triple-pattern-matcher this) subj pred obj graph)
 	  do (add-token alpha args))))
 
@@ -21,7 +21,7 @@
   (:method ((this network) subj pred obj graph)
     (let ((quad-store (network-quad-store this)))
       (when quad-store (remove-quad quad-store (list subj pred obj graph))))
-    (incf (network-remove-quad-count this))
+;    (incf (network-remove-quad-count this))
     (loop for (alpha . args) in (match-quad (network-triple-pattern-matcher this) subj pred obj graph)
 	  do (remove-token alpha args))))
 

@@ -5,7 +5,18 @@
 
 (in-package #:instans)
 
+(defun parse-srx-from-url (iri)
+  (let* ((input-name (rdf-iri-string iri))
+	 (data (drakma:http-request input-name))
+	 (string (cond ((stringp data) data) (t (coerce (mapcar #'code-char (coerce data 'list)) 'string)))))
+    (with-input-from-string (stream string)
+      (parse-srx-stream stream :filename (rdf-iri-string iri)))))
+
 (defun parse-srx-file (filename)
+  (with-open-file (stream filename)
+    (parse-srx-stream stream :filename filename)))
+
+(defun parse-srx-stream (stream &key filename)
   (declare (special *sparql-var-factory*))
   (unless (boundp '*sparql-var-factory*) ;; For testing
     (initialize-uniquely-named-object-factories))
@@ -71,7 +82,7 @@
 	     (translate-variable (args orig-form)
 	       (let ((name-elem (first (first args))))
 		 (unless (string= (first name-elem) "name") (srx-error "Illegal variable:~%translated ~S~%parsed     ~S" args orig-form))
-		 (make-sparql-var (second name-elem))))
+		 (make-sparql-var (format nil "?~A" (string-upcase (second name-elem))))))
 	     (translate-link (args orig-form)
 	       (let ((href-elem (first (first args))))
 		 (unless (string= (first href-elem) "href") (srx-error "Illegal link:~%translated ~S~%parsed     ~S" args orig-form))
@@ -87,7 +98,7 @@
 		 (unless (string= (first name-elem) "name") (srx-error "Illegal binding:~%translated ~S~%parsed     ~S" args orig-form))
 		 (let ((name (second name-elem))
 		       (value (second args)))
-		   (create-sparql-binding (make-sparql-var name) value))))
+		   (create-sparql-binding (make-sparql-var (format nil "?~A" (string-upcase name))) value))))
 	     (translate-iri (args orig-form)
 	       (cond ((null (first args))
 		      (parse-iri (second args)))
@@ -106,8 +117,7 @@
 	       (cond ((null (first args))
 		      (parse-xsd-boolean (second args)))
 		     (t (srx-error "Illegal format boolean:~%translated ~S~%parsed     ~S" args orig-form)))))
-      (let* ((parsed (with-open-file (s filename)
-		       (xmls:parse s)))
+      (let* ((parsed (xmls:parse stream))
 	     (translated (tr parsed)))
 	translated))))
 

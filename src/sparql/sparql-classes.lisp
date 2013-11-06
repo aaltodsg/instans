@@ -225,6 +225,18 @@
 (defun create-sparql-result (bindings)
   (make-instance 'sparql-result :bindings bindings))
 
+(defgeneric sparql-result-equal (r1 r2)
+  (:method ((r1 sparql-result) (r2 sparql-result))
+    (let ((bl1 (sparql-result-bindings r1))
+	  (bl2 (sparql-result-bindings r2)))
+      (and (= (length bl1) (length bl2))
+	   (every #'(lambda (b1) (find b1 bl2 :test #'sparql-binding-equal)) bl1)))))
+
+(defgeneric sparql-binding-equal (b1 b2)
+  (:method ((b1 sparql-binding) (b2 sparql-binding))
+    (and (uniquely-named-object-equal (sparql-binding-variable b1) (sparql-binding-variable b2))
+	 (sparql-call "=" (sparql-binding-value b1) (sparql-binding-value b2)))))
+
 (defun create-sparql-link (href)
   (make-instance 'sparql-link :href href))
 
