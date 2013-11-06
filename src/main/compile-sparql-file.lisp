@@ -143,6 +143,19 @@
 	      (t
 	       (error* "Illegal op ~S" op))))))
 
+(defvar *retes* (make-hash-table :test #'equal))
+
+(defun instans-create-rete ()
+  (let* ((rete-iri (parse-iri (format nil "http://www.cse.aalto.fi/instans/retes/~A" (string (gensym "RETE")))))
+	 (rete-name (rdf-iri-string rete-iri)))
+    (setf (gethash rete-name  *retes*) (make-instance 'network :name rete-name :bindings (make-bindings)))
+    rete-iri))
+
+(defun instans-get-rete (rete-iri)
+  (let ((rete-name (rdf-iri-string rete-iri)))
+    (or (gethash rete-name *retes*)
+	(sparql-error "RETE named ~S does not exist!" rete-name))))
+
 (defun instans-compile-rules (rules-iri &key output-directory)
   (let* ((bytes (drakma:http-request rules-iri))
 	 (string (coerce (mapcar #'code-char (coerce bytes 'list)) 'string)))
@@ -150,3 +163,15 @@
     (with-input-from-string (stream string)
 ;      (sparql-parse-stream stream)
       (compile-sparql-stream stream :input-name rules-iri :output-directory output-directory))))
+
+(defun instans-add-rules (rete-iri rules-iri &key output-directory)
+  (let ((network (instans-get-rete rete-iri)))
+    (cond ((sparql-error-p network) network)
+	  (t
+	   (let* ((input-name (rdf-iri-string rules-iri))
+		  (bytes (drakma:http-request input-name))
+		  (string (coerce (mapcar #'code-char (coerce bytes 'list)) 'string)))
+	     (inform "~S" string)
+	     (with-input-from-string (stream string)
+					;      (sparql-parse-stream stream)
+	       (compile-sparql-stream stream :network network :input-name input-name :output-directory output-directory)))))))
