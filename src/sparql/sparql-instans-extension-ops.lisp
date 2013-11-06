@@ -63,9 +63,9 @@
 			  (inform "Observed:")
 			  (show-solutions observed-result-list))
 			 (t
-			  (inform "Expected solutions that were not observed:")
+			  (inform "Expected solutions not observed:")
 			  (show-solutions expected-minus-observed)
-			  (inform "Observed solutions that were not expected:")
+			  (inform "Observed solutions not expected:")
 			  (show-solutions observed-minus-expected)))))
 		nil))))))
 
