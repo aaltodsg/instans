@@ -97,5 +97,3 @@
       (push (rdf-iri-scheme iri) parts))
     (setf (rdf-iri-string iri) (apply #'concatenate 'string parts))
     iri))
-
-

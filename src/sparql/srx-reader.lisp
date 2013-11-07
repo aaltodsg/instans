@@ -6,11 +6,15 @@
 (in-package #:instans)
 
 (defun parse-srx-from-url (iri)
-  (let* ((input-name (rdf-iri-string iri))
-	 (data (drakma:http-request input-name))
-	 (string (cond ((stringp data) data) (t (coerce (mapcar #'code-char (coerce data 'list)) 'string)))))
-    (with-input-from-string (stream string)
-      (parse-srx-stream stream :filename (rdf-iri-string iri)))))
+  (cond ((string= (rdf-iri-scheme iri) "file")
+	 (describe iri)
+	 (parse-srx-file (rdf-iri-path iri)))
+	(t
+	 (let* ((input-name (rdf-iri-string iri))
+		(data (drakma:http-request input-name))
+		(string (cond ((stringp data) data) (t (coerce (mapcar #'code-char (coerce data 'list)) 'string)))))
+	   (with-input-from-string (stream string)
+	     (parse-srx-stream stream :filename (rdf-iri-string iri)))))))
 
 (defun parse-srx-file (filename)
   (with-open-file (stream filename)

@@ -55,8 +55,7 @@
 		     (args (rest expr)))
 		 (case op
 		   (ZERO-PATTERN
-		    (assert (null prev))
-		    (make-or-share-instance 'beta-memory :prev prev))
+		    (or prev (make-or-share-instance 'beta-memory :prev nil)))
 		   (BGP (loop for triple-pattern in args
 			      do (progn
 				   (assert* (not (member 'PATH triple-pattern)) "Cannot handle paths yet ~S" triple-pattern)
@@ -70,7 +69,7 @@
 		   (EXTEND (setf prev (translate (first args) prev dataset))
 			   (let ((var (second args))
 				 (form (third args)))
-			     (cond ((eq (first form) 'agg)
+			     (cond ((and (consp form) (eq (first form) 'agg))
 				    (assert* (typep prev 'aggregate-join-node) "AGG not inside an aggregate-join-node: ~S inside ~S" form prev)
 				    (let ((var-aggr-list (aggregate-join-var-aggr-list prev)))
 				      (setf (first (nth (- (second form) 1) var-aggr-list)) var)))
@@ -138,9 +137,10 @@
 				  (t
 				   (translate `(FILTER ,e1 ,(create-sparql-call "!" `(EXISTS ,e2))) prev dataset)))))
 		   (UNION (let* ((start (if (and prev (typep prev 'beta-memory) (null (node-prev prev))) prev (make-or-share-instance 'union-start-node :prev prev)))
-				 (arg1-end (translate (first args) start dataset))
-				 (arg2-end (translate (second args) start dataset)))
-			    (make-or-share-instance 'union-end-node :prev1 arg1-end :prev2 arg2-end)))
+				 (arg1-end (translate (first (first args)) start dataset))
+				 (arg2-end (translate (second (first args)) start dataset))
+				 (end (make-or-share-instance 'union-end-node :prev1 arg1-end :prev2 arg2-end :start-node start)))
+			    (setf (subgraph-end-node start) end)))
 		   (AGGREGATEJOIN (let* ((aggregations (first args))
 					 (aggregation-specs (mapcar #'(lambda (a) (list (generate-and-canonize-var "!AGG") (second a) (third a) (fourth a))) aggregations))
 					 (agg1 (first aggregations))
