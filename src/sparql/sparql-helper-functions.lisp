@@ -9,6 +9,9 @@
 
 (defvar *sparql-error-op* :throw)
 
+(defun sparql-error-on-errors ()
+  (setf *sparql-error-op* :error))
+
 (defun sparql-warn-on-errors ()
   (setf *sparql-error-op* :warn))
 

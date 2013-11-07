@@ -200,6 +200,7 @@
 		 (cond ((null sparql-op)
 			(parsing-failure "~A does not name a Sparql function or form" iri))
 		       (t
+			(inform "create-call-through-iri ~A ~A" sparql-op arglist)
 			(cons sparql-op arglist))))))
       (with-ll1-parser (sparql-parser)
 	  ;; ((a ::= (:rep1 b)))
@@ -328,7 +329,7 @@
 	   (FunctionCall ::= (iri ArgList) :RESULT (create-call-through-iri $0 $1))
 	   (ArgList ::= (:OR (NIL-TERMINAL :RESULT (progn nil))
 			     (|(-TERMINAL| (:OPT DISTINCT-TERMINAL) (Expression (:REP0 (|,-TERMINAL| Expression :RESULT $1)) :RESULT (cons $0 $1)) |)-TERMINAL|
-					   :RESULT (if (opt-yes-p $1) (cons t $2) (cons nil $2)))))
+					   :RESULT (if (opt-yes-p $1) (cons (sparql-distinct) $2) $2))))
 	   (ExpressionList ::= (:OR (NIL-TERMINAL :RESULT (progn nil)) (|(-TERMINAL| (Expression (:REP0 (|,-TERMINAL| Expression :RESULT $1)) :RESULT (cons $0 $1)) |)-TERMINAL| :RESULT $1)))
 	   (ConstructTemplate ::= (|{-TERMINAL| (:OPT ConstructTriples) |}-TERMINAL| :RESULT (cons 'BGP (get-triples))))
 	   (ConstructTriples ::= (TriplesSameSubject (:OPT (|.-TERMINAL| (:OPT ConstructTriples)))))

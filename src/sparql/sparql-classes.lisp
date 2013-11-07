@@ -55,6 +55,8 @@
 
 (define-class sparql-unbound (rdf-term) ())
 
+(define-class sparql-distinct () ())
+
 (define-class type-descriptor ()
   ((iri :accessor type-descriptor-iri :initarg :iri)
    (iri-string :accessor type-descriptor-iri-string :initarg :iri-string)
@@ -249,20 +251,21 @@
 (defun find-sparql-op-library (library-name &key (sparql-ops *sparql-ops*))
   (gethash library-name (sparql-ops-libraries sparql-ops)))
 
-(defun add-sparql-op (&key (sparql-ops *sparql-ops*) kind name lisp-name arguments returns body hiddenp)
+(defun add-sparql-op (&key (sparql-ops *sparql-ops*) kind prefixed-name-string lisp-name arguments returns body hiddenp)
   (multiple-value-bind (library-name op-name)
-      (split-sparql-op-prefixed-name name)
+      (split-sparql-op-prefixed-name prefixed-name-string)
     (let ((library (find-sparql-op-library library-name :sparql-ops sparql-ops)))
       (cond ((null library)
 	     (error* "Undefined SPARQL operation library ~A" library-name))
 	    (t
-	     (let ((sparql-op (make-instance kind :name name :lisp-name lisp-name :arguments arguments :returns returns :body body :hiddenp hiddenp
+	     (let ((sparql-op (make-instance kind :name prefixed-name-string :lisp-name lisp-name :arguments arguments :returns returns :body body :hiddenp hiddenp
 					     :containing-library library)))
-	       (setf (gethash name (sparql-ops-ops sparql-ops)) sparql-op)
-	       (setf (gethash op-name (sparql-op-library-ops library)) sparql-op)))))))
+	       (setf (gethash op-name (sparql-op-library-ops library)) sparql-op)
+	       (setf (gethash prefixed-name-string (sparql-ops-ops sparql-ops)) sparql-op)
+	       (setf (gethash (concatenate 'string (sparql-op-library-iri-string library) op-name) (sparql-ops-ops sparql-ops)) sparql-op)))))))
 
 (defun find-sparql-op (name &key (sparql-ops *sparql-ops*))
-  (gethash name (sparql-ops-ops sparql-ops)))
+  (gethash (if (rdf-iri-p name) (rdf-iri-string name) name) (sparql-ops-ops sparql-ops)))
 
 (defun list-sparql-ops (&key library-name (sparql-ops *sparql-ops*))
   (cond ((null library-name)
@@ -272,6 +275,7 @@
 
 (eval-when (:load-toplevel :execute)
   (setf *sparql-unbound* (make-instance 'sparql-unbound))
+  (setf *sparql-distinct* (make-instance 'sparql-distinct))
   (setf *rdf-first* (make-instance 'rdf-iri :string "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"))
   (setf *rdf-rest* (make-instance 'rdf-iri :string "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"))
   (setf *rdf-nil* (make-instance 'rdf-iri :string "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"))

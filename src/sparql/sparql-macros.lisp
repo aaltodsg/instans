@@ -32,7 +32,7 @@
 
 (defun collect-ignorable (lambda-list)
   (loop for item in lambda-list
-	for prev-optional-p = nil then optionalp
+	for prev-optional-p = nil then (or optionalp prev-optional-p)
 	for optionalp = (eq item '&optional)
         when prev-optional-p collect (if (symbolp item) item (car item))))
 
@@ -67,7 +67,7 @@
 			 unless (sparql-function-inner-and-outer-args-spec-compatible-p inner-args-spec outer-args-spec)
 			 do (error* "~A: Incompatible lambda lists ~A and ~A" name outer-args-spec inner-args-spec)
 			 collect (loop for inner-item in inner-args-spec
-				       for prev-optional-p = nil then optionalp
+				       for prev-optional-p = nil then (or optionalp prev-optional-p)
 				       for optionalp = (eq inner-item '&optional)
 				       unless (or prev-optional-p (symbolp inner-item))
 				       collect `(typep ,(car inner-item) ',(second inner-item)) into tests
@@ -93,8 +93,8 @@
 				  ,(let ((format (case (length outer-arg-names)
 						   (0 (format nil "~A: Cannot apply to zero arguments" name))
 						   (1 (format nil "~A: Cannot apply to argument ~~A" name))
-						   (t (format nil "~A: Cannot apply to arguments ~~A~A" name (loop repeat (1- (length outer-arg-names)) collect "~A"))))))
-					`(sparql-error ,format ,@outer-arg-names))))))))))
+						   (t (format nil "~A: Cannot apply to arguments ~A" name (loop repeat (length outer-arg-names) collect "~A"))))))
+					`(sparql-error ,format nil ,@outer-arg-names))))))))))
 
 (defmacro define-xsd-value-type (short-name spec)
   (let* ((xsd-value-type-prefix "http://www.w3.org/2001/XMLSchema#")
@@ -118,11 +118,11 @@
 (defun split-sparql-op-prefixed-name (name)
   (let ((index (position #\: name)))
     (cond ((null index) (values "" name))
-	  (t (values (subseq name 0 index) (subseq name index))))))
+	  (t (values (subseq name 0 index) (subseq name (1+ index)))))))
 
-(defmacro define-sparql-op (kind name (&key arguments returns hiddenp) &body body)
+(defmacro define-sparql-op (kind prefixed-name-string (&key arguments returns hiddenp) &body body)
   (multiple-value-bind (library-name op-name)
-      (split-sparql-op-prefixed-name name)
+      (split-sparql-op-prefixed-name prefixed-name-string)
     (let* ((lisp-name (make-sparql-op-name library-name op-name))
 	   (lambda-list (make-sparql-function-lambda-list arguments))
 	   (ignorable (collect-ignorable lambda-list)))
@@ -130,17 +130,17 @@
 	 (defun ,lisp-name (,@lambda-list)
 	   ,@(if ignorable (list `(declare (ignorable ,@ignorable))))
 	   ,@body)
-	 (add-sparql-op :kind ',kind :name ,name :lisp-name ',lisp-name :arguments ',arguments :returns ',returns :body ',body :hiddenp ,hiddenp)))))
+	 (add-sparql-op :kind ',kind :prefixed-name-string ,prefixed-name-string :lisp-name ',lisp-name :arguments ',arguments :returns ',returns :body ',body :hiddenp ,hiddenp)))))
 
-(defmacro define-sparql-function (name (&key arguments returns hiddenp) &body methods)
-  `(define-sparql-op sparql-function ,name (:arguments ,arguments :returns ,returns :hiddenp ,hiddenp) ,@(make-sparql-function-body name arguments methods)))
+(defmacro define-sparql-function (prefixed-name-string (&key arguments returns hiddenp) &body methods)
+  `(define-sparql-op sparql-function ,prefixed-name-string (:arguments ,arguments :returns ,returns :hiddenp ,hiddenp) ,@(make-sparql-function-body prefixed-name-string arguments methods)))
 
-(defmacro define-sparql-form (name (&key arguments returns hiddenp) &body body)
-  `(define-sparql-op sparql-form ,name (:arguments ,arguments :returns ,returns :hiddenp ,hiddenp) ,@body))
+(defmacro define-sparql-form (prefixed-name-string (&key arguments returns hiddenp) &body body)
+  `(define-sparql-op sparql-form ,prefixed-name-string (:arguments ,arguments :returns ,returns :hiddenp ,hiddenp) ,@body))
 
 (defmacro define-sparql-two-string-function (op-name return-type string-operation)
-  (let ((name (format nil "~(~A~)" op-name)))
-    `(define-sparql-function ,name (:arguments ((arg1 literal-or-string) (arg2 literal-or-string)) :returns ,return-type)
+  (let ((prefixed-name-string (format nil "~(~A~)" op-name)))
+    `(define-sparql-function ,prefixed-name-string (:arguments ((arg1 literal-or-string) (arg2 literal-or-string)) :returns ,return-type)
        (:method ((arg1 xsd-string-value) (arg2 xsd-string-value)) (,string-operation arg1 arg2))
        (:method ((arg1 xsd-string-value) (arg2 rdf-literal))
 	 (cond ((not (rdf-literal-lang arg2)) (sparql-error "~A: Arg2 type ~A not compatible" ',op-name (rdf-literal-type arg2)))
@@ -176,3 +176,8 @@
 
 (defmacro sparql-unbound ()
   `*sparql-unbound*)
+
+(defvar *sparql-distinct*)
+
+(defmacro sparql-distinct ()
+  `*sparql-distinct*)

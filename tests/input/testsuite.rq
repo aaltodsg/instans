@@ -1,3 +1,5 @@
+BASE           <http://www.cs.hut.fi/~enu/sparql11-test-suite/bind/>  
+PREFIX instans: <http://instans.org/extensions/instans#>
 PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX :       <http://www.w3.org/2009/sparql/docs/tests/data-sparql11/bind/manifest#>
 PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
@@ -12,12 +14,13 @@ PREFIX its:    <http://instans.aalto.fi/testsuite/#>
 #        mf:entries ?entries .
 # }
 
-SELECT ?test ?name ?queryfile ?datafile ?resultfile WHERE {
+SELECT ?test ?name ?queryfile ?datafile ?resultfile ?success WHERE {
        ?test a 	       mf:QueryEvaluationTest ;
              mf:name   ?name ;
     	     mf:action [ qt:query  ?queryfile ;
     	                 qt:data   ?datafile ] ;
     	     mf:result ?resultfile
        .
+       BIND(instans:execute_system(?queryfile, ?datafile, "DEFAULT", ?resultfile) AS ?success)
 }
 
