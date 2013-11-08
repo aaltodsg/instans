@@ -143,7 +143,9 @@
 	      (t
 	       (error* "Illegal op ~S" op))))))
 
-(defvar *retes* (make-hash-table :test #'equal))
+(defvar *retes*)
+(eval-when (:load-toplevel :execute)
+  (setf *retes*  (make-hash-table :test #'equal)))
 
 (defun instans-create-rete ()
   (let* ((rete-iri (parse-iri (format nil "http://www.cse.aalto.fi/instans/retes/~A" (string (gensym "RETE")))))
@@ -203,8 +205,8 @@
 	     (with-input-from-string (triples-stream string)
 	       (let* ((triples-lexer (make-turtle-lexer triples-stream))
 		      (triples-parser (make-turtle-parser :triples-callback #'(lambda (triples)
-;										(inform "~%Event callback: ~D triples~%" (length triples))
-;										(loop for tr in triples do (inform " ~S~%" tr))
+										(inform "~%Event callback: ~D triples~%" (length triples))
+										(loop for tr in triples do (inform " ~S~%" tr))
 										(process-triple-input network triples '(:add :execute) :graph (if (equalp graph "DEFAULT") nil graph))))))
 		 (warn "~%Processing triples:~%")
 		 (time (funcall triples-parser triples-lexer))
@@ -230,6 +232,9 @@
 						   (setf observed-result-list-tail (cdr observed-result-list-tail)))))))
 	  (instans-add-rules rete-iri rules :report-function report-function :output-directory "/Users/enu/instans/tests/output")
 	  (instans-add-triples-from-url rete-iri triples graph)
+	  (inform "Täällä ~S" rules)
+	  (inform "Expected-results ~S" expected-results)
+	  (inform "Expected ~S" expected-result-list)
 	  (pop observed-result-list)
 	  (cond ((not comparep) t)
 		((and (= (length observed-result-list) (length expected-result-list))

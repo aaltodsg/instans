@@ -22,6 +22,7 @@ SELECT ?test ?name ?queryfile ?datafile ?resultfile ?success WHERE {
     	                 qt:data   ?datafile ] ;
     	     mf:result ?resultfile
        .
-       BIND(instans:execute_system(?queryfile, ?datafile, "DEFAULT", ?resultfile) AS ?success)
+       BIND(instans:execute_system(?queryfile, ?datafile, ?resultfile, "DEFAULT") AS ?success)
+#       BIND(true AS ?success)
 }
 

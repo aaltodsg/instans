@@ -231,8 +231,8 @@
   (:method ((r1 sparql-result) (r2 sparql-result))
     (let ((bl1 (sparql-result-bindings r1))
 	  (bl2 (sparql-result-bindings r2)))
-      (and (= (length bl1) (length bl2))
-	   (every #'(lambda (b1) (find b1 bl2 :test #'sparql-binding-equal)) bl1)))))
+      (and (every #'(lambda (b1) (or (sparql-unbound-p (sparql-binding-value b1)) (find b1 bl2 :test #'sparql-binding-equal))) bl1)
+	   (every #'(lambda (b2) (or (sparql-unbound-p (sparql-binding-value b2)) (find b2 bl1 :test #'sparql-binding-equal))) bl2)))))
 
 (defgeneric sparql-binding-equal (b1 b2)
   (:method ((b1 sparql-binding) (b2 sparql-binding))

@@ -7,8 +7,9 @@
 
 (defun parse-srx-from-url (iri)
   (cond ((string= (rdf-iri-scheme iri) "file")
-	 (describe iri)
-	 (parse-srx-file (rdf-iri-path iri)))
+	 (let ((file-name (rdf-iri-path iri)))
+	   (inform "File-name ~S" file-name)
+	   (parse-srx-file file-name)))
 	(t
 	 (let* ((input-name (rdf-iri-string iri))
 		(data (drakma:http-request input-name))

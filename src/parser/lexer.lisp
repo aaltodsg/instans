@@ -21,15 +21,17 @@
   (:method ((this abstract-sparql-turtle-lexer) iri)
     (when (null (rdf-iri-scheme iri))
       (lexer-error this "Base does not define a scheme: ~A" iri))
+    ;; (inform "Lexer base:")
+    ;; (describe iri)
     (setf (lexer-base this) iri)))
 
 (defgeneric expand-iri (lexer iri-string)
   (:method ((this abstract-sparql-turtle-lexer) iri-string)
     (let ((iri (parse-iri iri-string)))
-      (cond ((rdf-iri-scheme iri)
-	     (cond ((rdf-iri-had-dot-segments-p iri)
-		    (recompose-iri iri))
-		   (t iri)))
+      (cond ((rdf-iri-scheme iri) iri)
+	     ;; (cond ((rdf-iri-had-dot-segments-p iri)
+	     ;; 	    (recompose-iri iri))
+	     ;; 	   (t iri)))
 	    (t
 	     (let ((base (lexer-base this))
 		   (cp (rdf-iri-path iri)))
@@ -54,8 +56,7 @@
 					      (cond ((null lsp)
 						     (rdf-iri-path iri))
 						    (t
-						     (remove-dot-segments (concatenate 'list (subseq (rdf-iri-path base) 0 (1+ lsp))
-										       (rdf-iri-path iri))))))))))))
+						     (coerce (remove-dot-segments (concatenate 'list (subseq (rdf-iri-path base) 0 (1+ lsp)) (rdf-iri-path iri))) 'string))))))))))
 		      (recompose-iri iri)))))))))
 
 (defgeneric resolve-prefix (lexer buf &optional start end)

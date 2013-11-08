@@ -7,4 +7,4 @@
   - Or canonize all values, so that eql (or equal) would work.
   - Maybe has to use weak hash tables?
 - check make/generate variables/blanks
-
+- check remove-dot-segments
