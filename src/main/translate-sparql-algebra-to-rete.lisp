@@ -7,14 +7,14 @@
 
 ;;; Recursively builds a RETE network from the given expr.
 ;;; Returns the bottom-most node(s) of the created network.
-;;; Adds newly created nodes to new-nodes and to (network-nodes network).
+;;; Adds newly created nodes to new-nodes and to (instans-nodes instans).
 ;;; Some variables are created during the translation. This is a bit cludge, since we both create the variables and then immediately
 ;;; replace them with canonic variables.
 ;;; !NOTE! Level is updated never. What is its purpose?
-(defun translate-sparql-algebra-to-rete (sae network)
+(defun translate-sparql-algebra-to-rete (sae instans)
   (let ((new-nodes nil)
 					;	(level 0)
-	(bindings (network-bindings network)))
+	(bindings (instans-bindings instans)))
     (labels ((replace-exists-by-vars (e)
 	       (let ((exists-list nil)
 		     (counter-var-list nil))
@@ -22,7 +22,7 @@
 			    (cond ((consp x)
 				   (cond ((member (car x) '(EXISTS NOT-EXISTS))
 					  (push-to-end x exists-list)
-					  (let ((v (new-var "_C" bindings)))
+					  (let ((v (generate-sparql-var instans "_C")))
 					    (push-to-end v counter-var-list)
 					    (if (eq (car x) 'EXISTS) (create-sparql-call ">" v 0) (create-sparql-call "<=" v 0))))
 					 (t
@@ -44,9 +44,9 @@
 		 (let ((prev (or (getf args :prev) (getf args :beta))))
 		   (let ((result (and (not (member type '(exists-start-node exists-end-node optional-start-node optional-end-node union-start-node union-end-node)))
 					; Check this			      (or (zerop level) (member type '(triple-pattern-node datablock-node alpha-memory)))
-				      (find-if #'(lambda (n) (node-matches-constructor-args-p n type args)) (if prev (node-succ prev) (network-nodes network))))))
+				      (find-if #'(lambda (n) (node-matches-constructor-args-p n type args)) (if prev (node-succ prev) (instans-nodes instans))))))
 		     (when (null result)
-		       (setf result (apply #'make-instance type :network network args))
+		       (setf result (apply #'make-instance type :instans instans args))
 		       (push-to-end result new-nodes)
 		       (when prev (push-to-end-new result (node-succ prev))))
 		     result))))

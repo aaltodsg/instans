@@ -29,7 +29,7 @@
 	       (format stream "~%~V@T~A: {" indent name)
 	       (print-table-contents table (+ indent 6))
 	       (format stream "};"))))
-    (format stream "~%#<TRIPLE-PATTERN-MATCHER ~A: " (network-name (triple-pattern-matcher-network tm)))
+    (format stream "~%#<TRIPLE-PATTERN-MATCHER ~A: " (instans-name (triple-pattern-matcher-instans tm)))
     (format stream "~%    xxx: ~A; " (triple-pattern-matcher-xxx tm))
     (print-triple-pattern-matcher-hash-table "sxx" (triple-pattern-matcher-sxx tm))
     (print-triple-pattern-matcher-hash-table "xpx" (triple-pattern-matcher-xpx tm))

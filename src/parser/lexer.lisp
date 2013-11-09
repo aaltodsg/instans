@@ -9,7 +9,8 @@
   ((base :accessor lexer-base :initarg :base :initform nil)
    (prefix-table :accessor lexer-prefix-table :initarg :prefix-table :initform (make-binding-table))
    (string-table :accessor lexer-string-table :initarg :string-table :initform (make-binding-table :weakness :value))
-   (keyword-table :accessor lexer-keyword-table :initarg :keyword-table :initform nil)))
+   (keyword-table :accessor lexer-keyword-table :initarg :keyword-table :initform nil)
+   (instans :accessor lexer-instans :initarg :instans)))
 
 (defgeneric make-keyword-table (abstract-sparql-turtle-lexer))
 
@@ -96,11 +97,11 @@
 
 (define-class turtle-lexer (abstract-sparql-turtle-lexer) ())
 
-(defun make-turtle-lexer (input-stream)
-  (make-instance 'turtle-lexer :input-stream input-stream))
+(defun make-turtle-lexer (input-stream instans)
+  (make-instance 'turtle-lexer :input-stream input-stream :instans instans))
 
-(defun make-sparql-lexer (input-stream)
-  (make-instance 'sparql-lexer :input-stream input-stream))
+(defun make-sparql-lexer (input-stream instans)
+  (make-instance 'sparql-lexer :input-stream input-stream :instans instans))
 
 (defmethod make-keyword-table ((this sparql-lexer))
   (declare (ignorable this))

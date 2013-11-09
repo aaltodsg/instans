@@ -7,8 +7,8 @@
 
 ;;; Printing
 
-(defmethod print-object ((this network) stream)
-  (format stream "#<~A ~A>" (type-of this) (network-name this)))
+(defmethod print-object ((this instans) stream)
+  (format stream "#<~A ~A>" (type-of this) (instans-name this)))
 
 (defmethod print-object ((this node) stream)
   (format stream "#<~A ~A>" (type-of this) (node-number this)))
@@ -24,22 +24,46 @@
   (let* ((dataset (triple-pattern-node-dataset this))
 	 (vars (append (loop for x in triple-pattern when (sparql-var-p x) collect x) (if (sparql-var-p dataset) (list dataset)))))
     (setf (alpha-node-variables this) vars)
-    (add-triple-pattern-node (network-triple-pattern-matcher (node-network this)) this)))
+    (add-triple-pattern-node (instans-triple-pattern-matcher (node-instans this)) this)))
 
 (defmethod initialize-instance :after ((node node) &key &allow-other-keys)
-  (let ((network (node-network node)))
-    (when network
-      (push-to-end-new node (network-nodes network))
+  (let ((instans (node-instans node)))
+    (when instans
+      (push-to-end-new node (instans-nodes instans))
       (when (null (node-name node))
-	(setf (node-number node) (incf (network-node-id-counter network)))
+	(setf (node-number node) (incf (instans-node-id-counter instans)))
 	(setf (node-name node) (format nil "~A~D" (type-of node) (node-number node)))))))
+
+(defmethod initialize-instance :after ((this instans) &key &allow-other-keys)
+  (when (and (instans-use-quad-store-p this) (null (instans-quad-store this)))
+    (setf (instans-quad-store this) (make-instance 'list-quad-store)))
+  (setf (instans-rule-instance-queue this) (make-instance 'rule-instance-queue :instans this))
+  (setf (instans-triple-pattern-matcher this) (make-instance 'triple-pattern-matcher :instans this)))
+
+;;; Var and blank creationg
+
+(defgeneric make-rdf-blank-node (instans name)
+  (:method ((this instans) name)
+      (make-uniquely-named-object (instans-blank-node-factory this) name)))
+
+(defgeneric generate-rdf-blank-node (instans &optional name-prefix)
+  (:method ((this instans) &optional (name-prefix "_:!"))
+      (generate-object-with-unique-name (instans-blank-node-factory this) :name-prefix name-prefix)))
+
+(defgeneric make-sparql-var (instans name)
+  (:method ((this instans) name)
+      (make-uniquely-named-object (instans-var-factory this) name)))
+
+(defgeneric generate-sparql-var (instans &optional name-prefix)
+  (:method ((this instans) &optional name-prefix)
+      (generate-object-with-unique-name (instans-var-factory this) :name-prefix name-prefix)))
 
 ;;; Node access
 
 (defgeneric node-bindings (node)
   (:method ((this node))
-    (let ((network (node-network this)))
-      (and network (network-bindings network)))))
+    (let ((instans (node-instans this)))
+      (and instans (instans-bindings instans)))))
 
 (defgeneric node-parent-slots (node)
   (:method ((this join-node)) '(beta alpha))
@@ -51,10 +75,10 @@
 
 (defun source-nodes (net)
   (filter #'(lambda (x) (every #'null (node-parents x)))
-	  (network-nodes net)))
+	  (instans-nodes net)))
 
 (defun sink-nodes (net)
-  (filter-not #'node-succ (network-nodes net)))
+  (filter-not #'node-succ (instans-nodes net)))
 
 (defgeneric node-all-precs (node)
   (:method ((this union-end-node))
@@ -219,23 +243,17 @@
 
 
 ;;; -------
-;;; Network
+;;; Instans
 ;;; -------
 
-(defmethod initialize-instance :after ((this network) &key &allow-other-keys)
-  (when (and (network-use-quad-store-p this) (null (network-quad-store this)))
-    (setf (network-quad-store this) (make-instance 'list-quad-store)))
-  (setf (network-rule-instance-queue this) (make-instance 'rule-instance-queue :network this))
-  (setf (network-triple-pattern-matcher this) (make-instance 'triple-pattern-matcher :network this)))
-
-(defun network-matching-nodes (network name)
-  (loop for node in (network-nodes network)
+(defun instans-matching-nodes (instans name)
+  (loop for node in (instans-nodes instans)
 	when (search name (node-name node))
 	collect node))
 
-(defgeneric network-storage-sizes (network)
-  (:method ((this network))
-    (loop for node in (network-nodes this)
+(defgeneric instans-storage-sizes (instans)
+  (:method ((this instans))
+    (loop for node in (instans-nodes this)
 	  when (typep node 'memory)
 	  sum (if (memory-store node) (hash-table-count (memory-store node)) 0) into store-sizes
 	  else when (typep node 'join-node)
@@ -243,15 +261,15 @@
 		 (if (join-beta-index node) (hash-table-count (hash-token-index-table (join-beta-index node))) 0)) into index-sizes
 	  finally (return (values store-sizes index-sizes)))))
 
-(defun show-stores (network)
-  (loop for node in (network-nodes network)
+(defun show-stores (instans)
+  (loop for node in (instans-nodes instans)
 	when (and (typep node 'memory) (memory-store node))
 	do (inform "~A:~{~%  ~A~}" node (maph #'(lambda (k v) (declare (ignorable k)) (token-to-pretty-string node v)) (memory-store node)))))
 
-(defun show-indices (network)
+(defun show-indices (instans)
   (let ((index-item-format "~%~A: ~A ~{~%  ~{~A~^ ->~}~}")
 	(index-values-format "~{        ~A~^~%~}"))
-    (loop for node in (network-nodes network)
+    (loop for node in (instans-nodes instans)
 	  when (typep node 'join-node)
 	  do (progn
 	       (when (join-beta-index node)
@@ -274,7 +292,7 @@
   (cond ((null token) "Empty token")
 	(t
 	 (format nil "~{~A~^, ~}"
-		 (loop with bindings = (bindings-alist (node-bindings node))
+		 (loop with bindings = (node-bindings node)
 		       for field in token
 		       collect (cond ((and (consp field) (null (car field)) (numberp (second field)))
 				      (let ((hnum (format nil "~D" (second field))))

@@ -7,7 +7,7 @@
 
 (defmethod initialize-instance :after ((this quad-store) &rest keys &key &allow-other-keys)
   (let ((initial-quads (getf keys :initial-quads)))
-    (loop for quad in initial-quads do (add-quad (network-quad-store this) quad))))
+    (loop for quad in initial-quads do (add-quad (instans-quad-store this) quad))))
 
 (defgeneric add-quad (quad-store quad)
   (:method ((this list-quad-store) quad)

@@ -113,7 +113,7 @@
     (or (cdr (assoc this *node-color-alist*)) "Black")))
 
 (defun var-orig-names (node canonic-vars)
-  (let ((alist (bindings-alist (node-bindings node))))
+  (let ((alist (node-bindings node)))
     (loop for var in canonic-vars
 	  unless (null var)
 	  collect (uniquely-named-object-name (car (rassoc var alist))))))
@@ -149,11 +149,11 @@
   (format stream "~%  }"))
 
 (defun print-dot (net &key (stream *standard-output*) show-vars-p (html-labels-p t) (node-shape "oval"))
-  (let* ((nodes (network-nodes net))
+  (let* ((nodes (instans-nodes net))
 	 (alphas (filter #'(lambda (node) (typep node 'alpha-node)) nodes))
 	 (alphamems (filter #'(lambda (node) (typep node 'alpha-memory)) nodes))
 	 (other-nodes (list-difference nodes (list-union alphas alphamems))))
-    (format stream "~%digraph ~S{" (network-name net))
+    (format stream "~%digraph ~S{" (instans-name net))
     (print-dot-nodes stream alphas :rank "same" :show-vars-p show-vars-p :node-shape node-shape :html-labels-p html-labels-p)
     (print-dot-nodes stream alphamems :rank "same" :show-vars-p show-vars-p :node-shape node-shape :html-labels-p html-labels-p)
     (print-dot-nodes stream other-nodes :show-vars-p show-vars-p :node-shape node-shape :html-labels-p html-labels-p)

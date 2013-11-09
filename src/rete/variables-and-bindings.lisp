@@ -21,35 +21,30 @@
   (error* "Not implemented yet: pattern-variables-consistent-p ~S, ~S" e1 e2))
 
 ;;; Bindings and variables
-(defun resolve-binding (bindings from)
-  (cdr (assoc from (bindings-alist bindings) :test #'uniquely-named-object-equal)))
+(defun resolve-binding (instans from)
+  (cdr (assoc from (instans-bindings instans) :test #'uniquely-named-object-equal)))
 
-(defun reverse-resolve-binding (bindings to)
-  (car (rassoc to (bindings-alist bindings))))
+(defun reverse-resolve-binding (instans to)
+  (car (rassoc to (instans-bindings instans))))
 
-(defun add-binding (bindings from to-name)
-  (let ((to (make-sparql-var to-name)))
-    (push-to-end (cons from to) (bindings-alist bindings))
+(defun add-binding (instans from to-name)
+  (let ((to (make-sparql-var instans to-name)))
+    (push-to-end (cons from to) (instans-bindings instans))
   to))
 
-(defun resolve-or-add-binding (bindings from)
-  (or (resolve-binding bindings from)
-      (let ((to (fmt-intern "?~D" (length (bindings-alist bindings)))))
-	(add-binding bindings from to))))
+(defun resolve-or-add-binding (instans from)
+  (or (resolve-binding instans from)
+      (let ((to (fmt-intern "?~D" (length (instans-bindings instans)))))
+	(add-binding instans from to))))
 
 (defvar *gen-var-counter* nil)
 
-(defun canonize-sparql-var (v bindings)
-  (resolve-or-add-binding bindings v))
+(defun canonize-sparql-var (instans v)
+  (resolve-or-add-binding instans v))
 
-(defun canonize-sparql-algebra-variables (expr bindings)
+(defun canonize-sparql-algebra-variables (instans expr)
   (cond ((or (sparql-var-p expr) (rdf-blank-node-p expr))
-	 (canonize-sparql-var expr bindings))
+	 (canonize-sparql-var instans expr))
 	((atom expr) expr)
 	(t
-	 (cons (canonize-sparql-algebra-variables (car expr) bindings) (canonize-sparql-algebra-variables (cdr expr) bindings)))))
-
-(defun new-var (prefix bindings)
-  (let* ((n (incf *gen-var-counter*))
-	 (v (make-sparql-var (fmt-intern "~A~D" prefix n))))
-    (canonize-sparql-var v bindings)))
+	 (cons (canonize-sparql-algebra-variables instans (car expr)) (canonize-sparql-algebra-variables instans (cdr expr))))))

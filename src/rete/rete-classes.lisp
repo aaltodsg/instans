@@ -8,7 +8,7 @@
 (define-class node ()
   ((name :initarg :name :accessor node-name :initform nil)
    (number :initarg :number :accessor node-number :initform nil)
-   (network :initarg :network :accessor node-network)
+   (instans :initarg :instans :accessor node-instans)
    (graph :initarg :graph :accessor node-graph :initform nil)
    (prev :initarg :prev :accessor node-prev :initform nil)
    (succ :initform nil :accessor node-succ)
@@ -137,35 +137,6 @@
    (insert-parameters :accessor modify-insert-parameters :initarg :insert-parameters)
    (insert-func :accessor modify-insert-func)))
 
-;;;
-;;; Rete network class
-;;;
-
-(define-class network ()
-  ((name :accessor network-name :initarg :name :initform nil)
-   (nodes :accessor network-nodes :initarg :nodes :initform nil)
-   (node-id-counter :accessor network-node-id-counter :initform 0)
-   (bindings :accessor network-bindings :initarg :bindings :initform nil)
-   (triple-pattern-matcher :accessor network-triple-pattern-matcher :initform nil)
-   (quad-store :accessor network-quad-store :initarg :quad-store :initform nil)
-   (use-quad-store-p :accessor network-use-quad-store-p :initarg :use-quad-store-p :initform nil)
-   (active-p :accessor network-active-p :initform t :initarg :activep)
-   (rule-instance-queue :accessor network-rule-instance-queue)
-   (remove-rule-instances-p :accessor network-remove-rule-instances-p :initform nil :initarg :remove-rule-instances-p)
-   (execution-policy :accessor network-execution-policy :initarg :execution-policy :initform :repeat-first)
-   (default-rete-input-op :accessor network-default-rete-input-op :initarg :default-rete-input-op :initform :add)
-   (select-function :accessor network-select-function :initarg :select-function :initform nil)
-   (select-function-arguments :accessor network-select-function-arguments :initarg :select-function-arguments :initform nil)
-   (modify-function :accessor network-modify-function :initarg :modify-function :initform nil)
-   (modify-function-arguments :accessor network-modify-function-arguments :initarg :modify-function-arguments :initform nil)
-   (construct-function :accessor network-construct-function :initarg :construct-function :initform nil)
-   (construct-function-arguments :accessor network-construct-function-arguments :initarg :construct-function-arguments :initform nil)
-   (input-function :accessor network-input-function :initarg :input-function)
-   (input-function-arguments :accessor network-input-function-arguments :initarg :input-function-arguments :initform nil)
-   (input-count :accessor network-input-count :initarg :input-count)
-   (add-quad-count :accessor network-add-quad-count :initarg :add-quad-count)
-   (remove-quad-count :accessor network-remove-quad-count :initarg :remove-quad-count)))
-
 (define-class quad-store ()
   ())
 
@@ -180,7 +151,7 @@
    (table :accessor hash-token-index-table)))
 
 (define-class triple-pattern-matcher ()
-  ((network :accessor triple-pattern-matcher-network :initarg :network)
+  ((instans :accessor triple-pattern-matcher-instans :initarg :instans)
    (xxx :accessor triple-pattern-matcher-xxx :initform nil)
    (sxx :accessor triple-pattern-matcher-sxx :initform nil)
    (xpx :accessor triple-pattern-matcher-xpx :initform nil)
@@ -207,7 +178,7 @@
 ;;;
 
 (define-class rule-instance-queue ()
-  ((network :accessor rule-instance-queue-network :initarg :network)
+  ((instans :accessor rule-instance-queue-instans :initarg :instans)
    (head :accessor rule-instance-queue-head :initform nil)
    (tail :accessor rule-instance-queue-tail :initform nil)
    (remove-policy :accessor rule-instance-queue-remove-policy :initarg :policy :initform nil)
@@ -218,29 +189,35 @@
    (modify-count :accessor rule-instance-queue-modify-count :initform 0)
    (construct-count :accessor rule-instance-queue-construct-count :initform 0)))
 
-(define-class rete-system ()
-  ((name :accessor rete-system-name :initarg :name)
-   (init-func :accessor rete-system-init-func :initarg :init-func)
-   (node-init-funcs :accessor rete-system-node-init-funcs :initarg :node-init-funcs)
-   (node-add-funcs :accessor rete-system-node-add-funcs :initarg :node-add-funcs)
-   (node-remove-funcs :accessor rete-system-node-remove-funcs :initarg :node-remove-funcs)
-   (matcher-init-funcs :accessor rete-system-matcher-init-funcs :initarg :matcher-init-funcs)
-   (matcher-add-funcs :accessor rete-system-matcher-add-funcs :initarg :matcher-add-funcs)
-   (matcher-remove-funcs :accessor rete-system-matcher-remove-funcs :initarg :matcher-remove-funcs)
-   (stores :accessor rete-system-stores :initarg :stores)
-   (indices :accessor rete-system-indices :initarg :indices)
-   (exec-count :accessor rete-system-exec-count :initform 0)
-   (queue :accessor rete-system-queue :initarg :queue :initform nil)))
-
 ; Rule rule instances and queue
 (define-class rule-instance ()
   ((node :accessor rule-instance-node :initarg :node)
    (token :accessor rule-instance-token :initarg :token)))
 
-;;; Bindings. This is struct for easier debugging. Fix later
-
-(defstruct (bindings (:type list) :named)
-  (alist nil))
-
-
-
+;;; System
+(define-class instans ()
+  ((name :accessor instans-name :initarg :name)
+   (nodes :accessor instans-nodes :initarg :nodes :initform nil)
+   (node-id-counter :accessor instans-node-id-counter :initform 0)
+   (var-factory :accessor instans-var-factory :initform (make-instance 'uniquely-named-object-factory :object-type 'sparql-var))
+   (blank-node-factory :accessor instans-blank-node-factory :initform (make-instance 'uniquely-named-object-factory :object-type 'rdf-blank-node))
+   (bindings :accessor instans-bindings :initarg :bindings :initform nil)
+   (triple-pattern-matcher :accessor instans-triple-pattern-matcher :initform nil)
+   (quad-store :accessor instans-quad-store :initarg :quad-store :initform nil)
+   (use-quad-store-p :accessor instans-use-quad-store-p :initarg :use-quad-store-p :initform nil)
+   (active-p :accessor instans-active-p :initform t :initarg :activep)
+   (rule-instance-queue :accessor instans-rule-instance-queue)
+   (remove-rule-instances-p :accessor instans-remove-rule-instances-p :initform nil :initarg :remove-rule-instances-p)
+   (execution-policy :accessor instans-execution-policy :initarg :execution-policy :initform :repeat-first)
+   (default-rete-input-op :accessor instans-default-rete-input-op :initarg :default-rete-input-op :initform :add)
+   (select-function :accessor instans-select-function :initarg :select-function :initform nil)
+   (select-function-arguments :accessor instans-select-function-arguments :initarg :select-function-arguments :initform nil)
+   (modify-function :accessor instans-modify-function :initarg :modify-function :initform nil)
+   (modify-function-arguments :accessor instans-modify-function-arguments :initarg :modify-function-arguments :initform nil)
+   (construct-function :accessor instans-construct-function :initarg :construct-function :initform nil)
+   (construct-function-arguments :accessor instans-construct-function-arguments :initarg :construct-function-arguments :initform nil)
+   (input-function :accessor instans-input-function :initarg :input-function)
+   (input-function-arguments :accessor instans-input-function-arguments :initarg :input-function-arguments :initform nil)
+   (input-count :accessor instans-input-count :initarg :input-count)
+   (add-quad-count :accessor instans-add-quad-count :initarg :add-quad-count)
+   (remove-quad-count :accessor instans-remove-quad-count :initarg :remove-quad-count)))

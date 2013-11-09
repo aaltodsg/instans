@@ -94,9 +94,10 @@
 	 (replace-blank-nodes-by-vars-p t)
 	 (indent 0)
 	 (lexer nil)
+	 (instans nil)
 	 (mode :query))
     (labels ((init () 
-	       (initialize-uniquely-named-object-factories)
+	       (setf instans (lexer-instans lexer))
 	       (set-base (parse-iri "http://"))
 	       (clear-triples))
 	     (set-prefix (prefix-binding expansion) (rebind-prefix lexer prefix-binding expansion))
@@ -121,8 +122,10 @@
 			(emit subj *rdf-rest* rest)
 			(emit subj *rdf-first* (car col))
 			subj))))
+	     (make-var (name) (make-sparql-var instans name))
+	     (generate-var (name) (make-sparql-var instans name))
 	     (generate-blank-node-or-var ()
-	       (if replace-blank-nodes-by-vars-p (generate-sparql-var "!BLANK") (generate-rdf-blank-node)))
+	       (if replace-blank-nodes-by-vars-p (generate-sparql-var instans "!BLANK") (generate-rdf-blank-node instans)))
 	     (fold-left-binary (value funcs)
 	       (loop for func in funcs
 		     do (setf value (funcall func value)))
@@ -137,7 +140,7 @@
 			       (translate-path (list (third triple) (second path) (first triple))))
 			      ((eq (car path) 'SEQ)
 			       (let* ((preds (cdr path))
-				      (objs (nconc (loop repeat (1- (length preds)) collect (generate-sparql-var "!PATH")) (list (third triple)))))
+				      (objs (nconc (loop repeat (1- (length preds)) collect (generate-var "!PATH")) (list (third triple)))))
 				 (loop for pred in preds
 				       for subj = (first triple) then obj
 				       for obj in objs
@@ -381,7 +384,7 @@
 	   (GraphNodePath ::= (:OR VarOrTerm TriplesNodePath))
 	   (VarOrTerm ::= (:OR Var GraphTerm) :RESULT $0)
 	   (VarOrIri ::= (:OR Var iri))
-	   (Var ::= (:OR VAR1-TERMINAL VAR2-TERMINAL) :RESULT (make-sparql-var (concatenate 'string "?" (subseq $0 1))))
+	   (Var ::= (:OR VAR1-TERMINAL VAR2-TERMINAL) :RESULT (make-var (concatenate 'string "?" (subseq $0 1))))
 	   (GraphTerm ::= (:OR iri RDFLiteral NumericLiteral BooleanLiteral BlankNode NIL-TERMINAL))
 	   (Expression ::= ConditionalOrExpression)
 	   (ConditionalOrExpression ::= (ConditionalAndExpression (:REP0 (|\|\|-TERMINAL| ConditionalAndExpression :RESULT #'(lambda (a) (create-call "logical-or" a $1))))
@@ -502,7 +505,7 @@
 	   (iri ::= (:OR IRIREF-TERMINAL PrefixedName))
 	   (PrefixedName ::= (:OR (PNAME_LN-TERMINAL :RESULT (pname-to-iri lexer (first $0) (second $0)))
 				  (PNAME_NS-TERMINAL :RESULT (or (second $0) (parsing-failure "Unbound prefix ~A" (first $0))))))
-	   (BlankNode ::= (:OR (BLANK_NODE_LABEL-TERMINAL :RESULT (make-sparql-var (concatenate 'string "!BLANK_" $0))) (ANON-TERMINAL :RESULT (generate-blank-node-or-var))))
+	   (BlankNode ::= (:OR (BLANK_NODE_LABEL-TERMINAL :RESULT (make-var (concatenate 'string "!BLANK_" $0))) (ANON-TERMINAL :RESULT (generate-blank-node-or-var))))
 	   )
 	#'(lambda (sparql-lexer &rest keys &key &allow-other-keys)
 	    (setf lexer sparql-lexer)
@@ -510,18 +513,18 @@
 	    (setf mode (if testingp :testing :query))
 	    (apply #'sparql-parser lexer keys))))))
 
-(defun sparql-parse-file (query-file &rest keys &key show-parse-p (newline-positions (list nil)) test-mode-p)
+(defun sparql-parse-file (instans query-file &rest keys &key show-parse-p (newline-positions (list nil)) test-mode-p)
   (declare (ignorable show-parse-p newline-positions test-mode-p))
   (with-open-file (input-stream query-file)
-    (apply #'sparql-parse-stream input-stream keys)))
+    (apply #'sparql-parse-stream instans input-stream keys)))
 
-(defun sparql-parse-stream (input-stream &key show-parse-p (newline-positions (list nil)) test-mode-p)
+(defun sparql-parse-stream (instans input-stream &key show-parse-p (newline-positions (list nil)) test-mode-p)
   (declare (ignorable show-parse-p))
-  (let* ((lexer (make-instance 'sparql-lexer :input-stream input-stream :newline-positions newline-positions))
+  (let* ((lexer (make-instance 'sparql-lexer :instans instans :input-stream input-stream :newline-positions newline-positions))
 	 (parser (make-sparql-parser test-mode-p)))
     (funcall parser lexer :show-parse-p show-parse-p)))
 
-(defun sparql-parse-files (directory-path &key show-parse-p print-input-p print-result-p test-mode-p)
+(defun sparql-parse-files (instans directory-path &key show-parse-p print-input-p print-result-p test-mode-p)
   (loop for file in (directory directory-path)
 	for newline-positions = (list nil)
         do (progn
@@ -531,7 +534,7 @@
 		 (loop for line = (read-line input nil nil)
 		       while line
 		       do (inform "~A" line))))
-	     (let ((result (sparql-parse-file file :show-parse-p show-parse-p :newline-positions newline-positions :test-mode-p test-mode-p)))
+	     (let ((result (sparql-parse-file instans file :show-parse-p show-parse-p :newline-positions newline-positions :test-mode-p test-mode-p)))
 	       (cond ((not (parsing-succeeded-p result))
 		      (inform "~A:~A" file (parsing-error-message result)))
 		     (print-result-p

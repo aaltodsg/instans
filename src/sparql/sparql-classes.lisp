@@ -16,10 +16,8 @@
 (defvar *rdf-type*)
 (defvar *xsd-value-type-descriptors*)
 (defvar *rdf-lang-string-iri*)
-(defvar *rdf-blank-node-factory*)
-(defvar *sparql-var-factory*)
-(defvar *sparql-ops*)
 (defvar *sparql-standard-op-library*)
+(defvar *sparql-ops*)
 (defvar *instans-op-library*)
 (defvar *instans-math-extension-op-library*)
 (defvar *instans-datetime-extension-op-library*)
@@ -111,6 +109,9 @@
 
 (define-class sparql-result ()
   ((bindings :accessor sparql-result-bindings :initarg :bindings)))
+
+(define-class sparql-boolean-result ()
+  ((value :accessor sparql-boolean-result-value :initarg :value)))
 
 ;;; BEGIN initialize-instance :after
 
@@ -209,18 +210,6 @@
 	    (t
 	     (error* "Object with name ~A already exists" generated-name))))))
 
-(defun make-rdf-blank-node (name)
-  (make-uniquely-named-object *rdf-blank-node-factory* name))
-
-(defun generate-rdf-blank-node (&optional (name-prefix "_:!"))
-  (generate-object-with-unique-name *rdf-blank-node-factory* :name-prefix name-prefix))
-
-(defun make-sparql-var (name)
-  (make-uniquely-named-object *sparql-var-factory* name))
-
-(defun generate-sparql-var (&optional name-prefix)
-  (generate-object-with-unique-name *sparql-var-factory* :name-prefix name-prefix))
-
 (defun create-sparql-binding (var value)
   (make-instance 'sparql-binding :variable var :value value))
 
@@ -287,10 +276,6 @@
   (setf *instans-math-extension-op-library* (add-sparql-op-library :prefix "math" :iri-string "http://instans.org/extensions/math#"))
   (setf *instans-datetime-extension-op-library* (add-sparql-op-library :prefix "datetime" :iri-string "http://instans.org/extensions/datetime#"))
   (setf *instans-op-library* (add-sparql-op-library :prefix "instans" :iri-string "http://instans.org/extensions/instans#")))
-
-(defun initialize-uniquely-named-object-factories ()
-  (setf *rdf-blank-node-factory* (make-instance 'uniquely-named-object-factory :object-type 'rdf-blank-node))
-  (setf *sparql-var-factory* (make-instance 'uniquely-named-object-factory :object-type 'sparql-var)))
 
 ;;; Misc
 
