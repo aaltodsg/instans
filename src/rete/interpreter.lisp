@@ -58,91 +58,155 @@
 ;;; Initializing execution
 ;;; ----------------------
 
-(defgeneric initialize-node (node new-nodes)
-  ;;; Memory just creates store
-  (:method ((this existence-start-node) new-nodes)
+
+
+(defun initialize-stores-and-indices (instans)
+  (loop for node in (instans-nodes instans) do (create-stores-and-indices node)))
+
+(defgeneric create-stores-and-indices (node)
+  (:method ((this existence-start-node))
     ;;; An EQL hashtable, since we are using integers as keys!
-    (setf (memory-store this) (make-hash-table))
-    (when (null (node-prev this))
-      (let* ((active-p-var (existence-active-p-var this))
-	     (counter-var (existence-counter-var this))
-	     (initial-token (make-token this *singleton-token* (list active-p-var counter-var) (list nil 0)))) ;;; Node is inactive; zero hits
-	(store-put-token this initial-token))))
-  (:method ((this memory) new-nodes)
+    (setf (memory-store this) (make-hash-table)))
+  (:method ((this memory))
     ;;; An EQL hashtable, since we are using integers as keys!
-    (setf (memory-store this) (make-hash-table))
-    (when (null (node-prev this))
-      (store-put-token this *singleton-token*)))
+    (setf (memory-store this) (make-hash-table)))
   ;;; Join creates indices for alpha/beta memories only if the alpha and beta parents share common variables, i.e., (not (null node-use this))
-  (:method ((this join-node) new-nodes)
+  (:method ((this join-node))
     (let ((beta-key (node-use this))
-	  (alpha-key (node-def-preceq (join-alpha this)))
-	  (beta-memory (join-beta this))
-	  (alpha-memory (join-alpha this)))
+	  (alpha-key (node-def-preceq (join-alpha this))))
       (setf (join-has-dummy-beta-p this) nil)
-      (cond ((null (node-prev beta-memory))
+      (cond ((null (node-prev (join-beta this)))
 	     (setf (join-has-dummy-beta-p this) t))
 	    ((node-use this)
 	     (setf (join-beta-index this) (make-instance 'hash-token-index :key beta-key :id (format nil "beta-index ~A" (node-number this))))
-	     (when (not (member beta-memory new-nodes))
-	       (loop for beta-token in (store-tokens beta-memory)
-		     for key = (join-beta-key this beta-token)
-		     do (index-put-token (join-beta-index this) key beta-token)))
-	     (setf (join-alpha-index this) (make-instance 'hash-token-index :key alpha-key :id (format nil "beta-alpha ~A" (node-number this))))
-	     (when (not (member alpha-memory new-nodes))
-	       (loop for alpha-token in (store-tokens alpha-memory)
-		     for key = (join-alpha-key this alpha-token)
-		     do (index-put-token (join-alpha-index this) key alpha-token)))))))
-  (:method ((this aggregate-join-node) new-nodes)
+	     (setf (join-alpha-index this) (make-instance 'hash-token-index :key alpha-key :id (format nil "beta-alpha ~A" (node-number this))))))))
+  (:method ((this aggregate-join-node))
     (setf (aggregate-join-group-partition this) (make-instance 'group-partition)))
-  (:method ((this solution-modifiers-node) new-nodes)
+  (:method ((this solution-modifiers-node))
     (when (solution-modifiers-distinct-p this)
       (setf (solution-modifiers-project-index this) (make-instance 'hash-token-index :key (solution-modifiers-project-vars this) :id (format nil "solution-modifiers-project-index ~A" (node-number this))))))
-  (:method ((this node) new-nodes) this))
+  (:method ((this node)) this))
+
+(defun initialize-data (instans)
+  (loop for node in (instans-nodes instans)
+       do (add-initial-data node)))
+
+(defgeneric add-initial-data (node)
+  ;;; Memory just creates store
+  (:method ((this existence-start-node))
+    ;;; An EQL hashtable, since we are using integers as keys!
+    (when (null (node-prev this))
+      (let* ((active-p-var (existence-active-p-var this))
+	     (counter-var (existence-counter-var this))
+	     (initial-token (make-token this (make-singleton-token) (list active-p-var counter-var) (list nil 0)))) ;;; Node is inactive; zero hits
+	(add-token this initial-token))))
+  (:method ((this memory))
+    ;;; An EQL hashtable, since we are using integers as keys!
+    (when (null (node-prev this))
+      (add-token this (make-singleton-token))))
+  ;;; Join creates indices for alpha/beta memories only if the alpha and beta parents share common variables, i.e., (not (null node-use this))
+  (:method ((this join-node))
+    (let ((beta-memory (join-beta this))
+	  (alpha-memory (join-alpha this)))
+      (cond ((node-use this)
+	     (loop for beta-token in (store-tokens beta-memory)
+		   for key = (join-beta-key this beta-token)
+		   do (index-put-token (join-beta-index this) key beta-token))
+	     (loop for alpha-token in (store-tokens alpha-memory)
+		   for key = (join-alpha-key this alpha-token)
+		   do (index-put-token (join-alpha-index this) key alpha-token))))))
+  (:method ((this aggregate-join-node))
+    (setf (aggregate-join-group-partition this) (make-instance 'group-partition)))
+  (:method ((this solution-modifiers-node))
+    (when (solution-modifiers-distinct-p this)
+      (setf (solution-modifiers-project-index this) (make-instance 'hash-token-index :key (solution-modifiers-project-vars this) :id (format nil "solution-modifiers-project-index ~A" (node-number this))))))
+  (:method ((this node)) this))
+
+;; (defgeneric initialize-node (node new-nodes)
+;;   ;;; Memory just creates store
+;;   (:method ((this existence-start-node) new-nodes)
+;;     ;;; An EQL hashtable, since we are using integers as keys!
+;;     (setf (memory-store this) (make-hash-table))
+;;     (when (null (node-prev this))
+;;       (let* ((active-p-var (existence-active-p-var this))
+;; 	     (counter-var (existence-counter-var this))
+;; 	     (initial-token (make-token this (make-singleton-token) (list active-p-var counter-var) (list nil 0)))) ;;; Node is inactive; zero hits
+;; 	(add-token this initial-token))))
+;;   (:method ((this memory) new-nodes)
+;;     ;;; An EQL hashtable, since we are using integers as keys!
+;;     (setf (memory-store this) (make-hash-table))
+;;     (when (null (node-prev this))
+;;       (add-token this (make-singleton-token))))
+;;   ;;; Join creates indices for alpha/beta memories only if the alpha and beta parents share common variables, i.e., (not (null node-use this))
+;;   (:method ((this join-node) new-nodes)
+;;     (let ((beta-key (node-use this))
+;; 	  (alpha-key (node-def-preceq (join-alpha this)))
+;; 	  (beta-memory (join-beta this))
+;; 	  (alpha-memory (join-alpha this)))
+;;       (setf (join-has-dummy-beta-p this) nil)
+;;       (cond ((null (node-prev beta-memory))
+;; 	     (setf (join-has-dummy-beta-p this) t))
+;; 	    ((node-use this)
+;; 	     (setf (join-beta-index this) (make-instance 'hash-token-index :key beta-key :id (format nil "beta-index ~A" (node-number this))))
+;; 	     (when (not (member beta-memory new-nodes))
+;; 	       (loop for beta-token in (store-tokens beta-memory)
+;; 		     for key = (join-beta-key this beta-token)
+;; 		     do (index-put-token (join-beta-index this) key beta-token)))
+;; 	     (setf (join-alpha-index this) (make-instance 'hash-token-index :key alpha-key :id (format nil "beta-alpha ~A" (node-number this))))
+;; 	     (when (not (member alpha-memory new-nodes))
+;; 	       (loop for alpha-token in (store-tokens alpha-memory)
+;; 		     for key = (join-alpha-key this alpha-token)
+;; 		     do (index-put-token (join-alpha-index this) key alpha-token)))))))
+;;   (:method ((this aggregate-join-node) new-nodes)
+;;     (setf (aggregate-join-group-partition this) (make-instance 'group-partition)))
+;;   (:method ((this solution-modifiers-node) new-nodes)
+;;     (when (solution-modifiers-distinct-p this)
+;;       (setf (solution-modifiers-project-index this) (make-instance 'hash-token-index :key (solution-modifiers-project-vars this) :id (format nil "solution-modifiers-project-index ~A" (node-number this))))))
+;;   (:method ((this node) new-nodes) this))
 
 (defun dominator-nodes (nodes)
   (loop for node in nodes
 	unless (some #'(lambda (p) (member p nodes)) (node-all-precs node))
 	collect node))
 
-(defun initialize-new-nodes (instans new-nodes)
-  (loop for node in new-nodes do (initialize-node node new-nodes))
-  (when (instans-active-p instans)
-    (let ((dominators (dominator-nodes new-nodes)))
-      (loop for dominator in dominators
-	    do (initialize-new-node-tokens instans dominator))))
-  instans)
+;; (defun initialize-new-nodes (instans new-nodes)
+;;   (loop for node in new-nodes do (initialize-node node new-nodes))
+;;   (when (instans-active-p instans)
+;;     (let ((dominators (dominator-nodes new-nodes)))
+;;       (loop for dominator in dominators
+;; 	    do (initialize-new-node-tokens instans dominator))))
+;;   instans)
 
-;;; Union?
-(defgeneric initialize-new-node-tokens (instans node &optional stack)
-  (:method ((instans instans) (node triple-pattern-node) &optional stack)
-    (assert (null stack))
-    (let ((quad-store (instans-quad-store instans)))
-      (when quad-store
-	(error* "Quad store not implemented yet"))))
-  (:method ((instans instans) (join join-node) &optional stack)
-    (let* ((alpha-memory (join-alpha join))
-	   (beta-memory (join-beta join)))
-      (cond ((< (store-count beta-memory) (store-count alpha-memory))
-	     (loop for beta-token in (store-tokens beta-memory)
-		   do (add-beta-token join beta-token stack)))
-	    (t
-	     (loop for alpha-token in (store-tokens alpha-memory)
-		   do (add-alpha-token join alpha-token stack))))))
-  ;;; does this handle correctly new nodes with a beta-memory predecessor not in new nodes?
-  (:method ((instans instans) (betamem beta-memory) &optional stack)
-    (cond ((null stack)
-	   (when (node-prev betamem)
-	     (initialize-new-node-tokens instans (node-prev betamem) (cons betamem stack))))
-	  (t
-	   (loop for beta-token in (store-tokens betamem)
-		 when (join-node-p (car stack))
-		 do (add-beta-token (car stack) beta-token (cdr stack))
-		 else
-		 do (add-token (car stack) beta-token (cdr stack))))))
-  (:method ((instans instans) (node node) &optional stack)
-    (when (node-prev node)
-      (initialize-new-node-tokens instans (node-prev node) (cons node stack)))))
+;; ;;; Union?
+;; (defgeneric initialize-new-node-tokens (instans node &optional stack)
+;;   (:method ((instans instans) (node triple-pattern-node) &optional stack)
+;;     (assert (null stack))
+;;     (let ((quad-store (instans-quad-store instans)))
+;;       (when quad-store
+;; 	(error* "Quad store not implemented yet"))))
+;;   (:method ((instans instans) (join join-node) &optional stack)
+;;     (let* ((alpha-memory (join-alpha join))
+;; 	   (beta-memory (join-beta join)))
+;;       (cond ((< (store-count beta-memory) (store-count alpha-memory))
+;; 	     (loop for beta-token in (store-tokens beta-memory)
+;; 		   do (add-beta-token join beta-token stack)))
+;; 	    (t
+;; 	     (loop for alpha-token in (store-tokens alpha-memory)
+;; 		   do (add-alpha-token join alpha-token stack))))))
+;;   ;;; does this handle correctly new nodes with a beta-memory predecessor not in new nodes?
+;;   (:method ((instans instans) (betamem beta-memory) &optional stack)
+;;     (cond ((null stack)
+;; 	   (when (node-prev betamem)
+;; 	     (initialize-new-node-tokens instans (node-prev betamem) (cons betamem stack))))
+;; 	  (t
+;; 	   (loop for beta-token in (store-tokens betamem)
+;; 		 when (join-node-p (car stack))
+;; 		 do (add-beta-token (car stack) beta-token (cdr stack))
+;; 		 else
+;; 		 do (add-token (car stack) beta-token (cdr stack))))))
+;;   (:method ((instans instans) (node node) &optional stack)
+;;     (when (node-prev node)
+;;       (initialize-new-node-tokens instans (node-prev node) (cons node stack)))))
 
 (defun clear-instans-contents (instans)
   (loop for mem in (filter #'memoryp (instans-nodes instans))
@@ -163,7 +227,8 @@
       (setf (rule-instance-queue-select-count queue) 0)
       (setf (rule-instance-queue-construct-count queue) 0)
       (setf (rule-instance-queue-modify-count queue) 0))
-    (initialize-datablock-nodes this)))
+    (initialize-stores-and-indices this)
+    (initialize-data this)))
 
 (defgeneric initialize-datablock-nodes (instans)
   (:method ((this instans))
@@ -248,7 +313,11 @@
   (:method ((this beta-memory) token &optional stack)
     (unless (store-get-token this token)
       (store-put-token this token)
-      (call-succ-nodes #'add-beta-token this token stack)))
+      (loop for next in (node-succ this)
+	   do (cond ((typep next 'join-node)
+		     (add-beta-token next token stack))
+		    (t
+		     (add-token next token stack))))))
   (:method ((this filter-node) token &optional stack)
     (when (eval-sparql-filter (filter-test-func this) (loop for var in (node-use this) collect (token-value this token var)))
       (call-succ-nodes #'add-token this token stack)))
@@ -290,7 +359,11 @@
 	     (counter-var (existence-counter-var this))
 	     (new-token (make-token this token (list active-p-var counter-var) (list t 0)))) ;;; Node is active; zero hits
 	(store-put-token this new-token)
-	(add-beta-token (car (node-succ this)) new-token stack)
+	(let ((next (car (node-succ this))))
+	  (cond ((typep next 'join-node)
+		 (add-beta-token next new-token stack))
+		(t
+		 (add-token next new-token stack))))
 	(setf (token-value this new-token active-p-var) nil) ;;; Deactivate this node
 	(case (exists-kind this)
 	  (:simple-exists
@@ -332,7 +405,11 @@
 	     (counter-var (existence-counter-var this))
 	     (new-token (make-token this token (list active-p-var counter-var) (list t 0)))) ;;; Node is active; zero hits
 	(store-put-token this new-token)
-	(add-beta-token (car (node-succ this)) new-token stack)
+	(let ((next (car (node-succ this))))
+	  (cond ((typep next 'join-node)
+		 (add-beta-token next new-token stack))
+		(t
+		 (add-token next new-token stack))))
 	(setf (token-value this new-token active-p-var) nil) ;;; Deactivate this node
 	(when (zerop (token-value this new-token counter-var))
 	  (call-succ-nodes #'add-token (subgraph-end-node this) token stack))))) ; We pass the original token
@@ -399,7 +476,11 @@
   (:method ((this beta-memory) token &optional stack)
     (when (store-get-token this token)
       (store-remove-token this token)
-      (call-succ-nodes #'remove-beta-token this token stack)))
+      (loop for next in (node-succ this)
+	   do (cond ((typep next 'join-node)
+		     (remove-beta-token next token stack))
+		    (t
+		     (remove-token next token stack))))))
   (:method ((this filter-node) token &optional stack)
     (when (eval-sparql-filter (filter-test-func this) (loop for var in (node-use this) collect (token-value this token var)))
       (call-succ-nodes #'remove-token this token stack)))
@@ -431,7 +512,11 @@
     (let ((stored-token (store-get-token this token)))
       (store-remove-token this stored-token)
       (setf (token-value this stored-token (existence-active-p-var this)) t) ; Activate this node
-      (remove-beta-token (car (node-succ this)) stored-token stack)
+      (let ((next (car (node-succ this))))
+	(cond ((typep next 'join-node)
+	       (remove-beta-token next stored-token stack))
+	      (t
+	       (remove-token next stored-token stack))))
       (setf (token-value this stored-token (existence-active-p-var this)) nil) ;;; Deactivate this node
       (call-succ-nodes #'remove-token (subgraph-end-node this) stored-token stack)))
   (:method ((this exists-end-node) token &optional stack)
@@ -467,7 +552,11 @@
 	       (call-succ-nodes #'remove-token (subgraph-end-node this) token stack)) ; we take care of removing all matches after optional-end
 	      (t
 	       (setf (token-value this stored-token (existence-active-p-var this)) t) ; Activate this node
-	       (remove-beta-token (car (node-succ this)) stored-token stack) ; optional-end node takes care of removing all matches further down
+	       (let ((next (car (node-succ this))))
+		 (cond ((typep next 'join-node)
+			(remove-beta-token next stored-token stack))
+		       (t
+			(remove-token next stored-token stack)))) ; optional-end node takes care of removing all matches further down
 	       (setf (token-value this stored-token (existence-active-p-var this)) nil)))))) ;;; Deactivate this node
   (:method ((this optional-end-node) token &optional stack)
     (let* ((start-node (subgraph-start-node this))

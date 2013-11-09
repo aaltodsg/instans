@@ -5,8 +5,8 @@
 
 (in-package #:instans)
 
-(defvar *singleton-token* (list (list nil (sxhash nil))))
-(setf *singleton-token* (list (list nil (sxhash nil))))
+(defun make-singleton-token ()
+  (list (list nil (sxhash nil))))
 
 ;;; Note: key-item (nil key) is used instead of just the key to be able to call (assoc var token) to retrieve the value of a variable (nil never matches).
 (defgeneric make-token (node prev-token new-vars new-values)

@@ -74,7 +74,8 @@
       (let ((result (cond ((sparql-var-p subj)
 			   (cond ((sparql-var-p pred)
 				  (cond ((sparql-var-p obj) ;;; xxx
-					 (or (triple-pattern-matcher-xxx tm) (let ((node (add-node))) (setf (triple-pattern-matcher-xxx tm) node) node)))
+					 (setf existsp nil)
+					 (push-to-end triple-pattern-node (triple-pattern-matcher-xxx tm)))
 					(t ;;; xxo
 					 (gethash-or-else-update (get-or-create-table (triple-pattern-matcher-xxo tm)) obj (add-node)))))
 				 ((sparql-var-p obj) ;;; xpx
@@ -97,7 +98,8 @@
   (let ((result nil))
     (flet ((match? (triple-node &rest args) (if triple-node (push (cons triple-node (cons graph args)) result)))
 	   (gethash* (term table) (gethash (hashable-key term) table)))
-      (match? (triple-pattern-matcher-xxx tm) subj pred obj)
+      (loop for node in (triple-pattern-matcher-xxx tm)
+	    do (match? node subj pred obj))
       (let ((table (triple-pattern-matcher-sxx tm))) (if table (match? (gethash* subj table) pred obj)))
       (let ((table (triple-pattern-matcher-xpx tm))) (if table (match? (gethash* pred table) subj obj)))
       (let ((table (triple-pattern-matcher-xxo tm))) (if table (match? (gethash* obj table) subj pred )))

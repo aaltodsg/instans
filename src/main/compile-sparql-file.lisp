@@ -80,7 +80,7 @@
 			       (compile nil `(lambda (,(first (modify-insert-template node))
 						      ,@(mapcar #'second (modify-insert-parameters node)))
 					       ,@(rest (modify-insert-template node)))))))))
-    (initialize-new-nodes instans new-nodes)
+;    (initialize-new-nodes instans new-nodes)
     new-nodes))
 
 (defun sparql-expr-to-lisp (expr)
@@ -232,6 +232,7 @@
 						 (setf (cdr observed-result-list-tail) (list solution))
 						 (setf observed-result-list-tail (cdr observed-result-list-tail)))))))
 	(instans-add-rules instans-iri rules :report-function report-function :output-directory "/Users/enu/instans/tests/output")
+	(print-triple-pattern-matcher (instans-triple-pattern-matcher instans) *error-output*)
 	(instans-add-triples-from-url instans-iri triples graph)
 	(inform "Täällä ~S" rules)
 	(inform "Expected-results ~S" expected-results)
