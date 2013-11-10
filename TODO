@@ -11,3 +11,5 @@
 - add instans as a (hidden?) variable to sparql-ops
 - setting the base: trailing '/'
 - translate-template: is it enough to create rdf-iri by just string?
+- check that the compilation of node functions is done at the right place
+- where (during of after the parsing of sparql) should we replace blanks with vars?

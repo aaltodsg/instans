@@ -128,6 +128,7 @@
 	   (ignorable (collect-ignorable lambda-list)))
       `(progn
 	 (defun ,lisp-name (,@lambda-list)
+	   (declare (special *instans*))
 	   ,@(if ignorable (list `(declare (ignorable ,@ignorable))))
 	   ,@body)
 	 (add-sparql-op :kind ',kind :prefixed-name-string ,prefixed-name-string :lisp-name ',lisp-name :arguments ',arguments :returns ',returns :body ',body :hiddenp ,hiddenp)))))
@@ -163,6 +164,9 @@
 		,(if (eq return-type 'literal-or-string)
 		     `(make-instance 'rdf-literal :string (,string-operation (rdf-literal-string arg1) (rdf-literal-string arg2)) :lang (rdf-literal-lang arg1))
 		     `(,string-operation (rdf-literal-string arg1) (rdf-literal-string arg2)))))))))
+
+(defmacro current-instans ()
+  `*instans*)
 
 (defmacro sparql-call (name &rest args)
   (multiple-value-bind (library-name op-name)
