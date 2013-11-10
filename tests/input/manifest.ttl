@@ -1,4 +1,3 @@
-BASE           <file:///Users/enu/Sparql/sparql11-test-suite/bind/>   
 @prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix : <http://www.w3.org/2009/sparql/docs/tests/data-sparql11/bind/manifest#> .
 @prefix rdfs:	<http://www.w3.org/2000/01/rdf-schema#> .

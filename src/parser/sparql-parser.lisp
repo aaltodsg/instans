@@ -98,7 +98,6 @@
 	 (mode :query))
     (labels ((init () 
 	       (setf instans (lexer-instans lexer))
-	       (set-base (parse-iri "http://"))
 	       (clear-triples))
 	     (set-prefix (prefix-binding expansion) (rebind-prefix lexer prefix-binding expansion))
 	     (set-base (b) (set-lexer-base lexer b) (values))
@@ -518,9 +517,9 @@
   (with-open-file (input-stream query-file)
     (apply #'sparql-parse-stream instans input-stream keys)))
 
-(defun sparql-parse-stream (instans input-stream &key show-parse-p (newline-positions (list nil)) test-mode-p)
+(defun sparql-parse-stream (instans input-stream &key base show-parse-p (newline-positions (list nil)) test-mode-p)
   (declare (ignorable show-parse-p))
-  (let* ((lexer (make-instance 'sparql-lexer :instans instans :input-stream input-stream :newline-positions newline-positions))
+  (let* ((lexer (make-instance 'sparql-lexer :instans instans :input-stream input-stream :newline-positions newline-positions :base base))
 	 (parser (make-sparql-parser test-mode-p)))
     (funcall parser lexer :show-parse-p show-parse-p)))
 

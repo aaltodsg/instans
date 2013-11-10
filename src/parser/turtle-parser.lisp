@@ -26,7 +26,6 @@
 	 (instans nil))
     (labels ((init () 
 	       (setf instans (lexer-instans lexer))
-	       (set-base (parse-iri "http://"))
 	       (clear-triples))
 	     (set-prefix (prefix-binding expansion) (rebind-prefix lexer prefix-binding expansion))
 	     (set-base (b) (set-lexer-base lexer b) (values))
@@ -92,14 +91,14 @@
 	    (init)
 	    (apply #'turtle-parser lexer keys))))))
 
-(defun parse-turtle-file (file &optional show-parse-p)
+(defun parse-turtle-file (file &key show-parse-p base)
   (let ((*triple-count* 0)
 	(*triple-sizes* 0))
     (time
      (let* ((instans (make-instance 'instans :name file))
 	    (parser (make-turtle-parser)))
        (with-open-file (stream file)
-	 (let ((lexer (make-turtle-lexer stream instans)))
+	 (let ((lexer (make-instance 'turtle-lexer :instans instans :input-stream stream :base base)))
 	   (funcall parser lexer :show-parse-p show-parse-p)
 	   (inform "~%triple-count = ~D, triple-sizes = ~D~%strings: ~D elems, prefixes: ~D elems, keywords: ~D elems"
 		   *triple-count* *triple-sizes* (hash-table-count (lexer-string-table lexer)) (hash-table-count (lexer-prefix-table lexer)) (hash-table-count (lexer-keyword-table lexer)))))))))

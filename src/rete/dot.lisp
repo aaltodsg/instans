@@ -130,6 +130,9 @@
 (defmethod dot-node-tooltip :around ((this filter-node))
   (format nil "~A~%~A" (call-next-method) (filter-test-lambda this)))
 
+(defmethod dot-node-tooltip :around ((this modify-node))
+  (format nil "~A~%~A~%~A" (call-next-method) (modify-delete-lambda this) (modify-insert-lambda this)))
+
 (defgeneric dot-node-description (node &key html-labels-p shape show-vars-p)
   (:documentation "Returns a dot node description.")
   (:method ((this node) &key (html-labels-p t) shape show-vars-p)

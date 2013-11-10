@@ -6,7 +6,7 @@
 (in-package #:instans)
 
 (define-class abstract-sparql-turtle-lexer (abstract-lexer)
-  ((base :accessor lexer-base :initarg :base :initform nil)
+  ((base :accessor lexer-base :initarg :base :initform (parse-iri "http://"))
    (prefix-table :accessor lexer-prefix-table :initarg :prefix-table :initform (make-binding-table))
    (string-table :accessor lexer-string-table :initarg :string-table :initform (make-binding-table :weakness :value))
    (keyword-table :accessor lexer-keyword-table :initarg :keyword-table :initform nil)
@@ -16,7 +16,10 @@
 
 (defmethod initialize-instance :after ((this abstract-sparql-turtle-lexer) &key &allow-other-keys)
   (setf (lexer-keyword-table this) (make-keyword-table this))
-  (bind-prefix this "xsd" (parse-iri "http://www.w3.org/2001/XMLSchema#")))
+  (bind-prefix this "xsd" (parse-iri "http://www.w3.org/2001/XMLSchema#"))
+  (inform "lexer ~S: base = ~S" this (lexer-base this))
+  (when (lexer-base this)
+    (set-lexer-base this (lexer-base this))))
 
 (defgeneric set-lexer-base (lexer iri)
   (:method ((this abstract-sparql-turtle-lexer) iri)
@@ -96,12 +99,6 @@
   ((buffered-input-token :accessor lexer-buffered-input-token :initform nil)))
 
 (define-class turtle-lexer (abstract-sparql-turtle-lexer) ())
-
-(defun make-turtle-lexer (input-stream instans)
-  (make-instance 'turtle-lexer :input-stream input-stream :instans instans))
-
-(defun make-sparql-lexer (input-stream instans)
-  (make-instance 'sparql-lexer :input-stream input-stream :instans instans))
 
 (defmethod make-keyword-table ((this sparql-lexer))
   (declare (ignorable this))

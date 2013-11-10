@@ -132,9 +132,11 @@
 (define-class modify-node (rule-node) 
   ((delete-template :accessor modify-delete-template :initarg :delete-template)
    (delete-parameters :accessor modify-delete-parameters :initarg :delete-parameters)
+   (delete-lambda :accessor modify-delete-lambda :initarg :delete-lambda)
    (delete-func :accessor modify-delete-func)
    (insert-template :accessor modify-insert-template :initarg :insert-template)
    (insert-parameters :accessor modify-insert-parameters :initarg :insert-parameters)
+   (insert-lambda :accessor modify-insert-lambda :initarg :insert-lambda)
    (insert-func :accessor modify-insert-func)))
 
 (define-class quad-store ()

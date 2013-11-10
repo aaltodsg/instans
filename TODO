@@ -9,3 +9,4 @@
 - check make/generate variables/blanks
 - check remove-dot-segments
 - add instans as a (hidden?) variable to sparql-ops
+- setting the base: trailing '/'

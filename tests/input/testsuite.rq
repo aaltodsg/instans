@@ -1,5 +1,3 @@
-#BASE           <http://www.cs.hut.fi/~enu/sparql11-test-suite/bind/>   
-BASE           <file:///Users/enu/Sparql/sparql11-test-suite/bind/>    
 PREFIX instans: <http://instans.org/extensions/instans#>
 PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX :       <http://www.w3.org/2009/sparql/docs/tests/data-sparql11/bind/manifest#>
