@@ -10,3 +10,4 @@
 - check remove-dot-segments
 - add instans as a (hidden?) variable to sparql-ops
 - setting the base: trailing '/'
+- translate-template: is it enough to create rdf-iri by just string?

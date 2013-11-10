@@ -70,6 +70,7 @@
 		   ((aggregate-join-node-p node)
 		    (setf (aggregate-join-group-form-func node) (compile nil `(lambda ,(sparql-var-lisp-names (node-use node)) ,(aggregate-join-group-form node)))))
 		   ((modify-node-p node)
+		    (inform "modify-insert-template = ~S, modify-insert-parameters = ~S"  (modify-insert-template node) (modify-insert-parameters node))
 		    (let ((delete-lambda `(lambda (,(first (modify-delete-template node))
 						      ,@(mapcar #'second (modify-delete-parameters node)))
 					       ,@(rest (modify-delete-template node))))
