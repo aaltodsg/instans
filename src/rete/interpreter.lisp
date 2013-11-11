@@ -227,8 +227,23 @@
       (setf (rule-instance-queue-select-count queue) 0)
       (setf (rule-instance-queue-construct-count queue) 0)
       (setf (rule-instance-queue-modify-count queue) 0))
+    (initialize-constant-iris this)
     (initialize-stores-and-indices this)
     (initialize-data this)))
+
+(defgeneric initialize-constant-iris (instans)
+  (:method ((this instans))
+    (loop for (iri-string var) in (instans-constant-iri-var-alist this)
+	  do (set var (parse-iri iri-string)))))
+
+(defgeneric initialize-constant-literals (instans)
+  (:method ((this instans))
+    (loop for (key var string &rest args) in (instans-constant-literal-var-alist this)
+	  for lang = (getf args :lang)
+	  for type = (getf args :type)
+	  when lang do (set var (create-rdf-literal-with-lang string lang))
+	  else when type do (set var (create-rdf-literal-with-type string type))
+	  else do (error* "No type or lang in literal creation args ~S" args))))
 
 (defgeneric initialize-datablock-nodes (instans)
   (:method ((this instans))

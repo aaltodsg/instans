@@ -220,6 +220,8 @@
    (construct-function-arguments :accessor instans-construct-function-arguments :initarg :construct-function-arguments :initform nil)
    (input-function :accessor instans-input-function :initarg :input-function)
    (input-function-arguments :accessor instans-input-function-arguments :initarg :input-function-arguments :initform nil)
+   (constant-iri-var-alist :accessor instans-constant-iri-var-alist :initform nil)
+   (constant-literal-var-alist :accessor instans-constant-literal-var-alist :initform nil)
    (input-count :accessor instans-input-count :initarg :input-count)
    (add-quad-count :accessor instans-add-quad-count :initarg :add-quad-count)
    (remove-quad-count :accessor instans-remove-quad-count :initarg :remove-quad-count)))

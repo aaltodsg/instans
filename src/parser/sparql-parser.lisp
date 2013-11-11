@@ -123,6 +123,7 @@
 			subj))))
 	     (make-var (name) (make-sparql-var instans name))
 	     (generate-var (name) (make-sparql-var instans name))
+	     (blanks-to-vars (yesp) (setf replace-blank-nodes-by-vars-p yesp))
 	     (generate-blank-node-or-var ()
 	       (if replace-blank-nodes-by-vars-p (generate-sparql-var instans "!BLANK") (generate-rdf-blank-node instans)))
 	     (fold-left-binary (value funcs)
@@ -213,7 +214,7 @@
 	   (Test  ::= (Prologue ASSERT-TERMINAL (:OPT String) AssertTarget :RESULT (append (list 'ASSERT :name (opt-value $2)) $3)))
 	   (AssertTarget ::= (:OR ((:OPT FILTER-TERMINAL) Constraint INPUT-TERMINAL DataBlock OUTPUT-TERMINAL ExpectedValues
 				   :RESULT (list (if (opt-yes-p $0) :filter :expression) $1 :input $3 :output $5))
-				  (SelectQuery ValuesClause TRIPLES-TERMINAL |{-TERMINAL| TriplesBlockNoVars |}-TERMINAL| SOLUTIONS-TERMINAL DataBlock
+				  (SelectQuery ValuesClause TRIPLES-TERMINAL (|{-TERMINAL| :RESULT (blanks-to-vars nil)) (TriplesBlock :result (progn (blanks-to-vars t) $0)) |}-TERMINAL| SOLUTIONS-TERMINAL DataBlock
 					       :RESULT (list :select (build-query-expression (append $0 (opt-value $1))) :triples $4 :solutions $7))))
 	   ;; (Test  ::= (Prologue ASSERT-TERMINAL (:OPT String) AssertTarget ExpectedValues ValuesClause :RESULT (cons 'ASSERT (funcall $3 (opt-value $2) (opt-value $5) $4))))
 	   ;; (AssertTarget ::= (:OR (FILTER-TERMINAL Constraint :RESULT #'(lambda (name values expect) (append (list :name name :filter $1 :expect expect) values)))
@@ -222,7 +223,6 @@
 	   (ExpectedValue ::= (:OR ErrorValue DataBlockValue))
 	   (ErrorValue ::= (ERROR-TERMINAL (:OPT (|(-TERMINAL| String (:REP0 DataBlockValue) |)-TERMINAL| :RESULT (make-instance 'sparql-error :format $1 :arguments $2)))
 					   :RESULT (if (opt-yes-p $1) (opt-value $1) (make-instance 'sparql-error))))
-	   (TriplesBlockNoVars ::= ((:RESULT (setf replace-blank-nodes-by-vars-p nil)) TriplesBlock :RESULT (progn (setf replace-blank-nodes-by-vars-p t) $1)))
 	   ;; (QueryUnit ::= Query)
 	   ;; (Query ::= (Prologue (:OR SelectQuery ConstructQuery DescribeQuery AskQuery) ValuesClause))
 	   ;; (UpdateUnit ::= Update)
@@ -298,7 +298,7 @@
 	   (GraphOrDefault ::= (:OR (DEFAULT-TERMINAL :RESULT :default) ((:OPT GRAPH-TERMINAL) iri :RESULT $1)))
 	   (GraphRef ::= (GRAPH-TERMINAL iri :RESULT (list :graph $1)))
 	   (GraphRefAll ::= (:OR GraphRef (DEFAULT-TERMINAL :RESULT :default) (NAMED-TERMINAL :RESULT :named) (ALL-TERMINAL :RESULT :all)) :RESULT (list :graph $0))
-	   (QuadPattern ::= (|{-TERMINAL| Quads |}-TERMINAL| :RESULT $1))
+	   (QuadPattern ::= ((|{-TERMINAL| :RESULT (blanks-to-vars nil)) Quads |}-TERMINAL| :RESULT (progn (blanks-to-vars t) $1)))
 	   (QuadData ::= (|{-TERMINAL| Quads |}-TERMINAL| :RESULT $1))
 	   (Quads ::= (((:OPT TriplesTemplate) :RESULT (if (opt-yes-p $0) (cons 'BGP (get-triples))))
 		       (:REP0 (QuadsNotTriples (:OPT |.-TERMINAL|) ((:OPT TriplesTemplate) :RESULT (if (opt-yes-p $0) (cons 'BGP (get-triples)))) :RESULT (append $0 $2)))

@@ -303,3 +303,24 @@
 				     (t
 				      (term-to-pretty-string field))))))))
 
+;;;
+
+(defgeneric get-constant-iri (instans iri)
+  (:method ((this instans) iri)
+    (let* ((string (rdf-iri-string iri))
+	   (item (assoc string (instans-constant-iri-var-alist this) :test #'string=)))
+      (when (null item)
+	(setf item (list string (intern string)))
+	(push-to-end item (instans-constant-iri-var-alist this)))
+      (second item))))
+
+(defgeneric get-constant-literal (instans literal)
+  (:method ((this instans) literal)
+    (let* ((string (rdf-literal-to-string literal))
+	   (item (assoc string (instans-constant-literal-var-alist this) :test #'string=)))
+      (when (null item)
+	(setf item (append (list string (intern string) (rdf-literal-string literal))
+			   (if (rdf-literal-lang literal) (list :lang (rdf-literal-lang literal))
+			       (if (rdf-literal-type literal) (list :type (get-constant-iri (rdf-literal-type literal)))))))
+	(push-to-end item (instans-constant-literal-var-alist this)))
+      (second item))))

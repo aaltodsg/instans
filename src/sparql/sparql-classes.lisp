@@ -188,6 +188,14 @@
 (defun create-rdf-literal-with-lang (string lang)
   (make-instance 'rdf-literal :string string :lang lang :type *rdf-lang-string-iri*))
 
+(defgeneric rdf-literal-to-string (rdf-literal)
+  (:method ((this rdf-literal))
+    (coerce (append (cons #\" (coerce (rdf-literal-string this) 'list))
+		    '(#\")
+		    (if (rdf-literal-lang this) (cons #\@ (coerce (rdf-literal-lang this) 'list))
+			(if (rdf-literal-type this) (append '(#\^ #\^ #\<) (coerce (rdf-iri-string (rdf-literal-type this)) 'list) '(#\>)))))
+    'string)))
+
 (defgeneric uniquely-named-object-equal (o1 o2)
   (:method ((o1 uniquely-named-object) (o2 uniquely-named-object))
     (or (eq o1 o2)

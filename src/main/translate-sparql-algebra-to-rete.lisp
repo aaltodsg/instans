@@ -196,17 +196,13 @@
 		   (DELETE-INSERT (let* ((where-clause (getf args :where))
 					 (delete-clause (getf args :delete-clause))
 					 (delete-parameters (collect-expression-variables delete-clause))
-					 (delete-blanks (collect-blanks delete-clause))
 					 (instans-var (gensym "INSTANS"))
 					 (delete-lambda `(lambda (,instans-var ,@(mapcar #'sparql-var-lisp-name delete-parameters))
-							   ,@(translate-template delete-clause 'rete-remove instans-var delete-blanks)))
+							   ,@(translate-template instans delete-clause 'rete-remove instans-var nil)))
 					 (insert-clause (getf args :insert-clause))
 					 (insert-parameters (collect-expression-variables insert-clause))
-					 (insert-blanks (collect-blanks insert-clause))
-					 (instans-var (gensym "INSTANS"))
 					 (insert-lambda `(lambda (,instans-var ,@(mapcar #'sparql-var-lisp-name insert-parameters))
-							   ,@(translate-template insert-clause 'rete-add instans-var insert-blanks))))
-				    (unless (null delete-blanks) (sparql-error "DELETE clause may not contain blanks (~S)" delete-clause))
+							   ,@(translate-template instans insert-clause 'rete-add instans-var t))))
 				    (make-or-share-instance 'modify-node :prev (translate where-clause prev dataset) 
 							    :delete-template delete-clause
 							    :delete-parameters delete-parameters
@@ -240,29 +236,32 @@
 	((rdf-blank-node-p expr) (list expr))
 	(t nil)))
 
-(defun translate-template (template op instans-var blanks)
+(defun translate-template (instans template op instans-var allow-blanks-p)
   (multiple-value-bind (graph triple-patterns)
       (cond ((eq (car template) 'GRAPH)
 	     (values `',(second template) (rest (third template))))
 	    ((eq (car template) 'BGP)
 	     (values nil (rest template))))
-    (let* ((blank-var-alist (loop for blank in blanks collect (cons blank (gensym (uniquely-named-object-name blank)))))
+    (let* ((blanks (collect-blanks template))
+	   (blank-var-alist (loop for blank in blanks collect (cons blank (gensym (uniquely-named-object-name blank)))))
+	   (iri-vars nil)
+	   (literal-vars nil)
 	   (triple-op-forms (loop for triple-pattern in triple-patterns
 				  do (inform "Triple-pattern = ~S" triple-pattern)
 				  collect `(,op ,instans-var
 						,@(loop for term in triple-pattern
-							collect (cond ((rdf-iri-p term) `(create-iri ,(rdf-iri-string term)))
-								      ((sparql-var-p term) (sparql-var-lisp-name term))
-								      ((rdf-literal-p term)
-								       `(create-rdf-literal
-									 ,(rdf-literal-string term)
-									 ,@(if (rdf-literal-lang term) (list :lang (rdf-literal-lang term)))
-									 ,@(if (rdf-literal-type term) (list :type `(create-iri ,(rdf-literal-type term))))))
+							collect (cond ((sparql-var-p term) (sparql-var-lisp-name term))
+								      ((rdf-iri-p term) (let ((var (get-constant-iri instans term))) (push-to-end-new var iri-vars) var))
+								      ((rdf-literal-p term) (let ((var (get-constant-literal instans term))) (push-to-end-new var literal-vars) var))
 								      ((rdf-blank-node-p term) (cdr (assoc term blank-var-alist)))
 								      ((datetimep term) `(create-datetime ,(datetime-canonic-string term)))
 								      (t term)))
-						,@(if graph (list `(create-iri ,(rdf-iri-string graph))))))))
+						,(and graph (get-constant-iri instans (rdf-iri-string graph)))))))
       (cond ((null blanks) triple-op-forms)
+	    ((not allow-blanks-p)
+	     (sparql-error "Blank nodes not allowed in ~S" template))
 	    (t
 	     `(let (,@(loop for (blank . var) in blank-var-alist collect `(,var (generate-rdf-blank-node ,instans-var))))
 		,@triple-op-forms))))))
+
+
