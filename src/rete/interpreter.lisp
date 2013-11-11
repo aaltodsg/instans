@@ -79,7 +79,7 @@
 	     (setf (join-has-dummy-beta-p this) t))
 	    ((node-use this)
 	     (setf (join-beta-index this) (make-instance 'hash-token-index :key beta-key :id (format nil "beta-index ~A" (node-number this))))
-	     (setf (join-alpha-index this) (make-instance 'hash-token-index :key alpha-key :id (format nil "beta-alpha ~A" (node-number this))))))))
+	     (setf (join-alpha-index this) (make-instance 'hash-token-index :key alpha-key :id (format nil "alpha-index ~A" (node-number this))))))))
   (:method ((this aggregate-join-node))
     (setf (aggregate-join-group-partition this) (make-instance 'group-partition)))
   (:method ((this solution-modifiers-node))
@@ -449,7 +449,7 @@
 (defgeneric add-alpha-token (join alpha-token &optional stack)
   (:method ((this join-node) alpha-token &optional stack)
     (let ((key (join-alpha-key this alpha-token)))
-      (pop alpha-token) ; Drop hashkey
+;      (pop alpha-token) ; Drop hashkey
       (when (node-use this)
 	(index-put-token (join-alpha-index this) key alpha-token))
       (loop for beta-token in (cond ((null key) (store-tokens (join-beta this)))
@@ -593,14 +593,14 @@
 
 (defgeneric remove-alpha-token (join alpha-token &optional stack)
   (:method ((this join-node) alpha-token &optional stack)
-					;(pop alpha-token) ;;; Get rid of the hash key
+;    (pop alpha-token) ;;; Get rid of the hash key
     (let ((key (join-alpha-key this alpha-token)))
-      (pop alpha-token) ; Drop hashkey
+;      (pop alpha-token) ; Drop hashkey
       (when (node-use this)
 	(index-remove-token (join-alpha-index this) key alpha-token))
       (loop for beta-token in (cond ((null key) (store-tokens (join-beta this)))
 				    (t (index-get-tokens (join-beta-index this) key)))
-	    for new-token = (make-token this beta-token (node-def this) alpha-token)
+	    for new-token = (make-token this beta-token (node-def this) (loop for var in (node-def this) collect (second (assoc var alpha-token)))) ; alpha-token
 	    do (call-succ-nodes #'remove-token this new-token stack)))))
 
 (defgeneric remove-beta-token (join beta-token &optional stack)

@@ -11,7 +11,7 @@
 ;;; Note: key-item (nil key) is used instead of just the key to be able to call (assoc var token) to retrieve the value of a variable (nil never matches).
 (defgeneric make-token (node prev-token new-vars new-values)
   (:method ((this existence-start-node) prev-token new-vars new-values)
-    (let* ((key-item (or (car prev-token) (list (sxhash nil)))) ; We get the prev key here. It is either in an item (nil key), or if none, we use (nil (sxhash nil))
+    (let* ((key-item (or (car prev-token) (list nil (sxhash nil)))) ; We get the prev key here. It is either in an item (nil key), or if none, we use (nil (sxhash nil))
 	   (new-token prev-token)) ; We leave the key of prev-token in place to be able to retrieve the full prev-token in start-node-token
       (loop for var in new-vars for value in new-values
 	 do (push (list var value) new-token))

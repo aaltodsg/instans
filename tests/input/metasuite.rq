@@ -32,3 +32,8 @@ SELECT ?x ?reqlist
 WHERE {
   ?reqlist mapper:subject ?x; mapper:predicate mf:conformanceRequirement 
 }
+;
+# SELECT ?subj ?first
+# WHERE {
+#       ?subj mapper:predicate ?first 
+# }
