@@ -256,12 +256,14 @@
 								      ((rdf-blank-node-p term) (cdr (assoc term blank-var-alist)))
 								      ((datetimep term) `(create-datetime ,(datetime-canonic-string term)))
 								      (t term)))
-						,(and graph (get-constant-iri instans (rdf-iri-string graph)))))))
-      (cond ((null blanks) triple-op-forms)
-	    ((not allow-blanks-p)
+						,(and graph (get-constant-iri instans (rdf-iri-string graph))))))
+	   (specials (append iri-vars literal-vars)))
+      (cond ((and blanks (not allow-blanks-p))
 	     (sparql-error "Blank nodes not allowed in ~S" template))
 	    (t
-	     `(let (,@(loop for (blank . var) in blank-var-alist collect `(,var (generate-rdf-blank-node ,instans-var))))
-		,@triple-op-forms))))))
+	     `(,@(if specials `((declare (special ,@specials))))
+		 ,@(cond ((null blanks) triple-op-forms)
+			 (t `((let (,@(loop for (blank . var) in blank-var-alist collect `(,var (generate-rdf-blank-node ,instans-var))))
+				,@triple-op-forms))))))))))
 
 
