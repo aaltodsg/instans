@@ -224,24 +224,6 @@
   (compute-node-vars nodes))
 
 
-;;; Join access functions
-
-(defun join-alpha-key (join alpha-token)
-  (pop alpha-token) ;;; Get rid of the hash key
-  (loop for var in (node-use join)
-	collect (second (assoc var alpha-token))))
-
-;; (defun join-alpha-key (join alpha-token)
-;;   (pop alpha-token) ;;; Get rid of the hash key
-;;   (loop for var in (node-use join)
-;;         for index = (position var (node-def-preceq (join-alpha join)))
-;; 	do (checkit index "Missing var ~S in alpha-memory ~S" var (join-alpha join))
-;; 	collect (nth index alpha-token)))
-
-(defun join-beta-key (join beta-token)
-  (loop for var in (node-use join) collect (token-value join beta-token var)))
-
-
 ;;; -------
 ;;; Instans
 ;;; -------

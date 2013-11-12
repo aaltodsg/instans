@@ -26,7 +26,9 @@
   ((format :accessor sparql-error-format :initarg :format :initform nil)
    (arguments :accessor sparql-error-message-arguments :initarg :arguments :initform nil)))
 
-(define-class rdf-term () ())
+(define-class hashkeyed () ((hashkey :accessor hashkeyed-hashkey :initform nil)))
+
+(define-class rdf-term (hashkeyed) ())
 
 ;;; Should we canonize IRIs?
 (define-class rdf-iri (rdf-term)
@@ -49,7 +51,7 @@
 
 (define-class rdf-blank-node (rdf-term uniquely-named-object) ())
 
-(define-class sparql-var (uniquely-named-object) ())
+(define-class sparql-var (uniquely-named-object hashkeyed) ())
 
 (define-class sparql-unbound (rdf-term) ())
 
@@ -156,6 +158,24 @@
   (format stream "#<~A ~A = ~S>" (type-of this) (uniquely-named-object-name (sparql-binding-variable this)) (sparql-binding-value this)))
 
 ;;; END print-object
+
+(defgeneric compute-hashkey (hashkeyed)
+  (:method ((this rdf-iri))
+    (sxhash (rdf-iri-string this)))
+  (:method ((this rdf-literal))
+    (mix (mix (sxhash (rdf-literal-string this)) (sxhash (rdf-literal-lang this))) (get-hashkey (rdf-literal-type this))))
+  (:method ((this uniquely-named-object))
+    (sxhash (uniquely-named-object-name this)))
+  (:method ((this sparql-unbound))
+    (sxhash this)))
+
+(defun get-hashkey (x)
+  (cond ((typep x 'hashkeyed)
+	 (when (null (hashkeyed-hashkey x))
+	   (setf (hashkeyed-hashkey x) (compute-hashkey x)))
+	 (hashkeyed-hashkey x))
+	(t
+	 (sxhash x))))
 
 (defgeneric rdf-iri-to-string (iri)
   (:method ((this rdf-iri))

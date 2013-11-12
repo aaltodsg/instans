@@ -11,8 +11,8 @@
 	  (case (length key)
 	    (0 nil)
 	    ;;; Change this, if the iris are coded in other way
-	    (1 (make-hash-table :test #'equal))
-	    ((2 3) (make-hash-table :test #'equal))
+	    (1 (make-hash-table))
+	    ((2 3) (make-hash-table))
 	    (t (error* "Illegal key ~A" key))))))
 
 (defgeneric index-get-tokens (index key)
@@ -72,3 +72,23 @@
     (let ((table (hash-token-index-table this)))
       (unless (null table)
 	(clrhash table)))))
+
+(defun join-alpha-key (join alpha-token)
+  (pop alpha-token) ;;; Get rid of the hash key
+  (loop with key = (sxhash nil)
+	for var in (node-use join)
+	do (setf key (mix key (get-hashkey (second (assoc var alpha-token)))))
+	finally (return key)))
+
+;; (defun join-alpha-key (join alpha-token)
+;;   (pop alpha-token) ;;; Get rid of the hash key
+;;   (loop for var in (node-use join)
+;;         for index = (position var (node-def-preceq (join-alpha join)))
+;; 	do (checkit index "Missing var ~S in alpha-memory ~S" var (join-alpha join))
+;; 	collect (nth index alpha-token)))
+
+(defun join-beta-key (join beta-token)
+  (loop with key = (sxhash nil)
+	for var in (node-use join)
+	do (setf key (mix key (get-hashkey (token-value join beta-token var))))
+	finally (return key)))

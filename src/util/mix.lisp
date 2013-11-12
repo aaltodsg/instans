@@ -21,10 +21,10 @@
 ;;;; [ We skip a lot of unnexessary code]
 
 (defconstant mpf most-positive-fixnum)
-(declaim (inline mix))
+;; (declaim (inline mix))
 (defun mix (x y)
-  (declare (optimize (speed 3)))
-  (declare (type (and fixnum unsigned-byte) x y))
+  ;; (declare (optimize (speed 3)))
+  ;; (declare (type (and fixnum unsigned-byte) x y))
   ;; the ideas here:
   ;;   * Bits diffuse in both directions (shifted arbitrarily left by
   ;;     the multiplication in the calculation of XY, and shifted

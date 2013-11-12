@@ -452,8 +452,8 @@
 ;      (pop alpha-token) ; Drop hashkey
       (when (node-use this)
 	(index-put-token (join-alpha-index this) key alpha-token))
-      (loop for beta-token in (cond ((null key) (store-tokens (join-beta this)))
-				    (t (index-get-tokens (join-beta-index this) key)))
+      (loop for beta-token in (cond ((node-use this) (index-get-tokens (join-beta-index this) key))
+				    (t (store-tokens (join-beta this))))
 	    for new-token = (make-token this beta-token (node-def this) (loop for var in (node-def this) collect (second (assoc var alpha-token))))
 	    do (call-succ-nodes #'add-token this new-token stack)))))
 
@@ -462,9 +462,8 @@
     (let ((key (join-beta-key this beta-token)))
       (when (node-use this)
 	(index-put-token (join-beta-index this) key beta-token))
-      (loop for alpha-token in (cond ((null key)
-				      (store-tokens (join-alpha this)))
-				     (t (index-get-tokens (join-alpha-index this) key)))
+      (loop for alpha-token in (cond ((node-use this) (index-get-tokens (join-alpha-index this) key))
+				     (t (store-tokens (join-alpha this))))
 	    for new-token = (make-token this beta-token (node-def this) alpha-token)
 	    do (call-succ-nodes #'add-token this new-token stack)))))
 
@@ -598,8 +597,8 @@
 ;      (pop alpha-token) ; Drop hashkey
       (when (node-use this)
 	(index-remove-token (join-alpha-index this) key alpha-token))
-      (loop for beta-token in (cond ((null key) (store-tokens (join-beta this)))
-				    (t (index-get-tokens (join-beta-index this) key)))
+      (loop for beta-token in (cond ((node-use this) (index-get-tokens (join-beta-index this) key))
+				    (t (store-tokens (join-beta this))))
 	    for new-token = (make-token this beta-token (node-def this) (loop for var in (node-def this) collect (second (assoc var alpha-token)))) ; alpha-token
 	    do (call-succ-nodes #'remove-token this new-token stack)))))
 
@@ -608,9 +607,8 @@
     (let ((key (join-beta-key this beta-token)))
       (when (node-use this)
 	(index-remove-token (join-beta-index this) key beta-token))
-      (loop for alpha-token in (cond ((null key)
-				      (store-tokens (join-alpha this)))
-				     (t (index-get-tokens (join-alpha-index this) key)))
+      (loop for alpha-token in (cond ((node-use this) (index-get-tokens (join-alpha-index this) key))
+				     (t (store-tokens (join-alpha this))))
 	    for new-token = (make-token this beta-token (node-def this) alpha-token)
 	    do (call-succ-nodes #'remove-token this new-token stack)))))
 
