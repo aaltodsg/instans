@@ -333,6 +333,7 @@
 ;; simple literal  STR (IRI rsrc)
 (define-sparql-function "str" (:arguments ((x iri-or-literal)) :returns xsd-string)
   (:method ((x xsd-string-value)) x)
+  (:method ((x rdf-iri)) (rdf-iri-string x))
   (:method ((x rdf-literal)) (rdf-literal-string x))
   (:method ((x xsd-integer-value)) (format nil "~D" x))
   (:method ((x xsd-decimal-value)) (format nil "~F" x))
@@ -497,7 +498,7 @@
 (define-sparql-two-string-function strbefore literal-or-string (lambda (arg1 arg2)
 								   (let ((index (search arg2 arg1)))
 								     (cond ((not index) "")
-									   (t (subseq arg1 0 index) arg1)))))
+									   (t (subseq arg1 0 index))))))
 
 ;; 17.4.3.10 STRAFTER
 ;; ------------------

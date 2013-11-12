@@ -46,10 +46,9 @@
 (defun dot-node-pretty-name (node)
   (format nil (dot-node-pretty-name-format-string node) (dot-node-number node)))
 
-(defun dot-pretty-triple-pattern (triple-pattern)
+(defun dot-pretty-triple-pattern (triple-pattern &optional (shortp t))
   (flet ((shorten-string (s)
-	   (let ((i (position-if-not #'alphanumericp s :from-end t)))
-	     (if (and (numberp i) (< 0 i (length s))) (subseq s (+ i 1)) s))))
+	   (if (not shortp) s (let ((i (position-if-not #'alphanumericp s :from-end t))) (if (and (numberp i) (< 0 i (length s))) (subseq s (+ i 1)) s)))))
     (format nil "~{~a~^ ~}" (mapcar #'(lambda (x) (cond ((sparql-var-p x) (uniquely-named-object-name x))
 							((rdf-iri-p x) (shorten-string (rdf-iri-string x)))
 							((rdf-literal-p x)
@@ -123,6 +122,9 @@
     (format nil "~A: ~@[~%def ~A~]~@[~%use ~A~]~@[~%vars-in ~A~]~@[~%vars-out ~A~]" (node-name this)
 	    (var-orig-names this (node-def this)) (var-orig-names this (node-use this))
 	    (var-orig-names this (node-vars-in this)) (var-orig-names this (node-vars-out this)))))
+
+(defmethod dot-node-tooltip :around ((this triple-pattern-node))
+  (format nil "~A~%[~A]" (call-next-method) (dot-pretty-triple-pattern (triple-pattern-node-triple-pattern this) nil)))
 
 (defmethod dot-node-tooltip :around ((this bind-node))
   (format nil "~A~%~A" (call-next-method) (bind-form-lambda this)))

@@ -366,8 +366,11 @@
     	  (t
 	   (call-succ-nodes #'add-token this token stack))))
   (:method ((this select-node) token &optional stack)
-    (assert (null stack))
-    (rete-add-rule-instance (node-instans this) this token))
+    (cond ((null (node-succ this))
+	   (assert (null stack))
+	   (rete-add-rule-instance (node-instans this) this token))
+	  (t
+	   (call-succ-nodes #'add-token this token stack))))
   (:method ((this exists-start-node) token &optional stack)
     (unless (store-get-token this token)
       (let* ((active-p-var (existence-active-p-var this))
@@ -520,8 +523,11 @@
 	  (t
 	   (call-succ-nodes #'remove-token this token stack))))
   (:method ((this select-node) token &optional stack)
-    (assert (null stack))
-    (rete-remove-rule-instance (node-instans this) this token))
+    (cond ((null (node-succ this))
+	   (assert (null stack))
+	   (rete-remove-rule-instance (node-instans this) this token))
+	  (t
+	   (call-succ-nodes #'remove-token this token stack))))
   (:method ((this exists-start-node) token &optional stack)
     (let ((stored-token (store-get-token this token)))
       (store-remove-token this stored-token)

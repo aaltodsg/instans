@@ -39,10 +39,8 @@
 		do (let* ((*print-circle* nil)
 			  (*print-pretty* t)
 			  (*print-right-margin* 110))
-		     (print expr *error-output*)
 		     (let ((string (with-output-to-string (str) (print expr str))))
 		       (setf string (cl-ppcre:regex-replace-all ">" (cl-ppcre:regex-replace-all "<"  string "&lt;") "&gt;"))
-		       (print string *error-output*)
 		       (format out "~A" string)))))
 	(print-dot-file instans dot-output-file :html-labels-p nil)
 	(assert (probe-file mkhtml-script))
@@ -188,13 +186,16 @@
 	       (inform "~S" string))
 	     (with-input-from-string (stream string)
 					;      (sparql-parse-stream stream)
-	       (compile-sparql-stream stream :instans instans :input-name (if (stringp rules) rules (rdf-iri-string rules)) :output-directory output-directory :base base :silentp silentp)
-	       (when report-function
-		 (setf (instans-select-function instans) report-function))
-	       (when report-function-arguments
-		 (setf (instans-select-function-arguments instans) report-function-arguments))
-	       (initialize-execution instans)
-	       instans-iri))))))
+	       (let ((compile-result
+		      (compile-sparql-stream stream :instans instans :input-name (if (stringp rules) rules (rdf-iri-string rules)) :output-directory output-directory :base base :silentp silentp)))
+		 (cond ((eq compile-result instans)
+			(when report-function
+			  (setf (instans-select-function instans) report-function))
+			(when report-function-arguments
+			  (setf (instans-select-function-arguments instans) report-function-arguments))
+			(initialize-execution instans)
+			instans-iri)
+		       (t (sparql-error "~A:~A" rules (parsing-error-message compile-result)))))))))))
 
 (defun instans-add-triples-from-url (instans-iri triples &key graph base silentp)
   (let ((instans (get-instans instans-iri)))
@@ -209,18 +210,18 @@
 										(unless silentp
 										  (inform "~%Event callback: ~D triples~%" (length triples))
 										  (loop for tr in triples do (inform " ~S~%" tr)))
-										(process-triple-input instans triples '(:add :execute) :graph (if (equalp graph "DEFAULT") nil graph))))))
+										(process-triple-input instans triples '(:add :execute) :graph (if (and graph (rdf-iri-equal graph *rdf-nil*)) nil graph))))))
 		 (unless silentp
 		   (inform "~%Processing triples:~%"))
 		 (time (funcall triples-parser triples-lexer))
 		 instans-iri)))))))
 
 (defun instans-execute-system (rules triples &key expected-results graph base &aux (silentp t))
-;  (inform "execute_system ~A ~A ~A ~A" rules triples expected-results graph)
+  (inform "execute_system ~A ~A ~A ~A ~A" rules triples expected-results graph base)
 ;  (handler-case 
   (flet ((show-solutions (sl) (loop for s in sl do (inform "Solution: ~{~A~^ ~}" (sparql-result-bindings s)))))
     (multiple-value-bind (instans instans-iri) (create-instans)
-      (let* ((comparep (not (null expected-results)))
+      (let* ((comparep (and expected-results (not (rdf-iri-equal expected-results *rdf-nil*))))
 	     (expected-query-results (if comparep (if (stringp expected-results) (parse-srx-file instans expected-results) (parse-srx-from-url instans expected-results))))
 	     (expected-result-list (if comparep (sparql-query-results-results expected-query-results)))
 	     (observed-result-list (list nil))
@@ -233,7 +234,9 @@
 						 (inform "Node ~S, (node-use (node-prev node)) ~S, token ~S, solution ~S" node (node-use (node-prev node)) token solution)
 						 (setf (cdr observed-result-list-tail) (list solution))
 						 (setf observed-result-list-tail (cdr observed-result-list-tail)))))))
-	(instans-add-rules instans-iri rules :report-function report-function :output-directory "/Users/enu/instans/tests/output" :base base :silentp silentp)
+	(let ((add-rules-result (instans-add-rules instans-iri rules :report-function report-function :output-directory "/Users/enu/instans/tests/output" :base base :silentp silentp)))
+	  (when (sparql-error-p add-rules-result)
+	    (return-from instans-execute-system add-rules-result)))
 	(unless silentp
 	  (print-triple-pattern-matcher (instans-triple-pattern-matcher instans) *error-output*))
 	(instans-add-triples-from-url instans-iri triples :graph graph :base base :silentp silentp)
@@ -269,3 +272,4 @@
 ;)
 ;    (t (e) (values nil (sparql-error "Got an error: ~S" e)))))
 )
+

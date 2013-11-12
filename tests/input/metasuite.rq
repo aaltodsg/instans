@@ -1,3 +1,4 @@
+PREFIX runtests: <file:///Users/enu/instans/tests/input/>
 PREFIX mapper: <http://instans.org/extensions/mapper#> 
 PREFIX instans: <http://instans.org/extensions/instans#> 
 PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -9,31 +10,36 @@ PREFIX dawgt:  <http://www.w3.org/2001/sw/DataAccess/tests/test-dawg#>
 PREFIX its:    <http://instans.aalto.fi/testsuite/#>
 
 #SELECT ?x ?label ?reqlist 
-INSERT { ?reqlist mapper:subject ?x; mapper:predicate mf:conformanceRequirement}
-WHERE { ?x a mf:Manifest ;
-	   rdfs:label ?label ;
-	   mf:include ?reqlist
-}
-;
-DELETE { ?list mapper:subject ?subj; mapper:predicate ?pred }
-INSERT { ?subj ?pred ?first . ?rest mapper:subject ?subj; mapper:predicate ?pred  }
-WHERE {
-      ?list mapper:subject ?subj; mapper:predicate ?pred; rdf:first ?first; rdf:rest ?rest
-      FILTER (?rest != rdf:nil)
-}
-;
-DELETE { ?list mapper:subject ?subj; mapper:predicate ?pred }
-INSERT { ?subj ?pred ?first }
-WHERE {
-      ?list mapper:subject ?subj; mapper:predicate ?pred; rdf:first ?first; rdf:rest rdf:nil
-}
-;
-SELECT ?x ?reqlist 
-WHERE {
-  ?reqlist mapper:subject ?x; mapper:predicate mf:conformanceRequirement 
-}
-;
-# SELECT ?subj ?obj
-# WHERE {
-#        ?subj mf:conformanceRequirement ?obj
+# INSERT { ?reqlist mapper:subject ?x; mapper:predicate mf:conformanceRequirement}
+# WHERE { ?x a mf:Manifest ;
+# 	   rdfs:label ?label ;
+# 	   mf:include ?reqlist
 # }
+# ;
+# DELETE { ?list mapper:subject ?subj; mapper:predicate ?pred }
+# INSERT { ?subj ?pred ?first . ?rest mapper:subject ?subj; mapper:predicate ?pred  }
+# WHERE {
+#       ?list mapper:subject ?subj; mapper:predicate ?pred; rdf:first ?first; rdf:rest ?rest
+#       FILTER (?rest != rdf:nil)
+# }
+# ;
+# DELETE { ?list mapper:subject ?subj; mapper:predicate ?pred }
+# INSERT { ?subj ?pred ?first }
+# WHERE {
+#       ?list mapper:subject ?subj; mapper:predicate ?pred; rdf:first ?first; rdf:rest rdf:nil
+# }
+# ;
+# SELECT ?x ?reqlist 
+# WHERE {
+#   ?reqlist mapper:subject ?x; mapper:predicate mf:conformanceRequirement 
+# }
+# ;
+SELECT *
+WHERE {
+      { SELECT ?path ?manifest WHERE {
+      	     ?subj rdf:first ?manifest
+	     FILTER(strends(str(?manifest), "manifest.ttl"))
+	     BIND(strbefore(str(?manifest),"manifest.ttl") AS ?path)
+      }}
+      BIND(instans:execute_system(runtests:testsuite.rq, ?manifest, rdf:nil, rdf:nil, iri(?path)) AS ?success)
+}
