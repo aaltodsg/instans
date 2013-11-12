@@ -203,7 +203,7 @@
 		 (cond ((null sparql-op)
 			(parsing-failure "~A does not name a Sparql function or form" iri))
 		       (t
-			(inform "create-call-through-iri ~A ~A" sparql-op arglist)
+;			(inform "create-call-through-iri ~A ~A" sparql-op arglist)
 			(cons sparql-op arglist))))))
       (with-ll1-parser (sparql-parser)
 	  ;; ((a ::= (:rep1 b)))
@@ -523,11 +523,12 @@
 	 (parser (make-sparql-parser test-mode-p)))
     (funcall parser lexer :show-parse-p show-parse-p)))
 
-(defun sparql-parse-files (instans directory-path &key show-parse-p print-input-p print-result-p test-mode-p)
+(defun sparql-parse-files (instans directory-path &key show-parse-p print-input-p print-result-p test-mode-p silentp)
   (loop for file in (directory directory-path)
 	for newline-positions = (list nil)
         do (progn
-	     (inform "File ~A:" file)
+	     (unless silentp
+	       (inform "File ~A:" file))
 	     (when print-input-p
 	       (with-open-file (input file)
 		 (loop for line = (read-line input nil nil)

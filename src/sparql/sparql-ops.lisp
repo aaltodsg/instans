@@ -5,6 +5,9 @@
 
 (in-package #:instans)
 
+(eval-when (:compile-toplevel)
+  (load "sparql/sparql-types"))
+
 ;;; TODO
 ;;; * How should we name sparql-functions? Should we use sparql-zap or just zap? The latter is nice and short, but the function calls may be difficult to understand,
 ;;;   since we have to add the sparql- in front of the name?

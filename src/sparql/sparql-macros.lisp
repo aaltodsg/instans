@@ -105,7 +105,7 @@
 	 (iri-string-var (fmt-intern "*~:@(XSD-~A-IRI-STRING~)*" short-name))
 	 (iri-string (format nil "~A~(~A~)" xsd-value-type-prefix short-name)))
     `(progn 
-       (define-type ,lisp-type ,spec)
+       (deftype ,lisp-type () ',spec)
        (defvar ,iri-string-var)
        (defvar ,iri-var)
        (defvar ,descriptor-var)

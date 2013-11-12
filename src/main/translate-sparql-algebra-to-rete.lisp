@@ -38,8 +38,8 @@
 			  (and (consp v2) (equal-value (car v1) (car v2)) (equal-value (cdr v1) (cdr v2))))
 			 ((uniquely-named-object-p v1)
 			  (and (uniquely-named-object-p v2) (uniquely-named-object-equal v1 v2)))
-			 ((or (rdf-term-p v1) (xsd-value-p v1))
-			  (and (or (rdf-term-p v2) (xsd-value-p v2)) (sparql-call "sameTerm" v1 v2))))))
+			 ((or (rdf-term-p v1) (typep v1 'xsd-value))
+			  (and (or (rdf-term-p v2) (typep v2 'xsd-value)) (sparql-call "sameTerm" v1 v2))))))
 		     )
 ;		 (inform "equal-value ~S ~S -> ~S" v1 v2 r)
 		 r))
@@ -247,7 +247,7 @@
 	   (iri-vars nil)
 	   (literal-vars nil)
 	   (triple-op-forms (loop for triple-pattern in triple-patterns
-				  do (inform "Triple-pattern = ~S" triple-pattern)
+;				  do (inform "Triple-pattern = ~S" triple-pattern)
 				  collect `(,op ,instans-var
 						,@(loop for term in triple-pattern
 							collect (cond ((sparql-var-p term) (sparql-var-lisp-name term))

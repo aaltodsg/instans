@@ -464,7 +464,7 @@
 	(index-put-token (join-beta-index this) key beta-token))
       (loop for alpha-token in (cond ((node-use this) (index-get-tokens (join-alpha-index this) key))
 				     (t (store-tokens (join-alpha this))))
-	    for new-token = (make-token this beta-token (node-def this) alpha-token)
+	    for new-token = (make-token this beta-token (node-def this) (loop for var in (node-def this) collect (second (assoc var alpha-token))))
 	    do (call-succ-nodes #'add-token this new-token stack)))))
 
 (defgeneric remove-token (node token &optional stack)
@@ -609,7 +609,7 @@
 	(index-remove-token (join-beta-index this) key beta-token))
       (loop for alpha-token in (cond ((node-use this) (index-get-tokens (join-alpha-index this) key))
 				     (t (store-tokens (join-alpha this))))
-	    for new-token = (make-token this beta-token (node-def this) alpha-token)
+	    for new-token = (make-token this beta-token (node-def this) (loop for var in (node-def this) collect (second (assoc var alpha-token))))
 	    do (call-succ-nodes #'remove-token this new-token stack)))))
 
 (defun rule-instance-queue-empty-p (queue)

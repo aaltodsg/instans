@@ -17,7 +17,7 @@
 (defmethod initialize-instance :after ((this abstract-sparql-turtle-lexer) &key &allow-other-keys)
   (setf (lexer-keyword-table this) (make-keyword-table this))
   (bind-prefix this "xsd" (parse-iri "http://www.w3.org/2001/XMLSchema#"))
-  (inform "lexer ~S: base = ~S" this (lexer-base this))
+;  (inform "lexer ~S: base = ~S" this (lexer-base this))
   (when (lexer-base this)
     (set-lexer-base this (lexer-base this))))
 

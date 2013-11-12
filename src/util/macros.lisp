@@ -12,11 +12,11 @@
      (defclass ,class-name ,superclasses ,slots ,@rest)
      (defun ,(predicate-name (string class-name)) (x) (typep x ',class-name))))
 
-(defmacro define-type (name spec)
-  (let ((predicate-arg (gensym "X")))
-    `(progn
-       (deftype ,name  () ',spec)
-       (defmacro ,(predicate-name name) (,predicate-arg) (typep ,predicate-arg ',name)))))
+;; (defmacro define-type (name spec)
+;;   (let ((predicate-arg (gensym "X")))
+;;     `(progn
+;;        (deftype ,name  () ',spec)
+;;        (defmacro ,(predicate-name name) (,predicate-arg) (typep ,predicate-arg ',name)))))
 
 (defmacro define-output-function (function-name &key (stream-init-form '*error-output*))
   (let ((stream-var-name (intern (format nil "*~A-STREAM*" function-name)))
