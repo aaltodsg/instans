@@ -696,7 +696,6 @@
 				   for var-orig-name = (reverse-resolve-binding instans var)
 				   collect (list var-orig-name (token-value node token var)))))
     (inform "Rule ~A~%~{~{       ~A = ~S~}~^,~%~}~%" node displayed-bindings)
-    (when (select-node-p node) (select-to-json node nil :stream *error-output*))
 ))
  
 (defgeneric execute-rule-node (node token)
