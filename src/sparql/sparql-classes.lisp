@@ -318,3 +318,48 @@
 			       for binding = (find-if #'(lambda (b) (uniquely-named-object-equal var (sparql-binding-variable b))) (sparql-result-bindings result))
 			       when binding collect binding))))))
 
+(defgeneric sparql-results-compare (query-results1 query-results2 &key verbosep output-stream)
+  (:method ((query-results1 sparql-query-results) (query-results2 sparql-query-results) &key verbosep (output-stream *standard-output*))
+    (cond ((slot-boundp query-results1 'sparql-query-results-boolean)
+	   (cond ((slot-boundp query-results2 'sparql-query-results-boolean)
+		  (cond ((eq (sparql-query-results-boolean query-results1) (sparql-query-results-boolean query-results1))
+			 (when verbosep (format output-stream "Results ~S and ~S are equal" query-results1 query-results2))
+			 (values t t))
+			(t
+			 (when verbosep (format output-stream "Results ~S and ~S are not equal" query-results1 query-results2))
+			 (values nil nil))))
+		 (t
+		  (when verbosep (format output-stream "Results ~S and ~S are not equal" query-results1 query-results2))
+		  (values nil nil))))
+
+	  ((slot-boundp query-results2 'sparql-query-results-boolean)
+	   (when verbosep (format output-stream "Results ~S and ~S are not equal" query-results1 query-results2))
+	   (values nil nil))
+	  (t
+	   (let ((result-list1 (sparql-query-results-results query-results1))
+		 (result-list2 (sparql-query-results-results query-results2)))
+	     (cond ((and (= (length result-list1) (length result-list2))
+			 (every #'(lambda (r1 r2) (sparql-result-equal r1 r2)) result-list1 result-list2))
+		    (when verbosep (format output-stream "Results ~S and ~S are equal" result-list1 result-list2))
+		    (values t t))
+		   ((not (= (length result-list1) (length result-list2)))
+		    (when verbosep (format output-stream "Observed ~D results, expected ~D results" (length result-list1) (length result-list2)))
+		    (values nil nil))
+		   (t
+		    (flet ((show-solutions (sl) (loop for s in sl do (format output-stream "Solution: ~{~A~^ ~}" (sparql-result-bindings s)))))
+		      (let ((observed-minus-expected (set-difference result-list1 result-list2 :test #'sparql-result-equal))
+			    (expected-minus-observed (set-difference result-list2 result-list1 :test #'sparql-result-equal)))
+			(cond ((and (null observed-minus-expected) (null expected-minus-observed))
+			       (when verbosep
+				 (format output-stream "Expected and observed solutions same, but in a different order")
+				 (format output-stream "Expected:")
+				 (show-solutions result-list2)
+				 (format output-stream "Observed:")
+				 (show-solutions result-list1)
+				 (values t nil)))
+			      (t
+			       (format output-stream "Expected solutions not observed:")
+			       (show-solutions expected-minus-observed)
+			       (format output-stream "Observed solutions not expected:")
+			       (show-solutions observed-minus-expected)
+			       (values nil nil))))))))))))
