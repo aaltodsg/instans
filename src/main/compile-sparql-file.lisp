@@ -36,6 +36,7 @@
 	     (sa-output-file (make-pathname :directory truedirname :name name-part :type "sa")))
 	(with-open-file (out sa-output-file :direction :output :if-exists :supersede)
 	  (loop for expr in algebra-expr-list
+;	        do (inform "algebra-expr:~%~A" expr)
 		do (let* ((*print-circle* nil)
 			  (*print-pretty* t)
 			  (*print-right-margin* 110))
@@ -216,7 +217,7 @@
 		 (time (funcall triples-parser triples-lexer))
 		 instans-iri)))))))
 
-(defun instans-execute-system (rules triples &key expected-results graph base &aux (silentp t))
+(defun instans-execute-system (rules triples &key expected-results graph base (silentp t))
   (inform "execute_system ~A ~A ~A ~A ~A" rules triples expected-results graph base)
 ;  (handler-case 
   (flet ((show-solutions (sl) (loop for s in sl do (inform "Solution: ~{~A~^ ~}" (sparql-result-bindings s)))))

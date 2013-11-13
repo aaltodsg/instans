@@ -14,7 +14,7 @@
 (defun translate-sparql-algebra-to-rete (sae instans)
   (let ((new-nodes nil)
 					;	(level 0)
-	(bindings (instans-bindings instans)))
+	)
     (labels ((replace-exists-by-vars (e)
 	       (let ((exists-list nil)
 		     (counter-var-list nil))
@@ -30,7 +30,7 @@
 				  (t x))))
 		   (let ((new-expr (walk e)))
 		     (values new-expr exists-list counter-var-list)))))
-	     (generate-and-canonize-var (prefix) (canonize-sparql-var (generate-sparql-var prefix) bindings))
+	     (generate-and-canonize-var (prefix) (canonize-sparql-var instans (generate-sparql-var instans prefix)))
 	     (equal-value (v1 v2)
 	       (let ((r 
 	       (or (equal v1 v2)
@@ -71,7 +71,7 @@
 		    (or prev (make-or-share-instance 'beta-memory :prev nil)))
 		   (BGP (loop for triple-pattern in args
 			      do (progn
-				   (assert* (not (member 'PATH triple-pattern)) "Cannot handle paths yet ~S" triple-pattern)
+				   (when (member 'PATH triple-pattern) (parsing-failure "Cannot handle paths yet ~S" triple-pattern))
 				   (let* ((beta-memory (cond ((typep prev 'beta-memory) prev)
 							     (t (make-or-share-instance 'beta-memory :prev prev))))
 					  (triple-pattern-node (make-or-share-instance 'triple-pattern-node :triple-pattern triple-pattern :dataset dataset))
@@ -224,7 +224,7 @@
 							 :beta beta-memory :alpha alpha-memory))
 		      prev))
 		   (t
-		    (assert* nil "Cannot translate ~S" expr)
+		    (parsing-failure "Cannot translate ~S" expr)
 		    nil)))))
       (translate sae nil nil)
       new-nodes)))

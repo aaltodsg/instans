@@ -147,7 +147,10 @@
   (:method ((this solution-modifiers-node))
     (list-union (if (eq (solution-modifiers-project-vars this) '*)
 		    (node-def-preceq (node-prev this)) ;;; <- when is this computed?
-		    (solution-modifiers-project-vars this))
+		    (loop for item in (solution-modifiers-project-vars this)
+			 when (sparql-var-p item) collect item
+			 else when (and (consp item) (eq (car item) 'AS)) collect (second item)
+			 else do (error* "Illegal content ~S in projected vars of ~S" item this)))
 		(loop for ord in (solution-modifiers-order-by this)
 		      nconc (cond ((member (car ord) '(ASC DESC))
 				   (collect-expression-variables (second ord)))

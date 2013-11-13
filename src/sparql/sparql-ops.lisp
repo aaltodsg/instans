@@ -365,11 +365,11 @@
 ;; iri  URI(iri)
 (define-sparql-function "iri" (:arguments ((x iri-or-string)) :returns rdf-iri)
   (:method ((x rdf-iri)) x)
-  (:method ((x xsd-string-value)) (make-instance 'rdf-iri :string x)))
+  (:method ((x xsd-string-value)) (parse-iri x)))
 
 (define-sparql-function "uri" (:arguments ((x iri-or-string)) :returns rdf-iri)
   (:method ((x rdf-iri)) x)
-  (:method ((x xsd-string-value)) (make-instance 'rdf-iri :string x)))
+  (:method ((x xsd-string-value)) (parse-iri x)))
 
 ;; 17.4.2.9 BNODE
 ;; --------------
