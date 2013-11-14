@@ -5,21 +5,81 @@
 
 (in-package #:instans)
 
-(defun parse-srx-from-url (instans iri)
-  (cond ((string= (rdf-iri-scheme iri) "file")
-	 (let ((file-name (rdf-iri-path iri)))
-	   (inform "File-name ~S" file-name)
-	   (parse-srx-file instans file-name)))
-	(t
-	 (let* ((input-name (rdf-iri-string iri))
-		(data (drakma:http-request input-name))
-		(string (cond ((stringp data) data) (t (coerce (mapcar #'code-char (coerce data 'list)) 'string)))))
-	   (with-input-from-string (stream string)
-	     (parse-srx-stream instans stream :filename (rdf-iri-string iri)))))))
+(defun parse-results-file (instans filename &key filetype)
+  (let ((filetype (or filetype (intern (string-upcase (pathname-type filename)) 'keyword))))
+    (inform "filetype = ~S" filetype)
+    (with-open-file (stream filename)
+      (funcall (case filetype (:srx #'parse-srx-stream) (:srj #'parse-srj-stream) (t (error* "Cannot parse ~S. Unknown file type")))
+	       instans stream :filename filename))))
 
 (defun parse-srx-file (instans filename)
-  (with-open-file (stream filename)
-    (parse-srx-stream instans stream :filename filename)))
+  (parse-results-file instans filename :filetype :srx))
+
+(defun parse-srj-file (instans filename)
+  (parse-results-file instans filename :filetype :srj))
+
+(defun parse-results-from-url (instans iri &key filetype)
+  (let ((filetype (or filetype (intern (string-upcase (pathname-type (pathname (rdf-iri-path iri)))) 'keyword))))
+    (cond ((string= (rdf-iri-scheme iri) "file")
+	   (let ((filename (rdf-iri-path iri)))
+	     (inform "Filename ~S" filename)
+	     (parse-results-file instans filename :filetype filetype)))
+	  (t
+	   (let* ((input-name (rdf-iri-string iri))
+		  (data (drakma:http-request input-name))
+		  (string (cond ((stringp data) data) (t (coerce (mapcar #'code-char (coerce data 'list)) 'string)))))
+	     (with-input-from-string (stream string)
+	       (funcall (case filetype (:srx #'parse-srx-stream) (:srj #'parse-srj-stream) (t (error* "Cannot parse ~S. Unknown file type")))
+			instans stream :filename (rdf-iri-string iri))))))))
+
+(defun parse-srx-from-url (instans iri)
+  (parse-results-from-url instans iri :filetype :srx))
+
+(defun parse-srj-from-url (instans iri)
+  (parse-results-from-url instans iri :filetype :srj))
+
+(defun json-object-to-sparql-object (instans jo)
+  (let ((type (gethash "type" jo))
+	(value (gethash "value" jo)))
+    (cond ((equal type "uri")
+	   (parse-iri value))
+	  ((or (equal type "literal") (equal type "typed-literal"))
+	   (let ((lang (gethash "xml:lang" jo))
+		 (datatype (gethash "datatype" jo)))
+	     (cond ((not (null lang))
+		    (create-rdf-literal-with-lang value lang))
+		   ((not (null datatype))
+		    (create-rdf-literal-with-type value (parse-iri datatype)))
+		   (t
+		    value))))
+	  ((equal type "bnode")
+	   (make-rdf-blank-node instans (concatenate 'string "_:" value)))
+	  (t
+	   (error* "Cannot transform ~S to a Sparql object" jo)))))
+
+(defun parse-srj-stream (instans stream &key filename)
+  (declare (ignorable instans filename))
+  (let* ((object (yason:parse stream))
+	 (head (gethash "head" object))
+	 (results (gethash "results" object))
+	 (boolean (gethash "boolean" object))
+	 (query-results (make-instance 'sparql-query-results)))
+    (when head
+      (inform "vars = ~S"
+	      (setf (sparql-query-results-variables query-results)
+		    (mapcar #'(lambda (name) (make-sparql-var instans (string-upcase (concatenate 'string "?" name)))) (gethash "vars" head)))))
+    (when boolean
+      (inform "boolean = ~S"
+	      (setf (sparql-query-results-boolean query-results) boolean)))
+    (when results
+      (inform "results = ~S" 
+	      (setf (sparql-query-results-results query-results)
+		    (mapcar #'(lambda (result)
+				(maph #'(lambda (k v)
+					  (make-instance 'sparql-binding :variable (make-sparql-var instans (string-upcase (concatenate 'string "?" k))) :value (json-object-to-sparql-object instans v)))
+				      result))
+			    (gethash "bindings" results)))))
+    query-results))
 
 (defun parse-srx-stream (instans stream &key filename)
   (declare (special *sparql-var-factory*))
@@ -124,14 +184,14 @@
 	     (translated (tr parsed)))
 	translated))))
 
-(defun parse-srx-files (instans pathname-pattern)
-  (loop for file in (directory pathname-pattern)
-	for tr = (parse-srx-file instans file)
-        do (inform "File ~A" file)
-        when tr
-	do (cond ((slot-boundp tr 'boolean)
-		  (inform "Boolean value ~A" (sparql-query-results-solutions tr)))
-		 ((slot-boundp tr 'results)
-		  (loop for s in (sparql-query-results-solutions tr)
-			do (inform "Solution ~A" s)))
-		 (t (inform "No boolean nor results")))))
+;; (defun parse-srx-files (instans pathname-pattern)
+;;   (loop for file in (directory pathname-pattern)
+;; 	for tr = (parse-srx-file instans file)
+;;         do (inform "File ~A" file)
+;;         when tr
+;; 	do (cond ((slot-boundp tr 'boolean)
+;; 		  (inform "Boolean value ~A" (sparql-query-results-solutions tr)))
+;; 		 ((slot-boundp tr 'results)
+;; 		  (loop for s in (sparql-query-results-solutions tr)
+;; 			do (inform "Solution ~A" s)))
+;; 		 (t (inform "No boolean nor results")))))

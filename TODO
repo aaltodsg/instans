@@ -15,4 +15,4 @@
 - where (during of after the parsing of sparql) should we replace blanks with vars?
 - at some point, check the efficiency of IRI and literal creation (cashing, lazy evaluation of fields)
 - subselects should limit the variables that are passed forward in variable propagation
-
+- unique identity of variables etc? E.g., in sparql-query-results vs. tokens.

@@ -222,7 +222,7 @@
 					;  (handler-case 
   (multiple-value-bind (instans instans-iri) (create-instans)
     (let* ((comparep (and expected-results (not (rdf-iri-equal expected-results *rdf-nil*))))
-	   (expected-query-results (if comparep (if (stringp expected-results) (parse-srx-file instans expected-results) (parse-srx-from-url instans expected-results))))
+	   (expected-query-results (if comparep (if (stringp expected-results) (parse-results-file instans expected-results) (parse-results-from-url instans expected-results))))
 	   (expected-result-list (if comparep (sparql-query-results-results expected-query-results)))
 	   (observed-result-list (list nil))
 	   (observed-result-list-tail observed-result-list)
@@ -253,9 +253,16 @@
 		  do (setf vars (union vars (mapcar #'sparql-binding-variable (sparql-result-bindings result))))
 		  finally (return vars)))
       (setf (sparql-query-results-results observed-query-results) observed-result-list)
+      (sparql-query-results-to-json instans observed-query-results)
+      (when comparep
+	(sparql-query-results-to-json instans expected-query-results))
       (multiple-value-bind (similarp same-order-p)
 	  (cond ((null comparep) (values t t))
 		(t
 		 (sparql-results-compare expected-query-results observed-query-results :verbosep t :result-label1 "expected" :result-label2 "observed")))
 	(values similarp same-order-p (get-instans instans-iri))))))
+
+
+(defun metasuite ()
+  (sparql-call "instans:execute_system" "/Users/enu/instans/tests/input/metasuite.rq"  "/Users/enu/Sparql/sparql11-test-suite/manifest-all.ttl" nil nil (parse-iri "file:///Users/enu/Sparql/sparql11-test-suite/")))
 
