@@ -66,9 +66,10 @@
 	 (subj (first triple-pattern))
 	 (pred (second triple-pattern))
 	 (obj (third triple-pattern))
-	 (graph (triple-pattern-node-dataset triple-pattern-node))
 	 (existsp t))
-    (flet ((add-node () (setf existsp nil) (if graph (cons triple-pattern-node graph) triple-pattern-node)))
+    (inform "add-triple-pattern-node ~S, (~S, ~S, ~S)" triple-pattern-node subj pred obj)
+;    (flet ((add-node () (setf existsp nil) (if graph (cons triple-pattern-node graph) triple-pattern-node)))
+    (flet ((add-node () (setf existsp nil) triple-pattern-node))
       (let ((result (cond ((sparql-var-p subj)
 			   (cond ((sparql-var-p pred)
 				  (cond ((sparql-var-p obj) ;;; xxx
@@ -82,14 +83,14 @@
 				  (gethash-or-else-update (gethash-or-else-update (get-or-create-table (triple-pattern-matcher-xpo tm)) pred (make-hash-table :test #'equal)) obj (add-node)))))
 			  ((sparql-var-p pred)
 			   (cond ((sparql-var-p obj) ;;; sxx
-				  (gethash-or-else-update (get-or-create-table (triple-pattern-matcher-sxx tm)) pred (add-node)))
+				  (gethash-or-else-update (get-or-create-table (triple-pattern-matcher-sxx tm)) subj (add-node)))
 				 (t ;;; sxo
 				  (gethash-or-else-update (gethash-or-else-update (get-or-create-table (triple-pattern-matcher-sxo tm)) subj (make-hash-table :test #'equal)) obj (add-node)))))
 			  (t
 			   (cond ((sparql-var-p obj) ;;; spx
 				  (gethash-or-else-update (gethash-or-else-update (get-or-create-table (triple-pattern-matcher-spx tm)) subj (make-hash-table :test #'equal)) pred (add-node)))
 				 (t ;;; spo
-				  (gethash-or-else-update (gethash-or-else-update (gethash-or-else-update (get-or-create-table (triple-pattern-matcher-spx tm)) subj (make-hash-table :test #'equal)) pred (make-hash-table :test #'equal)) obj (add-node))))))))
+				  (gethash-or-else-update (gethash-or-else-update (gethash-or-else-update (get-or-create-table (triple-pattern-matcher-spo tm)) subj (make-hash-table :test #'equal)) pred (make-hash-table :test #'equal)) obj (add-node))))))))
 	(values result existsp)))))
 
 (defun match-quad (tm subj pred obj graph)

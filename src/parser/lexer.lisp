@@ -15,6 +15,7 @@
 (defgeneric make-keyword-table (abstract-sparql-turtle-lexer))
 
 (defmethod initialize-instance :after ((this abstract-sparql-turtle-lexer) &key &allow-other-keys)
+  (inform "haa")
   (setf (lexer-keyword-table this) (make-keyword-table this))
   (bind-prefix this "xsd" (parse-iri "http://www.w3.org/2001/XMLSchema#"))
   (when (lexer-base this)
@@ -22,6 +23,7 @@
 
 (defgeneric set-lexer-base (lexer iri)
   (:method ((this abstract-sparql-turtle-lexer) iri)
+    (inform "hii")
     (when (null (rdf-iri-scheme iri))
       (warn "Base does not define a scheme: ~A" iri)
       (describe iri)

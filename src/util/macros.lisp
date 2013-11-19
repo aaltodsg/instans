@@ -18,18 +18,29 @@
 ;;        (deftype ,name  () ',spec)
 ;;        (defmacro ,(predicate-name name) (,predicate-arg) (typep ,predicate-arg ',name)))))
 
-(defmacro define-output-function (function-name &key (stream-init-form '*error-output*))
-  (let ((stream-var-name (intern (format nil "*~A-STREAM*" function-name)))
-	(indent-var-name (intern (format nil "*~A-INDENT*" function-name)))
+;; (defmacro define-output-function (function-name &key (stream-init-form '*error-output*))
+;;   (let ((stream-var-name (intern (format nil "*~A-STREAM*" function-name)))
+;; 	(indent-var-name (intern (format nil "*~A-INDENT*" function-name)))
+;; 	(fmt-var (gensym "FMT"))
+;; 	(args-var (gensym "ARGS")))
+;;     `(progn
+;;        (defvar ,stream-var-name)
+;;        (defvar ,indent-var-name)
+;;        (defun ,function-name (,fmt-var &rest ,args-var)
+;; 	 (apply #'format ,stream-var-name (concatenate 'string "~%~V@T" ,fmt-var) ,indent-var-name ,args-var))
+;;        (eval-when (:compile-toplevel :load-toplevel :execute)
+;; 	 (setf ,stream-var-name ,stream-init-form)
+;; 	 (setf ,indent-var-name 0)))))
+
+(defmacro define-output-function (function-name)
+  (let ((indent-var-name (intern (format nil "*~A-INDENT*" function-name)))
 	(fmt-var (gensym "FMT"))
 	(args-var (gensym "ARGS")))
     `(progn
-       (defvar ,stream-var-name)
        (defvar ,indent-var-name)
        (defun ,function-name (,fmt-var &rest ,args-var)
-	 (apply #'format ,stream-var-name (concatenate 'string "~%~V@T" ,fmt-var) ,indent-var-name ,args-var))
+	 (apply #'format *error-output* (concatenate 'string "~%~V@T" ,fmt-var) ,indent-var-name ,args-var))
        (eval-when (:compile-toplevel :load-toplevel :execute)
-	 (setf ,stream-var-name ,stream-init-form)
 	 (setf ,indent-var-name 0)))))
 
 ;;; Access forms

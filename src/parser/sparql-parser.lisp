@@ -519,7 +519,8 @@
 
 (defun sparql-parse-stream (instans input-stream &key base show-parse-p (newline-positions (list nil)) test-mode-p)
   (declare (ignorable show-parse-p))
-  (let* ((lexer (make-instance 'sparql-lexer :instans instans :input-stream input-stream :newline-positions newline-positions :base base))
+  (let* ((args (list :instans instans :input-stream input-stream :newline-positions newline-positions))
+	 (lexer (apply #'make-instance 'sparql-lexer (if base (cons :base (cons base args)) args)))
 	 (parser (make-sparql-parser test-mode-p)))
     (funcall parser lexer :show-parse-p show-parse-p)))
 

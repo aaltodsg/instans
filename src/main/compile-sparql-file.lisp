@@ -238,8 +238,8 @@
       (let ((add-rules-result (instans-add-rules instans-iri rules :report-function report-function :output-directory "/Users/enu/instans/tests/output" :base base :silentp silentp)))
 	(when (sparql-error-p add-rules-result)
 	  (return-from instans-execute-system add-rules-result)))
-      (unless silentp
-	(print-triple-pattern-matcher (instans-triple-pattern-matcher instans) *error-output*))
+;      (unless silentp
+	(print-triple-pattern-matcher (instans-triple-pattern-matcher instans) *error-output*)
       (instans-add-triples-from-url instans-iri triples :graph graph :base base :silentp silentp)
       (pop observed-result-list)
       (unless silentp

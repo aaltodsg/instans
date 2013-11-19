@@ -78,5 +78,5 @@
 	       			     (:file "compile-sparql-file")
 				     (:file "testing")))))
 
-(progn (setf *print-circle* nil) (setf *print-right-margin* 250) (in-package #:instans))
+(progn (setf *print-circle* nil) (setf *print-right-margin* 250))
 
