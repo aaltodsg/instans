@@ -41,5 +41,5 @@ WHERE {
 	     FILTER(strends(str(?manifest), "manifest.ttl"))
 	     BIND(strbefore(str(?manifest),"manifest.ttl") AS ?path)
       }}
-      BIND(instans:execute_system(runtests:testsuite.rq, ?manifest, rdf:nil, rdf:nil, iri(?path)) AS ?success)
+      BIND(instans:execute_system(runtests:testsuite.rq, ?manifest, rdf:nil, rdf:nil, iri(?path)) AS ?ok)
 }

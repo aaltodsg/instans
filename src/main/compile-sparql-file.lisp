@@ -156,6 +156,7 @@
     (or (gethash instans-name *instanses*)
 	(sparql-error "INSTANS named ~S does not exist!" instans-name))))
 
+
 (defun read-from-url-or-file (name)
   (cond ((rdf-iri-p name)
 	 (cond ((string= (rdf-iri-scheme name) "file")
@@ -171,8 +172,7 @@
 		   while line
 		   do (format output "~A~%" line)))))
 	((stringp name)
-	 (cond ((or (and (>= (length name) 5) (or (string= (subseq name 0 5) "http:") (string= (subseq name 0 5) "file:")))
-		    (and (>= (length name) 6) (string= (subseq name 0 6) "https:")))
+	 (cond ((http-or-file-iri-string-p name)
 		(read-from-url-or-file (parse-iri name)))
 	       (t
 		(read-from-url-or-file (parse-namestring name)))))
@@ -214,10 +214,30 @@
 										(process-triple-input instans triples '(:add :execute) :graph (if (and graph (rdf-iri-equal graph *rdf-nil*)) nil graph))))))
 		 (unless silentp
 		   (inform "~%Processing triples:~%"))
-		 (time (funcall triples-parser triples-lexer))
+;		 (time 
+		  (funcall triples-parser triples-lexer)
+;		  )
 		 instans-iri)))))))
 
-(defun instans-execute-system (rules triples &key expected-results graph base (silentp t))
+(defvar *instans-execute-system-previous-rules* nil)
+(defvar *instans-execute-system-previous-triples* nil)
+(defvar *instans-execute-system-previous-expected-results* nil)
+(defvar *instans-execute-system-previous-graph* nil)
+(defvar *instans-execute-system-previous-base* nil)
+
+(defun instans-execute-system (rules triples &key expected-results graph base (silentp t) (use-previous-args-p nil))
+  (cond ((not use-previous-args-p)
+	 (setf *instans-execute-system-previous-rules* rules)
+	 (setf *instans-execute-system-previous-triples* triples)
+	 (setf *instans-execute-system-previous-expected-results* expected-results)
+	 (setf *instans-execute-system-previous-graph* graph)
+	 (setf *instans-execute-system-previous-base* base))
+	(t
+	 (setf rules *instans-execute-system-previous-rules*)
+	 (setf triples *instans-execute-system-previous-triples*)
+	 (setf expected-results *instans-execute-system-previous-expected-results*)
+	 (setf graph *instans-execute-system-previous-graph*)
+	 (setf base *instans-execute-system-previous-base*)))
   (inform "execute_system ~A ~A ~A ~A ~A" rules triples expected-results graph base)
 					;  (handler-case 
   (multiple-value-bind (instans instans-iri) (create-instans)
@@ -238,8 +258,8 @@
       (let ((add-rules-result (instans-add-rules instans-iri rules :report-function report-function :output-directory "/Users/enu/instans/tests/output" :base base :silentp silentp)))
 	(when (sparql-error-p add-rules-result)
 	  (return-from instans-execute-system add-rules-result)))
-;      (unless silentp
-	(print-triple-pattern-matcher (instans-triple-pattern-matcher instans) *error-output*)
+      (unless silentp
+	(print-triple-pattern-matcher (instans-triple-pattern-matcher instans) *error-output*))
       (instans-add-triples-from-url instans-iri triples :graph graph :base base :silentp silentp)
       (pop observed-result-list)
       (unless silentp
@@ -253,16 +273,19 @@
 		  do (setf vars (union vars (mapcar #'sparql-binding-variable (sparql-result-bindings result))))
 		  finally (return vars)))
       (setf (sparql-query-results-results observed-query-results) observed-result-list)
-      (sparql-query-results-to-json instans observed-query-results)
-      (when comparep
-	(sparql-query-results-to-json instans expected-query-results))
+      (unless silentp
+	(sparql-query-results-to-json instans observed-query-results)
+	(when comparep
+	  (sparql-query-results-to-json instans expected-query-results)))
       (multiple-value-bind (similarp same-order-p)
 	  (cond ((null comparep) (values t t))
 		(t
 		 (sparql-results-compare expected-query-results observed-query-results :verbosep t :result-label1 "expected" :result-label2 "observed")))
 	(values similarp same-order-p (get-instans instans-iri))))))
 
+(defun execute-prev ()
+  (instans-execute-system nil nil :use-previous-args-p t))
 
 (defun metasuite ()
-  (sparql-call "instans:execute_system" "/Users/enu/instans/tests/input/metasuite.rq"  "/Users/enu/Sparql/sparql11-test-suite/manifest-all.ttl" nil nil (parse-iri "file:///Users/enu/Sparql/sparql11-test-suite/")))
+  (sparql-call "instans:execute_system" "/Users/enu/instans/tests/input/metasuite.rq"  "/Users/enu/instans/tests/input/manifest-all.ttl" nil nil (parse-iri "file:///Users/enu/Sparql/sparql11-test-suite/")))
 

@@ -67,7 +67,7 @@
 	 (pred (second triple-pattern))
 	 (obj (third triple-pattern))
 	 (existsp t))
-    (inform "add-triple-pattern-node ~S, (~S, ~S, ~S)" triple-pattern-node subj pred obj)
+;    (inform "add-triple-pattern-node ~S, (~S, ~S, ~S)" triple-pattern-node subj pred obj)
 ;    (flet ((add-node () (setf existsp nil) (if graph (cons triple-pattern-node graph) triple-pattern-node)))
     (flet ((add-node () (setf existsp nil) triple-pattern-node))
       (let ((result (cond ((sparql-var-p subj)

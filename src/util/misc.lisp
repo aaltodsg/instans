@@ -63,6 +63,10 @@
 		collect ch)
 	  'string))
 
+(defun http-or-file-iri-string-p (str)
+  (or (and (>= (length str) 5) (or (string= (subseq str 0 5) "http:") (string= (subseq str 0 5) "file:")))
+      (and (>= (length str) 6) (string= (subseq str 0 6) "https:"))))
+
 ;;; Char ops accepting nil
 (defun char-code* (char-or-code) (if (characterp char-or-code) (char-code char-or-code) char-or-code))
 
