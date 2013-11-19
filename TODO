@@ -17,3 +17,4 @@
 - subselects should limit the variables that are passed forward in variable propagation
 - unique identity of variables etc? E.g., in sparql-query-results vs. tokens.
 - kill exists variables in vars-out
+- check that literals with lang tags have a lang (results)
