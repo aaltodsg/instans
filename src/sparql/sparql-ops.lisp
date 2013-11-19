@@ -490,7 +490,7 @@
 ;; 17.4.3.8 CONTAINS
 ;; -----------------
 ;; xsd:boolean  CONTAINS(string literal arg1, string literal arg2)
-(define-sparql-two-string-function contains xsd-boolean-value (lambda (arg1 arg2) (eql 0 (search arg2 arg1))))
+(define-sparql-two-string-function contains xsd-boolean-value (lambda (arg1 arg2) (not (null (search arg2 arg1)))))
 
 ;; 17.4.3.9 STRBEFORE
 ;; ------------------
