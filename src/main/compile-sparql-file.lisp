@@ -20,15 +20,17 @@
 	 (algebra-expr-list nil))
     (cond ((not (parsing-succeeded-p parsing))
 	   (warn "~%~@[~A: ~]~A~%" input-name (parsing-error-message parsing))
-	   (return-from compile-sparql-stream parsing))
+	   (return-from compile-sparql-stream (values nil (parsing-error-message parsing))))
 	  (t
 	   (unless silentp
 	     (inform "Parsed ~S" (first (parsing-result-stack parsing))))
 	   (setf algebra-expr-list (filter-not #'(lambda (x) (member (car x) '(PREFIX BASE))) (first (parsing-result-stack parsing))))))
     (setf (rest (last colors)) colors)
-    (loop for algebra-expr in algebra-expr-list
-	  for color in colors
-	  do (compile-sparql-algebra-expr instans algebra-expr :color color :silentp silentp))
+    (handler-case
+	(loop for algebra-expr in algebra-expr-list
+	      for color in colors
+	      do (compile-sparql-algebra-expr instans algebra-expr :color color :silentp silentp))
+      (t (e) (return-from compile-sparql-stream (values nil e))))
     (unless (null output-directory)
       (let* ((name-part (pathname-name input-name))
 	     (truedirname (pathname-directory (truename output-directory)))
@@ -187,16 +189,17 @@
 	       (inform "~S" string))
 	     (with-input-from-string (stream string)
 					;      (sparql-parse-stream stream)
-	       (let ((compile-result
-		      (compile-sparql-stream stream :instans instans :input-name (if (stringp rules) rules (rdf-iri-string rules)) :output-directory output-directory :base base :silentp silentp)))
-		 (cond ((eq compile-result instans)
+	       (multiple-value-bind (compile-result error)
+		   (compile-sparql-stream stream :instans instans :input-name (if (stringp rules) rules (rdf-iri-string rules)) :output-directory output-directory :base base :silentp silentp)
+		 (cond ((not (null error))
+			(sparql-error "~A:~A" rules error))
+		       (t
 			(when report-function
 			  (setf (instans-select-function instans) report-function))
 			(when report-function-arguments
 			  (setf (instans-select-function-arguments instans) report-function-arguments))
 			(initialize-execution instans)
-			instans-iri)
-		       (t (sparql-error "~A:~A" rules (parsing-error-message compile-result)))))))))))
+			compile-result)))))))))
 
 (defun instans-add-triples-from-url (instans-iri triples &key graph base silentp)
   (let ((instans (get-instans instans-iri)))
@@ -225,7 +228,8 @@
 (defvar *instans-execute-system-previous-graph* nil)
 (defvar *instans-execute-system-previous-base* nil)
 
-(defun instans-execute-system (rules triples &key expected-results graph base (silentp t) (use-previous-args-p nil))
+(defun instans-execute-system (rules triples &key expected-results graph base (output-directory nil) ; "/Users/enu/instans/tests/output"
+			       (silentp t) (use-previous-args-p nil))
   (cond ((not use-previous-args-p)
 	 (setf *instans-execute-system-previous-rules* rules)
 	 (setf *instans-execute-system-previous-triples* triples)
@@ -256,7 +260,7 @@
 					       (setf (cdr observed-result-list-tail) (list solution))
 					       (setf observed-result-list-tail (cdr observed-result-list-tail))))))
 	   (observed-query-results (make-instance 'sparql-query-results)))
-      (let ((add-rules-result (instans-add-rules instans-iri rules :report-function report-function :output-directory "/Users/enu/instans/tests/output" :base base :silentp silentp)))
+      (let ((add-rules-result (instans-add-rules instans-iri rules :report-function report-function :output-directory output-directory :base base :silentp silentp)))
 	(when (sparql-error-p add-rules-result)
 	  (return-from instans-execute-system add-rules-result)))
       (unless silentp
@@ -298,3 +302,35 @@
 	for manifest-iri-string = (format nil "~A/manifest.ttl" base-iri-string)
 	do (sparql-call "instans:execute_system" (parse-iri rules-iri-string) (parse-iri manifest-iri-string) nil nil (parse-iri base-iri-string))))
 
+; add
+; aggregates
+; basic-update
+; bind
+; bindings
+; clear
+; construct
+; copy
+; csv-tsv-res
+; delete-data
+; delete-insert
+; delete-where
+; delete
+; drop
+; entailment
+; exists
+; functions
+; grouping
+; json-res
+; move
+; negation
+; project-expression
+; property-path
+; service
+; subquery
+; syntax-query
+; syntax-update-1
+; syntax-update-2
+; update-silent
+; syntax-fed
+; service-description
+; protocol

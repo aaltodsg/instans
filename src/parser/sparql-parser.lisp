@@ -171,9 +171,11 @@
 		 (SERVICE
 		  (list 'SERVICE (second e) (third e) (simplify-joins (fourth e))))
 		 ((MINUS UNION)
-		  (list (first e) (mapcar #'simplify-joins (rest e))))
+		  (cons (first e) (mapcar #'simplify-joins (rest e))))
 		 (t e)))
 	     (translate-group-graph-pattern (ggp)
+	       ;; (inform "enter translate ~S" ggp)
+	       ;; (let ((v
 	       (loop with fs = nil
 		     with g = '(ZERO-PATTERN)
 		     for e in ggp
@@ -195,6 +197,7 @@
 			       (when (not (null fs))
 				 (setf g (list 'FILTER fs g)))
 			       (return g))))
+		     ;; ) (inform "exit translate ~S -> ~S" ggp v) v))
 	     (create-call (op-name &rest args)
 	       (or (apply #' create-sparql-call op-name args)
 		   (parsing-failure "~A does not name a Sparql function or form" op-name)))

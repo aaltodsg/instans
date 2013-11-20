@@ -15,7 +15,8 @@
   (let ((new-nodes nil)
 					;	(level 0)
 	)
-    (labels ((replace-exists-by-vars (e)
+    (labels ((translate-failure (fmt &rest args) (apply #'error* fmt args))
+	     (replace-exists-by-vars (e)
 	       (let ((exists-list nil)
 		     (counter-var-list nil))
 		 (labels ((walk (x)
@@ -71,7 +72,7 @@
 		    (or prev (make-or-share-instance 'beta-memory :prev nil)))
 		   (BGP (loop for triple-pattern in args
 			      do (progn
-				   (when (member 'PATH triple-pattern) (parsing-failure "Cannot handle paths yet ~S" triple-pattern))
+				   (when (member 'PATH triple-pattern) (translate-failure "Cannot handle paths yet ~S" triple-pattern))
 				   (let* ((beta-memory (cond ((typep prev 'beta-memory) prev)
 							     (t (make-or-share-instance 'beta-memory :prev prev))))
 					  (triple-pattern-node (make-or-share-instance 'triple-pattern-node :triple-pattern triple-pattern :dataset dataset))
@@ -150,8 +151,8 @@
 				  (t
 				   (translate `(FILTER ,e1 ,(create-sparql-call "!" `(EXISTS ,e2))) prev dataset)))))
 		   (UNION (let* ((start (if (and prev (typep prev 'beta-memory) (null (node-prev prev))) prev (make-or-share-instance 'union-start-node :prev prev)))
-				 (arg1-end (translate (first (first args)) start dataset))
-				 (arg2-end (translate (second (first args)) start dataset))
+				 (arg1-end (translate (first args) start dataset))
+				 (arg2-end (translate (second args) start dataset))
 				 (end (make-or-share-instance 'union-end-node :prev1 arg1-end :prev2 arg2-end :start-node start)))
 			    (push-to-end-new end (node-succ arg1-end))
 			    (push-to-end-new end (node-succ arg2-end))
@@ -224,7 +225,7 @@
 							 :beta beta-memory :alpha alpha-memory))
 		      prev))
 		   (t
-		    (parsing-failure "Cannot translate ~S" expr)
+		    (translate-failure "Cannot translate ~S" expr)
 		    nil)))))
       (translate sae nil nil)
       new-nodes)))

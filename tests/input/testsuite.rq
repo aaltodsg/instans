@@ -14,13 +14,13 @@ PREFIX its:    <http://instans.aalto.fi/testsuite/#>
 # }
 
 SELECT ?test ?name ?queryfile ?datafile ?resultfile ?success WHERE {
-       ?test a 	       mf:QueryEvaluationTest ;
-             mf:name   ?name ;
-    	     mf:action [ qt:query  ?queryfile ;
-    	                 qt:data   ?datafile ] ;
-    	     mf:result ?resultfile
-       .
-       BIND(instans:execute_system(?queryfile, ?datafile, ?resultfile, "DEFAULT") AS ?success)
+       ?test # a 	       mf:QueryEvaluationTest ;
+             mf:name   ?name .
+       ?test mf:action ?action .
+       { ?action qt:query ?queryfile } UNION { BIND(?action AS ?queryfile) FILTER(strends(str(?queryfile), ".rq"))}
+       { ?action qt:data ?datafile }   UNION { BIND(rdf:nil AS ?datafile) }
+       { ?test mf:result ?resultfile } UNION { BIND(rdf:nil AS ?resultfile) }
+       BIND(instans:execute_system(?queryfile, ?datafile, ?resultfile, rdf:nil) AS ?success)
 #       BIND(true AS ?success)
 }
 

@@ -28,10 +28,10 @@ OUTPUT=${OUTPUT_DIR}/$BN.html
 msg SPARQL=${SPARQL}, SA=${SA}, DOT=${DOT}, OUTPUT=${OUTPUT}
 {
 cat > $OUTPUT <<EOF
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <html>
 <head>
+<meta charset="utf-8"> 
 <title></title>
 </head>
 <body>
