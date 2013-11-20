@@ -72,7 +72,8 @@
   (:method ((this abstract-sparql-turtle-lexer) prefix-binding &optional suffix-string)
     (expand-iri this (cond ((null (cdr prefix-binding))
 ;			    (error* "Unbound prefix binding ~A" (car prefix-binding)))
-			    (lexer-error this "Unbound prefix binding ~A" (car prefix-binding)))
+;			    (lexer-error this "Unbound prefix binding ~A" (car prefix-binding)))
+			    nil)
 			   ((null suffix-string)
 			    (cdr prefix-binding))
 			   (t

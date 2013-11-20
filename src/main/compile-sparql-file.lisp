@@ -26,11 +26,13 @@
 	     (inform "Parsed ~S" (first (parsing-result-stack parsing))))
 	   (setf algebra-expr-list (filter-not #'(lambda (x) (member (car x) '(PREFIX BASE))) (first (parsing-result-stack parsing))))))
     (setf (rest (last colors)) colors)
-    (handler-case
-	(loop for algebra-expr in algebra-expr-list
-	      for color in colors
-	      do (compile-sparql-algebra-expr instans algebra-expr :color color :silentp silentp))
-      (t (e) (return-from compile-sparql-stream (values nil e))))
+    (loop for algebra-expr in algebra-expr-list
+	  for color in colors
+	  do (multiple-value-bind (new-nodes error-msg)
+		 (compile-sparql-algebra-expr instans algebra-expr :color color :silentp silentp)
+	       (declare (ignore new-nodes))
+	       (when error-msg
+		 (return-from compile-sparql-stream (values nil error-msg)))))
     (unless (null output-directory)
       (let* ((name-part (pathname-name input-name))
 	     (truedirname (pathname-directory (truename output-directory)))
@@ -56,31 +58,33 @@
   (declare (special *node-color-alist*))
   (unless silentp
     (inform "compiling ~S~%" algebra-expr))
-  (let* ((canonic (canonize-sparql-algebra-variables instans algebra-expr))
-	 (new-nodes (translate-sparql-algebra-to-rete canonic instans)))
-    (compute-node-uses-defs-and-vars new-nodes)
-    (loop for node in new-nodes
-	  do (push-to-end (cons node color) *node-color-alist*)
-	  do (cond ((filter-node-p node)
-		    (let ((filter-lambda `(lambda ,(sparql-var-lisp-names (node-use node)) ;(let ((v 
-					    (eq ,(sparql-expr-to-lisp (filter-test node)) t))))
-		      (setf (filter-test-lambda node) filter-lambda)
-		      (setf (filter-test-func node) (compile nil filter-lambda))))
-		   ((bind-node-p node)
-		    (let ((bind-lambda `(lambda ,(sparql-var-lisp-names (node-use node)) ,(sparql-expr-to-lisp (bind-form node)))))
-;		      (warn "bind-lambda = ~S" bind-lambda)
-		      (setf (bind-form-lambda node) bind-lambda)
-		      (setf (bind-form-func node) (compile nil bind-lambda))))
-		   ((aggregate-join-node-p node)
-		    (setf (aggregate-join-group-form-func node) (compile nil `(lambda ,(sparql-var-lisp-names (node-use node)) ,(aggregate-join-group-form node)))))
-		   ((modify-node-p node)
-		    (unless silentp
-		      (inform "compiling modify-insert-lambda ~S" (modify-insert-lambda node)))
-		    (setf (modify-delete-func node) (and (modify-delete-template node) (compile nil (modify-delete-lambda node))))
-		    (setf (modify-insert-func node) (and (modify-insert-template node) (compile nil (modify-insert-lambda node)))))))
+  (let ((canonic (canonize-sparql-algebra-variables instans algebra-expr)))
+    (multiple-value-bind (new-nodes error-msg) (translate-sparql-algebra-to-rete canonic instans)
+      (when error-msg
+	(return-from compile-sparql-algebra-expr (values nil error-msg)))
+      (compute-node-uses-defs-and-vars new-nodes)
+      (loop for node in new-nodes
+	    do (push-to-end (cons node color) *node-color-alist*)
+	    do (cond ((filter-node-p node)
+		      (let ((filter-lambda `(lambda ,(sparql-var-lisp-names (node-use node)) ;(let ((v 
+					      (eq ,(sparql-expr-to-lisp (filter-test node)) t))))
+			(setf (filter-test-lambda node) filter-lambda)
+			(setf (filter-test-func node) (compile nil filter-lambda))))
+		     ((bind-node-p node)
+		      (let ((bind-lambda `(lambda ,(sparql-var-lisp-names (node-use node)) ,(sparql-expr-to-lisp (bind-form node)))))
+					;		      (warn "bind-lambda = ~S" bind-lambda)
+			(setf (bind-form-lambda node) bind-lambda)
+			(setf (bind-form-func node) (compile nil bind-lambda))))
+		     ((aggregate-join-node-p node)
+		      (setf (aggregate-join-group-form-func node) (compile nil `(lambda ,(sparql-var-lisp-names (node-use node)) ,(aggregate-join-group-form node)))))
+		     ((modify-node-p node)
+		      (unless silentp
+			(inform "compiling modify-insert-lambda ~S" (modify-insert-lambda node)))
+		      (setf (modify-delete-func node) (and (modify-delete-template node) (compile nil (modify-delete-lambda node))))
+		      (setf (modify-insert-func node) (and (modify-insert-template node) (compile nil (modify-insert-lambda node)))))))
 
-;    (initialize-new-nodes instans new-nodes)
-    new-nodes))
+					;    (initialize-new-nodes instans new-nodes)
+      (values new-nodes nil))))
 
 (defun sparql-expr-to-lisp (expr)
   (cond ((consp expr)
@@ -242,7 +246,10 @@
 	 (setf expected-results *instans-execute-system-previous-expected-results*)
 	 (setf graph *instans-execute-system-previous-graph*)
 	 (setf base *instans-execute-system-previous-base*)))
-  (when (equalp graph "DEFAULT") (setf graph nil))
+  (when (or (equalp graph "DEFAULT") (rdf-iri-equal graph *rdf-nil*)) (setf graph nil))
+  (when (rdf-iri-equal base *rdf-nil*) (setf base nil))
+  (when (rdf-iri-equal triples *rdf-nil*) (setf triples nil))
+  (when (rdf-iri-equal expected-results *rdf-nil*) (setf expected-results nil))
   (inform "execute_system ~A ~A ~A ~A ~A" rules triples expected-results graph base)
 					;  (handler-case 
   (multiple-value-bind (instans instans-iri) (create-instans)
@@ -265,7 +272,8 @@
 	  (return-from instans-execute-system add-rules-result)))
       (unless silentp
 	(print-triple-pattern-matcher (instans-triple-pattern-matcher instans) *error-output*))
-      (instans-add-triples-from-url instans-iri triples :graph graph :base base :silentp silentp)
+      (unless (null triples)
+	(instans-add-triples-from-url instans-iri triples :graph graph :base base :silentp silentp))
       (pop observed-result-list)
       (unless silentp
 	(inform "Täällä ~S" rules)

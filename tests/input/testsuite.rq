@@ -13,8 +13,9 @@ PREFIX its:    <http://instans.aalto.fi/testsuite/#>
 #        mf:entries ?entries .
 # }
 
-SELECT ?test ?name ?queryfile ?datafile ?resultfile ?success WHERE {
-       ?test # a 	       mf:QueryEvaluationTest ;
+SELECT ?test ?name ?testtype ?queryfile ?datafile ?resultfile ?success WHERE {
+#       ?test a 	       ?testtype;
+       ?test a <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11> ;
              mf:name   ?name .
        ?test mf:action ?action .
        { ?action qt:query ?queryfile } UNION { BIND(?action AS ?queryfile) FILTER(strends(str(?queryfile), ".rq"))}

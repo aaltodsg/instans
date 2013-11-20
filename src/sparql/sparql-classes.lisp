@@ -132,7 +132,7 @@
 ;;; BEGIN print-object
 
 (defmethod print-object ((this sparql-error) stream)
-  (format stream "#<~A format=~S args=~A>" (type-of this) (sparql-error-format this)  (sparql-error-message-arguments this)))
+  (format stream "#<~A \"~A\">" (type-of this) (apply #'format nil (sparql-error-format this)  (sparql-error-message-arguments this))))
 
 (defmethod print-object ((this rdf-iri) stream)
   (format stream "#<~A ~A>" (type-of this) (rdf-iri-string this)))
