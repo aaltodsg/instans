@@ -14,14 +14,14 @@ PREFIX its:    <http://instans.aalto.fi/testsuite/#>
 # }
 
 SELECT ?test ?name ?testtype ?queryfile ?datafile ?resultfile ?success WHERE {
-       ?test a 	       ?testtype;
+#       ?test a 	       ?testtype;
+       ?test a <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11> ;
              mf:name   ?name .
        ?test mf:action ?action .
-       { BIND(?action AS ?queryfile) FILTER(strends(str(?queryfile), ".rq")) }
-       UNION
-       { ?action qt:query ?queryfile
-         OPTIONAL{ ?action qt:data ?datafile }
-         OPTIONAL{ ?test mf:result ?resultfile } }
-       BIND(instans:execute_system(?queryfile, if(bound(?datafile), ?datafile, rdf:nil), if(bound(?resultfile), ?resultfile, rdf:nil)) AS ?success)
+       { ?action qt:query ?queryfile } UNION { BIND(?action AS ?queryfile) FILTER(strends(str(?queryfile), ".rq"))}
+       { ?action qt:data ?datafile }   UNION { BIND(rdf:nil AS ?datafile) }
+       { ?test mf:result ?resultfile } UNION { BIND(rdf:nil AS ?resultfile) }
+       BIND(instans:execute_system(?queryfile, ?datafile, ?resultfile, rdf:nil) AS ?success)
+#       BIND(true AS ?success)
 }
 

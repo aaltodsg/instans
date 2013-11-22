@@ -270,6 +270,7 @@
       (let ((add-rules-result (instans-add-rules instans-iri rules :report-function report-function :output-directory output-directory :base base :silentp silentp)))
 	(when (sparql-error-p add-rules-result)
 	  (return-from instans-execute-system add-rules-result)))
+      (setf (instans-remove-rule-instances-p instans) t)
       (unless silentp
 	(print-triple-pattern-matcher (instans-triple-pattern-matcher instans) *error-output*))
       (unless (null triples)

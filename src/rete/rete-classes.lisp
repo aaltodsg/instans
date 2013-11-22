@@ -17,7 +17,7 @@
    (def-prec :accessor node-def-prec)
    (use-succ :accessor node-use-succ)
    (vars-add :accessor node-vars-add)
-   (vars-del :accessor node-vars-del)
+   (vars-del :accessor node-vars-del :initarg :vars-del :initform nil)
    (vars-in :accessor node-vars-in)
    (vars-out :accessor node-vars-out)
    (algebra-expr :accessor node-algebra-expr :initarg :algebra-expr :initform nil)

@@ -203,7 +203,7 @@
 		     (setf (node-vars-in node) vars-in)
 		     (setf (node-vars-add node) (node-def node))
 					;		     (setf (node-vars-add node) (list-intersection (node-def node) (node-use-succ node) :test #'equal)) ; This could be (node-def node)
-		     (setf (node-vars-del node) nil) ; This could be (list-difference (node-def-preceq node) (node-use-succ node) :test #'equal)
+;		     (setf (node-vars-del node) nil) ; This could be (list-difference (node-def-preceq node) (node-use-succ node) :test #'equal)
 		     (setf (node-vars-out node)
 			   (cond ((and (solution-modifiers-node-p node)
 				       (solution-modifiers-distinct-p node))
@@ -213,11 +213,15 @@
 				 (t
 				  ;; (list-difference (list-union vars-in (node-vars-add node) :test #'equal) (node-vars-del node) :test #'equal)
 				  ;; (checkit (null (filter #'null (list-intersection vars-in (node-vars-add node) :test #'equal))) "vars-in = ~S~&vars-add = ~S~&" vars-in (node-vars-add node))
-				  (append vars-in (node-vars-add node))
+;				  (append vars-in (node-vars-add node))
 				  ;; (loop for var in (node-vars-add node)
 				  ;; 	when (or (null var) (not (member var vars-in :test #'equal)))
 				  ;; 	do (push-to-end var vars-in))
 				  ;; vars-in
+				  (list-difference (list-union vars-in (node-vars-add node) :test #'uniquely-named-object-equal)
+						   (node-vars-del node) :test #'uniquely-named-object-equal)
+				  (checkit (null (filter #'null (list-intersection vars-in (node-vars-add node) :test #'equal))) "vars-in = ~S~&vars-add = ~S~&" vars-in (node-vars-add node))
+
 				  ))))))))
       (loop for node in nodes do (visit node)))))
 
