@@ -16,7 +16,6 @@
     (setf instans (make-instance 'instans :name instans-name)))
   (let* ((parsing (funcall parser instans stream :base base))
 	 (colors (list "Black" "Red" "Blue" "Green" "Orange"))
-	 (*gen-var-counter* 0)
 	 (algebra-expr-list nil))
     (cond ((not (parsing-succeeded-p parsing))
 	   (warn "~%~@[~A: ~]~A~%" input-name (parsing-error-message parsing))
@@ -88,7 +87,12 @@
 
 (defun sparql-expr-to-lisp (expr)
   (cond ((consp expr)
-	 (cons (sparql-op-lisp-name (first expr)) (mapcar #'sparql-expr-to-lisp (rest expr))))
+	 (let ((sparql-op (first expr))
+	       (args-in-lisp (mapcar #'sparql-expr-to-lisp (rest expr))))
+	   (cond ((sparql-form-p sparql-op)
+		  (apply (sparql-op-lisp-name sparql-op) args-in-lisp))
+		 (t
+		  (cons (sparql-op-lisp-name sparql-op) args-in-lisp)))))
 	((sparql-var-p expr)
 	 (intern (string (uniquely-named-object-name expr))))
 	(t expr)))
@@ -195,15 +199,13 @@
 					;      (sparql-parse-stream stream)
 	       (multiple-value-bind (compile-result error)
 		   (compile-sparql-stream stream :instans instans :input-name (if (stringp rules) rules (rdf-iri-string rules)) :output-directory output-directory :base base :silentp silentp)
-		 (cond ((not (null error))
-			(sparql-error "~A:~A" rules error))
-		       (t
-			(when report-function
-			  (setf (instans-select-function instans) report-function))
-			(when report-function-arguments
-			  (setf (instans-select-function-arguments instans) report-function-arguments))
-			(initialize-execution instans)
-			compile-result)))))))))
+		 (when (null error)
+		   (when report-function
+		     (setf (instans-select-function instans) report-function))
+		   (when report-function-arguments
+		     (setf (instans-select-function-arguments instans) report-function-arguments))
+		   (initialize-execution instans))
+		 (values compile-result error))))))))
 
 (defun instans-add-triples-from-url (instans-iri triples &key graph base silentp)
   (let ((instans (get-instans instans-iri)))
@@ -232,7 +234,7 @@
 (defvar *instans-execute-system-previous-graph* nil)
 (defvar *instans-execute-system-previous-base* nil)
 
-(defun instans-execute-system (rules triples &key expected-results graph base (output-directory nil) ; "/Users/enu/instans/tests/output"
+(defun instans-execute-system (rules triples &key expected-results graph base (output-directory nil); "/Users/enu/instans/tests/output") ; nil) ;
 			       (silentp t) (use-previous-args-p nil))
   (cond ((not use-previous-args-p)
 	 (setf *instans-execute-system-previous-rules* rules)
@@ -267,9 +269,11 @@
 					       (setf (cdr observed-result-list-tail) (list solution))
 					       (setf observed-result-list-tail (cdr observed-result-list-tail))))))
 	   (observed-query-results (make-instance 'sparql-query-results)))
-      (let ((add-rules-result (instans-add-rules instans-iri rules :report-function report-function :output-directory output-directory :base base :silentp silentp)))
-	(when (sparql-error-p add-rules-result)
-	  (return-from instans-execute-system add-rules-result)))
+      (multiple-value-bind (add-rules-result error)
+	  (instans-add-rules instans-iri rules :report-function report-function :output-directory output-directory :base base :silentp silentp)
+	(declare (ignorable add-rules-result))
+	(when (not (null error))
+	  (return-from instans-execute-system (values nil error))))
       (setf (instans-remove-rule-instances-p instans) t)
       (unless silentp
 	(print-triple-pattern-matcher (instans-triple-pattern-matcher instans) *error-output*))

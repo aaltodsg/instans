@@ -201,7 +201,7 @@
 			       (return g))))
 		     ;; ) (inform "exit translate ~S -> ~S" ggp v) v))
 	     (create-call (op-name &rest args)
-	       (or (apply #' create-sparql-call op-name args)
+	       (or (apply #'create-sparql-call op-name args)
 		   (parsing-failure "~A does not name a Sparql function or form" op-name)))
 	     (create-call-through-iri (iri arglist)
 	       (let ((sparql-op (find-sparql-op (rdf-iri-string iri))))

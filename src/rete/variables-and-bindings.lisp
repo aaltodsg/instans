@@ -37,8 +37,6 @@
       (let ((to (fmt-intern "?~D" (length (instans-bindings instans)))))
 	(add-binding instans from to))))
 
-(defvar *gen-var-counter* nil)
-
 (defun canonize-sparql-var (instans v)
   (resolve-or-add-binding instans v))
 

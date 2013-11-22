@@ -75,6 +75,9 @@
   (let ((sparql-op (find-sparql-op (string-downcase op-name))))
     (cond ((null sparql-op)
 	   nil)
+	  ;; ((sparql-form-p sparql-op)
+	  ;;  (let ((expanded (apply (sparql-op-lisp-name sparql-op) args)))
+	  ;;    expanded))
 	  (t
 	   (cons sparql-op args)))))
 

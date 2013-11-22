@@ -23,7 +23,7 @@
 			    (cond ((consp x)
 				   (cond ((member (car x) '(EXISTS NOT-EXISTS))
 					  (push-to-end x exists-list)
-					  (let ((v (generate-sparql-var instans "_C")))
+					  (let ((v (generate-and-canonize-var "!COUNTER")))
 					    (push-to-end v counter-var-list)
 					    (if (eq (car x) 'EXISTS) (create-sparql-call ">" v 0) (create-sparql-call "<=" v 0))))
 					 (t

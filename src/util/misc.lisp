@@ -74,6 +74,13 @@
 
 (defun digit-char-p* (ch &optional (radix 10)) (and ch (digit-char-p ch radix)))
 
+;;;
+
+(defun stream-contents-to-string (stream)
+  (with-output-to-string (output)
+    (loop for line = (read-line stream nil nil)
+	  while line do (format output "~A~%" line))))
+
 #+sbcl
 (defun shell-script (script &rest args)
   (let ((process (sb-ext:run-program "/bin/sh" (cons script args) :output t :error :output)))

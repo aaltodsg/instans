@@ -213,7 +213,7 @@
 ;; 17.4.1.2 IF
 ;; -----------
 ;; rdfTerm  IF (expression1, expression2, expression3)
-(define-sparql-form "if" (:arguments ((test ebv) (then term-or-value) (else term-or-value)) :returns term-or-value)
+(define-sparql-form "if" (:arguments ((test ebv) (then term-or-value) (else term-or-value)) :returns term-or-value :hiddenp t)
   `(if (sparql-call "ebv" ,test) ,then ,else))
 
 ;; 17.4.1.3 COALESCE !!! Missing !!!
@@ -276,7 +276,7 @@
 ;; -----------
 ;; xsd:boolean rdfTerm IN(expression, ...)
 ;;    The IN operator is equivalent to the SPARQL expression: (lhs = expression1) || (lhs = expression2) || ...
-(define-sparql-form "in" (:arguments (x &rest expressions) :returns xsd-boolean-value)
+(define-sparql-form "in" (:arguments (x &rest expressions) :returns xsd-boolean-value :hiddenp t)
   (let ((xvar (gensym "X")))
     `(let ((,xvar ,x))
        (or ,@(loop for expr in expressions collect `(sparql-call "=" ,xvar ,expr))))))
@@ -286,7 +286,7 @@
 ;; xsd:boolean rdfTerm NOT IN(expression, ...)
 ;;    Equivalent to (lhs != expression1) && (lhs != expression2) && ... and !(IN (expression1, expression2, ...))
 ;;
-(define-sparql-form "not in" (:arguments (x &rest expressions) :returns xsd-boolean-value)
+(define-sparql-form "not in" (:arguments (x &rest expressions) :returns xsd-boolean-value :hiddenp t)
   (let ((xvar (gensym "X")))
     `(let ((,xvar ,x))
        (and ,@(loop for expr in expressions collect `(not (sparql-call "=" ,xvar ,expr)))))))
