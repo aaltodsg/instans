@@ -1,0 +1,30 @@
+#!/usr/bin/env awk -f
+/^Rule/ {
+    if (name) printf "%s %s returns %s\n", type, name, success;
+}
+/.*SPARQL-VAR \?NAME> = .*/ {
+    split($4, n, "\"");
+    name = n[2];
+#    printf "\nNAME = %s\n", name;
+}
+/.*SPARQL-VAR \?TESTTYPE> = #<RDF-IRI / {
+    split($5, a, "#");
+    split(a[2], t, ">");
+    type = t[1];
+#    printf "TYPE = %s\n", type;
+}
+/.*SPARQL-VAR \?SUCCESS> = #<SPARQL-UNBOUND.*/ {
+    success = "UNBOUND";
+#    printf "SUCCESS = UNBOUND\n"
+}
+/.*SPARQL-VAR \?SUCCESS> = T/ {
+    success = "true";
+#    printf "SUCCESS = true\n"
+}
+/.*SPARQL-VAR \?SUCCESS> = NIL/ {
+    success = "false";
+#    printf "SUCCESS = false\n"
+}
+END {
+    if (name) printf "%s %s returns %s\n", type, name, success;
+}
