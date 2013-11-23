@@ -68,7 +68,7 @@
        (loop for (var1 value1) in t1
 	     for (var2 value2) in t2
 	     unless (and (or (and (null var1) (null var2))
-			     (uniquely-named-object-equal var1 var2))
+			     (sparql-var-equal var1 var2))
 			 (sparql-call "=" value1 value2))
 	     do (return nil)
 	     finally (return t))))

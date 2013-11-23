@@ -199,6 +199,7 @@
 			       (when (not (null fs))
 				 (setf g (list 'FILTER fs g)))
 			       (return g))))
+;			       (return (list 'ggp g)))))
 		     ;; ) (inform "exit translate ~S -> ~S" ggp v) v))
 	     (create-call (op-name &rest args)
 	       (or (apply #'create-sparql-call op-name args)

@@ -28,7 +28,7 @@
 
 (define-sparql-function "instans:execute_system" (:arguments ((rules iri-or-string) &optional (triples iri-or-string) (expected-results iri-or-string) (graph-iri rdf-iri) (base rdf-iri)) :returns xsd-boolean)
   (:method ((rules iri-or-string) &optional (triples iri-or-string) (expected-results iri-or-string) (graph-iri rdf-iri) (base rdf-iri))
-    (instans-execute-system rules triples :expected-results expected-results :graph graph-iri :base base)))
+    (instans-execute-system rules :triples triples :expected-results expected-results :graph graph-iri :base base)))
 
 			
 

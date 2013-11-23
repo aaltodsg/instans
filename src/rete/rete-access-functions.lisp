@@ -44,19 +44,19 @@
 
 (defgeneric make-rdf-blank-node (instans name)
   (:method ((this instans) name)
-      (make-uniquely-named-object (instans-blank-node-factory this) name)))
+    (make-uniquely-named-object (instans-blank-node-factory this) name)))
 
 (defgeneric generate-rdf-blank-node (instans &optional name-prefix)
   (:method ((this instans) &optional (name-prefix "_:!"))
-      (generate-object-with-unique-name (instans-blank-node-factory this) :name-prefix name-prefix)))
+    (generate-object-with-unique-name (instans-blank-node-factory this) :name-prefix name-prefix)))
 
 (defgeneric make-sparql-var (instans name)
   (:method ((this instans) name)
-      (make-uniquely-named-object (instans-var-factory this) name)))
+    (make-uniquely-named-object (instans-var-factory this) name)))
 
 (defgeneric generate-sparql-var (instans &optional name-prefix)
   (:method ((this instans) &optional name-prefix)
-      (generate-object-with-unique-name (instans-var-factory this) :name-prefix name-prefix)))
+    (generate-object-with-unique-name (instans-var-factory this) :name-prefix name-prefix)))
 
 ;;; Node access
 
@@ -120,12 +120,31 @@
   (:method ((this filter-memory))
     (list nil (filter-memory-prev-value-var this)))
   (:method ((this bind-node))
-    (list (bind-variable this)))
+    (let ((bvar (bind-variable this)))
+      (when (sparql-var-in-p bvar (node-def-preceq (node-prev this)))
+	(throw 'compute-node-uses-defs-and-vars (values nil (format nil "Bind variable ~S already bound!" bvar))))
+      (list bvar)))
   (:method ((this existence-start-node))
     (list nil (existence-active-p-var this) (existence-counter-var this)))
   (:method ((this aggregate-join-node))
     (loop for (var . rest) in (aggregate-join-var-aggr-list this)
 	  collect var))
+  (:method ((this solution-modifiers-node))
+    (if (eq (solution-modifiers-project-vars this) '*)
+	(node-def-preceq (node-prev this))
+	(loop for item in (solution-modifiers-project-vars this)
+	      with defined-vars = nil
+	      with seen-vars = (node-def-preceq (node-prev this))
+	      when (sparql-var-p item)
+	      do (progn (push item seen-vars) (push-to-end item defined-vars))
+	      else when (and (consp item) (eq (first item) 'AS))
+	      do (let ((var (second item)))
+		   (when (sparql-var-in-p var seen-vars)
+		     (throw 'compute-node-uses-defs-and-vars (values nil (format nil "Variable ~S in AS expression already bound!" var))))
+		   (push var seen-vars)
+		   (push-to-end var defined-vars))
+	      else do (error* "Illegal content ~S in projected vars of ~S" item this)
+	      finally (return defined-vars))))
   (:method ((this node)) nil))
 
 (defgeneric node-uses-vars (node)
@@ -145,12 +164,10 @@
   (:method ((this aggregate-join-node))
     (collect-expression-variables (aggregate-join-group this)))
   (:method ((this solution-modifiers-node))
-    (list-union (if (eq (solution-modifiers-project-vars this) '*)
-		    (node-def-preceq (node-prev this)) ;;; <- when is this computed?
-		    (loop for item in (solution-modifiers-project-vars this)
-			 when (sparql-var-p item) collect item
-			 else when (and (consp item) (eq (car item) 'AS)) collect (second item)
-			 else do (error* "Illegal content ~S in projected vars of ~S" item this)))
+    (list-union (unless (eq (solution-modifiers-project-vars this) '*)
+		  (loop for item in (solution-modifiers-project-vars this)
+			when (and (consp item) (eq (first item) 'AS))
+			nconc (collect-expression-variables (third item))))
 		(loop for ord in (solution-modifiers-order-by this)
 		      nconc (cond ((member (car ord) '(ASC DESC))
 				   (collect-expression-variables (second ord)))
@@ -173,7 +190,8 @@
 		   (let ((def-prec (reduce #'list-union (mapcar #'node-def-preceq precs) :initial-value nil)))
 		     (setf (node-def-prec node) def-prec)
 		     (setf (node-def node) (node-defines-vars node)))))))
-      (loop for node in nodes do (visit node)))))
+      (loop for node in nodes do (visit node))))
+  nodes)
 
 (defun compute-node-uses (nodes)
   (let ((visited nil))
@@ -185,7 +203,8 @@
 		   (let ((use-succ (reduce #'list-union (mapcar #'node-use-succeq succs) :initial-value nil)))
 		     (setf (node-use-succ node) use-succ)
 		     (setf (node-use node) (node-uses-vars node)))))))
-      (loop for node in nodes do (visit node)))))
+      (loop for node in nodes do (visit node))))
+  nodes)
 
 ;;; NEW NOTE! We should not delete any vars, since this may prevent right number of SPARQL instances being generated.
 ;;; Note! vars_add and vars_del can be used to optimize the contents of the tokens.  If we want to be able to add rules in runtime,
@@ -203,33 +222,33 @@
 		     (setf (node-vars-in node) vars-in)
 		     (setf (node-vars-add node) (node-def node))
 					;		     (setf (node-vars-add node) (list-intersection (node-def node) (node-use-succ node) :test #'equal)) ; This could be (node-def node)
-;		     (setf (node-vars-del node) nil) ; This could be (list-difference (node-def-preceq node) (node-use-succ node) :test #'equal)
+					;		     (setf (node-vars-del node) nil) ; This could be (list-difference (node-def-preceq node) (node-use-succ node) :test #'equal)
 		     (setf (node-vars-out node)
-			   (cond ((and (solution-modifiers-node-p node)
-				       (solution-modifiers-distinct-p node))
-				  (solution-modifiers-project-vars node))
-				 ((exists-end-node-p node)
-				  (node-vars-out (subgraph-start-node node)))
+			   (cond ((existence-end-node-p node)
+				  (let ((start (subgraph-start-node node)))
+				    (list-difference (node-vars-out start) (node-vars-add start) :test #'sparql-var-equal)))
 				 (t
 				  ;; (list-difference (list-union vars-in (node-vars-add node) :test #'equal) (node-vars-del node) :test #'equal)
 				  ;; (checkit (null (filter #'null (list-intersection vars-in (node-vars-add node) :test #'equal))) "vars-in = ~S~&vars-add = ~S~&" vars-in (node-vars-add node))
-;				  (append vars-in (node-vars-add node))
+					;				  (append vars-in (node-vars-add node))
 				  ;; (loop for var in (node-vars-add node)
 				  ;; 	when (or (null var) (not (member var vars-in :test #'equal)))
 				  ;; 	do (push-to-end var vars-in))
 				  ;; vars-in
-				  (list-difference (list-union vars-in (node-vars-add node) :test #'uniquely-named-object-equal)
-						   (node-vars-del node) :test #'uniquely-named-object-equal)
-				  (checkit (null (filter #'null (list-intersection vars-in (node-vars-add node) :test #'equal))) "vars-in = ~S~&vars-add = ~S~&" vars-in (node-vars-add node))
-
-				  ))))))))
-      (loop for node in nodes do (visit node)))))
+				  ;; (checkit (null (filter #'null (list-intersection vars-in (node-vars-add node) :test #'equal))) "vars-in = ~S~&vars-add = ~S~&" vars-in (node-vars-add node))
+				  (list-difference (list-union vars-in (node-vars-add node) :test #'sparql-var-equal)
+						   (node-vars-del node) :test #'sparql-var-equal)
+				  )))
+;		     (inform "~%visit ~S~%defs ~S~%uses ~S~%vars-add ~S~%vars-del ~S~%vars-in ~S~%vars-out ~S" node (node-def node) (node-use node) (node-vars-add node) (node-vars-del node) (node-vars-in node) (node-vars-out node))
+		     )))))
+      (loop for node in nodes do (visit node))))
+  nodes)
 
 (defun compute-node-uses-defs-and-vars (nodes)
-  (compute-node-defs nodes)
-  (compute-node-uses nodes)
-  (compute-node-vars nodes))
-
+  (catch 'compute-node-uses-defs-and-vars
+    (compute-node-defs nodes)
+    (compute-node-uses nodes)
+    (compute-node-vars nodes)))
 
 ;;; -------
 ;;; Instans

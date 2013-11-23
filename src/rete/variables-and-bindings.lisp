@@ -11,7 +11,7 @@
 	       (cond ((consp x)
 		      (collect (car x))
 		      (collect (cdr x)))
-		     ((sparql-var-p x) (push-to-end-new x variables :test #'uniquely-named-object-equal))
+		     ((sparql-var-p x) (push-to-end-new x variables :test #'sparql-var-equal))
 		     (t nil))))
       (collect p)
       variables)))
@@ -22,7 +22,7 @@
 
 ;;; Bindings and variables
 (defun resolve-binding (instans from)
-  (cdr (assoc from (instans-bindings instans) :test #'uniquely-named-object-equal)))
+  (cdr (assoc from (instans-bindings instans) :test #'sparql-var-equal)))
 
 (defun reverse-resolve-binding (instans to)
   (car (rassoc to (instans-bindings instans))))

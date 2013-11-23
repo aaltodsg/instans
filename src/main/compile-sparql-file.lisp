@@ -61,7 +61,11 @@
     (multiple-value-bind (new-nodes error-msg) (translate-sparql-algebra-to-rete canonic instans)
       (when error-msg
 	(return-from compile-sparql-algebra-expr (values nil error-msg)))
-      (compute-node-uses-defs-and-vars new-nodes)
+      (multiple-value-bind (result error-msg)
+	  (compute-node-uses-defs-and-vars new-nodes)
+	(declare (ignorable result))
+	(when error-msg
+	  (return-from compile-sparql-algebra-expr (values nil error-msg))))
       (loop for node in new-nodes
 	    do (push-to-end (cons node color) *node-color-alist*)
 	    do (cond ((filter-node-p node)
@@ -234,7 +238,7 @@
 (defvar *instans-execute-system-previous-graph* nil)
 (defvar *instans-execute-system-previous-base* nil)
 
-(defun instans-execute-system (rules triples &key expected-results graph base (output-directory nil); "/Users/enu/instans/tests/output") ; nil) ;
+(defun instans-execute-system (rules &key triples expected-results graph base (output-directory nil) ; "/Users/enu/instans/tests/output") ; nil) ;
 			       (silentp t) (use-previous-args-p nil))
   (cond ((not use-previous-args-p)
 	 (setf *instans-execute-system-previous-rules* rules)
@@ -302,7 +306,7 @@
 	(values similarp same-order-p (get-instans instans-iri))))))
 
 (defun execute-prev ()
-  (instans-execute-system nil nil :use-previous-args-p t))
+  (instans-execute-system nil :use-previous-args-p t))
 
 (defun metasuite ()
   (sparql-call "instans:execute_system" "/Users/enu/instans/tests/input/metasuite.rq"  "/Users/enu/instans/tests/input/manifest-all.ttl" nil nil (parse-iri "file:///Users/enu/Sparql/sparql11-test-suite/")))
@@ -313,7 +317,15 @@
 	for name in test-suite-names
         for base-iri-string = (format nil "~A/~A/" root-iri-string name)
 	for manifest-iri-string = (format nil "~A/manifest.ttl" base-iri-string)
-	do (sparql-call "instans:execute_system" (parse-iri rules-iri-string) (parse-iri manifest-iri-string) nil nil (parse-iri base-iri-string))))
+	do (instans-execute-system (parse-iri rules-iri-string) :triples (parse-iri manifest-iri-string) :base (parse-iri base-iri-string) :silentp t :output-directory "/Users/enu/instans/tests/output")))
+
+(defun run-syntax-tests (&rest test-names)
+  (loop with root-dir = "/Users/enu/Sparql/sparql11-test-suite"
+	for name in test-names
+        do (loop for path in (directory (format nil "~A/*/~A" root-dir name))
+		 for rq = (namestring path)
+		 do (inform "testing ~S" rq)
+		 do (instans-execute-system rq :silentp nil :output-directory "/Users/enu/instans/tests/output"))))
 
 ; add
 ; aggregates

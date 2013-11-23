@@ -254,8 +254,8 @@
 
 (defgeneric sparql-binding-equal (b1 b2)
   (:method ((b1 sparql-binding) (b2 sparql-binding))
-    (and (uniquely-named-object-equal (sparql-binding-variable b1) (sparql-binding-variable b2))
-	 (sparql-call "=" (sparql-binding-value b1) (sparql-binding-value b2)))))
+    (and (sparql-var-equal (sparql-binding-variable b1) (sparql-binding-variable b2))
+	 (sparql-value-equal (sparql-binding-value b1) (sparql-binding-value b2)))))
 
 (defun create-sparql-link (href)
   (make-instance 'sparql-link :href href))
@@ -316,7 +316,7 @@
 	   (loop with variables = (sparql-query-results-variables this)
 		 for result in (sparql-query-results-results this)
 		 collect (loop for var in variables
-			       for binding = (find-if #'(lambda (b) (uniquely-named-object-equal var (sparql-binding-variable b))) (sparql-result-bindings result))
+			       for binding = (find-if #'(lambda (b) (sparql-var-equal var (sparql-binding-variable b))) (sparql-result-bindings result))
 			       when binding collect binding))))))
 
 (defgeneric sparql-results-compare (query-results1 query-results2 &key verbosep output-stream result-label1 result-label2)
@@ -387,6 +387,13 @@
 	  (t
 	   (when verbosep (format output-stream "~%Cannot compare ~:(~A~) ~S and ~(~A~) ~S" result-label1 query-results1 result-label2 query-results2))
 	   (values nil nil)))))
+
+(defun sparql-var-equal (v1 v2)
+  (and (sparql-var-p v1) (sparql-var-p v2)
+       (uniquely-named-object-equal v1 v2)))
+
+(defun sparql-var-in-p (v vlist)
+  (find v vlist :test #'sparql-var-equal))
 
 (defun sparql-value-equal (v1 v2)
   (sparql-call "=" v1 v2))

@@ -89,7 +89,8 @@
 
 (defun initialize-data (instans)
   (loop for node in (instans-nodes instans)
-       do (add-initial-data node)))
+	do (inform "add-initial-data ~S" node)
+	do (add-initial-data node)))
 
 (defgeneric add-initial-data (node)
   ;;; Memory just creates store
@@ -690,11 +691,10 @@
   (+ (rule-instance-queue-select-count queue) (rule-instance-queue-construct-count queue) (rule-instance-queue-modify-count queue)))
 
 (defun report-rule-execution (node token)
-  (let* ((used-vars (if (select-node-p node) (node-use (node-prev node)) (node-use node)))
-	 (instans (node-instans node))
-	 (displayed-bindings (loop for var in used-vars
-				   for var-orig-name = (reverse-resolve-binding instans var)
-				   collect (list var-orig-name (token-value node token var)))))
+  (let* ((instans (node-instans node))
+	 (displayed-bindings (loop for var in (node-vars-out node)
+				   unless (null var)
+				   collect (list (reverse-resolve-binding instans var) (token-value node token var)))))
     (inform "Rule ~A~%~{~{       ~A = ~S~}~^,~%~}~%" node displayed-bindings)
 ))
  

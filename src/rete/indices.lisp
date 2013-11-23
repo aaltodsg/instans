@@ -11,9 +11,10 @@
 	  (case (length key)
 	    (0 nil)
 	    ;;; Change this, if the iris are coded in other way
-	    (1 (make-hash-table))
-	    ((2 3) (make-hash-table))
-	    (t (error* "Illegal key ~A" key))))))
+	    (t (make-hash-table))))))
+	    ;; (1 (make-hash-table))
+	    ;; ((2 3) (make-hash-table))
+	    ;; (t (error* "Illegal key ~A" key))))))
 
 (defgeneric index-get-tokens (index key)
   (:method ((this hash-token-index) key)
