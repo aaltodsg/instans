@@ -175,6 +175,49 @@
 		 ((MINUS UNION)
 		  (cons (first e) (mapcar #'simplify-joins (rest e))))
 		 (t e)))
+	     (sparql-parse-error (fmt &rest args)
+	       (apply #'format *error-output* fmt args))
+	     (scope-vars (expr)
+	       (labels ((svisit (expr)
+			  (cond ((consp expr)
+				 (case (first expr)
+				   ((BGP ZERO-OR-ONE-PATH ZERO-OR-MORE-PATH ONE-OR-MORE-PATH INV SEQ ALT NPS)
+				    (loop for x in (rest expr) nconc (svisit x)))
+				   ((GRAPH SERVICE) (svisit (if (sparql-var-p (second expr)) (cons (second expr) (svisit (third expr))) (svisit (third expr)))))
+				   (UNION (nconc (svisit (second expr)) (svisit (third expr))))
+				   (JOIN (nconc (svisit (second expr)) (svisit (third expr))))
+				   (LEFTJOIN (svisit (third expr)))
+				   (SELECT
+				    (or (getf (rest expr) :projected-vars)
+					(let* ((project (getf (rest expr) :project))
+					       (where (getf (rest expr) :where))
+					       (seen-vars (svisit where)))
+					  (cond ((eq project '*)
+						 seen-vars)
+						(t
+						 (loop with vars = nil
+						       for x in project
+						       when (sparql-var-p x)
+						       do (cond ((not (find x seen-vars :test #'sparql-var-equal))
+								 (sparql-parse-error "Variable ~S defined in SELECT" x))
+								(t
+								 (push-to-end x vars)))
+						       else 
+						       do (let ((var (second x)))
+							    (cond ((find var seen-vars :test #'sparql-var-equal)
+								   (sparql-parse-error "Variable ~S already defined in select" var))
+								  (t
+								   (push var seen-vars)
+								   (push-to-end var vars))))
+						       finally (progn
+								 (setf (cdr expr) (cons :projected-vars vars (cdr expr)))
+								 (return vars))))))))
+				   (
+				   (t
+				    (loop for x in (rest expr) nconc (svisit x)))))
+				((sparql-var-p expr) (list expr))
+				(t nil))))
+		 (remove-duplicates (svisit expr) :test #'sparql-var-equal)))
 	     (translate-group-graph-pattern (ggp)
 	       ;; (inform "enter translate ~S" ggp)
 	       ;; (let ((v
@@ -237,7 +280,8 @@
 	   (BaseDecl ::= (BASE-TERMINAL IRIREF-TERMINAL :RESULT (progn (set-base $1) (list 'BASE $1))))
 	   (PrefixDecl ::= (PREFIX-TERMINAL PNAME_NS-TERMINAL IRIREF-TERMINAL :RESULT (progn (set-prefix $1 $2) (list 'PREFIX (car $1) $2))))
 	   (SelectQuery ::= (SelectClause ((:REP0 DatasetClause) :RESULT (and $0 (list :dataset $0))) WhereClause SolutionModifier
-					  :RESULT (append '(:query-form SELECT) $0 $1 $2 $3)))
+					  :RESULT (let ((result (append '(:query-form SELECT) $0 $1 $2 $3)))
+						    (inform "Scope vars in ~S~%~S" result (scope-vars result)) result)))
 	   (SubSelect ::= (SelectClause WhereClause SolutionModifier ValuesClause
 					:RESULT (build-query-expression (append '(:query-form SELECT) $0 $1 $2 (opt-value $3)))))
 					; `(SELECT ,@$0 :where ,$1 ,@$2 ,@(if (opt-yes-p $3) (opt-value $3)))))
