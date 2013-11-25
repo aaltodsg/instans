@@ -182,7 +182,7 @@
 		     (vars nil))
 		 (flet ((ggp-scope-vars (ggp) (getf (rest ggp) :scope-vars))
 			(add-vars (vlist) (setf vars (nconc vars vlist)))
-			(join (x) (setf g (list 'JOIN g e))))
+			(join (x) (setf g (list 'JOIN g x))))
 		   (loop with fs = nil
 			 for e in ggp
 			 do (case (first e)
@@ -192,7 +192,8 @@
 			       (add-vars (collect-expression-variables (rest e)))
 			       (join e))
 			      (UNION
-			       (add-vars (ggp-scope-vars (second e)) (ggp-scope-vars (third e)))
+			       (add-vars (ggp-scope-vars (second e)))
+			       (add-vars (ggp-scope-vars (third e)))
 			       (join e))
 			      (OPTIONAL
 			       (let ((a (second e)))
