@@ -97,7 +97,7 @@
 	 (instans nil)
 	 (mode :query))
     (labels ((init () 
-	       (setf instans (lexer-instans lexer))
+		   (setf instans (lexer-instans lexer))
 	       (clear-triples))
 	     (set-prefix (prefix-binding expansion) (rebind-prefix lexer prefix-binding expansion))
 	     (set-base (b) (set-lexer-base lexer b) (values))
@@ -177,73 +177,52 @@
 		 (t e)))
 	     (sparql-parse-error (fmt &rest args)
 	       (apply #'format *error-output* fmt args))
-	     (scope-vars (expr)
-	       (labels ((svisit (expr)
-			  (cond ((consp expr)
-				 (case (first expr)
-				   ((BGP ZERO-OR-ONE-PATH ZERO-OR-MORE-PATH ONE-OR-MORE-PATH INV SEQ ALT NPS)
-				    (loop for x in (rest expr) nconc (svisit x)))
-				   ((GRAPH SERVICE) (svisit (if (sparql-var-p (second expr)) (cons (second expr) (svisit (third expr))) (svisit (third expr)))))
-				   (UNION (nconc (svisit (second expr)) (svisit (third expr))))
-				   (JOIN (nconc (svisit (second expr)) (svisit (third expr))))
-				   (LEFTJOIN (svisit (third expr)))
-				   (SELECT
-				    (or (getf (rest expr) :projected-vars)
-					(let* ((project (getf (rest expr) :project))
-					       (where (getf (rest expr) :where))
-					       (seen-vars (svisit where)))
-					  (cond ((eq project '*)
-						 seen-vars)
-						(t
-						 (loop with vars = nil
-						       for x in project
-						       when (sparql-var-p x)
-						       do (cond ((not (find x seen-vars :test #'sparql-var-equal))
-								 (sparql-parse-error "Variable ~S defined in SELECT" x))
-								(t
-								 (push-to-end x vars)))
-						       else 
-						       do (let ((var (second x)))
-							    (cond ((find var seen-vars :test #'sparql-var-equal)
-								   (sparql-parse-error "Variable ~S already defined in select" var))
-								  (t
-								   (push var seen-vars)
-								   (push-to-end var vars))))
-						       finally (progn
-								 (setf (cdr expr) (cons :projected-vars vars (cdr expr)))
-								 (return vars))))))))
-				   (
-				   (t
-				    (loop for x in (rest expr) nconc (svisit x)))))
-				((sparql-var-p expr) (list expr))
-				(t nil))))
-		 (remove-duplicates (svisit expr) :test #'sparql-var-equal)))
 	     (translate-group-graph-pattern (ggp)
-	       ;; (inform "enter translate ~S" ggp)
-	       ;; (let ((v
-	       (loop with fs = nil
-		     with g = '(ZERO-PATTERN)
-		     for e in ggp
-		     do (case (first e)
-			  (OPTIONAL
-			   (let ((a (second e)))
-			     (setf g (cond ((eq (first a) 'FILTER) (list 'LEFTJOIN g (second a) (third a)))
-					   (t (list 'LEFTJOIN g a t))))))
-			  (MINUS
-			   (setf g (list 'MINUS g (second e))))
-			  (BIND
-			   (setf g (list 'EXTEND g (third e) (second e))))
-			  (FILTER
-			   (setf fs (if (null fs) (second e) (create-sparql-call "logical-and" fs (second e)))))
-			  (t
-			   (setf g (list 'JOIN g e))))
-		     finally (progn
-			       (setf g (simplify-joins g))
-			       (when (not (null fs))
-				 (setf g (list 'FILTER fs g)))
-			       (return g))))
-;			       (return (list 'ggp g)))))
-		     ;; ) (inform "exit translate ~S -> ~S" ggp v) v))
+	       (let ((g '(ZERO-PATTERN))
+		     (vars nil))
+		 (flet ((ggp-scope-vars (ggp) (getf (rest ggp) :scope-vars))
+			(add-vars (vlist) (setf vars (nconc vars vlist)))
+			(join (x) (setf g (list 'JOIN g e))))
+		   (loop with fs = nil
+			 for e in ggp
+			 do (case (first e)
+			      (SELECT (add-vars (getf (rest e) :project-vars)) ; this is taken care of elsewhere
+				      (join e))
+			      (BGP
+			       (add-vars (collect-expression-variables (rest e)))
+			       (join e))
+			      (UNION
+			       (add-vars (ggp-scope-vars (second e)) (ggp-scope-vars (third e)))
+			       (join e))
+			      (OPTIONAL
+			       (let ((a (second e)))
+				 (add-vars (ggp-scope-vars (second e)))
+				 (setf g (cond ((eq (first a) 'FILTER) (list 'LEFTJOIN g (second a) (third a)))
+					       (t (list 'LEFTJOIN g a t))))))
+			      (MINUS
+			       (setf g (list 'MINUS g (second e))))
+			      ((GRAPH SERVICE)
+			       (let ((var-or-iri (second e))
+				     (subggp-vars (ggp-scope-vars (third e))))
+				 (add-vars (if (sparql-var-p var-or-iri) (cons var-or-iri subggp-vars) subggp-vars))
+				 (join e)))
+			      (FILTER
+			       (setf fs (if (null fs) (second e) (create-sparql-call "logical-and" fs (second e)))))
+			      (BIND
+			       (let ((var (third e))
+				     (expr (second e)))
+				 (when (find-sparql-var var vars)
+				   (sparql-parse-error "Variable ~S already defined in scope" var))
+				 (setf g (list 'EXTEND g var expr))))
+			      (INLINEDATA
+			       (add-vars (second e))
+			       (join e))
+			      (t (error* "Illegal form ~S" e)))
+			 finally (progn
+				   (setf g (simplify-joins g))
+				   (when (not (null fs))
+				     (setf g (list 'FILTER fs g)))
+				   (return (list 'GGP :form g :scope-vars (remove-duplicates vars :test #'sparql-var-equal))))))))
 	     (create-call (op-name &rest args)
 	       (or (apply #'create-sparql-call op-name args)
 		   (parsing-failure "~A does not name a Sparql function or form" op-name)))
@@ -281,7 +260,8 @@
 	   (PrefixDecl ::= (PREFIX-TERMINAL PNAME_NS-TERMINAL IRIREF-TERMINAL :RESULT (progn (set-prefix $1 $2) (list 'PREFIX (car $1) $2))))
 	   (SelectQuery ::= (SelectClause ((:REP0 DatasetClause) :RESULT (and $0 (list :dataset $0))) WhereClause SolutionModifier
 					  :RESULT (let ((result (append '(:query-form SELECT) $0 $1 $2 $3)))
-						    (inform "Scope vars in ~S~%~S" result (scope-vars result)) result)))
+;						    (inform "Scope vars in ~S~%~S" result (scope-vars result))
+						    result)))
 	   (SubSelect ::= (SelectClause WhereClause SolutionModifier ValuesClause
 					:RESULT (build-query-expression (append '(:query-form SELECT) $0 $1 $2 (opt-value $3)))))
 					; `(SELECT ,@$0 :where ,$1 ,@$2 ,@(if (opt-yes-p $3) (opt-value $3)))))

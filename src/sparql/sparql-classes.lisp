@@ -392,7 +392,7 @@
   (and (sparql-var-p v1) (sparql-var-p v2)
        (uniquely-named-object-equal v1 v2)))
 
-(defun sparql-var-in-p (v vlist)
+(defun find-sparql-var (v vlist)
   (find v vlist :test #'sparql-var-equal))
 
 (defun sparql-value-equal (v1 v2)
