@@ -7,7 +7,7 @@
 
 (defun compile-sparql-file (file &key instans instans-name output-directory (mkhtml-script "mk-html1") base silentp)
   (with-open-file (input-stream file)
-    (apply #'compile-sparql-stream input-stream :input-name file :instans instans :instans-name instans-name :output-directory output-directory :mkhtml-script mkhtml-script :base base :silentp silentp)))
+    (funcall #'compile-sparql-stream input-stream :input-name file :instans instans :instans-name instans-name :output-directory output-directory :mkhtml-script mkhtml-script :base base :silentp silentp)))
 
 (defun compile-sparql-stream (stream &key input-name instans instans-name output-directory (mkhtml-script "mk-html1") (parser #'sparql-parse-stream) base silentp)
   (declare (special *node-color-alist*))
@@ -170,7 +170,6 @@
     (or (gethash instans-name *instanses*)
 	(sparql-error "INSTANS named ~S does not exist!" instans-name))))
 
-
 (defun read-from-url-or-file (name)
   (cond ((rdf-iri-p name)
 	 (cond ((string= (rdf-iri-scheme name) "file")
@@ -192,26 +191,20 @@
 		(read-from-url-or-file (parse-namestring name)))))
 	(t (error* "Cannot read from ~S" name))))
 
-(defun instans-add-rules (instans-iri rules &key output-directory report-function report-function-arguments base silentp)
-  (let ((instans (get-instans instans-iri)))
+(defun instans-add-rules (instans-iri rules &key output-directory base silentp)
+  (let ((instans (if instans-iri (get-instans instans-iri)) (create-instans)))
     (cond ((sparql-error-p instans) instans)
 	  (t
 	   (let ((string (read-from-url-or-file rules)))
 	     (unless silentp
 	       (inform "~S" string))
 	     (with-input-from-string (stream string)
-					;      (sparql-parse-stream stream)
 	       (multiple-value-bind (compile-result error)
-		   (compile-sparql-stream stream :instans instans :input-name (if (stringp rules) rules (rdf-iri-string rules)) :output-directory output-directory :base base :silentp silentp)
-		 (when (null error)
-		   (when report-function
-		     (setf (instans-select-function instans) report-function))
-		   (when report-function-arguments
-		     (setf (instans-select-function-arguments instans) report-function-arguments))
-		   (initialize-execution instans))
+		   (compile-sparql-stream stream :instans instans :input-name (if (stringp rules) rules (rdf-iri-string rules))
+					  :output-directory output-directory :base base :silentp silentp)
 		 (values compile-result error))))))))
 
-(defun instans-add-triples-from-url (instans-iri triples &key graph base silentp)
+(defun instans-add-triples-from-url (instans-iri triples &key report-function report-function-arguments graph base silentp)
   (let ((instans (get-instans instans-iri)))
     (cond ((sparql-error-p instans) instans)
 	  (t
@@ -230,7 +223,12 @@
 ;		 (time 
 		  (funcall triples-parser triples-lexer)
 ;		  )
-		 instans-iri)))))))
+		  (when report-function
+		    (setf (instans-select-function instans) report-function))
+		  (when report-function-arguments
+		    (setf (instans-select-function-arguments instans) report-function-arguments))
+		  (initialize-execution instans)
+		  instans-iri)))))))
 
 (defvar *instans-execute-system-previous-rules* nil)
 (defvar *instans-execute-system-previous-triples* nil)
@@ -274,7 +272,7 @@
 					       (setf observed-result-list-tail (cdr observed-result-list-tail))))))
 	   (observed-query-results (make-instance 'sparql-query-results)))
       (multiple-value-bind (add-rules-result error)
-	  (instans-add-rules instans-iri rules :report-function report-function :output-directory output-directory :base base :silentp silentp)
+	  (instans-add-rules instans-iri rules :output-directory output-directory :base base :silentp silentp)
 	(declare (ignorable add-rules-result))
 	(when (not (null error))
 	  (return-from instans-execute-system (values nil error))))

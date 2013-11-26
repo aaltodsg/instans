@@ -18,9 +18,9 @@
 ;;   (:method ()
 ;;     (instans-create-rete)))
 
-;; (define-sparql-function "instans:add_rules" (:arguments ((rete-iri rdf-iri) (rules iri-or-string)) :returns rdf-iri)
-;;   (:method ((rete-iri rdf-iri) (rules rdf-iri))
-;;     (instans-add-rules rete-iri rules)))
+(define-sparql-function "instans:add_rules" (:arguments ((rete-iri rdf-iri) (rules iri-or-string)) :returns rdf-iri)
+  (:method ((rete-iri rdf-iri) (rules rdf-iri))
+    (instans-add-rules rete-iri rules)))
 
 ;; (define-sparql-function "instans:add_triples_from_url" (:arguments ((rete-iri rdf-iri) (triples iri-or-string) &optional (graph-iri rdf-iri)) :returns xsd-boolean)
 ;;   (:method ((rete-iri rdf-iri) (triples iri-or-string) &optional (graph-iri rdf-iri))

@@ -22,6 +22,6 @@ SELECT ?test ?name ?testtype ?queryfile ?datafile ?resultfile ?success WHERE {
        { ?action qt:query ?queryfile
          OPTIONAL{ ?action qt:data ?datafile }
          OPTIONAL{ ?test mf:result ?resultfile } }
+       BIND(instans:add_rules(?queryfile, if(bound(?datafile), ?datafile, rdf:nil), if(bound(?resultfile), ?resultfile, rdf:nil)) AS ?success)
        BIND(instans:execute_system(?queryfile, if(bound(?datafile), ?datafile, rdf:nil), if(bound(?resultfile), ?resultfile, rdf:nil)) AS ?success)
 }
-

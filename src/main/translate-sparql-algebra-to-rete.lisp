@@ -70,6 +70,7 @@
 		 (case op
 		   (ZERO-PATTERN
 		    (or prev (make-or-share-instance 'beta-memory :prev nil)))
+		   (GGP (translate (getf (rest expr) :form) prev dataset))
 		   (BGP (loop for triple-pattern in args
 			      do (progn
 				   (when (member 'PATH triple-pattern) (translate-failure "Cannot handle paths yet ~S" triple-pattern))
