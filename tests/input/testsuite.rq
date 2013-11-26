@@ -13,7 +13,7 @@ PREFIX its:    <http://instans.aalto.fi/testsuite/#>
 #        mf:entries ?entries .
 # }
 
-SELECT ?test ?name ?testtype ?queryfile ?datafile ?resultfile ?success WHERE {
+SELECT ?test ?name ?testtype ?queryfile ?datafile ?resultfile ?parsed_ok ?run_ok WHERE {
        ?test a 	       ?testtype;
              mf:name   ?name .
        ?test mf:action ?action .
@@ -22,6 +22,7 @@ SELECT ?test ?name ?testtype ?queryfile ?datafile ?resultfile ?success WHERE {
        { ?action qt:query ?queryfile
          OPTIONAL{ ?action qt:data ?datafile }
          OPTIONAL{ ?test mf:result ?resultfile } }
-       BIND(instans:add_rules(?queryfile, if(bound(?datafile), ?datafile, rdf:nil), if(bound(?resultfile), ?resultfile, rdf:nil)) AS ?success)
-       BIND(instans:execute_system(?queryfile, if(bound(?datafile), ?datafile, rdf:nil), if(bound(?resultfile), ?resultfile, rdf:nil)) AS ?success)
+       BIND(strbefore(str(?queryfile),".rq") AS ?instans)
+       BIND(instans:add_rules(?instans, ?queryfile) AS ?parsed_ok)
+       BIND(?parsed && bound(?datafile) && instans:add_triples(?instans, ?datafile, if(bound(?resultfile), ?resultfile, rdf:nil)) AS ?run_ok)
 }

@@ -45,7 +45,7 @@
       ggp)))
 
 (defun sparql-parse-error (fmt &rest args)
-  (apply #'format *error-output* fmt args))
+  (apply #'format *error-output* (format nil "~%~A" fmt) args))
 
 (defun build-query-expression (clauses)
   (let ((form (getf clauses :query-form))
@@ -240,8 +240,10 @@
 			      (BIND
 			       (let ((var (third e))
 				     (expr (second e)))
-				 (when (find-sparql-var var vars)
-				   (sparql-parse-error "Variable ~S already defined in scope" var))
+				 (cond ((find-sparql-var var vars)
+					(sparql-parse-error "Variable ~S already defined in scope" var))
+				       (t
+					(push-to-end var vars)))
 				 (setf g (list 'EXTEND g var expr))))
 			      (INLINEDATA
 			       (add-vars (second e))

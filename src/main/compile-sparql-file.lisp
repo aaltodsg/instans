@@ -7,7 +7,7 @@
 
 (defun compile-sparql-file (file &key instans instans-name output-directory (mkhtml-script "mk-html1") base silentp)
   (with-open-file (input-stream file)
-    (funcall #'compile-sparql-stream input-stream :input-name file :instans instans :instans-name instans-name :output-directory output-directory :mkhtml-script mkhtml-script :base base :silentp silentp)))
+    (compile-sparql-stream input-stream :input-name file :instans instans :instans-name instans-name :output-directory output-directory :mkhtml-script mkhtml-script :base base :silentp silentp)))
 
 (defun compile-sparql-stream (stream &key input-name instans instans-name output-directory (mkhtml-script "mk-html1") (parser #'sparql-parse-stream) base silentp)
   (declare (special *node-color-alist*))
@@ -192,7 +192,7 @@
 	(t (error* "Cannot read from ~S" name))))
 
 (defun instans-add-rules (instans-iri rules &key output-directory base silentp)
-  (let ((instans (if instans-iri (get-instans instans-iri)) (create-instans)))
+  (let ((instans (if instans-iri (get-instans instans-iri) (create-instans))))
     (cond ((sparql-error-p instans) instans)
 	  (t
 	   (let ((string (read-from-url-or-file rules)))
@@ -204,31 +204,62 @@
 					  :output-directory output-directory :base base :silentp silentp)
 		 (values compile-result error))))))))
 
-(defun instans-add-triples-from-url (instans-iri triples &key report-function report-function-arguments graph base silentp)
-  (let ((instans (get-instans instans-iri)))
-    (cond ((sparql-error-p instans) instans)
-	  (t
-	   (let ((string (read-from-url-or-file triples)))
-	     (unless silentp
-	       (inform "~S" string))
-	     (with-input-from-string (triples-stream string)
-	       (let* ((triples-lexer (make-instance 'turtle-lexer :instans instans :input-stream triples-stream :base base))
-		      (triples-parser (make-turtle-parser :triples-callback #'(lambda (triples)
-										(unless silentp
-										  (inform "~%Event callback: ~D triples~%" (length triples))
-										  (loop for tr in triples do (inform " ~S~%" tr)))
-										(process-triple-input instans triples '(:add :execute) :graph (if (and graph (rdf-iri-equal graph *rdf-nil*)) nil graph))))))
-		 (unless silentp
-		   (inform "~%Processing triples:~%"))
-;		 (time 
-		  (funcall triples-parser triples-lexer)
-;		  )
-		  (when report-function
-		    (setf (instans-select-function instans) report-function))
-		  (when report-function-arguments
-		    (setf (instans-select-function-arguments instans) report-function-arguments))
-		  (initialize-execution instans)
-		  instans-iri)))))))
+(defun instans-add-triples-from-url (instans-iri triples &key expected-results graph base silentp)
+  (let* ((instans (get-instans instans-iri))
+	 (comparep (and expected-results (not (rdf-iri-equal expected-results *rdf-nil*))))
+	 (expected-query-results (if comparep (if (stringp expected-results) (parse-results-file instans expected-results) (parse-results-from-url instans expected-results))))
+	 (expected-result-list (if comparep (sparql-query-results-results expected-query-results)))
+	 (observed-result-list (list nil))
+	 (observed-result-list-tail observed-result-list)
+	 (report-function (if comparep #'(lambda (node token)
+					   (let ((solution (make-instance 'sparql-result
+									  :bindings (loop for canonic-var in (node-use (node-prev node))
+											  for var = (reverse-resolve-binding instans canonic-var)
+											  collect (make-instance 'sparql-binding :variable var :value (token-value node token canonic-var))))))
+					     (inform "Node ~S, (node-use (node-prev node)) ~S, token ~S, solution ~S" node (node-use (node-prev node)) token solution)
+					     (setf (cdr observed-result-list-tail) (list solution))
+					     (setf observed-result-list-tail (cdr observed-result-list-tail))))))
+	 (report-function-arguments nil)
+	 (observed-query-results (make-instance 'sparql-query-results))
+	 (string (read-from-url-or-file triples)))
+    (unless silentp
+      (inform "~S" string))
+    (setf (instans-remove-rule-instances-p instans) t)
+    (when report-function
+      (setf (instans-select-function instans) report-function))
+    (setf (instans-select-function-arguments instans) report-function-arguments)
+    (with-input-from-string (triples-stream string)
+      (let* ((triples-lexer (make-instance 'turtle-lexer :instans instans :input-stream triples-stream :base base))
+	     (triples-parser (make-turtle-parser :triples-callback #'(lambda (triples)
+								       (unless silentp
+									 (inform "~%Event callback: ~D triples~%" (length triples))
+									 (loop for tr in triples do (inform " ~S~%" tr)))
+								       (process-triple-input instans triples '(:add :execute) :graph (if (and graph (rdf-iri-equal graph *rdf-nil*)) nil graph))))))
+	(unless silentp
+	  (inform "~%Processing triples:~%"))
+	;; Is this OK?
+	(initialize-execution instans)
+	(funcall triples-parser triples-lexer)
+	(pop observed-result-list)
+	(unless silentp
+	  (inform "Expected-results ~S" expected-results)
+	  (inform "Expected ~S" expected-result-list)
+	  (inform "Observed-result-list ~S~%Observed-query-results ~S" observed-result-list observed-query-results))
+	(unless silentp
+	  (sparql-query-results-to-json instans observed-query-results)
+	  (when comparep
+	    (sparql-query-results-to-json instans expected-query-results)))
+	(setf (sparql-query-results-variables observed-query-results)
+	      (loop with vars = nil
+		    for result in observed-result-list
+		    do (setf vars (union vars (mapcar #'sparql-binding-variable (sparql-result-bindings result))))
+		    finally (return vars)))
+	(setf (sparql-query-results-results observed-query-results) observed-result-list)
+	(multiple-value-bind (similarp same-order-p)
+	    (cond ((null comparep) (values t t))
+		  (t
+		   (sparql-results-compare expected-query-results observed-query-results :verbosep t :result-label1 "expected" :result-label2 "observed")))
+	  (values similarp same-order-p (get-instans instans-iri)))))))
 
 (defvar *instans-execute-system-previous-rules* nil)
 (defvar *instans-execute-system-previous-triples* nil)
@@ -257,51 +288,14 @@
   (inform "execute_system ~A ~A ~A ~A ~A" rules triples expected-results graph base)
 					;  (handler-case 
   (multiple-value-bind (instans instans-iri) (create-instans)
-    (let* ((comparep (and expected-results (not (rdf-iri-equal expected-results *rdf-nil*))))
-	   (expected-query-results (if comparep (if (stringp expected-results) (parse-results-file instans expected-results) (parse-results-from-url instans expected-results))))
-	   (expected-result-list (if comparep (sparql-query-results-results expected-query-results)))
-	   (observed-result-list (list nil))
-	   (observed-result-list-tail observed-result-list)
-	   (report-function (if comparep #'(lambda (node token)
-					     (let ((solution (make-instance 'sparql-result
-									    :bindings (loop for canonic-var in (node-use (node-prev node))
-											    for var = (reverse-resolve-binding instans canonic-var)
-											    collect (make-instance 'sparql-binding :variable var :value (token-value node token canonic-var))))))
-					       (inform "Node ~S, (node-use (node-prev node)) ~S, token ~S, solution ~S" node (node-use (node-prev node)) token solution)
-					       (setf (cdr observed-result-list-tail) (list solution))
-					       (setf observed-result-list-tail (cdr observed-result-list-tail))))))
-	   (observed-query-results (make-instance 'sparql-query-results)))
-      (multiple-value-bind (add-rules-result error)
-	  (instans-add-rules instans-iri rules :output-directory output-directory :base base :silentp silentp)
-	(declare (ignorable add-rules-result))
-	(when (not (null error))
-	  (return-from instans-execute-system (values nil error))))
-      (setf (instans-remove-rule-instances-p instans) t)
-      (unless silentp
-	(print-triple-pattern-matcher (instans-triple-pattern-matcher instans) *error-output*))
-      (unless (null triples)
-	(instans-add-triples-from-url instans-iri triples :graph graph :base base :silentp silentp))
-      (pop observed-result-list)
-      (unless silentp
-	(inform "Täällä ~S" rules)
-	(inform "Expected-results ~S" expected-results)
-	(inform "Expected ~S" expected-result-list)
-	(inform "Observed-result-list ~S~%Observed-query-results ~S" observed-result-list observed-query-results))
-      (setf (sparql-query-results-variables observed-query-results)
-	    (loop with vars = nil
-		  for result in observed-result-list
-		  do (setf vars (union vars (mapcar #'sparql-binding-variable (sparql-result-bindings result))))
-		  finally (return vars)))
-      (setf (sparql-query-results-results observed-query-results) observed-result-list)
-      (unless silentp
-	(sparql-query-results-to-json instans observed-query-results)
-	(when comparep
-	  (sparql-query-results-to-json instans expected-query-results)))
-      (multiple-value-bind (similarp same-order-p)
-	  (cond ((null comparep) (values t t))
-		(t
-		 (sparql-results-compare expected-query-results observed-query-results :verbosep t :result-label1 "expected" :result-label2 "observed")))
-	(values similarp same-order-p (get-instans instans-iri))))))
+    (declare (ignore instans))
+    (multiple-value-bind (add-rules-result error)
+	(instans-add-rules instans-iri rules :output-directory output-directory :base base :silentp silentp)
+      (declare (ignore add-rules-result))
+      (when (not (null error))
+	(return-from instans-execute-system (values nil error))))
+    (unless (null triples)
+      (instans-add-triples-from-url instans-iri triples :graph graph :base base :silentp silentp))))
 
 (defun execute-prev ()
   (instans-execute-system nil :use-previous-args-p t))
