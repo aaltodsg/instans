@@ -27,7 +27,7 @@
 	   (group (cond ((not (null group-by)) (list 'GROUP group-by ggp))
 			(has-aggregates-p (list 'GROUP '(1) ggp)))))
       (when group
-	(parsing-failure "Aggregation not implemented yet!")
+	(sparql-parse-error "Aggregation not implemented yet!")
 	;;       (let ((aggregates (list nil))
 	;; 	    (expr-var-list (list nil)))
 	;; 	(when (consp project)
@@ -67,6 +67,7 @@
 	       ggp)
 	     (get-project-vars ()
 	       (let ((scope-vars (getf (rest ggp) :scope-vars)))
+;		 (inform "ggp = ~S~%scope-vars = ~S" ggp scope-vars)
 		 (loop for item in group-by
 		       when (and (consp item) (eq (car item) 'AS))
 		       do (let ((var (second item)))
@@ -74,7 +75,7 @@
 				   (sparql-parse-error "Variable ~S already bound" var))
 				  (t
 				   (push-to-end var scope-vars)))))
-		 (cond ((eq (third project) '*) scope-vars)
+		 (cond ((eq project '*) scope-vars)
 		       (t
 			(loop with project-vars = nil
 			      for item in project
@@ -104,16 +105,16 @@
 	 (let ((template (getf clauses :construct-template)))
 	   (setf ggp (handle-aggregates ggp clauses))
 	   (list form :where (wrap-solution-modifiers) :construct-template template)))
-	(DESCRIBE (parsing-failure "DESCRIBE query not implemented yet"))
-	(ASK (parsing-failure "ASK query not implemented yet"))
-	(LOAD (parsing-failure "LOAD not implemented yet"))
-	(CLEAR (parsing-failure "CLEAR not implemented yet"))
-	(ADD (parsing-failure "ADD not implemented yet"))
-	(MOVE (parsing-failure "MOVE not implemented yet"))
-	(COPY (parsing-failure "COPY not implemented yet"))
-	(INSERT-DATA (parsing-failure "INSERT not implemented yet"))
-	(DELETE-DATA (parsing-failure "DELETE not implemented yet"))
-	(DELETE-WHERE (parsing-failure "DELETE not implemented yet"))
+	(DESCRIBE (sparql-parse-error "DESCRIBE query not implemented yet"))
+	(ASK (sparql-parse-error "ASK query not implemented yet"))
+	(LOAD (sparql-parse-error "LOAD not implemented yet"))
+	(CLEAR (sparql-parse-error "CLEAR not implemented yet"))
+	(ADD (sparql-parse-error "ADD not implemented yet"))
+	(MOVE (sparql-parse-error "MOVE not implemented yet"))
+	(COPY (sparql-parse-error "COPY not implemented yet"))
+	(INSERT-DATA (sparql-parse-error "INSERT not implemented yet"))
+	(DELETE-DATA (sparql-parse-error "DELETE not implemented yet"))
+	(DELETE-WHERE (sparql-parse-error "DELETE not implemented yet"))
 	(DELETE-INSERT
 	 (cons form (get-existing-properties-and-values '(:with :delete-clause :insert-clause :using :where) clauses)))
 	))))
@@ -132,7 +133,7 @@
 	     (set-prefix (prefix-binding expansion) (rebind-prefix lexer prefix-binding expansion))
 	     (set-base (b) (set-lexer-base lexer b) (values))
 	     (pname2iri (prefix-binding suffix-string)
-	       (or (pname-to-iri lexer prefix-binding suffix-string) (parsing-failure "Cannot transform ~A and ~A to an IRI" prefix-binding suffix-string)))
+	       (or (pname-to-iri lexer prefix-binding suffix-string) (sparql-parse-error "Cannot transform ~A and ~A to an IRI" prefix-binding suffix-string)))
 	     (clear-triples ()
 	       (setf triples (list nil))
 	       (setf triples-last triples))
@@ -214,6 +215,9 @@
 		   (loop with fs = nil
 			 for e in ggp
 			 do (case (first e)
+			      (GGP
+			       (add-vars (ggp-scope-vars e))
+			       (join e))
 			      (SELECT (add-vars (getf (rest e) :project-vars)) ; this is taken care of elsewhere
 				      (join e))
 			      (BGP
@@ -256,19 +260,19 @@
 				   (return (list 'GGP :form g :scope-vars (remove-duplicates vars :test #'sparql-var-equal))))))))
 	     (create-call (op-name &rest args)
 	       (or (apply #'create-sparql-call op-name args)
-		   (parsing-failure "~A does not name a Sparql function or form" op-name)))
+		   (sparql-parse-error "~A does not name a Sparql function or form" op-name)))
 	     (create-call-through-iri (iri arglist)
 	       (let ((sparql-op (find-sparql-op (rdf-iri-string iri))))
 		 (cond ((null sparql-op)
-			(parsing-failure "~A does not name a Sparql function or form" iri))
+			(sparql-parse-error "~A does not name a Sparql function or form" iri))
 		       (t
 ;			(inform "create-call-through-iri ~A ~A" sparql-op arglist)
 			(cons sparql-op arglist))))))
       (with-ll1-parser (sparql-parser)
 	  ;; ((a ::= (:rep1 b)))
-	  ((Rules ::= (:OR (Tests :RESULT (if (eq mode :testing) $0 (parsing-failure "Not in test mode")))
+	  ((Rules ::= (:OR (Tests :RESULT (if (eq mode :testing) $0 (sparql-parse-error "Not in test mode")))
 			   (Prologue (:OPT ((:OR Query1 Update1) ((:OPT (|;-TERMINAL| Rules :RESULT $1)) :RESULT (opt-value $0)) :RESULT (cons $0 $1)))
-				     :RESULT (if (eq mode :testing) (parsing-failure "Test mode does not accept queries") (append $0 (opt-value $1))))))
+				     :RESULT (if (eq mode :testing) (sparql-parse-error "Test mode does not accept queries") (append $0 (opt-value $1))))))
 	   (Tests ::= (TESTS-TERMINAL (:REP0 Test) :RESULT $1))
 	   (Test  ::= (Prologue ASSERT-TERMINAL (:OPT String) AssertTarget :RESULT (append (list 'ASSERT :name (opt-value $2)) $3)))
 	   (AssertTarget ::= (:OR ((:OPT FILTER-TERMINAL) Constraint INPUT-TERMINAL DataBlock OUTPUT-TERMINAL ExpectedValues
@@ -564,7 +568,7 @@
 	   (String ::= (:OR STRING_LITERAL1-TERMINAL STRING_LITERAL2-TERMINAL STRING_LITERAL_LONG1-TERMINAL STRING_LITERAL_LONG2-TERMINAL))
 	   (iri ::= (:OR IRIREF-TERMINAL PrefixedName))
 	   (PrefixedName ::= (:OR (PNAME_LN-TERMINAL :RESULT (pname2iri (first $0) (second $0)))
-				  (PNAME_NS-TERMINAL :RESULT (or (second $0) (parsing-failure "Unbound prefix ~A" (first $0))))))
+				  (PNAME_NS-TERMINAL :RESULT (or (second $0) (sparql-parse-error "Unbound prefix ~A" (first $0))))))
 	   (BlankNode ::= (:OR (BLANK_NODE_LABEL-TERMINAL :RESULT (make-var (concatenate 'string "!BLANK_" $0))) (ANON-TERMINAL :RESULT (generate-blank-node-or-var))))
 	   )
 	#'(lambda (sparql-lexer &rest keys &key &allow-other-keys)

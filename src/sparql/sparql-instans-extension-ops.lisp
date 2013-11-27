@@ -16,7 +16,7 @@
 
 (define-sparql-function "instans:add_rules" (:arguments ((instans-iri rdf-iri) (rules iri-or-string)) :returns rdf-iri)
   (:method ((instans-iri rdf-iri) (rules rdf-iri))
-    (instans-add-rules rules instans-iri)))
+    (instans-add-rules instans-iri rules)))
 
 (define-sparql-function "instans:add_triples" (:arguments ((instans-iri rdf-iri) (triples iri-or-string)
 							   &optional (expected-results iri-or-string) (graph-iri rdf-iri) (base rdf-iri))

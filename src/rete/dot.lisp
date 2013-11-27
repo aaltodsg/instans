@@ -128,13 +128,13 @@
   (format nil "~A~%[~A]" (call-next-method) (dot-pretty-triple-pattern (triple-pattern-node-triple-pattern this) nil)))
 
 (defmethod dot-node-tooltip :around ((this bind-node))
-  (format nil "~A~%~A" (call-next-method) (bind-form-lambda this)))
+  (format nil "~A~%~S" (call-next-method) (bind-form-lambda this)))
 
 (defmethod dot-node-tooltip :around ((this filter-node))
-  (format nil "~A~%~A" (call-next-method) (filter-test-lambda this)))
+  (format nil "~A~%~S" (call-next-method) (filter-test-lambda this)))
 
 (defmethod dot-node-tooltip :around ((this modify-node))
-  (format nil "~A~%~A~%~A" (call-next-method) (modify-delete-lambda this) (modify-insert-lambda this)))
+  (format nil "~A~%~S~%~S" (call-next-method) (modify-delete-lambda this) (modify-insert-lambda this)))
 
 (defgeneric dot-node-description (node &key html-labels-p shape show-vars-p)
   (:documentation "Returns a dot node description.")

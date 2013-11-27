@@ -89,7 +89,7 @@
 
 (defun initialize-data (instans)
   (loop for node in (instans-nodes instans)
-	do (inform "add-initial-data ~S" node)
+;	do (inform "add-initial-data ~S" node)
 	do (add-initial-data node)))
 
 (defgeneric add-initial-data (node)

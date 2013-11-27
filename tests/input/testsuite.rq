@@ -13,16 +13,27 @@ PREFIX its:    <http://instans.aalto.fi/testsuite/#>
 #        mf:entries ?entries .
 # }
 
-SELECT ?test ?name ?testtype ?queryfile ?datafile ?resultfile ?parsed_ok ?run_ok WHERE {
-       ?test a 	       ?testtype;
-             mf:name   ?name .
-       ?test mf:action ?action .
-       { BIND(?action AS ?queryfile) FILTER(strends(str(?queryfile), ".rq")) }
-       UNION
-       { ?action qt:query ?queryfile
-         OPTIONAL{ ?action qt:data ?datafile }
-         OPTIONAL{ ?test mf:result ?resultfile } }
-       BIND(strbefore(str(?queryfile),".rq") AS ?instans)
+# SELECT ?test ?name ?testtype ?queryfile ?datafile ?resultfile ?parsed_ok ?run_ok WHERE {
+#        { ?test a 	       ?testtype;
+#          mf:name   ?name .
+# 	 ?test mf:action ?action .
+# 	 ?action qt:query ?queryfile
+#          OPTIONAL{ ?action qt:data ?datafile }
+#          OPTIONAL{ ?test mf:result ?resultfile }
+#        }
+#        BIND(strbefore(str(?queryfile),".rq") AS ?instans)
+#        BIND(instans:add_rules(?instans, ?queryfile) AS ?parsed_ok)
+#        BIND(?parsed && bound(?datafile) && instans:add_triples(?instans, ?datafile, if(bound(?resultfile), ?resultfile, rdf:nil)) AS ?run_ok)
+# }
+# ;
+SELECT ?test ?name ?testtype ?queryfile ?parsed_ok ?run_ok WHERE {
+       { ?test a 	       ?testtype;
+         mf:name   ?name .
+	 ?test mf:action ?action 
+	 BIND(?action AS ?queryfile)
+         FILTER(strends(str(?queryfile), ".rq"))
+       }
+       BIND(iri(strbefore(str(?queryfile),".rq")) AS ?instans)
        BIND(instans:add_rules(?instans, ?queryfile) AS ?parsed_ok)
-       BIND(?parsed && bound(?datafile) && instans:add_triples(?instans, ?datafile, if(bound(?resultfile), ?resultfile, rdf:nil)) AS ?run_ok)
+       BIND(false AS ?run_ok)
 }

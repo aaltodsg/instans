@@ -158,17 +158,16 @@
 (eval-when (:load-toplevel :execute)
   (setf *instanses*  (make-hash-table :test #'equal)))
 
-(defun create-instans ()
-  (let* ((instans-iri (parse-iri (format nil "http://www.cse.aalto.fi/instans/instanses/~A" (string (gensym "INSTANS")))))
-	 (instans-name (rdf-iri-string instans-iri))
+(defun create-instans (&optional instans-iri)
+  (unless instans-iri (setf instans-iri (parse-iri (format nil "http://www.cse.aalto.fi/instans/instanses/~A" (string (gensym "INSTANS"))))))
+  (let* ((instans-name (rdf-iri-string instans-iri))
 	 (instans (make-instance 'instans :name instans-name)))
     (setf (gethash instans-name  *instanses*) instans)
     (values instans instans-iri)))
 
 (defun get-instans (instans-iri)
   (let ((instans-name (rdf-iri-string instans-iri)))
-    (or (gethash instans-name *instanses*)
-	(sparql-error "INSTANS named ~S does not exist!" instans-name))))
+    (gethash instans-name *instanses*)))
 
 (defun read-from-url-or-file (name)
   (cond ((rdf-iri-p name)
@@ -191,8 +190,8 @@
 		(read-from-url-or-file (parse-namestring name)))))
 	(t (error* "Cannot read from ~S" name))))
 
-(defun instans-add-rules (instans-iri rules &key output-directory base silentp)
-  (let ((instans (if instans-iri (get-instans instans-iri) (create-instans))))
+(defun instans-add-rules (instans-iri rules &key output-directory base (silentp t) (create-instans-p t))
+  (let ((instans (if create-instans-p (create-instans instans-iri) (get-instans instans-iri))))
     (cond ((sparql-error-p instans) instans)
 	  (t
 	   (let ((string (read-from-url-or-file rules)))
@@ -202,7 +201,11 @@
 	       (multiple-value-bind (compile-result error)
 		   (compile-sparql-stream stream :instans instans :input-name (if (stringp rules) rules (rdf-iri-string rules))
 					  :output-directory output-directory :base base :silentp silentp)
-		 (values compile-result error))))))))
+		 (declare (ignore compile-result))
+		 (cond ((not error)
+			(values t nil))
+		       (t
+			(values nil error))))))))))
 
 (defun instans-add-triples-from-url (instans-iri triples &key expected-results graph base silentp)
   (let* ((instans (get-instans instans-iri))
@@ -259,7 +262,7 @@
 	    (cond ((null comparep) (values t t))
 		  (t
 		   (sparql-results-compare expected-query-results observed-query-results :verbosep t :result-label1 "expected" :result-label2 "observed")))
-	  (values similarp same-order-p (get-instans instans-iri)))))))
+	  (values similarp same-order-p instans))))))
 
 (defvar *instans-execute-system-previous-rules* nil)
 (defvar *instans-execute-system-previous-triples* nil)

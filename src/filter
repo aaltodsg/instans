@@ -1,11 +1,11 @@
 #!/usr/bin/env awk -f
 /^Rule/ {
-    if (name) printf "%s %s returns %s\n", type, name, success;
+    if (queryfile) printf "%s %s returns %s\n", type, queryfile, success;
 }
-/.*SPARQL-VAR \?NAME> = .*/ {
-    split($4, n, "\"");
-    name = n[2];
-#    printf "\nNAME = %s\n", name;
+/.*SPARQL-VAR \?QUERYFILE> = .*/ {
+    split($5, n, ">");
+    queryfile = n[1];
+#    printf "\nQUERYFILE = %s\n", queryfile;
 }
 /.*SPARQL-VAR \?TESTTYPE> = #<RDF-IRI / {
     split($5, a, "#");
@@ -13,18 +13,18 @@
     type = t[1];
 #    printf "TYPE = %s\n", type;
 }
-/.*SPARQL-VAR \?SUCCESS> = #<SPARQL-UNBOUND.*/ {
+/.*SPARQL-VAR \?PARSED_OK> = #<SPARQL-UNBOUND.*/ {
     success = "UNBOUND";
-#    printf "SUCCESS = UNBOUND\n"
+#    printf "PARSED_OK = UNBOUND\n"
 }
-/.*SPARQL-VAR \?SUCCESS> = T/ {
+/.*SPARQL-VAR \?PARSED_OK> = T/ {
     success = "true";
-#    printf "SUCCESS = true\n"
+#    printf "PARSED_OK = true\n"
 }
-/.*SPARQL-VAR \?SUCCESS> = NIL/ {
+/.*SPARQL-VAR \?PARSED_OK> = NIL/ {
     success = "false";
-#    printf "SUCCESS = false\n"
+#    printf "parse_ok = false\n"
 }
 END {
-    if (name) printf "%s %s returns %s\n", type, name, success;
+    if (queryfile) printf "%s %s returns %s\n", type, queryfile, success;
 }
