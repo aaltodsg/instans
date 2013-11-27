@@ -26,7 +26,7 @@ PREFIX its:    <http://instans.aalto.fi/testsuite/#>
 #        BIND(?parsed && bound(?datafile) && instans:add_triples(?instans, ?datafile, if(bound(?resultfile), ?resultfile, rdf:nil)) AS ?run_ok)
 # }
 # ;
-SELECT ?test ?name ?testtype ?queryfile ?parsed_ok ?run_ok WHERE {
+SELECT ?queryfile ?testtype ?parsed_ok WHERE {
        { ?test a 	       ?testtype;
          mf:name   ?name .
 	 ?test mf:action ?action 
@@ -35,5 +35,7 @@ SELECT ?test ?name ?testtype ?queryfile ?parsed_ok ?run_ok WHERE {
        }
        BIND(iri(strbefore(str(?queryfile),".rq")) AS ?instans)
        BIND(instans:add_rules(?instans, ?queryfile) AS ?parsed_ok)
-       BIND(false AS ?run_ok)
+       FILTER((?parsed_ok && ?testtype = mf:NegativeSyntaxTest11) || (! ?parsed_ok && ?testtype = mf:PositiveSyntaxTest11))
+#       BIND(false AS ?run_ok)
+#       BIND(false AS ?run_ok)
 }

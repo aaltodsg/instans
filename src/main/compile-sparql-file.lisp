@@ -18,8 +18,9 @@
 	 (colors (list "Black" "Red" "Blue" "Green" "Orange"))
 	 (algebra-expr-list nil))
     (cond ((not (parsing-succeeded-p parsing))
-	   (warn "~%~@[~A: ~]~A~%" input-name (parsing-error-message parsing))
-	   (return-from compile-sparql-stream (values nil (parsing-error-message parsing))))
+	   (loop for msg in (parsing-error-messages parsing)
+		 do (warn "~%~@[~A: ~]~A~%" input-name msg))
+	   (return-from compile-sparql-stream (values nil (parsing-error-messages parsing))))
 	  (t
 	   (unless silentp
 	     (inform "Parsed ~S" (first (parsing-result-stack parsing))))

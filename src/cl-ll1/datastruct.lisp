@@ -47,7 +47,7 @@
    (position :accessor parsing-position :initform 0)
    (end-of-input-p :accessor parsing-end-of-input-p :initform nil)
    (state :accessor parsing-state :initform nil)
-   (error-message :accessor parsing-error-message :initform nil)))
+   (error-messages :accessor parsing-error-messages :initform nil)))
 
 (defun parsing-result (parsing)
   (car (parsing-result-stack parsing)))
@@ -55,7 +55,7 @@
 (defmethod initialize-instance :after ((this parsing) &key &allow-other-keys) nil)
 
 (defmethod print-object ((this parsing) stream)
-  (format stream "#<~A ~A state=~A~@[: \"~A\"~]>" (type-of this) (parser-name (parsing-parser this)) (parsing-state this) (parsing-error-message this)))
+  (format stream "#<~A ~A state=~A~@[: \"~A\"~]>" (type-of this) (parser-name (parsing-parser this)) (parsing-state this) (parsing-error-messages this)))
 
 (defgeneric parser-equal-grammar (p1 p2)
   (:method ((p1 parser) (p2 parser))

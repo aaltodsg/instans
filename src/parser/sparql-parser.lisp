@@ -44,8 +44,10 @@
 	)
       ggp)))
 
+(defvar *parser-error-messages*)
+
 (defun sparql-parse-error (fmt &rest args)
-  (apply #'format *error-output* (format nil "~%~A" fmt) args))
+  (push-to-end (apply #'format nil (format nil "~%~A" fmt) args) *parser-error-messages*))
 
 (defun build-query-expression (clauses)
   (let ((form (getf clauses :query-form))
@@ -128,7 +130,8 @@
 	 (instans nil)
 	 (mode :query))
     (labels ((init () 
-		   (setf instans (lexer-instans lexer))
+	       (setf instans (lexer-instans lexer))
+	       (setf *parser-error-messages* nil)
 	       (clear-triples))
 	     (set-prefix (prefix-binding expansion) (rebind-prefix lexer prefix-binding expansion))
 	     (set-base (b) (set-lexer-base lexer b) (values))
@@ -575,7 +578,10 @@
 	    (setf lexer sparql-lexer)
 	    (init)
 	    (setf mode (if testingp :testing :query))
-	    (apply #'sparql-parser lexer keys))))))
+	    (let ((result (apply #'sparql-parser lexer keys)))
+	      (loop for msg in *parser-error-messages*
+		    do (push-to-end msg (parsing-error-messages result)))
+	      result))))))
 
 (defun sparql-parse-file (instans query-file &rest keys &key show-parse-p (newline-positions (list nil)) test-mode-p)
   (declare (ignorable show-parse-p newline-positions test-mode-p))
@@ -602,8 +608,8 @@
 		       do (inform "~A" line))))
 	     (let ((result (sparql-parse-file instans file :show-parse-p show-parse-p :newline-positions newline-positions :test-mode-p test-mode-p)))
 	       (cond ((not (parsing-succeeded-p result))
-		      (inform "~A:~A" file (parsing-error-message result)))
+		      (loop for msg in (parsing-error-messages result)
+			    do (inform "~A:~A" file msg)))
 		     (print-result-p
 		      (loop for item in (car (parsing-result-stack result))
 			    do (inform "~S" item))))))))
-

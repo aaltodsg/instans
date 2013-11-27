@@ -102,6 +102,7 @@
 					   (exists-start (make-or-share-instance 'exists-start-node :prev prev :counter-var counter-var :active-p-var active-p-var
 										 :kind :simple-exists))
 					   (exists-end (make-or-share-instance 'exists-end-node :prev (translate (second f) exists-start dataset)
+									       :kill (list counter-var active-p-var)
 									       :start-node exists-start :kind :simple-exists)))
 				      (setf (subgraph-end-node exists-start) exists-end)
 				      exists-end))
@@ -111,6 +112,7 @@
 					   (exists-start (make-or-share-instance 'exists-start-node :prev prev :counter-var counter-var :active-p-var active-p-var
 										 :kind :simple-not-exists))
 					   (exists-end (make-or-share-instance 'exists-end-node :prev (translate (second f) exists-start dataset)
+									       :kill (list counter-var active-p-var)
 									       :start-node exists-start :kind :simple-not-exists)))
 				      (setf (subgraph-end-node exists-start) exists-end)
 				      exists-end))
@@ -121,16 +123,21 @@
 					     (make-or-share-instance 'filter-node :prev prev :test f :test-parameters (collect-expression-variables f)))
 					    (t
 					     (setf expr modified-expr)
-					     (loop for exist in exists-list
+					     (loop with kill-vars = nil
+						   for exist in exists-list
 						   for counter-var in counter-var-list
 						   for active-p-var = (generate-and-canonize-var "!ACTIVEP")
 						   for exists-start = (make-or-share-instance 'exists-start-node :prev prev
 											      :counter-var counter-var :active-p-var active-p-var :kind :embedded-exists)
 						   for exists-end = (make-or-share-instance 'exists-end-node :prev (translate (second exist) exists-start dataset)
 											    :start-node exists-start :kind :embedded-exists)
-						   do (setf (subgraph-end-node exists-start) exists-end)
-						   do (setf prev exists-end)
+						   do (progn
+							(push counter-var kill-vars)
+							(push active-p-var kill-vars)
+							(setf (subgraph-end-node exists-start) exists-end)
+							(setf prev exists-end))
 						   finally (return (make-or-share-instance 'filter-memory :prev prev :prev-value-var (generate-and-canonize-var "!PREVVAL")
+											   :kill (nreverse kill-vars)
 											   :test modified-expr
 											   :test-parameters (collect-expression-variables modified-expr)))))))))))
 		   (JOIN (let* ((beta (translate (first args) prev dataset))
@@ -148,6 +155,7 @@
 				    (optional-start (make-or-share-instance 'optional-start-node :prev prev :counter-var counter-var :active-p-var active-p-var))
 				    (optional-end (make-or-share-instance 'optional-end-node
 									  :start-node optional-start
+									  :kill (list counter-var active-p-var)
 									  :prev (translate optional-expr optional-start dataset))))
 			       (setf (subgraph-end-node optional-start) optional-end)
 			       optional-end))

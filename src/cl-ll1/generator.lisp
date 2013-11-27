@@ -461,7 +461,7 @@
     (setf (parsing-state parsing) (if succeededp :succeeded :failed))
     (setf (parsing-phases parsing) (nreverse (parsing-phases parsing)))
     (unless succeededp
-      (setf (parsing-error-message parsing) (make-parsing-error-message (parsing-lexer parsing) (parsing-position parsing) fmt args)))
+      (push-to-end (make-parsing-error-message (parsing-lexer parsing) (parsing-position parsing) fmt args) (parsing-error-messages parsing)))
     (throw 'parsed parsing)))
 
 (defun parsing-failure (fmt &rest args)

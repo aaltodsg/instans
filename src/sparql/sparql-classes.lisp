@@ -53,6 +53,8 @@
 
 (define-class sparql-var (uniquely-named-object hashkeyed) ())
 
+(define-class internal-var (sparql-var) ())
+
 (define-class sparql-unbound (rdf-term) ())
 
 (define-class sparql-distinct () ())
