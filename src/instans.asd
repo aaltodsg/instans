@@ -76,7 +76,8 @@
 	       (:module "main" :depends-on ("util" "sparql" "parser" "rete")
 	       		:components ((:file "translate-sparql-algebra-to-rete")
 	       			     (:file "compile-sparql-file")
-				     (:file "testing")))))
+;				     (:file "testing")
+				     ))))
 
 (progn (setf *print-circle* nil) (setf *print-right-margin* 250))
 

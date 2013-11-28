@@ -94,12 +94,15 @@
 				 (format nil "<TR><TD ALIGN=\"LEFT\">use ~(~{~a~^, ~}~)</TD><TD ALIGN=\"LEFT\">use&rsaquo; ~(~{~a~^, ~}~)</TD></TR>"
 					 (var-names this (node-use this))
 					 (var-names this (node-use-succ this)))
-				 (format nil "<TR><TD ALIGN=\"LEFT\">add ~(~{~a~^, ~}~)</TD><TD ALIGN=\"LEFT\">del ~(~{~a~^, ~}~)</TD></TR>"
-					 (var-names this (node-vars-add this))
-					 (var-names this (node-vars-del this)))
+				 (format nil "<TR><TD ALIGN=\"LEFT\">kill ~(~{~a~^, ~}~)</TD><TD ALIGN=\"LEFT\"></TD></TR>"
+					 (var-names this (node-kill this)))
 				 (format nil "<TR><TD ALIGN=\"LEFT\">in ~(~{~a~^, ~}~)</TD><TD ALIGN=\"LEFT\">out ~(~{~a~^, ~}~)</TD></TR>"
-					 (var-names this (node-vars-in this))
-					 (var-names this (node-vars-out this))))
+					 (var-names this (node-all-vars-in this))
+					 (var-names this (node-all-vars-out this)))
+				 (format nil "<TR><TD ALIGN=\"LEFT\">in ~(~{~a~^, ~}~)</TD><TD ALIGN=\"LEFT\">out ~(~{~a~^, ~}~)</TD></TR>"
+					 (var-names this (node-visible-vars-in this))
+					 (var-names this (node-visible-vars-out this)))
+				 )
 			   (and (join-node-p this)
 				(list (format nil "<TR><TD ALIGN=\"LEFT\">vm ~(~{~a~^, ~}~)</TD></TR>"
 					      (node-def-preceq (join-alpha this)))))
@@ -120,9 +123,11 @@
 
 (defgeneric dot-node-tooltip (node)
   (:method ((this node))
-    (format nil "~A: ~@[~%def ~A~]~@[~%use ~A~]~@[~%vars-in ~A~]~@[~%vars-out ~A~]" (node-name this)
+    (format nil "~A: ~@[~%def ~A~]~@[~%use ~A~]~@[~%all-vars-in ~A~]~@[~%all-vars-out ~A~]~@[~%visible-vars-in ~A~]~@[~%visible-vars-out ~A~]" (node-name this)
 	    (var-orig-names this (node-def this)) (var-orig-names this (node-use this))
-	    (var-orig-names this (node-vars-in this)) (var-orig-names this (node-vars-out this)))))
+	    (var-orig-names this (node-all-vars-in this)) (var-orig-names this (node-all-vars-out this))
+	    (var-orig-names this (node-visible-vars-in this)) (var-orig-names this (node-visible-vars-out this))
+	    )))
 
 (defmethod dot-node-tooltip :around ((this triple-pattern-node))
   (format nil "~A~%[~A]" (call-next-method) (dot-pretty-triple-pattern (triple-pattern-node-triple-pattern this) nil)))

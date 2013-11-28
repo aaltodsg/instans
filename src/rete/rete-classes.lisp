@@ -17,9 +17,10 @@
    (kill :accessor node-kill :initarg :kill :initform nil)
    (def-prec :accessor node-def-prec)
    (use-succ :accessor node-use-succ)
-   (vars-add :accessor node-vars-add)
-   (vars-in :accessor node-vars-in)
-   (vars-out :accessor node-vars-out)
+   (all-vars-in :accessor node-all-vars-in)
+   (all-vars-out :accessor node-all-vars-out)
+   (visible-vars-in :accessor node-visible-vars-in)
+   (visible-vars-out :accessor node-visible-vars-out)
    (algebra-expr :accessor node-algebra-expr :initarg :algebra-expr :initform nil)
    (tracep :accessor node-trace-p :initform nil)))
 

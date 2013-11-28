@@ -692,7 +692,7 @@
 
 (defun report-rule-execution (node token)
   (let* ((instans (node-instans node))
-	 (displayed-bindings (loop for var in (node-vars-out node)
+	 (displayed-bindings (loop for var in (node-visible-vars-out node)
 				   unless (null var)
 				   collect (list (reverse-resolve-binding instans var) (token-value node token var)))))
     (inform "Rule ~A~%~{~{       ~A = ~S~}~^,~%~}~%" node displayed-bindings)

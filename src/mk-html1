@@ -23,10 +23,11 @@ BN=`basename $SPARQL .rq`
 BN=`basename $BN .sparql`
 RQ=${OUTPUT_DIR}/$BN.rq
 SA=${OUTPUT_DIR}/$BN.sa
+BND=${OUTPUT_DIR}/$BN.bnd
 DOT=${OUTPUT_DIR}/$BN.dot
 OUTPUT=${OUTPUT_DIR}/$BN.html
 
-msg SPARQL=${SPARQL}, SA=${SA}, DOT=${DOT}, OUTPUT=${OUTPUT}
+msg SPARQL=${SPARQL}, SA=${SA}, BND=${BND}, DOT=${DOT}, OUTPUT=${OUTPUT}
 {
 cat > $OUTPUT <<EOF
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
@@ -36,8 +37,10 @@ cat > $OUTPUT <<EOF
 <title>$BN</title>
 </head>
 <body>
-<table border="1" cellspacing="0" cellpadding="4"><tr><td>
-<pre>
+  <table border="1" cellspacing="0" cellpadding="4">
+    <tr>
+      <td>
+      <pre>
 EOF
 if test `expr $SPARQL : 'http://'` -eq 7 -o `expr $SPARQL : 'https://'` -eq 8 ; then
 msg "curl $SPARQL"
@@ -49,18 +52,27 @@ else
 cat $SPARQL | sed '/</s//\&lt;/g' | sed '/>/s//\&gt;/g' >> $OUTPUT
 fi
 cat >> $OUTPUT <<EOF
-</pre>
-</td>
-<td>
-<pre>
+      </pre>
+      </td>
+      <td rowspan="2">
+      <pre>
 EOF
 cat $SA >> $OUTPUT
 cat >> $OUTPUT <<EOF
-</pre>
-</td>
-</tr>
-</table>
-<hr/>
+      </pre>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      <pre>
+EOF
+cat $BND >> $OUTPUT
+cat >> $OUTPUT <<EOF
+      </pre>
+      </td>
+    </tr>
+  </table>
+  <hr/>
 EOF
 dot -Tsvg -O $DOT
 cat $DOT.svg >> $OUTPUT
