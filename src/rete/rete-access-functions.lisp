@@ -101,16 +101,16 @@
 	    ((null prev2) (list prev1))
 	    (t (list prev1 prev2)))))
   (:method ((this join-node))
-    (list (join-beta this)))
+    (list (join-beta this) (join-alpha this)))
   (:method ((this node))
     (let ((prev (node-prev this)))
       (and prev (list prev)))))
 
 (defun node-def-preceq (node)
-  (list-union (node-def-prec node) (node-def node) :test #'equal))
+  (list-union (node-def-prec node) (node-def node) :test #'sparql-var-equal))
 
 (defun node-use-succeq (node)
-  (list-union (node-use node) (node-use-succ node) :test #'equal))
+  (list-union (node-use node) (node-use-succ node) :test #'sparql-var-equal))
 
 (defgeneric node-defines-vars (node)
   (:method ((this alpha-node))
@@ -130,7 +130,7 @@
 
 (defgeneric node-uses-vars (node)
   (:method ((this join-node))
-    (list-intersection (node-def-preceq (join-alpha this)) (node-def-preceq (join-beta this)) :test #'equal))
+    (list-intersection (node-def-preceq (join-alpha this)) (node-def-preceq (join-beta this)) :test #'sparql-var-equal))
   (:method ((this bind-node))
     (bind-form-parameters this))
   (:method ((this filter-memory))
@@ -155,8 +155,7 @@
 				  (t
 				   (collect-expression-variables ord))))))
   (:method ((this modify-node))
-    (list-union (modify-delete-parameters this) (modify-insert-parameters this)
-		:test #'equal))
+    (list-union (modify-delete-parameters this) (modify-insert-parameters this) :test #'sparql-var-equal))
   (:method ((this node)) nil))
 
 ;;; The main operation
@@ -165,12 +164,15 @@
   (let ((visited nil))
     (labels ((visit (node)
 	       (unless (member node visited)
+		 (inform "enter visit ~S" node)
 		 (push node visited)
 		 (let ((precs (node-effective-precs node)))
+		   (inform "~s precs = ~S" node precs)
 		   (loop for prec in precs do (visit prec))
 		   (let ((def-prec (reduce #'list-union (mapcar #'node-def-preceq precs) :initial-value nil)))
 		     (setf (node-def-prec node) def-prec)
-		     (setf (node-def node) (node-defines-vars node)))))))
+		     (setf (node-def node) (node-defines-vars node))))
+		 (inform "exit visit ~S" node))))
       (loop for node in nodes do (visit node))))
   nodes)
 
@@ -208,9 +210,16 @@
 		     (setf (node-visible-vars-out node)
 			   (list-difference (list-union visible-vars-in (node-def node) :test #'sparql-var-equal)
 					    (node-kill node) :test #'sparql-var-equal))
+		     (when (join-node-p node)
+		       (setf (join-beta-minus-alpha-vars node) (list-difference (node-all-vars-out (join-beta node)) (node-all-vars-out (join-alpha node))
+										:test #'sparql-var-equal))
+		       (setf (join-alpha-minus-beta-vars node) (list-difference (node-all-vars-out (join-alpha node)) (node-all-vars-out (join-beta node))
+										:test #'sparql-var-equal)))
 		     (flet ((mn (vars) (mapcar #'(lambda (v) (reverse-resolve-binding (node-instans node) v)) vars)))
-		       (inform "~%visit ~S~%def ~S~%use ~S~%kill ~S~%all-vars-in ~S~%all-vars-out ~S~%visible-vars-in ~S~%visible-vars-out ~S"
-			       node (mn (node-def node)) (mn (node-use node)) (mn (node-kill node))
+		       (inform "~%visit ~S~%def ~S~%use ~S~%def< ~S~%use> ~S~%kill ~S~%all-vars-in ~S~%all-vars-out ~S~%visible-vars-in ~S~%visible-vars-out ~S" node
+			       (mn (node-def node)) (mn (node-use node))
+			       (mn (node-def-prec node)) (mn (node-use-succ node))
+			       (mn (node-kill node))
 			       (mn (node-all-vars-in node)) (mn (node-all-vars-out node))
 			       (mn (node-visible-vars-in node)) (mn (node-visible-vars-out node))))
 		     )))))

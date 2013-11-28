@@ -61,6 +61,8 @@
 (define-class join-node (node)
   ((alpha :accessor join-alpha :initarg :alpha)
    (beta :accessor join-beta :initarg :beta)
+   (alpha-minus-beta-vars :accessor join-alpha-minus-beta-vars :initarg :alpha-minus-beta-vars) 
+   (beta-minus-alpha-vars :accessor join-beta-minus-alpha-vars :initarg :beta-minus-alpha-vars) 
    (has-dummy-beta-p :accessor join-has-dummy-beta-p :initarg :has-dummy-beta-p)
    (alpha-index :accessor join-alpha-index :initform nil)
    (beta-index :accessor join-beta-index :initform nil)))

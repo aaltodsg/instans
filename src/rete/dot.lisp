@@ -122,14 +122,18 @@
 
 (defgeneric dot-node-tooltip (node)
   (:method ((this node))
-    (format nil "~A: ~@[~%def ~A~]~@[~%use ~A~]~@[~%all-vars-in ~A~]~@[~%all-vars-out ~A~]~@[~%visible-vars-in ~A~]~@[~%visible-vars-out ~A~]" (node-name this)
+    (format nil "~A: ~@[~%def ~A~]~@[~%use ~A~]~@[~%def< ~A~]~@[~%use> ~A~]~@[~%all-vars-in ~A~]~@[~%all-vars-out ~A~]~@[~%visible-vars-in ~A~]~@[~%visible-vars-out ~A~]" (node-name this)
 	    (var-orig-names this (node-def this)) (var-orig-names this (node-use this))
+	    (var-orig-names this (node-def-prec this)) (var-orig-names this (node-use-succ this))
 	    (var-orig-names this (node-all-vars-in this)) (var-orig-names this (node-all-vars-out this))
 	    (var-orig-names this (node-visible-vars-in this)) (var-orig-names this (node-visible-vars-out this))
 	    )))
 
 (defmethod dot-node-tooltip :around ((this triple-pattern-node))
   (format nil "~A~%[~A]" (call-next-method) (dot-pretty-triple-pattern (triple-pattern-node-triple-pattern this) nil)))
+
+(defmethod dot-node-tooltip :around ((this join-node))
+  (format nil "~A~%a-b ~A~%b-a ~A" (call-next-method) (var-orig-names this (join-alpha-minus-beta-vars this)) (var-orig-names this (join-beta-minus-alpha-vars this))))
 
 (defmethod dot-node-tooltip :around ((this bind-node))
   (format nil "~A~%~S" (call-next-method) (bind-form-lambda this)))
@@ -139,6 +143,9 @@
 
 (defmethod dot-node-tooltip :around ((this modify-node))
   (format nil "~A~%~S~%~S" (call-next-method) (modify-delete-lambda this) (modify-insert-lambda this)))
+
+(defmethod dot-node-tooltip :around ((this query-node))
+  (format nil "~A~%project-vars: ~A" (call-next-method) (var-orig-names this (solution-modifiers-project-vars this))))
 
 (defgeneric dot-node-description (node &key html-labels-p shape show-vars-p)
   (:documentation "Returns a dot node description.")

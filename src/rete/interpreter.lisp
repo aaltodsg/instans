@@ -449,9 +449,10 @@
 ;      (pop alpha-token) ; Drop hashkey
       (when (node-use this)
 	(index-put-token (join-alpha-index this) key alpha-token))
-      (loop for beta-token in (cond ((node-use this) (index-get-tokens (join-beta-index this) key))
+      (loop with missing-vars = (join-beta-minus-alpha-vars this)
+	    for beta-token in (cond ((node-use this) (index-get-tokens (join-beta-index this) key))
 				    (t (store-tokens (join-beta this))))
-	    for new-token = (make-token this beta-token (node-def this) (loop for var in (node-def this) collect (second (assoc var alpha-token))))
+	    for new-token = (make-token this beta-token missing-vars (loop for var in missing-vars collect (second (assoc var alpha-token))))
 	    do (call-succ-nodes #'add-token this new-token stack)))))
 
 (defgeneric add-beta-token (join beta-token &optional stack)
@@ -459,9 +460,10 @@
     (let ((key (join-beta-key this beta-token)))
       (when (node-use this)
 	(index-put-token (join-beta-index this) key beta-token))
-      (loop for alpha-token in (cond ((node-use this) (index-get-tokens (join-alpha-index this) key))
+      (loop with missing-vars = (join-alpha-minus-beta-vars this)
+	    for alpha-token in (cond ((node-use this) (index-get-tokens (join-alpha-index this) key))
 				     (t (store-tokens (join-alpha this))))
-	    for new-token = (make-token this beta-token (node-def this) (loop for var in (node-def this) collect (second (assoc var alpha-token))))
+	    for new-token = (make-token this beta-token missing-vars (loop for var in missing-vars collect (second (assoc var alpha-token))))
 	    do (call-succ-nodes #'add-token this new-token stack)))))
 
 (defgeneric remove-token (node token &optional stack)
@@ -593,9 +595,10 @@
 ;      (pop alpha-token) ; Drop hashkey
       (when (node-use this)
 	(index-remove-token (join-alpha-index this) key alpha-token))
-      (loop for beta-token in (cond ((node-use this) (index-get-tokens (join-beta-index this) key))
+      (loop with missing-vars = (join-beta-minus-alpha-vars this)
+	    for beta-token in (cond ((node-use this) (index-get-tokens (join-beta-index this) key))
 				    (t (store-tokens (join-beta this))))
-	    for new-token = (make-token this beta-token (node-def this) (loop for var in (node-def this) collect (second (assoc var alpha-token)))) ; alpha-token
+	    for new-token = (make-token this beta-token missing-vars (loop for var in missing-vars collect (second (assoc var alpha-token)))) ; alpha-token
 	    do (call-succ-nodes #'remove-token this new-token stack)))))
 
 (defgeneric remove-beta-token (join beta-token &optional stack)
@@ -603,9 +606,10 @@
     (let ((key (join-beta-key this beta-token)))
       (when (node-use this)
 	(index-remove-token (join-beta-index this) key beta-token))
-      (loop for alpha-token in (cond ((node-use this) (index-get-tokens (join-alpha-index this) key))
+      (loop with missing-vars = (join-alpha-minus-beta-vars this)
+	    for alpha-token in (cond ((node-use this) (index-get-tokens (join-alpha-index this) key))
 				     (t (store-tokens (join-alpha this))))
-	    for new-token = (make-token this beta-token (node-def this) (loop for var in (node-def this) collect (second (assoc var alpha-token))))
+	    for new-token = (make-token this beta-token missing-vars (loop for var in missing-vars collect (second (assoc var alpha-token))))
 	    do (call-succ-nodes #'remove-token this new-token stack)))))
 
 (defun rule-instance-queue-empty-p (queue)
