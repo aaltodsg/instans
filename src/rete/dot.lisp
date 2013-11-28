@@ -37,7 +37,6 @@
   (:method ((this filter-memory)) (dot-default-pretty-name-format "FM"))
   (:method ((this bind-node)) (dot-default-pretty-name-format (format nil "B[~A]" (uniquely-named-object-name (bind-variable this)))))
   (:method ((this aggregate-join-node)) (dot-default-pretty-name-format "AJ"))
-  (:method ((this solution-modifiers-node)) (dot-default-pretty-name-format "SM"))
   (:method ((this select-node)) (dot-default-pretty-name-format "S"))
   (:method ((this construct-node)) (dot-default-pretty-name-format "C"))
   (:method ((this modify-node)) (dot-default-pretty-name-format "DI"))

@@ -115,22 +115,33 @@
    (aggr-values-histories :accessor group-partition-part-aggr-values-histories :initform nil)
    (token :accessor group-partition-part-token)))
 
-(define-class solution-modifiers-node (node)
+(define-class solution-modifiers-mixin (node)
   ((order-by :accessor solution-modifiers-order-by :initarg :order-by :initform nil)
-   (project-vars :accessor solution-modifiers-project-vars :initarg :project-vars :initform nil)
-   (project-index :accessor solution-modifiers-project-index)
+   (project :accessor solution-modifiers-project :initarg :project :initform nil)
    (distinctp :accessor solution-modifiers-distinct-p :initarg :distinctp :initform nil)
    (start :accessor solution-modifiers-start :initarg :start :initform nil)
-   (length :accessor solution-modifiers-length :initarg :length :initform nil)))
+   (length :accessor solution-modifiers-length :initarg :length :initform nil)
+   (project-vars :accessor solution-modifiers-project-vars :initarg :project-vars :initform nil)
+   (project-as-exprs :accessor solution-modifiers-project-as-exprs :initarg :project-as-exprs :initform nil)
+   (project-index :accessor solution-modifiers-project-index)))
 
 (define-class rule-node (node) ())
 
-(define-class select-node (rule-node) ())
+(define-class query-node (rule-node solution-modifiers-mixin) ())
 
-(define-class construct-node (rule-node) 
+(define-class update-node (rule-node) ())
+
+(define-class select-node (query-node) ())
+
+(define-class construct-node (query-node) 
   ((construct-template :accessor construct-template :initarg :construct-template)))
 
-(define-class modify-node (rule-node) 
+(define-class ask-node (query-node) ())
+
+(define-class describe-node (query-node)
+  ((var-or-iri-list :accessor describe-node-var-or-iri-list :initarg :var-or-iri-list)))
+
+(define-class modify-node (update-node) 
   ((delete-template :accessor modify-delete-template :initarg :delete-template)
    (delete-parameters :accessor modify-delete-parameters :initarg :delete-parameters)
    (delete-lambda :accessor modify-delete-lambda :initarg :delete-lambda)

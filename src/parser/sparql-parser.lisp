@@ -51,64 +51,41 @@
 
 (defun build-query-expression (clauses)
   (let ((form (getf clauses :query-form))
-	(ggp (getf clauses :where))
-	(distinct (getf clauses :distinct))
-	(reduced (getf clauses :reduced))
-	(project (getf clauses :project))
-	(group-by (getf clauses :group-by))
-	(order-by (getf clauses :order-by))
-	(limit (getf clauses :limit))
-	(offset (getf clauses :offset)))
-    (labels ((wrap-solution-modifiers ()
-	       (setf ggp (list 'TO-LIST ggp))
-	       (when order-by (setf ggp (list 'ORDER ggp order-by)))
-	       (when project (setf ggp (list 'PROJECT ggp project)))
-	       (when distinct (setf ggp (list 'DISTINCT ggp)))
-	       (when reduced (setf ggp (list 'REDUCED ggp)))
-	       (when (or limit offset) (setf ggp (list 'slice ggp limit offset)))
-	       ggp)
-	     (get-project-vars ()
-	       (let ((scope-vars (getf (rest ggp) :scope-vars)))
-;		 (inform "ggp = ~S~%scope-vars = ~S" ggp scope-vars)
-		 (loop for item in group-by
-		       when (and (consp item) (eq (car item) 'AS))
-		       do (let ((var (second item)))
-			    (cond ((find-sparql-var var scope-vars)
-				   (sparql-parse-error "Variable ~S already bound" var))
-				  (t
-				   (push-to-end var scope-vars)))))
-		 (cond ((eq project '*) scope-vars)
-		       (t
-			(loop with project-vars = nil
-			      for item in project
-			      when (sparql-var-p item)
-			      do (cond ((not (find-sparql-var item scope-vars))
-					(sparql-parse-error "Variable ~S not in SELECT" item))
+	(ggp (getf clauses :where)))
+    (remf clauses :query-form)
+    (remf clauses :where)
+    (flet ((get-project-vars ()
+	     (let ((scope-vars (getf (rest ggp) :scope-vars)))
+;	       (inform "ggp = ~S~%scope-vars = ~S" ggp scope-vars)
+	       (loop for item in (getf clauses :group-by)
+		     when (and (consp item) (eq (car item) 'AS))
+		     do (let ((var (second item)))
+			  (cond ((find-sparql-var var scope-vars)
+				 (sparql-parse-error "Variable ~S already bound" var))
+				(t
+				 (push-to-end var scope-vars)))))
+	       (cond ((eq (getf clauses :project) '*) scope-vars)
+		     (t
+		      (loop with project-vars = nil
+			    for item in (getf clauses :project)
+			    when (sparql-var-p item)
+			    do (cond ((not (find-sparql-var item scope-vars))
+				      (sparql-parse-error "Variable ~S not in SELECT" item))
+				     (t
+				      (push-to-end item project-vars)))
+			    else
+			    do (let ((var (second item)))
+				 (cond ((find-sparql-var var scope-vars)
+					(sparql-parse-error "Variable ~S already bound" var))
 				       (t
-					(push-to-end item project-vars)))
-			      else
-			      do (let ((var (second item)))
-				   (cond ((find-sparql-var var scope-vars)
-					  (sparql-parse-error "Variable ~S already bound" var))
-					 (t
-					  (push-to-end var scope-vars)
-					  (push-to-end var project-vars))))
-			      finally (return project-vars))))))
-	     (get-existing-property-and-value (property list)
-	       (if (find property list) (list property (getf list property))))
-	     (get-existing-properties-and-values (properties list)
-	       (apply #'append (mapcar #'(lambda (property) (get-existing-property-and-value property list)) properties))))
+					(push-to-end var scope-vars)
+					(push-to-end var project-vars))))
+			    finally (return project-vars)))))))
       (case form
-	(SELECT
-	 (let ((project-vars (get-project-vars)))
+	((SELECT ASK DESCRIBE CONSTRUCT DELETE-INSERT)
+	 (let ((project-vars ))
 	   (setf ggp (handle-aggregates ggp clauses))
-	   (list form :where (wrap-solution-modifiers) :project-vars project-vars)))
-	(CONSTRUCT
-	 (let ((template (getf clauses :construct-template)))
-	   (setf ggp (handle-aggregates ggp clauses))
-	   (list form :where (wrap-solution-modifiers) :construct-template template)))
-	(DESCRIBE (sparql-parse-error "DESCRIBE query not implemented yet"))
-	(ASK (sparql-parse-error "ASK query not implemented yet"))
+	   (append (list form :where ggp :project-vars (get-project-vars)) clauses)))
 	(LOAD (sparql-parse-error "LOAD not implemented yet"))
 	(CLEAR (sparql-parse-error "CLEAR not implemented yet"))
 	(ADD (sparql-parse-error "ADD not implemented yet"))
@@ -117,8 +94,6 @@
 	(INSERT-DATA (sparql-parse-error "INSERT not implemented yet"))
 	(DELETE-DATA (sparql-parse-error "DELETE not implemented yet"))
 	(DELETE-WHERE (sparql-parse-error "DELETE not implemented yet"))
-	(DELETE-INSERT
-	 (cons form (get-existing-properties-and-values '(:with :delete-clause :insert-clause :using :where) clauses)))
 	))))
 
 (defun make-sparql-parser (&optional testingp)
@@ -314,9 +289,10 @@
 							 WHERE-TERMINAL |{-TERMINAL| (:OPT (TriplesTemplate :RESULT (list :construct-template $0))) |}-TERMINAL| SolutionModifier
 							 :RESULT (append '(:query-form CONSTRUCT) $0 (opt-value $3) $5)))
 						   :RESULT $1))
-	   (DescribeQuery ::= (DESCRIBE-TERMINAL (:OR (:REP1 VarOrIri) (|*-TERMINAL| :RESULT '*)) ((:REP0 DatasetClause) :RESULT (and $0 (list :dataset $0)))
+	   (DescribeQuery ::= (DESCRIBE-TERMINAL ((:OR (:REP1 VarOrIri) (|*-TERMINAL| :RESULT '*)) :RESULT (list :var-or-iri-list $0))
+						 ((:REP0 DatasetClause) :RESULT (and $0 (list :dataset $0)))
 						 (:OPT WhereClause) SolutionModifier
-						 :RESULT (append '(:query-form DESCRIBE) (list :target $1) $2 (opt-value $3) $4)))
+						 :RESULT (append '(:query-form DESCRIBE) $1 $2 (opt-value $3) $4)))
 	   (AskQuery ::= (ASK-TERMINAL ((:REP0 DatasetClause) :RESULT (and $0 (list :dataset $0))) WhereClause SolutionModifier
 				       :RESULT (append '(:query-form ASK) $1 $2 $3)))
 	   (DatasetClause ::= (FROM-TERMINAL (:OR DefaultGraphClause NamedGraphClause) :RESULT $1))
