@@ -90,10 +90,11 @@
 				 (format nil "<TD ALIGN=\"LEFT\">def ~(~{~a~^, ~}~)</TD><TD ALIGN=\"LEFT\">def&lsaquo; ~(~{~a~^, ~}~)</TD></TR>"
 					 (var-names this (node-def this))
 					 (var-names this (node-def-prec this)))
-				 (format nil "<TR><TD ALIGN=\"LEFT\">use ~(~{~a~^, ~}~)</TD><TD ALIGN=\"LEFT\">use&rsaquo; ~(~{~a~^, ~}~)</TD></TR>"
+				 ;; (format nil "<TR><TD ALIGN=\"LEFT\">use ~(~{~a~^, ~}~)</TD><TD ALIGN=\"LEFT\">use&rsaquo; ~(~{~a~^, ~}~)</TD></TR>"
+				 ;; 	 (var-names this (node-use this))
+				 ;; 	 (var-names this (node-use-succ this)))
+				 (format nil "<TR><TD ALIGN=\"LEFT\">use ~(~{~a~^, ~}~)</TD><TD ALIGN=\"LEFT\">kill ~(~{~a~^, ~}~)</TD></TR>"
 					 (var-names this (node-use this))
-					 (var-names this (node-use-succ this)))
-				 (format nil "<TR><TD ALIGN=\"LEFT\">kill ~(~{~a~^, ~}~)</TD><TD ALIGN=\"LEFT\"></TD></TR>"
 					 (var-names this (node-kill this)))
 				 (format nil "<TR><TD ALIGN=\"LEFT\">in ~(~{~a~^, ~}~)</TD><TD ALIGN=\"LEFT\">out ~(~{~a~^, ~}~)</TD></TR>"
 					 (var-names this (node-all-vars-in this))
@@ -122,9 +123,9 @@
 
 (defgeneric dot-node-tooltip (node)
   (:method ((this node))
-    (format nil "~A: ~@[~%def ~A~]~@[~%use ~A~]~@[~%def< ~A~]~@[~%use> ~A~]~@[~%all-vars-in ~A~]~@[~%all-vars-out ~A~]~@[~%visible-vars-in ~A~]~@[~%visible-vars-out ~A~]" (node-name this)
+    (format nil "~A: ~@[~%def ~A~]~@[~%use ~A~]~@[~%def< ~A~]~@[~%all-vars-in ~A~]~@[~%all-vars-out ~A~]~@[~%visible-vars-in ~A~]~@[~%visible-vars-out ~A~]" (node-name this)
 	    (var-orig-names this (node-def this)) (var-orig-names this (node-use this))
-	    (var-orig-names this (node-def-prec this)) (var-orig-names this (node-use-succ this))
+	    (var-orig-names this (node-def-prec this)) 
 	    (var-orig-names this (node-all-vars-in this)) (var-orig-names this (node-all-vars-out this))
 	    (var-orig-names this (node-visible-vars-in this)) (var-orig-names this (node-visible-vars-out this))
 	    )))

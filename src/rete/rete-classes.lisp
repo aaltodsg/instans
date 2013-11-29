@@ -16,7 +16,7 @@
    (use :accessor node-use)
    (kill :accessor node-kill :initarg :kill :initform nil)
    (def-prec :accessor node-def-prec)
-   (use-succ :accessor node-use-succ)
+;   (use-succ :accessor node-use-succ)
    (all-vars-in :accessor node-all-vars-in)
    (all-vars-out :accessor node-all-vars-out)
    (visible-vars-in :accessor node-visible-vars-in)

@@ -72,7 +72,7 @@
       (when error-msg
 	(return-from compile-sparql-algebra-expr (values nil error-msg)))
       (multiple-value-bind (result error-msg)
-	  (compute-node-uses-defs-and-vars new-nodes)
+	  (compute-node-vars new-nodes)
 	(declare (ignorable result))
 	(when error-msg
 	  (return-from compile-sparql-algebra-expr (values nil error-msg))))
@@ -167,6 +167,8 @@
 (defvar *instanses*)
 (eval-when (:load-toplevel :execute)
   (setf *instanses*  (make-hash-table :test #'equal)))
+
+(defvar *current-instans* nil)
 
 (defun create-instans (&optional instans-iri)
   (unless instans-iri (setf instans-iri (parse-iri (format nil "http://www.cse.aalto.fi/instans/instanses/~A" (string (gensym "INSTANS"))))))

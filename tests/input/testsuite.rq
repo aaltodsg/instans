@@ -35,7 +35,7 @@ SELECT ?queryfile ?testtype ?parsed_ok WHERE {
        }
        BIND(iri(strbefore(str(?queryfile),".rq")) AS ?instans)
        BIND(instans:add_rules(?instans, ?queryfile) AS ?parsed_ok)
-       FILTER((?parsed_ok && ?testtype = mf:NegativeSyntaxTest11) || (! ?parsed_ok && ?testtype = mf:PositiveSyntaxTest11))
+       FILTER((?parsed_ok && (?testtype = mf:NegativeSyntaxTest11)) || (! ?parsed_ok && (?testtype = mf:PositiveSyntaxTest11)))
 #       BIND(false AS ?run_ok)
 #       BIND(false AS ?run_ok)
 }
