@@ -452,7 +452,7 @@
 	  (t
 	   (multiple-value-bind (row column)
 	       (lexer-position-to-row-and-column lexer position)
-	     (format nil "~A:~A: ~A" row column (apply #'format nil msg args)))))))
+	     (format nil "~A:~A:~A" row column (apply #'format nil msg args)))))))
 
 (defvar *parsing* nil)
 

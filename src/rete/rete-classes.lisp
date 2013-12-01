@@ -99,6 +99,9 @@
 
 (define-class optional-end-node (existence-end-node) ())
 
+(define-class minus-node (node) 
+  ((positive :accessor minus-node-positive :initarg :positive)
+   (negative :accessor minus-node-negative :initarg :negative)))
 
 (define-class aggregate-join-node (node)
   ((group :accessor aggregate-join-group :initarg :group)
@@ -238,4 +241,5 @@
    (constant-literal-var-alist :accessor instans-constant-literal-var-alist :initform nil)
    (input-count :accessor instans-input-count :initarg :input-count)
    (add-quad-count :accessor instans-add-quad-count :initarg :add-quad-count)
-   (remove-quad-count :accessor instans-remove-quad-count :initarg :remove-quad-count)))
+   (remove-quad-count :accessor instans-remove-quad-count :initarg :remove-quad-count)
+   (error-messages :accessor instans-error-messages :initform nil)))

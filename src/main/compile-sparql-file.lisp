@@ -18,9 +18,8 @@
 	 (colors (list "Black" "Red" "Blue" "Green" "Orange"))
 	 (algebra-expr-list nil))
     (cond ((not (parsing-succeeded-p parsing))
-	   (loop for msg in (parsing-error-messages parsing)
-		 do (warn "~%~@[~A: ~]~A~%" input-name msg))
-	   (return-from compile-sparql-stream (values nil (parsing-error-messages parsing))))
+	   (setf (instans-error-messages instans) (parsing-error-messages parsing))
+	   (return-from compile-sparql-stream (values nil (instans-error-message instans))))
 	  (t
 	   (unless silentp
 	     (inform "Parsed ~S" (first (parsing-result-stack parsing))))
@@ -30,8 +29,9 @@
 	  for color in colors
 	  do (multiple-value-bind (new-nodes error-msg)
 		 (compile-sparql-algebra-expr instans algebra-expr :color color :silentp silentp)
-	       (declare (ignore new-nodes))
+	       (declare (ignorable new-nodes))
 	       (when error-msg
+		 (push error-msg (instans-error-messages instans))
 		 (return-from compile-sparql-stream (values nil error-msg)))))
     (unless (null output-directory)
       (let* ((name-part (pathname-name input-name))
@@ -202,6 +202,13 @@
 		(read-from-url-or-file (parse-namestring name)))))
 	(t (error* "Cannot read from ~S" name))))
 
+(defun instans-error-message (instans)
+;  (inform "msgs = ~S" (instans-error-messages instans))
+  (apply #'concatenate 'string (loop for lines on (instans-error-messages instans)
+				     when (null (cdr lines))
+				     collect (car lines)
+				     else collect (format nil "~A~%" (car lines)))))
+
 (defun instans-add-rules (instans-iri rules &key output-directory base (silentp t) (create-instans-p t))
   (let ((instans (if create-instans-p (create-instans instans-iri) (get-instans instans-iri))))
     (cond ((sparql-error-p instans) instans)
@@ -213,7 +220,7 @@
 	       (multiple-value-bind (compile-result error)
 		   (compile-sparql-stream stream :instans instans :input-name (if (stringp rules) rules (rdf-iri-string rules))
 					  :output-directory output-directory :base base :silentp silentp)
-		 (declare (ignore compile-result))
+		 (declare (ignorable compile-result))
 		 (cond ((not error)
 			(values t nil))
 		       (t

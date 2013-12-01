@@ -16,9 +16,9 @@
       (collect p)
       variables)))
 
-;;; Kesken
-(defun pattern-variables-consistent-p (e1 e2)
-  (error* "Not implemented yet: pattern-variables-consistent-p ~S, ~S" e1 e2))
+;; ;;; Kesken
+;; (defun pattern-variables-consistent-p (e1 e2)
+;;   (error* "Not implemented yet: pattern-variables-consistent-p ~S, ~S" e1 e2))
 
 ;;; Bindings and variables
 (defun resolve-binding (instans from)

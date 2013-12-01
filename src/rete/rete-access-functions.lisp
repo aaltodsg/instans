@@ -375,6 +375,6 @@
       (when (null item)
 	(setf item (append (list string (intern string) (rdf-literal-string literal))
 			   (if (rdf-literal-lang literal) (list :lang (rdf-literal-lang literal))
-			       (if (rdf-literal-type literal) (list :type (get-constant-iri (rdf-literal-type literal)))))))
+			       (if (rdf-literal-type literal) (list :type (get-constant-iri this (rdf-literal-type literal)))))))
 	(push-to-end item (instans-constant-literal-var-alist this)))
       (second item))))

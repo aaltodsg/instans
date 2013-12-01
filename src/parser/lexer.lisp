@@ -398,7 +398,9 @@
 			    (t
 			     (return-input-token lexer 'PNAME_LN-TERMINAL
 						 (progn
-						   (when (char=* (aref (chbuf-contents buf) (1- (chbuf-index buf))) #\.)
+						   (when (and (char=* (aref (chbuf-contents buf) (1- (chbuf-index buf))) #\.)
+							      (or (= (chbuf-index buf) 1)
+								  (not (char=* (aref (chbuf-contents buf) (- (chbuf-index buf) 2)) #\\))))
 						     (unget-char lexer #\.)
 						     (chbuf-drop-last-char buf))
 						   (list prefix-binding (canonize-string lexer buf))))))))))))

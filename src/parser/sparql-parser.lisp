@@ -83,9 +83,8 @@
 			    finally (return project-vars)))))))
       (case form
 	((SELECT ASK DESCRIBE CONSTRUCT DELETE-INSERT)
-	 (let ((project-vars ))
-	   (setf ggp (handle-aggregates ggp clauses))
-	   (append (list form :where ggp :project-vars (get-project-vars)) clauses)))
+	 (setf ggp (handle-aggregates ggp clauses))
+	 (append (list form :where ggp :project-vars (get-project-vars)) clauses))
 	(LOAD (sparql-parse-error "LOAD not implemented yet"))
 	(CLEAR (sparql-parse-error "CLEAR not implemented yet"))
 	(ADD (sparql-parse-error "ADD not implemented yet"))
@@ -286,8 +285,10 @@
 	   (ConstructQuery ::= (CONSTRUCT-TERMINAL (:OR ((ConstructTemplate :RESULT (list :construct-template $0)) ((:REP0 DatasetClause) :RESULT (and $0 (list :dataset $0))) WhereClause SolutionModifier 
 							 :RESULT (append '(:query-form CONSTRUCT) $0 $1 $2 $3))
 							(((:REP0 DatasetClause) :RESULT (and $0 (list :dataset $0)))
-							 WHERE-TERMINAL |{-TERMINAL| (:OPT (TriplesTemplate :RESULT (list :construct-template $0))) |}-TERMINAL| SolutionModifier
-							 :RESULT (append '(:query-form CONSTRUCT) $0 (opt-value $3) $5)))
+							 WHERE-TERMINAL |{-TERMINAL|
+							 (:OPT (TriplesTemplate :RESULT (translate-group-graph-pattern (list (cons 'BGP (get-triples))))))
+							 |}-TERMINAL| SolutionModifier
+							 :RESULT (append '(:query-form CONSTRUCT) (list :where (opt-value $3) :construct-template (opt-value $3)) $0 $5)))
 						   :RESULT $1))
 	   (DescribeQuery ::= (DESCRIBE-TERMINAL ((:OR (:REP1 VarOrIri) (|*-TERMINAL| :RESULT '*)) :RESULT (list :var-or-iri-list $0))
 						 ((:REP0 DatasetClause) :RESULT (and $0 (list :dataset $0)))
