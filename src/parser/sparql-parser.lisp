@@ -334,7 +334,7 @@
 	   (Modify ::= (((:OPT (WITH-TERMINAL iri :RESULT $1)) :RESULT (if (opt-yes-p $0) (list :with (opt-value $0))))
 			(:OR (DeleteClause (:OPT InsertClause) :RESULT (append $0 (opt-value $1)))
 			     (InsertClause))
-			((:REP0 UsingClause) :RESULT (if $0 (cons :using $0)))
+			((:REP0 UsingClause) :RESULT (if $0 (list :using $0)))
 			(WHERE-TERMINAL GroupGraphPattern :result (list :where $1))
 			:RESULT (append '(:query-form DELETE-INSERT) $0 $1 $2 $3)))
 	   (DeleteClause ::= (DELETE-TERMINAL QuadPattern :RESULT (list :delete-clause $1)))
