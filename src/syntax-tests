@@ -1,0 +1,12 @@
+#!/bin/sh
+TMP=$$_main.lisp
+cat << EOF > $TMP
+(with-open-file (*standard-output* "/dev/null" :direction :output
+                                   :if-exists :supersede)
+(asdf:load-system :instans))
+(in-package #:instans)
+(sparql-tests "../tests/unit-tests/*.test")
+EOF
+
+sbcl --noinform --noprint --load $TMP --quit
+rm -rf $TMP
