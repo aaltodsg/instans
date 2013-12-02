@@ -695,7 +695,7 @@
 						       node)
 				   unless (null var)
 				   collect (list (uniquely-named-object-name (reverse-resolve-binding instans var)) (token-value node token var)))))
-    (inform "Rule ~A~%~{~{       ~A = ~S~}~^,~%~}~%" node displayed-bindings)))
+    (format (instans-default-output (node-instans node)) "Rule ~A~%~{~{       ~A = ~S~}~^,~%~}~%" node displayed-bindings)))
  
 (defgeneric execute-rule-node (node token)
   (:method ((this select-node) token)

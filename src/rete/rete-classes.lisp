@@ -242,4 +242,5 @@
    (input-count :accessor instans-input-count :initarg :input-count)
    (add-quad-count :accessor instans-add-quad-count :initarg :add-quad-count)
    (remove-quad-count :accessor instans-remove-quad-count :initarg :remove-quad-count)
+   (default-output :accessor instans-default-output :initarg :default-output :initform t)
    (error-messages :accessor instans-error-messages :initform nil)))

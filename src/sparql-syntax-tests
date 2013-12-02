@@ -5,8 +5,9 @@ cat << EOF > $TMP
                                    :if-exists :supersede)
 (asdf:load-system :instans))
 (in-package #:instans)
-(sparql-tests "../tests/unit-tests/*.test")
+(run-syntax1-testsuites "syntax-sparql1" "syntax-sparql2" "syntax-sparql3" "syntax-sparql4" "syntax-sparql5")
 EOF
 
 sbcl --noinform --noprint --load $TMP --quit
 rm -rf $TMP
+

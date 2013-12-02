@@ -6,7 +6,7 @@ msg() {
 	test -f ${LOGFILE} || touch ${LOGFILE}
 	echo `date`: $* >> ${LOGFILE}
     fi
-    echo $*
+#    echo $*
 }
 
 if test $# -eq 1 ; then

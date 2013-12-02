@@ -307,10 +307,9 @@
   (when (rdf-iri-equal base *rdf-nil*) (setf base nil))
   (when (rdf-iri-equal triples *rdf-nil*) (setf triples nil))
   (when (rdf-iri-equal expected-results *rdf-nil*) (setf expected-results nil))
-  (inform "execute_system ~A ~A ~A ~A ~A" rules triples expected-results graph base)
 					;  (handler-case 
   (multiple-value-bind (instans instans-iri) (create-instans)
-    (declare (ignore instans))
+    (format (instans-default-output instans) "execute_system ~A ~A ~A ~A ~A" rules triples expected-results graph base)
     (multiple-value-bind (add-rules-result error)
 	(instans-add-rules instans-iri rules :output-directory output-directory :base base :silentp silentp)
       (declare (ignore add-rules-result))
@@ -341,22 +340,35 @@
 	for manifest-iri-string = (format nil "~A/manifest.ttl" base-iri-string)
 	do (instans-execute-system (parse-iri rules-iri-string) :triples (parse-iri manifest-iri-string) :base (parse-iri base-iri-string) :silentp t :output-directory "/Users/enu/instans/tests/output")))
 
-
 (defun run-syntax1-testsuites (&rest test-suite-names)
-  (loop with rules-iri-string = "file:///Users/enu/instans/tests/input/testsuite.rq"
-	with root-iri-string = "file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2/"
-	for name in test-suite-names
-        for base-iri-string = (format nil "~A/~A/" root-iri-string name)
-	for manifest-iri-string = (format nil "~A/manifest.ttl" base-iri-string)
-	do (instans-execute-system (parse-iri rules-iri-string) :triples (parse-iri manifest-iri-string) :base (parse-iri base-iri-string) :silentp t :output-directory "/Users/enu/instans/tests/output")))
-
+  (let* ((rules "../tests/input/testsuite.rq")
+	 (root-iri-string (or (let ((path (probe-file "../tests/data-r2")))
+				(and path (string= (namestring path) (directory-namestring path)) (concatenate 'string "file://" (namestring path))))
+			      (progn
+				(format t "NOTE! Sparql test data directory not found in ../tests/data-r2.")
+				(format t "      If you want the tests run faster, download file")
+				(format t "      http://www.w3.org/2001/sw/DataAccess/tests/data-r2.tar.gz")
+				(format t "      and extract directory test-suite-archive/data-r2/ into ../tests/data-r2")
+				(format t "      Using http://www.w3.org/2001/sw/DataAccess/tests/data-r2/ instead")
+				"http://www.w3.org/2001/sw/DataAccess/tests/data-r2")))
+	 (output-dir (or (let ((path (probe-file "../tests/output")))
+			   (and path (string= (namestring path) (directory-namestring path)) (namestring path)))
+			 (progn
+			   (format t "NOTE! The output directory ../tests/output does not exist.")
+			   (format t "      Create it if you want to have an HTML page showing the RETE network")
+			   nil))))
+    (loop for name in test-suite-names 
+	  for base-iri-string = (format nil "~A/~A/" root-iri-string name)
+	  for manifest-iri-string = (format nil "~A/manifest.ttl" base-iri-string)
+	  do (format t "~%Running tests ~A~%" name)
+	  do (instans-execute-system rules :triples (parse-iri manifest-iri-string) :base (parse-iri base-iri-string) :silentp t :output-directory output-dir))))
 
 (defun run-syntax-tests (&rest test-names)
   (loop with root-dir = "/Users/enu/Sparql/sparql11-test-suite"
 	for name in test-names
         do (loop for path in (directory (format nil "~A/*/~A" root-dir name))
 		 for rq = (namestring path)
-		 do (inform "testing ~S" rq)
+		 do (format t "testing ~S" rq)
 		 do (instans-execute-system rq :silentp nil :output-directory "/Users/enu/instans/tests/output"))))
 
 ; add
