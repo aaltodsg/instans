@@ -14,7 +14,7 @@
   (setf *node-color-alist* nil)
   (when (null instans)
     (setf instans (make-instance 'instans :name instans-name)))
-  (let* ((parsing (funcall parser instans stream :base base))
+  (let* ((parsing (funcall parser instans stream :base base :show-parse-p (not silentp)))
 	 (colors (list "Black" "Red" "Blue" "Green" "Orange"))
 	 (algebra-expr-list nil))
     (cond ((not (parsing-succeeded-p parsing))
@@ -325,13 +325,31 @@
 (defun metasuite ()
   (sparql-call "instans:execute_system" "/Users/enu/instans/tests/input/metasuite.rq"  "/Users/enu/instans/tests/input/manifest-all.ttl" nil nil (parse-iri "file:///Users/enu/Sparql/sparql11-test-suite/")))
 
-(defun run-testsuites (&rest test-suite-names)
+(defun run-testsuites11 (&rest test-suite-names)
   (loop with rules-iri-string = "file:///Users/enu/instans/tests/input/testsuite.rq"
 	with root-iri-string = "file:///Users/enu/Sparql/sparql11-test-suite"
 	for name in test-suite-names
         for base-iri-string = (format nil "~A/~A/" root-iri-string name)
 	for manifest-iri-string = (format nil "~A/manifest.ttl" base-iri-string)
 	do (instans-execute-system (parse-iri rules-iri-string) :triples (parse-iri manifest-iri-string) :base (parse-iri base-iri-string) :silentp t :output-directory "/Users/enu/instans/tests/output")))
+
+(defun run-testsuites1 (&rest test-suite-names)
+  (loop with rules-iri-string = "file:///Users/enu/instans/tests/input/testsuite.rq"
+	with root-iri-string = "file:///Users/enu/Sparql/data-r2"
+	for name in test-suite-names
+        for base-iri-string = (format nil "~A/~A/" root-iri-string name)
+	for manifest-iri-string = (format nil "~A/manifest.ttl" base-iri-string)
+	do (instans-execute-system (parse-iri rules-iri-string) :triples (parse-iri manifest-iri-string) :base (parse-iri base-iri-string) :silentp t :output-directory "/Users/enu/instans/tests/output")))
+
+
+(defun run-syntax1-testsuites (&rest test-suite-names)
+  (loop with rules-iri-string = "file:///Users/enu/instans/tests/input/testsuite.rq"
+	with root-iri-string = "file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2/"
+	for name in test-suite-names
+        for base-iri-string = (format nil "~A/~A/" root-iri-string name)
+	for manifest-iri-string = (format nil "~A/manifest.ttl" base-iri-string)
+	do (instans-execute-system (parse-iri rules-iri-string) :triples (parse-iri manifest-iri-string) :base (parse-iri base-iri-string) :silentp t :output-directory "/Users/enu/instans/tests/output")))
+
 
 (defun run-syntax-tests (&rest test-names)
   (loop with root-dir = "/Users/enu/Sparql/sparql11-test-suite"

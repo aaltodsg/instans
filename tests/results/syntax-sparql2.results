@@ -1,0 +1,334 @@
+INSTANS> (run-syntax1-testsuites "syntax-sparql2")
+
+execute_system #<RDF-IRI file:///Users/enu/instans/tests/input/testsuite.rq> #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2//manifest.ttl> NIL NIL #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/>
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-general-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-general-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-general-03.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-general-04.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-general-05.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-general-06.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-general-07.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-general-08.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-general-09.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-general-10.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-general-11.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-general-12.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-general-13.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-general-14.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-keywords-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-keywords-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-keywords-03.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-lists-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-lists-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-lists-03.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-lists-04.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-lists-05.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-bnode-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-bnode-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-bnode-03.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-function-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "
+#<RDF-IRI http://example.org/name> does not name a Sparql function or form"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-function-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "
+#<RDF-IRI http://example.org/name> does not name a Sparql function or form"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-function-03.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "
+#<RDF-IRI http://example.org/name> does not name a Sparql function or form"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-function-04.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "
+#<RDF-IRI http://example.org/name> does not name a Sparql function or form
+
+#<RDF-IRI http://example.org/name> does not name a Sparql function or form
+
+#<RDF-IRI http://example.org/name> does not name a Sparql function or form"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-form-select-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-form-select-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-form-ask-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-form-construct01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-form-construct02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-form-construct03.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-form-construct04.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-form-construct06.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-form-describe01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Cannot translate NIL"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-form-describe02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-dataset-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "
+Variable #<SPARQL-VAR ?X> not in SELECT"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-dataset-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "
+Variable #<SPARQL-VAR ?X> not in SELECT"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-dataset-03.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "
+Variable #<SPARQL-VAR ?X> not in SELECT"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-dataset-04.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "
+Variable #<SPARQL-VAR ?X> not in SELECT"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-graph-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-graph-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-graph-03.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-graph-04.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-graph-05.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-esc-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-esc-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-esc-03.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-esc-04.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "2:10:No legal action for nonterminal GROUPGRAPHPATTERN-83 and input symbol (<-TERMINAL \"<\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql2/syntax-esc-05.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "4:10:No legal action for nonterminal GROUPGRAPHPATTERN-83 and input symbol (<-TERMINAL \"<\"))"
+NIL
+INSTANS> 

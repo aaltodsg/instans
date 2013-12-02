@@ -453,7 +453,7 @@
 	do (chbuf-put-char buf (get-char lexer))
 	finally (return-input-token lexer terminal-type (string-upcase (canonize-string lexer buf)))))
 
-(defun eat-string-literal (lexer quote-char banned-chars short-terminal long-terminal)
+(defun eat-string-literal (lexer quote-char short-banned-chars short-terminal long-terminal)
   (let ((buf (empty-chbuf)))
     (cond ((get-char-if-looking-at lexer quote-char)
 	   (cond ((get-char-if-looking-at lexer quote-char)
@@ -469,9 +469,8 @@
 				  (cond ((and (peekch lexer) (char-in-set-p* (peekch lexer) "tbnrf\\\"'"))
 					 (chbuf-put-chars buf ch (get-char lexer)))
 					(t (lexer-error lexer "Illegal escape char '~C'" (get-char lexer)))))
-				 ((and ch (not (char-in-set-p* ch banned-chars)))
-				  (chbuf-put-chars buf (get-char lexer)))
-				 (t (lexer-error lexer "Malformed string literal, missing '")))))
+				 (t
+				  (chbuf-put-char buf (get-char lexer))))))
 		 (t (return-input-token lexer short-terminal (canonize-string lexer buf)))))
 	  (t
 	   (loop do (cond ((get-char-if-looking-at lexer quote-char)
@@ -483,7 +482,7 @@
 				    (cond ((and (peekch lexer) (char-in-set-p* (peekch lexer) "tbnrf\\\"'"))
 					   (chbuf-put-chars buf ch (get-char lexer)))
 					  (t (lexer-error lexer "Illegal escape char '~C'" (get-char lexer)))))
-				   ((and ch (not (char-in-set-p* ch banned-chars)))
+				   ((and ch (not (char-in-set-p* ch short-banned-chars)))
 				    (chbuf-put-char buf (get-char lexer)))
 				   (t (lexer-error lexer "Malformed string literal, missing ~C" quote-char)))))))))))
 

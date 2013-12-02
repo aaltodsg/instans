@@ -18,3 +18,4 @@
 - unique identity of variables etc? E.g., in sparql-query-results vs. tokens.
 - kill exists variables in vars-out
 - check that literals with lang tags have a lang (results)
+- Fix: same blank node cannot be used in two different BGPs (test ~/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2/syntax-sparql4/syn-bad-34.rq)

@@ -541,6 +541,10 @@
 ;; ---------------
 ;; xsd:boolean  REGEX (string literal text, simple literal pattern)
 ;; xsd:boolean  REGEX (string literal text, simple literal pattern, simple literal flags)
+(define-sparql-function "regex" (:arguments ((text literal) (pattern xsd-string-value) &optional (flags xsd-string-value)) :returns xsd-boolean-value)
+  (:method ((text literal) (pattern xsd-string-value) &optional (flags xsd-string-value))
+    (declare (ignorable text pattern flags))
+    (error "Not implemented yet!")))
 
 ;; 17.4.3.15 REPLACE !!! Missing !!!
 ;; -----------------

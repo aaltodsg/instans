@@ -556,8 +556,10 @@
 	    (init)
 	    (setf mode (if testingp :testing :query))
 	    (let ((result (apply #'sparql-parser lexer keys)))
-	      (loop for msg in *parser-error-messages*
-		    do (push-to-end msg (parsing-error-messages result)))
+	      (when *parser-error-messages*
+		(setf (parsing-state result) :failed)
+		(loop for msg in *parser-error-messages*
+		      do (push-to-end msg (parsing-error-messages result))))
 	      result))))))
 
 (defun sparql-parse-file (instans query-file &rest keys &key show-parse-p (newline-positions (list nil)) test-mode-p)

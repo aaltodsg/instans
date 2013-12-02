@@ -1,0 +1,76 @@
+INSTANS> (run-syntax1-testsuites "syntax-sparql4")
+
+execute_system #<RDF-IRI file:///Users/enu/instans/tests/input/testsuite.rq> #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql4//manifest.ttl> NIL NIL #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql4/>
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql4/syn-09.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql4/syn-10.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql4/syn-11.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql4/syn-leading-digits-in-prefixed-names.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql4/syn-bad-34.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql4/syn-bad-35.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql4/syn-bad-36.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql4/syn-bad-37.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql4/syn-bad-38.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql4/syn-bad-OPT-breaks-BGP.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql4/syn-bad-UNION-breaks-BGP.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql4/syn-bad-GRAPH-breaks-BGP.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+NIL
+INSTANS> 

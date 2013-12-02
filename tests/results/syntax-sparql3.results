@@ -1,0 +1,318 @@
+INSTANS> (run-syntax1-testsuites "syntax-sparql3")
+
+execute_system #<RDF-IRI file:///Users/enu/instans/tests/input/testsuite.rq> #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3//manifest.ttl> NIL NIL #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/>
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-03.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-04.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-05.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-06.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-07.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-08.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "No legal action for nonterminal SELECTQUERY-18 and input symbol ($ NIL))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "3:18:No legal action for nonterminal OBJECTLISTPATH-127-128 and input symbol (PNAME_LN-TERMINAL ((\"\"
+                                                                                             #<RDF-IRI http://example/ns#>)
+                                                                                            \"s2\")))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-03.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "3:18:No legal action for nonterminal OBJECTLISTPATH-127-128 and input symbol (PNAME_LN-TERMINAL ((\"\"
+                                                                                             #<RDF-IRI http://example/ns#>)
+                                                                                            \"s2\")))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-04.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "3:28:No legal action for nonterminal OBJECTLISTPATH-127-128 and input symbol (PNAME_LN-TERMINAL ((\"\"
+                                                                                             #<RDF-IRI http://example/ns#>)
+                                                                                            \"o2\")))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-05.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "2:4:No legal action for nonterminal GROUPGRAPHPATTERN-83 and input symbol (.-TERMINAL \".\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-06.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "2:4:No legal action for nonterminal GROUPGRAPHPATTERN-83 and input symbol (.-TERMINAL \".\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-07.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "2:4:No legal action for nonterminal GROUPGRAPHPATTERN-83 and input symbol (.-TERMINAL \".\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-08.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "2:15:No legal action for nonterminal TRIPLESBLOCKINNER-90-91-92 and input symbol (.-TERMINAL \".\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-09.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "2:14:No legal action for nonterminal TRIPLESBLOCKINNER-90-91-92 and input symbol (.-TERMINAL \".\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-10.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "2:15:No legal action for nonterminal TRIPLESBLOCKINNER-90-91-92 and input symbol (.-TERMINAL \".\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-11.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "2:14:No legal action for nonterminal TRIPLESBLOCKINNER-90-91-92 and input symbol (.-TERMINAL \".\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-12.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "2:15:No legal action for nonterminal TRIPLESBLOCKINNER-90-91-92 and input symbol (.-TERMINAL \".\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-13.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "2:28:No legal action for nonterminal TRIPLESBLOCKINNER-90-91-92 and input symbol (.-TERMINAL \".\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-14.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "2:4:No legal action for nonterminal GROUPGRAPHPATTERN-83 and input symbol (.-TERMINAL \".\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-15.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "2:3:No legal action for nonterminal GROUPGRAPHPATTERN-83 and input symbol (;-TERMINAL \";\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-16.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "3:6:No legal action for nonterminal PROPERTYLISTPATHNOTEMPTY and input symbol (;-TERMINAL \";\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-17.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "3:9:No legal action for nonterminal PATHELT-134 and input symbol (;-TERMINAL \";\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-18.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "3:9:No legal action for nonterminal PATHELT-134 and input symbol (;-TERMINAL \";\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-19.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "3:14:No legal action for nonterminal TRIPLESBLOCKINNER-90-91-92 and input symbol (;-TERMINAL \";\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-20.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "3:6:No legal action for nonterminal PROPERTYLISTPATHNOTEMPTY and input symbol (,-TERMINAL \",\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-21.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "3:10:No legal action for nonterminal PATHELT-134 and input symbol (,-TERMINAL \",\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-22.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "3:10:No legal action for nonterminal PATHELT-134 and input symbol (,-TERMINAL \",\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-23.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "3:15:No legal action for nonterminal OBJECTPATH and input symbol (}-TERMINAL \"}\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-24.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "3:23:No legal action for nonterminal OBJECTLISTPATH-127-128 and input symbol (PNAME_LN-TERMINAL ((\"\"
+                                                                                             #<RDF-IRI http://example/ns#>)
+                                                                                            \"o2\")))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-25.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "No legal action for nonterminal CONSTRUCTQUERY-25 and input symbol ($ NIL))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-26.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "4:20:No legal action for nonterminal MULTIPLICATIVEEXPRESSION-155 and input symbol (IRIREF-TERMINAL #<RDF-IRI http:///?a&&?b>))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-27.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "No legal action for nonterminal PROPERTYLISTPATHNOTEMPTY and input symbol (ANON-TERMINAL \"ANON\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-28.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "1:24:No legal action for nonterminal PROPERTYLISTPATHNOTEMPTY and input symbol (BLANK_NODE_LABEL-TERMINAL \"_:a\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-29.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "1:38:No legal action for nonterminal EXPRESSION and input symbol (BLANK_NODE_LABEL-TERMINAL \"_:x\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-30.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "1:38:No legal action for nonterminal EXPRESSION and input symbol (BLANK_NODE_LABEL-TERMINAL \"_:x\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-31.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "No legal action for nonterminal VARORIRI and input symbol (ANON-TERMINAL \"ANON\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-bnode-dot.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "1:21:No legal action for nonterminal PROPERTYLISTPATHNOTEMPTY and input symbol (.-TERMINAL \".\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-bnodes-missing-pvalues-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "2:19:No legal action for nonterminal PROPERTYLISTPATHNOTEMPTY and input symbol (,-TERMINAL \",\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-bnodes-missing-pvalues-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "1:21:No legal action for nonterminal PROPERTYLISTPATHNOTEMPTY and input symbol (.-TERMINAL \".\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-empty-optional-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "1:27:No legal action for nonterminal GROUPGRAPHPATTERN and input symbol (FILTER-TERMINAL \"FILTER\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-empty-optional-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "1:26:No legal action for nonterminal GROUPGRAPHPATTERN and input symbol (GRAPH-TERMINAL \"GRAPH\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-filter-missing-parens.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "1:30:No legal action for nonterminal CONSTRAINT and input symbol (VAR1-TERMINAL \"?X\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-lone-list.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "1:21:No legal action for nonterminal PROPERTYLISTPATHNOTEMPTY and input symbol (}-TERMINAL \"}\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-bad-lone-node.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "1:20:No legal action for nonterminal PROPERTYLISTPATHNOTEMPTY and input symbol (}-TERMINAL \"}\"))"
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-blabel-cross-filter.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-blabel-cross-graph-bad.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-blabel-cross-optional-bad.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+
+Rule #<SELECT-NODE 18>
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2//syntax-sparql3/syn-blabel-cross-union-bad.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+NIL
+INSTANS> 

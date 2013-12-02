@@ -99,7 +99,7 @@
 			   (let ((f (first args)))
 			     (cond ((eq f T)
 				    prev)
-				   ((eq (first f) 'EXISTS)
+				   ((and (consp f) (eq (first f) 'EXISTS))
 				    (let* ((counter-var (generate-and-canonize-var "!COUNTER"))
 					   (active-p-var (generate-and-canonize-var "!ACTIVEP"))
 					   (exists-start (make-or-share-instance 'exists-start-node :prev prev :counter-var counter-var :active-p-var active-p-var
@@ -109,7 +109,7 @@
 									       :start-node exists-start :kind :simple-exists)))
 				      (setf (subgraph-end-node exists-start) exists-end)
 				      exists-end))
-				   ((eq (first f) 'NOT-EXISTS)
+				   ((and (consp f) (eq (first f) 'NOT-EXISTS))
 				    (let* ((counter-var (generate-and-canonize-var "!COUNTER"))
 					   (active-p-var (generate-and-canonize-var "!ACTIVEP"))
 					   (exists-start (make-or-share-instance 'exists-start-node :prev prev :counter-var counter-var :active-p-var active-p-var
