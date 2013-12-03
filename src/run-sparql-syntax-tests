@@ -8,7 +8,115 @@ cat << EOF > $TMP
 (run-data-r2-syntax-tests)
 (run-data-sparql11-syntax-tests)
 EOF
-
-sbcl --noinform --noprint --load $TMP --quit
+if test -d syntax-test-results; then
+    TEST_RESULTS=syntax-test-results/results
+else
+    TEST_RESULTS=/dev/null
+fi
+sbcl --noinform --noprint --load $TMP --quit | tee $TEST_RESULTS 2>&1
 rm -rf $TMP
-
+if test -d syntax-test-results; then
+REPORT_HTML=syntax-test-results/index.html
+cat > $REPORT_HTML <<EOF
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<meta charset="utf-8"> 
+<title>Syntax tests</title>
+<style type="text/css" title="currentStyle">
+  @import "DataTables/media/css/demo_page.css";
+  @import "DataTables/media/css/demo_table.css";
+  @import "DataTables/extras/ColumnFilterWidgets/media/css/ColumnFilterWidgets.css";
+</style>
+<style type="text/css">
+tr.test_positive_failed td.test_type { color: red; }
+tr.test_positive_failed td.test_error { color: red; }
+tr.test_positive_failed td.test_error_message { color: red; }
+tr.test_negative_succeeded td.test_type { color: orange; }
+tr.test_negative_succeeded td.test_error { color: orange; }
+tr.test_negative_succeeded td.test_error_message { color: orange; }
+td.test_passed { }
+</style>
+<script type="text/javascript" src="DataTables/media/js/jquery.js"></script>
+<script type="text/javascript" src="DataTables/media/js/jquery.dataTables.js"></script>
+<script type="text/javascript" src="DataTables/extras/ColumnFilterWidgets/media/js/ColumnFilterWidgets.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+	\$(document).ready( function () {
+				\$('#TestResults').dataTable( { "bPaginate": false, "sDom": 'W<"clear">lfrtip', "oColumnFilterWidgets": { "aiExclude": [ 4, 6 ] } } );
+			} );
+// \$(document).ready(function() {
+//        \$('#TestResults').dataTable();
+// } );
+//\$(document).ready(function() 
+//    { 
+//        \$("#TestResults").tablesorter(); 
+//    } 
+//); 
+//]]>
+</script>
+</head>
+<body>
+  <table id="TestResults" class="tablesorter">
+  <thead>
+  <tr><th>Passed</th><th>Collection</th><th>Set</th><th>Type</th><th>Name</th><th>Error</th><th>Error message</th></tr>
+  </thead>
+  <tbody>
+EOF
+AWK=$$-syntax-test-filter.awk
+cat > $AWK <<EOF
+function output() {
+    if (queryfile) {
+        is_positive = (index(type, "Positive") == 1);
+        if (is_positive && (error == "true")) { passed = 0; test_outcome="test_positive_failed"; }
+        else if (!is_positive && (error == "false")) { passed = 0; test_outcome = "test_negative_succeeded";}
+        else { passed = 1; test_outcome = "test_ok";}
+        split(queryfile, parts, "/");
+	printf "<TR class=\"%s\"><TD class=\"test_passed\">%s</TD><TD class=\"test_collection\">%s</TD><TD class=\"test_set\">%s</TD><TD class=\"test_type\">%s</TD><TD class=\"test_name\">%s</TD><TD class=\"test_error\">%s</TD>", test_outcome, (passed ? "Yes" : "No"), parts[1], parts[2], type, parts[3], error;
+	if (error_msg && length(error_msg) > 2) printf "<TD class=\"test_error_message\">%s</TD></TR>\n", error_msg;
+	else printf "<TD class=\"error_test_error_message\">&nbsp;</TD></TR>\n";
+	error_msg = "";
+    }
+}
+/^Rule/ {
+  output();
+}
+/\?QUERYFILE = .*/ {
+    split(\$4, n, ">");
+    queryfile = n[1];
+    pos = index(queryfile, "/tests/data-");
+    if (pos)
+       queryfile = substr(queryfile, pos + 7, length(queryfile) - pos - 6);
+    sub("//", "/", queryfile);
+}
+/\?TESTTYPE = #<RDF-IRI / {
+    split(\$4, a, "#");
+    split(a[2], t, ">");
+    type = t[1];
+}
+/\?PARSED_OK = #<SPARQL-UNBOUND.*/ {
+    error = "UNBOUND";
+}
+/\?PARSED_OK = T/ {
+    error = "false";
+}
+/\?PARSED_OK = NIL/ {
+    error = "true";
+}
+/\?ERROR_MSG = / {
+    i = index(\$0, "\"");
+    error_msg = substr(\$0, i, length(\$0) - i + 1);
+}
+END {
+  output();
+}
+EOF
+awk -f $AWK < $TEST_RESULTS >> $REPORT_HTML
+cat >> $REPORT_HTML <<EOF
+  <tbody>
+  </table>
+</body>
+</html>
+EOF
+rm -rf $AWK
+fi
