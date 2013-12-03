@@ -1,0 +1,2 @@
+- why does /2001/sw/DataAccess/tests/data-r2/(syntax-sparql[1-5]|bnode-coreference|construct) not produce any results?
+- change syntax-test.rq to also accept non-syntax tests

@@ -556,6 +556,7 @@
 				  (let ((args nil))
 				    (loop repeat (production-result-arg-count p) do (push (pop (parsing-result-stack parsing)) args))
 				    (when show-parse-p (inform "Rule [~D], arg-count = ~D" (production-number p) (production-result-arg-count p)))
+;				    (let ((values (multiple-value-list (execute-rule result-func p args))))
 				    (let ((values (multiple-value-list (execute-rule result-func p args))))
 				      (when show-parse-p (inform "  Execute rule [~D] with args = ~A ->~&  ~A" (production-number p) args values))
 				      (loop for value in values do (push value (parsing-result-stack parsing))))))))))))

@@ -27,15 +27,25 @@ PREFIX its:    <http://instans.aalto.fi/testsuite/#>
 # }
 # ;
 SELECT ?queryfile ?testtype ?parsed_ok ?error_msg WHERE {
-       { ?test a 	       ?testtype;
-         mf:name   ?name .
-	 ?test mf:action ?queryfile 
-         FILTER(strends(str(?queryfile), ".rq") || strends(str(?queryfile), ".ru"))
+       ?test a ?testtype; mf:name ?name .
+       {
+         { ?test mf:action [ qt:query ?queryfile ] } UNION { ?test mf:action ?queryfile }
+	 FILTER(strends(str(?queryfile), ".rq") || strends(str(?queryfile), ".ru"))
        }
        BIND(iri(strbefore(str(?queryfile),".")) AS ?instans)
        BIND(instans:add_rules(?instans, ?queryfile) AS ?parsed_ok)
        BIND(instans:error_message(?instans) AS ?error_msg)
-#       FILTER((?parsed_ok && (?testtype = mf:NegativeSyntaxTest11)) || (! ?parsed_ok && (?testtype = mf:PositiveSyntaxTest11)))
-#       BIND(false AS ?run_ok)
-#       BIND(false AS ?run_ok)
 }
+# SELECT ?queryfile ?testtype ?parsed_ok ?error_msg WHERE {
+#        { ?test a 	       ?testtype;
+#          mf:name   ?name .
+# 	 ?test mf:action ?queryfile 
+#          FILTER(strends(str(?queryfile), ".rq") || strends(str(?queryfile), ".ru"))
+#        }
+#        BIND(iri(strbefore(str(?queryfile),".")) AS ?instans)
+#        BIND(instans:add_rules(?instans, ?queryfile) AS ?parsed_ok)
+#        BIND(instans:error_message(?instans) AS ?error_msg)
+# #       FILTER((?parsed_ok && (?testtype = mf:NegativeSyntaxTest11)) || (! ?parsed_ok && (?testtype = mf:PositiveSyntaxTest11)))
+# #       BIND(false AS ?run_ok)
+# #       BIND(false AS ?run_ok)
+# }

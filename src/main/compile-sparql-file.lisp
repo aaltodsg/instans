@@ -324,16 +324,35 @@
 (defun metasuite ()
   (sparql-call "instans:execute_system" "/Users/enu/instans/tests/input/metasuite.rq"  "/Users/enu/instans/tests/input/manifest-all.ttl" nil nil (parse-iri "file:///Users/enu/Sparql/sparql11-test-suite/")))
 
+(defun test-root-subdir-names (test-root-directory)
+  (loop for path in (directory (concatenate 'string test-root-directory "/*"))
+	when (null (pathname-name path))
+        collect (first (last (pathname-directory path)))))
+
+(defun file-or-uri-exists-p (name)
+  (flet ((probe-http-uri (name)
+	   (handler-case (eq (second (multiple-value-list (drakma:http-request name))) 200)
+	     (t () nil))))
+    (cond ((pathnamep name) (probe-file name))
+	  ((rdf-iri-p name)  (probe-http-uri (rdf-iri-string name)))
+	  ((file-iri-string-p name) (probe-file (file-iri-string-path name)))
+	  ((http-iri-string-p name) (probe-http-uri name))
+	  (t
+	   (error* "~A does not name a file or uri" name)))))
+
 (defun run-syntax-tests (rules test-root-directory test-root-uri test-sets)
-  (let* ((root-iri-string (or (let ((path (probe-file test-root-directory)))
-				(and path (string= (namestring path) (directory-namestring path)) (concatenate 'string "file://" (namestring path))))
-			      (progn
-				(format t "~&NOTE! Sparql test data directory not found in ~A" test-root-directory)
-				(format t "~&      If you want the tests run faster, download file")
-				(format t "~&      ~A.tar.gz" test-root-uri)
-				(format t "~&      and extract directory test-suite-archive/data-r2/ into ~A" test-root-uri)
-				(format t "~&      Using ~A instead" test-root-uri)
-				test-root-uri)))
+  (let* ((root-iri-string (let ((path (probe-file test-root-directory)))
+			    (cond ((and path (null (pathname-name path)))
+				   (when (member test-sets '(t :all))
+				     (setf test-sets (test-root-subdir-names test-root-directory)))
+				   (concatenate 'string "file://" (namestring path)))
+				  (t
+				   (format t "~&NOTE! Sparql test data directory not found in ~A" test-root-directory)
+				   (format t "~&      If you want the tests run faster, download file")
+				   (format t "~&      ~A.tar.gz" test-root-uri)
+				   (format t "~&      and extract directory test-suite-archive/data-r2/ into ~A" test-root-uri)
+				   (format t "~&      Using ~A instead" test-root-uri)
+				   test-root-uri))))
 	 (output-dir (or (let ((path (probe-file "../tests/output")))
 			   (and path (string= (namestring path) (directory-namestring path)) (namestring path)))
 			 (progn
@@ -343,8 +362,11 @@
     (loop for name in test-sets
 	  for base-iri-string = (format nil "~A/~A/" root-iri-string name)
 	  for manifest-iri-string = (format nil "~A/manifest.ttl" base-iri-string)
-	  do (format t "~&Running tests ~A~&" name)
-	  do (instans-execute-system rules :triples (parse-iri manifest-iri-string) :base (parse-iri base-iri-string) :silentp t :output-directory output-dir))))
+	  when (file-or-uri-exists-p manifest-iri-string) 
+	  do (progn
+	       (format t "~&Running tests ~A~&" name)
+	       (instans-execute-system rules :triples (parse-iri manifest-iri-string) :base (parse-iri base-iri-string) :silentp t :output-directory output-dir))
+	  else do (format t "~&Manifest file ~A not found~&" manifest-iri-string))))
 
 (defun run-data-r2-syntax-tests (&optional (test-sets '("syntax-sparql1" "syntax-sparql2" "syntax-sparql3" "syntax-sparql4" "syntax-sparql5")))
   (run-syntax-tests "../tests/input/syntax-test.rq" "../tests/data-r2" "http://www.w3.org/2001/sw/DataAccess/tests/data-r2" test-sets))
