@@ -93,6 +93,7 @@
 	(INSERT-DATA (sparql-parse-error "INSERT not implemented yet"))
 	(DELETE-DATA (sparql-parse-error "DELETE not implemented yet"))
 	(DELETE-WHERE (sparql-parse-error "DELETE not implemented yet"))
+	(SERVICE (sparql-parse-error "SERVICE not implemented yet"))
 	))))
 
 (defun make-sparql-parser (&optional testingp)
@@ -360,7 +361,7 @@
 	   (GraphPatternNotTriples ::= (:OR GroupOrUnionGraphPattern OptionalGraphPattern MinusGraphPattern GraphGraphPattern ServiceGraphPattern Filter Bind InlineData))
 	   (OptionalGraphPattern ::= (OPTIONAL-TERMINAL GroupGraphPattern) :RESULT (list 'OPTIONAL $1))
 	   (GraphGraphPattern ::= (GRAPH-TERMINAL VarOrIri GroupGraphPattern :RESULT (list 'GRAPH $1 $2)))
-	   (ServiceGraphPattern ::= (SERVICE-TERMINAL _OptSilent VarOrIri GroupGraphPattern :RESULT (append '(:query-form SERVICE) $1 (list :endpoint $2) (list :pattern $3))))
+	   (ServiceGraphPattern ::= (SERVICE-TERMINAL _OptSilent VarOrIri GroupGraphPattern :RESULT (build-query-expression (append '(:query-form SERVICE) $1 (list :endpoint $2) (list :pattern $3)))))
 	   (Bind ::= (BIND-TERMINAL |(-TERMINAL| Expression AS-TERMINAL Var |)-TERMINAL|) :RESULT (list 'BIND $2 $4))
 	   (InlineData ::= (VALUES-TERMINAL DataBlock :RESULT $1))
 	   (DataBlock ::= (:OR InlineDataOneVar InlineDataFull))

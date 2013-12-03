@@ -212,7 +212,7 @@
 (defun instans-add-rules (instans-iri rules &key output-directory base (silentp t) (create-instans-p t))
   (let ((instans (if create-instans-p (create-instans instans-iri) (get-instans instans-iri))))
     (cond ((sparql-error-p instans) instans)
-	  (t
+	  ((file-or-uri-exists-p rules)
 	   (let ((string (read-from-url-or-file rules)))
 	     (unless silentp
 	       (inform "~S" string))
@@ -224,7 +224,10 @@
 		 (cond ((not error)
 			(values t nil))
 		       (t
-			(values nil error))))))))))
+			(values nil error)))))))
+	  (t
+	   (inform "Cannot read SPARQL from ~S" rules)
+	   nil))))
 
 (defun instans-add-triples-from-url (instans-iri triples &key expected-results graph base silentp)
   (let* ((instans (get-instans instans-iri))
@@ -315,7 +318,7 @@
       (declare (ignore add-rules-result))
       (when (not (null error))
 	(return-from instans-execute-system (values nil error))))
-    (unless (null triples)
+    (if triples
       (instans-add-triples-from-url instans-iri triples :graph graph :base base :silentp silentp))))
 
 (defun execute-prev ()
@@ -333,14 +336,15 @@
   (flet ((probe-http-uri (name)
 	   (handler-case (eq (second (multiple-value-list (drakma:http-request name))) 200)
 	     (t () nil))))
-    (cond ((pathnamep name) (probe-file name))
-	  ((rdf-iri-p name)  (probe-http-uri (rdf-iri-string name)))
+    (cond ((rdf-iri-p name) (file-or-uri-exists-p (rdf-iri-string name)))
+	  ((pathnamep name) (probe-file name))
 	  ((file-iri-string-p name) (probe-file (file-iri-string-path name)))
 	  ((http-iri-string-p name) (probe-http-uri name))
 	  (t
 	   (error* "~A does not name a file or uri" name)))))
 
 (defun run-syntax-tests (rules test-root-directory test-root-uri test-sets)
+  (setf rules (concatenate 'string "file://" (namestring (probe-file rules))))
   (let* ((root-iri-string (let ((path (probe-file test-root-directory)))
 			    (cond ((and path (null (pathname-name path)))
 				   (when (member test-sets '(t :all))
@@ -360,7 +364,7 @@
 			   (format t "~&      Create it if you want to have an HTML page showing the RETE network")
 			   nil))))
     (loop for name in test-sets
-	  for base-iri-string = (format nil "~A/~A/" root-iri-string name)
+	  for base-iri-string = (format nil "~A~A/" root-iri-string name)
 	  for manifest-iri-string = (format nil "~A/manifest.ttl" base-iri-string)
 	  when (file-or-uri-exists-p manifest-iri-string) 
 	  do (progn
@@ -373,6 +377,10 @@
 
 (defun run-data-sparql11-syntax-tests (&optional (test-sets '("syntax-query" "syntax-update-1" "syntax-update-2")))
   (run-syntax-tests "../tests/input/syntax-test.rq" "../tests/data-sparql11" "http://www.w3.org/2009/sparql/docs/tests/data-sparql11" test-sets))
+
+(defun run-all-syntax-tests ()
+  (run-syntax-tests "../tests/input/syntax-test.rq" "../tests/data-r2" "http://www.w3.org/2001/sw/DataAccess/tests/data-r2" t)
+  (run-syntax-tests "../tests/input/syntax-test.rq" "../tests/data-sparql11" "http://www.w3.org/2009/sparql/docs/tests/data-sparql11" t))
 
 ;(progn (untrace) (trace rete-add token-value make-token add-token remove-token add-alpha-token remove-alpha-token add-beta-token remove-beta-token))
 

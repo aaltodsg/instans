@@ -5,8 +5,9 @@ cat << EOF > $TMP
                                    :if-exists :supersede)
 (asdf:load-system :instans))
 (in-package #:instans)
-(run-data-r2-syntax-tests)
-(run-data-sparql11-syntax-tests)
+;(run-data-r2-syntax-tests)
+;(run-data-sparql11-syntax-tests)
+(run-all-syntax-tests)
 EOF
 if test -d syntax-test-results; then
     TEST_RESULTS=syntax-test-results/results
@@ -43,7 +44,7 @@ td.test_passed { }
 <script type="text/javascript">
 //<![CDATA[
 	\$(document).ready( function () {
-				\$('#TestResults').dataTable( { "bPaginate": false, "sDom": 'W<"clear">lfrtip', "oColumnFilterWidgets": { "aiExclude": [ 4, 6 ] } } );
+				\$('#TestResults').dataTable( { "bPaginate": false, "sDom": 'W<"clear">lfrtip', "oColumnFilterWidgets": { "aiExclude": [ 0, 5, 7 ] } } );
 			} );
 // \$(document).ready(function() {
 //        \$('#TestResults').dataTable();
@@ -57,26 +58,30 @@ td.test_passed { }
 </script>
 </head>
 <body>
-  <table id="TestResults" class="tablesorter">
-  <thead>
-  <tr><th>Passed</th><th>Collection</th><th>Set</th><th>Type</th><th>Name</th><th>Error</th><th>Error message</th></tr>
-  </thead>
-  <tbody>
 EOF
 AWK=$$-syntax-test-filter.awk
 cat > $AWK <<EOF
 function output() {
     if (queryfile) {
-        is_positive = (index(type, "Positive") == 1);
-        if (is_positive && (error == "true")) { passed = 0; test_outcome="test_positive_failed"; }
-        else if (!is_positive && (error == "false")) { passed = 0; test_outcome = "test_negative_succeeded";}
-        else { passed = 1; test_outcome = "test_ok";}
+        entry_number++;
+        is_negative = (index(type, "Negative") == 1);
+        if (!is_negative; && (error == "true")) { passed = 0; test_outcome="test_positive_failed"; test_positive_failed_count++}
+        else if (is_negative && (error == "false")) { passed = 0; test_outcome = "test_negative_succeeded"; test_negative_succeeded_count++}
+        else { passed = 1; test_outcome = "test_ok"; test_ok_count++}
         split(queryfile, parts, "/");
-	printf "<TR class=\"%s\"><TD class=\"test_passed\">%s</TD><TD class=\"test_collection\">%s</TD><TD class=\"test_set\">%s</TD><TD class=\"test_type\">%s</TD><TD class=\"test_name\">%s</TD><TD class=\"test_error\">%s</TD>", test_outcome, (passed ? "Yes" : "No"), parts[1], parts[2], type, parts[3], error;
+	printf "<TR class=\"%s\"><TD class=\"test_entry_number\">%d</TD><TD class=\"test_passed\">%s</TD><TD class=\"test_collection\">%s</TD><TD class=\"test_set\">%s</TD><TD class=\"test_type\">%s</TD><TD class=\"test_name\">%s</TD><TD class=\"test_error\">%s</TD>",
+          test_outcome, entry_number, (passed ? "Yes" : "No"), parts[1], parts[2], type, parts[3], error;
 	if (error_msg && length(error_msg) > 2) printf "<TD class=\"test_error_message\">%s</TD></TR>\n", error_msg;
 	else printf "<TD class=\"error_test_error_message\">&nbsp;</TD></TR>\n";
 	error_msg = "";
     }
+}
+BEGIN {
+  printf "  <table id=\"TestResults\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"display\" width=\"100%%\">\n";
+  printf "  <thead>\n";
+  printf "    <tr><th>Test#</th><th>Passed</th><th>Collection</th><th>Set</th><th>Type</th><th>Name</th><th>Error</th><th>Error message</th></tr>\n";
+  printf "  </thead>\n";
+  printf "  <tbody>\n";
 }
 /^Rule/ {
   output();
@@ -109,14 +114,16 @@ function output() {
 }
 END {
   output();
+  printf "  <tbody>\n";
+  printf "  </table>\n";
+  printf "<hr/>\n";
+  printf "<ul><li>%d tests OK</li>\n", test_ok_count++;
+  printf "<li>%d positive tests failed</li>\n", test_positive_failed_count++;
+  printf "<li>%d negative tests succeeded</li></ul>\n", test_negative_succeeded_count++;
+  printf "</body>\n";
+  printf "</html>\n";
 }
 EOF
 awk -f $AWK < $TEST_RESULTS >> $REPORT_HTML
-cat >> $REPORT_HTML <<EOF
-  <tbody>
-  </table>
-</body>
-</html>
-EOF
 rm -rf $AWK
 fi
