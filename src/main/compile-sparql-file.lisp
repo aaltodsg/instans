@@ -309,7 +309,7 @@
   (when (rdf-iri-equal expected-results *rdf-nil*) (setf expected-results nil))
 					;  (handler-case 
   (multiple-value-bind (instans instans-iri) (create-instans)
-    (format (instans-default-output instans) "execute_system ~A ~A ~A ~A ~A" rules triples expected-results graph base)
+    (format (instans-default-output instans) "~%execute_system ~A ~A ~A ~A ~A~&" rules triples expected-results graph base)
     (multiple-value-bind (add-rules-result error)
 	(instans-add-rules instans-iri rules :output-directory output-directory :base base :silentp silentp)
       (declare (ignore add-rules-result))
@@ -347,11 +347,12 @@
 	  do (instans-execute-system rules :triples (parse-iri manifest-iri-string) :base (parse-iri base-iri-string) :silentp t :output-directory output-dir))))
 
 (defun run-data-r2-syntax-tests (&optional (test-sets '("syntax-sparql1" "syntax-sparql2" "syntax-sparql3" "syntax-sparql4" "syntax-sparql5")))
-  (run-syntax-tests "../tests/input/syntax-test.rq" "../tests/data-r2" "http://www.w3.org/2001/sparql/docs/tests/data-r2" test-sets))
+  (run-syntax-tests "../tests/input/syntax-test.rq" "../tests/data-r2" "http://www.w3.org/2001/sw/DataAccess/tests/data-r2" test-sets))
 
 (defun run-data-sparql11-syntax-tests (&optional (test-sets '("syntax-query" "syntax-update-1" "syntax-update-2")))
   (run-syntax-tests "../tests/input/syntax-test.rq" "../tests/data-sparql11" "http://www.w3.org/2009/sparql/docs/tests/data-sparql11" test-sets))
 
+;(progn (untrace) (trace rete-add token-value make-token add-token remove-token add-alpha-token remove-alpha-token add-beta-token remove-beta-token))
 
 ; add
 ; aggregates
