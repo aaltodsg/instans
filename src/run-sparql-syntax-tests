@@ -91,8 +91,8 @@ function output() {
         else if (is_negative && !has_error) { passed = 0; test_outcome = "test_negative_succeeded"; test_negative_succeeded_count++}
         else { passed = 1; test_outcome = "test_ok"; test_ok_count++}
         split(queryfile, parts, "/");
-	printf "<TR class=\"%s\"><TD class=\"test_entry_number\">%d</TD><TD class=\"test_passed\">%s</TD><TD class=\"test_collection\">%s</TD><TD class=\"test_set\">%s</TD><TD class=\"test_type\">%s</TD><TD class=\"test_name\">%s</TD><TD class=\"test_error\">%s</TD>",
-          test_outcome, entry_number, (passed ? "Yes" : "No"), parts[1], parts[2], type, parts[3], (has_error ? "Error" : "OK");
+	printf "<TR class=\"%s\"><TD class=\"test_entry_number\">%d</TD><TD class=\"test_passed\">%s</TD><TD class=\"test_collection\">%s</TD><TD class=\"test_set\">%s</TD><TD class=\"test_type\">%s</TD><TD class=\"test_name\"><a href=\"%s\" type=\"text/plain\">%s</a></TD><TD class=\"test_error\">%s</TD>",
+          test_outcome, entry_number, (passed ? "Yes" : "No"), parts[1], parts[2], type, linkuri, parts[3], (has_error ? "Error" : "OK");
 	if (error_msg && length(error_msg) > 2) printf "<TD class=\"test_error_message\">%s</TD></TR>\n", error_msg;
 	else printf "<TD class=\"error_test_error_message\">&nbsp;</TD></TR>\n";
 	error_msg = "";
@@ -115,6 +115,7 @@ BEGIN {
     if (pos)
        queryfile = substr(queryfile, pos + 7, length(queryfile) - pos - 6);
     sub("//", "/", queryfile);
+    linkuri=sprintf("../../tests/%s", queryfile);
 }
 /\?TESTTYPE = #<RDF-IRI / {
     split(\$4, a, "#");
@@ -140,9 +141,10 @@ END {
   printf "  <tbody>\n";
   printf "  </table>\n";
   printf "<hr/>\n";
-  printf "<ul><li>%d tests OK</li>\n", test_ok_count++;
-  printf "<li>%d positive tests failed</li>\n", test_positive_failed_count++;
-  printf "<li>%d negative tests succeeded</li></ul>\n", test_negative_succeeded_count++;
+  printf "<p>Total %d tests\n", test_ok_count + test_positive_failed_count + test_negative_succeeded_count;
+  printf "<ul><li>%d tests OK</li>\n", test_ok_count;
+  printf "<li>%d positive tests failed</li>\n", test_positive_failed_count;
+  printf "<li>%d negative tests succeeded</li></ul>\n", test_negative_succeeded_count;
   printf "</body>\n";
   printf "</html>\n";
 }
