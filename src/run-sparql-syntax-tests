@@ -18,9 +18,16 @@ if test ! -d $RESULTSDIR; then
   echo
 fi
 DATATABLES=$RESULTSDIR/DataTables
-/bin/echo -n "Running the tests... "
-sbcl --noinform --noprint --load $TMP --quit > $TEST_OUTPUT 2>&1
-echo "File \"$TEST_OUTPUT\" contains the test output."
+if test $# -eq 0 ; then
+  /bin/echo -n "Running the tests... "
+  sbcl --noinform --noprint --load $TMP --quit > $TEST_OUTPUT 2>&1
+  echo "File \"$TEST_OUTPUT\" contains the test output."
+elif test -f $TEST_OUTPUT; then
+  echo "Using the old results in $TEST_OUTPUT"  
+else
+  echo "No results in $TEST_OUTPUT!"
+  exit 1
+fi
 rm -rf $TMP
 if test ! -d $DATATABLES ; then
   echo
@@ -82,15 +89,34 @@ td.test_passed { }
 <body>
 EOF
 AWK=$$-syntax-test-filter.awk
-cat > $AWK <<EOF
+touch $AWK
+INVALID_TESTS=invalid-sparql-tests
+LOG=log
+touch $LOG
+if test -f $INVALID_TESTS; then
+cat >> $AWK <<EOF
+function is_invalid_test(name) {
+  printf "is_invalid_test(%s): grep --silent %s $INVALID_TESTS", name, name >> $LOG
+  return (system(sprintf("grep --silent %s $INVALID_TESTS", name)) == 0);
+}
+EOF
+else
+cat >> $AWK <<EOF
+function is_invalid_test(name) {
+  return 0;
+}
+EOF
+fi
+cat >> $AWK <<EOF
 function output() {
     if (queryfile) {
         entry_number++;
-        is_negative = (index(type, "Negative") == 1);
+        split(queryfile, parts, "/");
+        long_name = sprintf("%s/%s/%s", parts[1], parts[2], parts[3]);
+        is_negative = (index(type, "Negative") == 1) || is_invalid_test(long_name);
         if (!is_negative && has_error) { passed = 0; test_outcome="test_positive_failed"; test_positive_failed_count++}
         else if (is_negative && !has_error) { passed = 0; test_outcome = "test_negative_succeeded"; test_negative_succeeded_count++}
         else { passed = 1; test_outcome = "test_ok"; test_ok_count++}
-        split(queryfile, parts, "/");
 	printf "<TR class=\"%s\"><TD class=\"test_entry_number\">%d</TD><TD class=\"test_passed\">%s</TD><TD class=\"test_collection\">%s</TD><TD class=\"test_set\">%s</TD><TD class=\"test_type\">%s</TD><TD class=\"test_name\"><a href=\"%s\" type=\"text/plain\">%s</a></TD><TD class=\"test_error\">%s</TD>",
           test_outcome, entry_number, (passed ? "Yes" : "No"), parts[1], parts[2], type, linkuri, parts[3], (has_error ? "Error" : "OK");
 	if (error_msg && length(error_msg) > 2) printf "<TD class=\"test_error_message\">%s</TD></TR>\n", error_msg;
@@ -150,6 +176,6 @@ END {
 }
 EOF
 awk -f $AWK < $TEST_OUTPUT >> $REPORT_HTML
-rm -rf $AWK
+#rm -rf $AWK
 echo
 echo "File \"$REPORT_HTML\" contains the test results in HTML form."

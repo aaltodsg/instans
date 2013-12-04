@@ -366,11 +366,11 @@
     (loop for name in test-sets
 	  for base-iri-string = (format nil "~A~A/" root-iri-string name)
 	  for manifest-iri-string = (format nil "~A/manifest.ttl" base-iri-string)
-	  when (file-or-uri-exists-p manifest-iri-string) 
-	  do (progn
-	       (format t "~&Running tests ~A~&" name)
-	       (instans-execute-system rules :triples (parse-iri manifest-iri-string) :base (parse-iri base-iri-string) :silentp t :output-directory output-dir))
-	  else do (format t "~&Manifest file ~A not found~&" manifest-iri-string))))
+	  do (cond ((not (file-or-uri-exists-p manifest-iri-string))
+		    (format t "~&Manifest file ~A not found~&" manifest-iri-string))
+		   (t
+		    (format t "~&Running tests ~A~&" name)
+		    (instans-execute-system rules :triples (parse-iri manifest-iri-string) :base (parse-iri base-iri-string) :silentp t :output-directory output-dir))))))
 
 (defun run-data-r2-syntax-tests (&optional (test-sets '("syntax-sparql1" "syntax-sparql2" "syntax-sparql3" "syntax-sparql4" "syntax-sparql5")))
   (run-syntax-tests "../tests/input/syntax-test.rq" "../tests/data-r2" "http://www.w3.org/2001/sw/DataAccess/tests/data-r2" test-sets))
@@ -383,36 +383,3 @@
   (run-syntax-tests "../tests/input/syntax-test.rq" "../tests/data-sparql11" "http://www.w3.org/2009/sparql/docs/tests/data-sparql11" t))
 
 ;(progn (untrace) (trace rete-add token-value make-token add-token remove-token add-alpha-token remove-alpha-token add-beta-token remove-beta-token))
-
-; add
-; aggregates
-; basic-update
-; bind
-; bindings
-; clear
-; construct
-; copy
-; csv-tsv-res
-; delete-data
-; delete-insert
-; delete-where
-; delete
-; drop
-; entailment
-; exists
-; functions
-; grouping
-; json-res
-; move
-; negation
-; project-expression
-; property-path
-; service
-; subquery
-; syntax-query
-; syntax-update-1
-; syntax-update-2
-; update-silent
-; syntax-fed
-; service-description
-; protocol
