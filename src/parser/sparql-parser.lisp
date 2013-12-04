@@ -46,11 +46,18 @@
 
 (defvar *parser-error-messages*)
 
-(defun sparql-fatal-parse-error (fmt &rest args)
-  (apply #'parsing-failure fmt args))
+;; (defun sparql-fatal-parse-error (fmt &rest args)
+;;   (apply #'parsing-failure fmt args))
 
 (defun sparql-parse-error (fmt &rest args)
-  (push-to-end (apply #'format nil (format nil "~%~A" fmt) args) *parser-error-messages*))
+  (apply #'parsing-failure fmt args))
+
+;; (defun sparql-parse-error (fmt &rest args)
+;;   (push-to-end (apply #'format nil (format nil "~%~A" fmt) args) *parser-error-messages*))
+
+;; (defun sparql-fatal-parse-error (fmt &rest args)
+;;   (apply #'parsing-failure fmt args))
+
 
 (defun build-query-expression (clauses)
 ;  (inform "build-query-expression clauses = ~S" clauses)
@@ -76,7 +83,7 @@
 ;			    do (inform "get-project-vars: item = ~S" item)
 			    when (sparql-var-p item)
 			    do (cond ((not (find-sparql-var item scope-vars))
-				      (sparql-parse-error "Variable ~S not in SELECT" item))
+				      (sparql-parse-error "Variable ~S not in SELECT" (uniquely-named-object-name item)))
 				     (t
 				      (push-to-end item project-vars)))
 			    else
@@ -92,15 +99,15 @@
 	((SELECT ASK DESCRIBE CONSTRUCT DELETE-INSERT)
 	 (setf ggp (handle-aggregates ggp clauses))
 	 (append (list form :where ggp :project-vars (get-project-vars)) clauses))
-	(LOAD (sparql-fatal-parse-error "LOAD not implemented yet"))
-	(CLEAR (sparql-fatal-parse-error "CLEAR not implemented yet"))
-	(ADD (sparql-fatal-parse-error "ADD not implemented yet"))
-	(MOVE (sparql-fatal-parse-error "MOVE not implemented yet"))
-	(COPY (sparql-fatal-parse-error "COPY not implemented yet"))
-	(INSERT-DATA (sparql-fatal-parse-error "INSERT not implemented yet"))
-	(DELETE-DATA (sparql-fatal-parse-error "DELETE not implemented yet"))
-	(DELETE-WHERE (sparql-fatal-parse-error "DELETE not implemented yet"))
-	(SERVICE (sparql-fatal-parse-error "SERVICE not implemented yet"))
+	(LOAD (sparql-parse-error "LOAD not implemented yet"))
+	(CLEAR (sparql-parse-error "CLEAR not implemented yet"))
+	(ADD (sparql-parse-error "ADD not implemented yet"))
+	(MOVE (sparql-parse-error "MOVE not implemented yet"))
+	(COPY (sparql-parse-error "COPY not implemented yet"))
+	(INSERT-DATA (sparql-parse-error "INSERT not implemented yet"))
+	(DELETE-DATA (sparql-parse-error "DELETE not implemented yet"))
+	(DELETE-WHERE (sparql-parse-error "DELETE not implemented yet"))
+	(SERVICE (sparql-parse-error "SERVICE not implemented yet"))
 	))))
 
 (defun make-sparql-parser (&optional testingp)
@@ -153,19 +160,19 @@
 	       (setf bgp-blanks nil))
 	     (make-blank-node-or-var (name)
 	       (cond ((not blank-nodes-allowed-p)
-		      (sparql-fatal-parse-error "Blank node (~A) not allowed here" name))
+		      (sparql-parse-error "Blank node (~A) not allowed here" name))
 		     ((not replace-blank-nodes-by-vars-p) (make-rdf-blank-node instans name))
 		     (t
 		      (or (find-if #'(lambda (var) (string= (uniquely-named-object-name var) name)) bgp-blanks)
 			  (cond ((find-if #'(lambda (var) (string= (uniquely-named-object-name var) name)) other-bgp-blanks)
-				 (sparql-fatal-parse-error "Blank node ~S used in separate basic graph patterns" name))
+				 (sparql-parse-error "Blank node ~S used in separate basic graph patterns" name))
 				(t
 				 (let ((var (make-var name)))
 				   (push var bgp-blanks)
 				   var)))))))
 	     (generate-blank-node-or-var ()
 	       (cond ((not blank-nodes-allowed-p)
-		      (sparql-fatal-parse-error "Blank node not allowed here"))
+		      (sparql-parse-error "Blank node not allowed here"))
 		     ((not replace-blank-nodes-by-vars-p) (generate-rdf-blank-node instans))
 		     (t (generate-sparql-var instans "!BLANK"))))
 	     (fold-left-binary (value funcs)
@@ -273,7 +280,7 @@
 	     (create-call-through-iri (iri arglist)
 	       (let ((sparql-op (find-sparql-op (rdf-iri-string iri))))
 		 (cond ((null sparql-op)
-			(sparql-parse-error "~A does not name a Sparql function or form" iri))
+			(sparql-parse-error "~A does not name a Sparql function or form" (rdf-iri-string iri)))
 		       (t
 ;			(inform "create-call-through-iri ~A ~A" sparql-op arglist)
 			(cons sparql-op arglist))))))
@@ -343,7 +350,7 @@
 	   (HavingClause ::= (HAVING-TERMINAL (:REP1 HavingCondition) :RESULT (list :having $1)))
 	   (HavingCondition ::= Constraint)
 	   (OrderClause ::= (ORDER-TERMINAL BY-TERMINAL (:REP1 OrderCondition) :RESULT (list :order-by $2)))
-	   (OrderCondition ::= (:OR ((ASC-TERMINAL :RESULT 'ASC) (DESC-TERMINAL :RESULT 'DESC) BrackettedExpression :RESULT (list $0 $1))
+	   (OrderCondition ::= (:OR ((:OR (ASC-TERMINAL :RESULT 'ASC) (DESC-TERMINAL :RESULT 'DESC)) BrackettedExpression :RESULT (list $0 $1))
 				    (Constraint :RESULT (list 'ASC $0))
 				    (Var :RESULT (list 'ASC $0))))
 	   (LimitOffsetClauses ::= (:OR (LimitClause (:OPT OffsetClause) :RESULT (append (list :limit $0) (and (opt-yes-p $1) (list :offset (opt-value $1)))))

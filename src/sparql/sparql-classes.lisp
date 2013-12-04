@@ -266,12 +266,16 @@
   (gethash iri-string (type-descriptors-string-map type-descriptors)))
 
 (defun add-sparql-op-library (&key prefix iri-string (sparql-ops *sparql-ops*))
+  (setf prefix (string-downcase prefix))
+  (setf iri-string (string-downcase iri-string))
   (setf (gethash prefix (sparql-ops-libraries sparql-ops)) (make-instance 'sparql-op-library :prefix prefix :iri-string iri-string)))
 
 (defun find-sparql-op-library (library-name &key (sparql-ops *sparql-ops*))
-  (gethash library-name (sparql-ops-libraries sparql-ops)))
+  (gethash (string-downcase library-name) (sparql-ops-libraries sparql-ops)))
 
 (defun add-sparql-op (&key (sparql-ops *sparql-ops*) kind prefixed-name-string lisp-name arguments returns body hiddenp)
+  (when prefixed-name-string
+    (setf prefixed-name-string (string-downcase prefixed-name-string)))
   (multiple-value-bind (library-name op-name)
       (split-sparql-op-prefixed-name prefixed-name-string)
     (let ((library (find-sparql-op-library library-name :sparql-ops sparql-ops)))
@@ -285,7 +289,7 @@
 	       (setf (gethash (concatenate 'string (sparql-op-library-iri-string library) op-name) (sparql-ops-ops sparql-ops)) sparql-op)))))))
 
 (defun find-sparql-op (name &key (sparql-ops *sparql-ops*))
-  (gethash (if (rdf-iri-p name) (rdf-iri-string name) name) (sparql-ops-ops sparql-ops)))
+  (gethash (string-downcase (if (rdf-iri-p name) (rdf-iri-string name) name)) (sparql-ops-ops sparql-ops)))
 
 (defun list-sparql-ops (&key library-name (sparql-ops *sparql-ops*))
   (cond ((null library-name)
@@ -293,7 +297,7 @@
 	(t
 	 (maphash #'(lambda (key value) (inform "~A -> ~A" key value)) (sparql-op-library-ops (find-sparql-op-library library-name :sparql-ops sparql-ops))))))
 
-(eval-when (:load-toplevel :execute)
+(defun initialize-globals ()
   (setf *sparql-unbound* (make-instance 'sparql-unbound))
   (setf *sparql-distinct* (make-instance 'sparql-distinct))
   (setf *rdf-first* (make-instance 'rdf-iri :string "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"))
@@ -307,6 +311,9 @@
   (setf *instans-math-extension-op-library* (add-sparql-op-library :prefix "math" :iri-string "http://instans.org/extensions/math#"))
   (setf *instans-datetime-extension-op-library* (add-sparql-op-library :prefix "datetime" :iri-string "http://instans.org/extensions/datetime#"))
   (setf *instans-op-library* (add-sparql-op-library :prefix "instans" :iri-string "http://instans.org/extensions/instans#")))
+
+(eval-when (:load-toplevel :execute)
+  (initialize-globals))
 
 ;;; Misc
 

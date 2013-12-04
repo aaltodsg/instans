@@ -536,6 +536,10 @@
 ;; 17.4.3.13 langMatches !!! Missing !!!
 ;; ---------------------
 ;; xsd:boolean  langMatches (simple literal language-tag, simple literal language-range)
+(define-sparql-function "langMatches" (:arguments ((language-tag xsd-string-value) (language-range xsd-string-value)) :returns xsd-boolean-value)
+  (:method ((language-tag xsd-string-value) (language-range xsd-string-value))
+    (declare (ignorable language-tag language-range))
+    (error "Not implemented yet!")))
 
 ;; 17.4.3.14 REGEX !!! Missing !!!
 ;; ---------------
@@ -550,6 +554,10 @@
 ;; -----------------
 ;; string literal  REPLACE (string literal arg, simple literal pattern, simple literal replacement )
 ;; string literal  REPLACE (string literal arg, simple literal pattern, simple literal replacement,  simple literal flags)
+(define-sparql-function "replace" (:arguments ((arg literal) (pattern xsd-string-value) (replacement xsd-string-value) &optional (flags xsd-string-value)) :returns literal)
+  (:method ((arg literal) (pattern xsd-string-value) (replacement xsd-string-value) &optional (flags xsd-string-value))
+    (declare (ignorable arg pattern replacement flags))
+    (error "Not implemented yet!")))
 
 ;; 17.4.4 Functions on Numerics
 ;; ============================
@@ -657,26 +665,50 @@
 ;; -------------
 ;; simple literal  MD5 (simple literal arg)
 ;; simple literal  MD5 (xsd:string arg)
+(define-sparql-function "md5" (:arguments ((arg xsd-string-value)) :returns xsd-string-value)
+  (:method ((arg xsd-string-value))
+    (declare (ignorable arg))
+    (error "Not implemented yet!")))
 
 ;; 17.4.6.2 SHA1 !!! Missing !!!
 ;; -------------
 ;; simple literal  SHA1 (simple literal arg)
 ;; simple literal  SHA1 (xsd:string arg)
+(define-sparql-function "sha1" (:arguments ((arg xsd-string-value)) :returns xsd-string-value)
+  (:method ((arg xsd-string-value))
+    (declare (ignorable arg))
+    (error "Not implemented yet!")))
+
 
 ;; 17.4.6.3 SHA256 !!! Missing !!!
 ;; ---------------
 ;; simple literal  SHA256 (simple literal arg)
 ;; simple literal  SHA256 (xsd:string arg)
+(define-sparql-function "sha256" (:arguments ((arg xsd-string-value)) :returns xsd-string-value)
+  (:method ((arg xsd-string-value))
+    (declare (ignorable arg))
+    (error "Not implemented yet!")))
+
 
 ;; 17.4.6.4 SHA384 !!! Missing !!!
 ;; ---------------
 ;; simple literal  SHA384 (simple literal arg)
 ;; simple literal  SHA384 (xsd:string arg)
+(define-sparql-function "sha384" (:arguments ((arg xsd-string-value)) :returns xsd-string-value)
+  (:method ((arg xsd-string-value))
+    (declare (ignorable arg))
+    (error "Not implemented yet!")))
+
 
 ;; 17.4.6.5 SHA512 !!! Missing !!!
 ;; ---------------
 ;; simple literal  SHA512 (simple literal arg)
 ;; simple literal  SHA512 (xsd:string arg)
+(define-sparql-function "sha512" (:arguments ((arg xsd-string-value)) :returns xsd-string-value)
+  (:method ((arg xsd-string-value))
+    (declare (ignorable arg))
+    (error "Not implemented yet!")))
+
 
 ;; 17.5 XPath Constructor Functions !!! Missing !!!
 ;; ================================
