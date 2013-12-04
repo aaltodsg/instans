@@ -5,18 +5,40 @@ cat << EOF > $TMP
                                    :if-exists :supersede)
 (asdf:load-system :instans))
 (in-package #:instans)
-;(run-data-r2-syntax-tests)
+;(run-data-r2-syntax-tests '("syntax-sparql5"))
 ;(run-data-sparql11-syntax-tests)
 (run-all-syntax-tests)
 EOF
-if test -d syntax-test-results; then
-    TEST_RESULTS=syntax-test-results/results
-else
-    TEST_RESULTS=/dev/null
+ROOT=`pwd`
+RESULTSDIR=syntax-test-results
+TEST_OUTPUT=syntax-test-results/results
+if test ! -d $RESULTSDIR; then
+  echo "Directory \"$RESULTSDIR\" does not exist; creating it"
+  mkdir $RESULTSDIR
+  echo
 fi
-sbcl --noinform --noprint --load $TMP --quit | tee $TEST_RESULTS 2>&1
+DATATABLES=$RESULTSDIR/DataTables
+/bin/echo -n "Running the tests... "
+sbcl --noinform --noprint --load $TMP --quit > $TEST_OUTPUT 2>&1
+echo "File \"$TEST_OUTPUT\" contains the test output."
 rm -rf $TMP
-if test -d syntax-test-results; then
+if test ! -d $DATATABLES ; then
+  echo
+#  /bin/echo -n "Did not found $DATATABLES. Would you like to install it? "
+  # read answer
+  # if test "$answer" != "y" && "$answer" != "yes"; then
+  #     exit 0
+  # fi
+  echo "Did not found \"$DATATABLES\"; installing it."
+  echo "Downloading http://datatables.net/releases/DataTables-1.9.4.zip"
+  curl -s -O http://datatables.net/releases/DataTables-1.9.4.zip
+  unzip -q -d $RESULTSDIR DataTables-1.9.4.zip
+  ln -s DataTables-1.9.4 $RESULTSDIR/DataTables
+  echo "Cloning https://github.com/cyberhobo/ColumnFilterWidgets.git into $DATATABLES/extras"
+  cd $DATATABLES/extras
+  git clone -q https://github.com/cyberhobo/ColumnFilterWidgets.git
+  cd $ROOT
+fi
 REPORT_HTML=syntax-test-results/index.html
 cat > $REPORT_HTML <<EOF
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
@@ -65,12 +87,12 @@ function output() {
     if (queryfile) {
         entry_number++;
         is_negative = (index(type, "Negative") == 1);
-        if (!is_negative; && (error == "true")) { passed = 0; test_outcome="test_positive_failed"; test_positive_failed_count++}
-        else if (is_negative && (error == "false")) { passed = 0; test_outcome = "test_negative_succeeded"; test_negative_succeeded_count++}
+        if (!is_negative && has_error) { passed = 0; test_outcome="test_positive_failed"; test_positive_failed_count++}
+        else if (is_negative && !has_error) { passed = 0; test_outcome = "test_negative_succeeded"; test_negative_succeeded_count++}
         else { passed = 1; test_outcome = "test_ok"; test_ok_count++}
         split(queryfile, parts, "/");
 	printf "<TR class=\"%s\"><TD class=\"test_entry_number\">%d</TD><TD class=\"test_passed\">%s</TD><TD class=\"test_collection\">%s</TD><TD class=\"test_set\">%s</TD><TD class=\"test_type\">%s</TD><TD class=\"test_name\">%s</TD><TD class=\"test_error\">%s</TD>",
-          test_outcome, entry_number, (passed ? "Yes" : "No"), parts[1], parts[2], type, parts[3], error;
+          test_outcome, entry_number, (passed ? "Yes" : "No"), parts[1], parts[2], type, parts[3], (has_error ? "Error" : "OK");
 	if (error_msg && length(error_msg) > 2) printf "<TD class=\"test_error_message\">%s</TD></TR>\n", error_msg;
 	else printf "<TD class=\"error_test_error_message\">&nbsp;</TD></TR>\n";
 	error_msg = "";
@@ -79,7 +101,7 @@ function output() {
 BEGIN {
   printf "  <table id=\"TestResults\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"display\" width=\"100%%\">\n";
   printf "  <thead>\n";
-  printf "    <tr><th>Test#</th><th>Passed</th><th>Collection</th><th>Set</th><th>Type</th><th>Name</th><th>Error</th><th>Error message</th></tr>\n";
+  printf "    <tr><th>Test#</th><th>Passed</th><th>Collection</th><th>Set</th><th>Type</th><th>Name</th><th>OK/Error</th><th>Error message</th></tr>\n";
   printf "  </thead>\n";
   printf "  <tbody>\n";
 }
@@ -100,13 +122,14 @@ BEGIN {
     type = t[1];
 }
 /\?PARSED_OK = #<SPARQL-UNBOUND.*/ {
-    error = "UNBOUND";
+    has_error = 1;
+    error_msg = "?PARSED_OK == UNBOUND!";
 }
 /\?PARSED_OK = T/ {
-    error = "false";
+    has_error = 0;
 }
 /\?PARSED_OK = NIL/ {
-    error = "true";
+    has_error = 1;
 }
 /\?ERROR_MSG = / {
     i = index(\$0, "\"");
@@ -124,6 +147,7 @@ END {
   printf "</html>\n";
 }
 EOF
-awk -f $AWK < $TEST_RESULTS >> $REPORT_HTML
+awk -f $AWK < $TEST_OUTPUT >> $REPORT_HTML
 rm -rf $AWK
-fi
+echo
+echo "File \"$REPORT_HTML\" contains the test results in HTML form."

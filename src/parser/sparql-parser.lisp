@@ -46,6 +46,9 @@
 
 (defvar *parser-error-messages*)
 
+(defun sparql-fatal-parse-error (fmt &rest args)
+  (apply #'parsing-failure fmt args))
+
 (defun sparql-parse-error (fmt &rest args)
   (push-to-end (apply #'format nil (format nil "~%~A" fmt) args) *parser-error-messages*))
 
@@ -85,15 +88,15 @@
 	((SELECT ASK DESCRIBE CONSTRUCT DELETE-INSERT)
 	 (setf ggp (handle-aggregates ggp clauses))
 	 (append (list form :where ggp :project-vars (get-project-vars)) clauses))
-	(LOAD (sparql-parse-error "LOAD not implemented yet"))
-	(CLEAR (sparql-parse-error "CLEAR not implemented yet"))
-	(ADD (sparql-parse-error "ADD not implemented yet"))
-	(MOVE (sparql-parse-error "MOVE not implemented yet"))
-	(COPY (sparql-parse-error "COPY not implemented yet"))
-	(INSERT-DATA (sparql-parse-error "INSERT not implemented yet"))
-	(DELETE-DATA (sparql-parse-error "DELETE not implemented yet"))
-	(DELETE-WHERE (sparql-parse-error "DELETE not implemented yet"))
-	(SERVICE (sparql-parse-error "SERVICE not implemented yet"))
+	(LOAD (sparql-fatal-parse-error "LOAD not implemented yet"))
+	(CLEAR (sparql-fatal-parse-error "CLEAR not implemented yet"))
+	(ADD (sparql-fatal-parse-error "ADD not implemented yet"))
+	(MOVE (sparql-fatal-parse-error "MOVE not implemented yet"))
+	(COPY (sparql-fatal-parse-error "COPY not implemented yet"))
+	(INSERT-DATA (sparql-fatal-parse-error "INSERT not implemented yet"))
+	(DELETE-DATA (sparql-fatal-parse-error "DELETE not implemented yet"))
+	(DELETE-WHERE (sparql-fatal-parse-error "DELETE not implemented yet"))
+	(SERVICE (sparql-fatal-parse-error "SERVICE not implemented yet"))
 	))))
 
 (defun make-sparql-parser (&optional testingp)
