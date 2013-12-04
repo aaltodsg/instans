@@ -76,7 +76,7 @@
 		   (GGP (translate (getf (rest expr) :form) prev dataset))
 		   (BGP (loop for triple-pattern in args
 			      do (progn
-				   (when (member 'PATH triple-pattern) (translate-failure "Cannot handle paths yet ~S" triple-pattern))
+				   (when (member 'PATH triple-pattern) (translate-failure "Paths not fully implemented yet ~S" triple-pattern))
 				   (let* ((beta-memory (cond ((typep prev 'beta-memory) prev)
 							     (t (make-or-share-instance 'beta-memory :prev prev))))
 					  (triple-pattern-node (make-or-share-instance 'triple-pattern-node :triple-pattern triple-pattern :dataset dataset))
@@ -233,7 +233,7 @@
 							 :beta beta-memory :alpha alpha-memory))
 		      prev))
 		   (t
-		    (translate-failure "Cannot translate ~S" expr)
+		    (translate-failure "Cannot translate ~S within ~S" expr sae)
 		    nil)))))
       (translate sae nil nil)
       (values new-nodes nil))))

@@ -82,10 +82,11 @@
 			    for item in (getf clauses :project)
 ;			    do (inform "get-project-vars: item = ~S" item)
 			    when (sparql-var-p item)
-			    do (cond ((not (find-sparql-var item scope-vars))
-				      (sparql-parse-error "Variable ~S not in SELECT" (uniquely-named-object-name item)))
-				     (t
-				      (push-to-end item project-vars)))
+			    do (push-to-end item project-vars)
+			    ;; do (cond ((not (find-sparql-var item scope-vars))
+			    ;; 	      (sparql-parse-error "Variable ~S not in SELECT" (uniquely-named-object-name item)))
+			    ;; 	     (t
+			    ;; 	      (push-to-end item project-vars)))
 			    else
 			    do (let ((var (second item)))
 ;				 (inform "AS expression ~S, var = ~S, scope-vars ~S" item var scope-vars)

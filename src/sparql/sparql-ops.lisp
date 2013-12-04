@@ -723,4 +723,39 @@
 ;; bool		Y	Y	Y	Y	Y	N	Y
 ;; IRI		Y	N	N	N	N	N	N
 ;; ltrl		Y	M	M	M	M	M	M
+(define-sparql-function "xsd:string" (:arguments ((arg term-or-value)) :returns xsd-string-value)
+  (:method ((arg term-or-value))
+    (declare (ignorable arg))
+    (error "Not implemented yet!")))
+
+(define-sparql-function "xsd:float" (:arguments ((arg term-or-value)) :returns xsd-float-value)
+  (:method ((arg term-or-value))
+    (declare (ignorable arg))
+    (error "Not implemented yet!")))
+
+(define-sparql-function "xsd:double" (:arguments ((arg term-or-value)) :returns xsd-double-value)
+  (:method ((arg term-or-value))
+    (declare (ignorable arg))
+    (error "Not implemented yet!")))
+
+(define-sparql-function "xsd:decimal" (:arguments ((arg term-or-value)) :returns xsd-decimal-value)
+  (:method ((arg term-or-value))
+    (declare (ignorable arg))
+    (error "Not implemented yet!")))
+
+(define-sparql-function "xsd:integer" (:arguments ((arg term-or-value)) :returns xsd-integer-value)
+  (:method ((arg term-or-value))
+    (declare (ignorable arg))
+    (error "Not implemented yet!")))
+
+(define-sparql-function "xsd:dateTime" (:arguments ((arg term-or-value)) :returns xsd-datetime-value)
+  (:method ((arg term-or-value))
+    (declare (ignorable arg))
+    (error "Not implemented yet!")))
+
+(define-sparql-function "xsd:boolean" (:arguments ((arg term-or-value)) :returns xsd-boolean-value)
+  (:method ((arg term-or-value))
+    (declare (ignorable arg))
+    (error "Not implemented yet!")))
+
 
