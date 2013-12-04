@@ -53,13 +53,15 @@
   (push-to-end (apply #'format nil (format nil "~%~A" fmt) args) *parser-error-messages*))
 
 (defun build-query-expression (clauses)
+;  (inform "build-query-expression clauses = ~S" clauses)
   (let ((form (getf clauses :query-form))
 	(ggp (getf clauses :where)))
     (remf clauses :query-form)
     (remf clauses :where)
+;    (inform "                       form = ~S, ggp = ~S" form ggp)
     (flet ((get-project-vars ()
-	     (let ((scope-vars (getf (rest ggp) :scope-vars)))
-;	       (inform "ggp = ~S~%scope-vars = ~S" ggp scope-vars)
+	     (let ((scope-vars (getf (rest ggp) (if (eq (car ggp) 'SELECT) :project-vars :scope-vars))))
+;	       (inform "                       scope-vars = ~S" scope-vars)
 	       (loop for item in (getf clauses :group-by)
 		     when (and (consp item) (eq (car item) 'AS))
 		     do (let ((var (second item)))
@@ -71,6 +73,7 @@
 		     (t
 		      (loop with project-vars = nil
 			    for item in (getf clauses :project)
+;			    do (inform "get-project-vars: item = ~S" item)
 			    when (sparql-var-p item)
 			    do (cond ((not (find-sparql-var item scope-vars))
 				      (sparql-parse-error "Variable ~S not in SELECT" item))
@@ -78,6 +81,7 @@
 				      (push-to-end item project-vars)))
 			    else
 			    do (let ((var (second item)))
+;				 (inform "AS expression ~S, var = ~S, scope-vars ~S" item var scope-vars)
 				 (cond ((find-sparql-var var scope-vars)
 					(sparql-parse-error "Variable ~S already bound" var))
 				       (t

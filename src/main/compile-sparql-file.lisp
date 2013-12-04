@@ -5,7 +5,7 @@
 
 (in-package #:instans)
 
-(defun compile-sparql-file (file &key instans instans-name output-directory (mkhtml-script "mk-html1") base silentp)
+(defun compile-sparql-file (file &key instans instans-name output-directory (mkhtml-script "mk-html1") base (silentp t))
   (with-open-file (input-stream file)
     (compile-sparql-stream input-stream :input-name file :instans instans :instans-name instans-name :output-directory output-directory :mkhtml-script mkhtml-script :base base :silentp silentp)))
 
