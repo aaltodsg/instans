@@ -382,4 +382,7 @@
   (run-syntax-tests "../tests/input/syntax-test.rq" "../tests/data-r2" "http://www.w3.org/2001/sw/DataAccess/tests/data-r2" t)
   (run-syntax-tests "../tests/input/syntax-test.rq" "../tests/data-sparql11" "http://www.w3.org/2009/sparql/docs/tests/data-sparql11" t))
 
+;; (defun run-all-syntax-tests ()
+;;   (sparql-call "instans:execute_system" "/Users/enu/instans/tests/input/syntax-test-runner.rq" )
+
 ;(progn (untrace) (trace rete-add token-value make-token add-token remove-token add-alpha-token remove-alpha-token add-beta-token remove-beta-token))

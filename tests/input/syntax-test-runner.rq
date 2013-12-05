@@ -9,10 +9,9 @@ PREFIX dawgt:  <http://www.w3.org/2001/sw/DataAccess/tests/test-dawg#>
 
 SELECT *
 WHERE {
-      { SELECT ?path ?manifest WHERE {
-      	     ?subj rdf:first ?manifest
-	     FILTER(strends(str(?manifest), "manifest.ttl"))
-	     BIND(strbefore(str(?manifest),"manifest.ttl") AS ?path)
-      }}
+      { ?subj rdf:first ?manifest
+        FILTER(strends(str(?manifest), "manifest.ttl"))
+      }
+      BIND(strbefore(str(?manifest),"manifest.ttl") AS ?path)
       BIND(instans:execute_system(scripts:syntax-test.rq, ?manifest, rdf:nil, rdf:nil, iri(?path)) AS ?ok)
 }
