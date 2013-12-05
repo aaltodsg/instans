@@ -9,8 +9,8 @@ clean:
 compile:
 	sbcl --load docompile.lisp --quit
 
-run-tests:
-	./run-tests
+initialize:
+	sh check-configuration.sh
 
 .SILENT: run-tests
 
