@@ -1,4 +1,6 @@
 #!/bin/sh
+ROOT=`dirname $0`
+cd $ROOT
 LOG=log.config
 rm -f $LOG
 touch $LOG
@@ -70,6 +72,6 @@ msg "    sbcl --core sbcl.core-for-instans"
 msg
 msg "or by using make:"
 msg
-msg "make run-instans"
+msg "make run"
 msg
-exec sbcl --eval "(with-open-file (str \"$LOG\" :direction :output :if-exists :append) (let ((*error-output* str) (*standard-output* str)) (require 'sb-bsd-sockets) (require 'sb-posix) (require 'sb-introspect) (require 'sb-cltl2) (require 'asdf) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans) (save-lisp-and-die \"sbcl.core-for-instans\")))"
+exec sbcl --eval "(with-open-file (str \"$LOG\" :direction :output :if-exists :append) (let ((*error-output* str) (*standard-output* str)) (require 'sb-bsd-sockets) (require 'sb-posix) (require 'sb-introspect) (require 'sb-cltl2) (require 'asdf) (push (probe-file \"$ROOT\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans) (save-lisp-and-die \"sbcl.core-for-instans\")))"

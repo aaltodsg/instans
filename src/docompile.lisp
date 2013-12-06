@@ -1,3 +1,3 @@
 (require 'asdf)
-;(asdf:operate 'asdf:compile-op "instans")
+(push (probe-file ".") asdf:*central-registry*)
 (asdf:compile-system "instans")
