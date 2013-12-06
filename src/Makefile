@@ -3,7 +3,7 @@ CACHE=$(subst VERSION,$(VERSION),$(HOME)/.cache/common-lisp/sbcl-VERSION-macosx-
 QUICKLISP=$(HOME)/quicklisp
 CORE=sbcl.core-for-instans
 
-all: clean initialize compile
+all: clean initialize
 
 clean:
 	rm -rf $(CACHE)
@@ -16,8 +16,6 @@ compile:
 
 initialize:
 	sh check-configuration.sh
-
-$(CORE): initialize
 
 run: $(CORE)
 	sbcl --core $(CORE)
