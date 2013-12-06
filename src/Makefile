@@ -1,10 +1,15 @@
 VERSION := $(subst SBCL ,,$(shell sbcl --version))
 CACHE=$(subst VERSION,$(VERSION),$(HOME)/.cache/common-lisp/sbcl-VERSION-macosx-x64$(HOME)/instans/)
+QUICKLISP=$(HOME)/quicklisp
+CORE=sbcl.core-for-instans
 
-all: clean compile
+all: clean initialize compile
 
 clean:
 	rm -rf $(CACHE)
+
+clean_all: clean
+	rm -rf $(CORE) $(QUICKLISP)
 
 compile:
 	sbcl --load docompile.lisp --quit
@@ -12,6 +17,11 @@ compile:
 initialize:
 	sh check-configuration.sh
 
-.SILENT: run-tests
+$(CORE): initialize
 
-.PHONY: all clean compile run-tests
+run: $(CORE)
+	sbcl --core $(CORE)
+
+.SILENT: all clean clean_all compile initialize run
+
+.PHONY: all clean clean_all compile initialize run
