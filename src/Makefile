@@ -3,7 +3,7 @@ CACHE=$(subst VERSION,$(VERSION),$(HOME)/.cache/common-lisp/sbcl-VERSION-macosx-
 QUICKLISP=$(HOME)/quicklisp
 CORE=sbcl.core-for-instans
 
-all: clean initialize
+all: clean initialize download_testsuites
 
 clean:
 	rm -rf $(CACHE)
@@ -20,6 +20,12 @@ initialize:
 run: $(CORE)
 	sbcl --core $(CORE)
 
-.SILENT: all clean clean_all compile initialize run
+syntax_tests:
+	sh run-syntax-tests
 
-.PHONY: all clean clean_all compile initialize run
+download_testsuites:
+	(cd ../tests; sh download-testsuites)
+
+.SILENT: all clean clean_all compile initialize run download_testsuites
+
+.PHONY: all clean clean_all compile initialize run download_testsuites
