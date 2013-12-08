@@ -25,12 +25,13 @@
 
 (defsystem "instans"
   :description "A Standing SPARQL Query Evaluator"
-  :version "0.1"
+  :version "0.0.1"
   :author "Esko Nuutila <esko.nuutila@aalto.fi>"
   :licence "Not defined yet"
   :depends-on (#:cl-ppcre #:cl-ppcre-unicode)
   :components ((:module "util"
-			:components ((:file "macros")
+			:components ((:file "version")
+				     (:file "macros")
 				     (:file "misc" :depends-on ("macros"))
 				     (:file "mix")
 				     (:file "where-am-i")))
