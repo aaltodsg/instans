@@ -17,7 +17,8 @@ BIN=${ROOT}/bin
 SYNTAX_TEST_RESULTS=${TESTS}/syntax-test-results
 DATATABLES=${SYNTAX_TEST_RESULTS}/DataTables
 LISP_CONFIGURATION=${INIT}/lisp-configuration
-SBCL_INSTANS_CORE=${BIN}/instans-core.sbcl
+SBCL_INSTANS_CORE=${BIN}/sbcl-instans.core
+EXECUTABLE=${BIN}/instans
 
 echo "Detecting your Lisp configuration"
 
@@ -57,10 +58,15 @@ if test "$QUICKLISP" = "no"; then
 fi
 test "$ASDF" = "yes" || die "No ASDF found. It should come with $LISP_IMPLEMENTATION_TYPE. You may try to install it from http://common-lisp.net/project/asdf/ and then try again."
 echo
+echo "Building $EXECUTABLE"
+cd $SRC
+echo sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans))" --eval "(sb-ext:save-lisp-and-die \"${EXECUTABLE}\" :toplevel (quote instans:main) :executable t)" --quit
+sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans))" --eval "(sb-ext:save-lisp-and-die \"${EXECUTABLE}\" :toplevel (quote instans:main) :executable t)" --quit
+echo
 echo "Creating a custom Lisp image for Instans in file ${SBCL_INSTANS_CORE}"
 cd $SRC
-echo sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans) (save-lisp-and-die \"${SBCL_INSTANS_CORE}\"))" --quit
-sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans) (save-lisp-and-die \"${SBCL_INSTANS_CORE}\"))" --quit
+echo sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans) (sb-ext:save-lisp-and-die \"${SBCL_INSTANS_CORE}\"))" --quit
+sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans) (sb-ext:save-lisp-and-die \"${SBCL_INSTANS_CORE}\"))" --quit
 cd $TESTS
 if test -d data-r2; then
     echo "data-r2 already exists, skipping downloading it"

@@ -18,7 +18,7 @@
 
 (defpackage #:instans
   (:use #:common-lisp) ; #:lisp-unit
-  (:export "SPARQL-TESTS"))
+  (:export "SPARQL-TESTS" "MAIN"))
 
 (defpackage #:instans-internal ;;; for interning some generated names
   (:use #:common-lisp))
@@ -32,7 +32,8 @@
   :components ((:module "util"
 			:components ((:file "macros")
 				     (:file "misc" :depends-on ("macros"))
-				     (:file "mix")))
+				     (:file "mix")
+				     (:file "where-am-i")))
 	       (:module "sparql" :depends-on ("util")
 			:components ((:file "parse-values")
 				     (:file "datetime")
@@ -76,7 +77,7 @@
 	       (:module "main" :depends-on ("util" "sparql" "parser" "rete")
 	       		:components ((:file "translate-sparql-algebra-to-rete")
 	       			     (:file "compile-sparql-file")
-;				     (:file "testing")
+				     (:file "instans")
 				     ))))
 
 (progn (setf *print-circle* nil) (setf *print-right-margin* 250))

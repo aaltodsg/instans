@@ -1,52 +1,23 @@
 #!/bin/sh
-TMP=$$_main.lisp
-cat << EOF > $TMP
-(with-open-file (*standard-output* "/dev/null" :direction :output
-                                   :if-exists :supersede)
-(asdf:load-system :instans))
-(in-package #:instans)
-;(run-data-r2-syntax-tests '("syntax-sparql5"))
-;(run-data-sparql11-syntax-tests)
-(run-all-syntax-tests)
-EOF
 ROOT=`pwd`
-RESULTSDIR=syntax-test-results
-TEST_OUTPUT=syntax-test-results/results
+RESULTSDIR=tests/syntax-test-results
+TEST_OUTPUT=${RESULTSDIR}/results
 if test ! -d $RESULTSDIR; then
   echo "Directory \"$RESULTSDIR\" does not exist; creating it"
   mkdir $RESULTSDIR
   echo
 fi
 if test $# -eq 0 ; then
-  /bin/echo -n "Running the tests... "
-  sbcl --noinform --noprint --load $TMP --quit > $TEST_OUTPUT 2>&1
-  echo "File \"$TEST_OUTPUT\" contains the test output."
+    /bin/echo -n "Running tests ... "
+    bin/sbcl-instans --noinform --eval '(run-all-syntax-tests)' --quit > $TEST_OUTPUT 2>&1
+    echo "File \"$TEST_OUTPUT\" contains the test output."
 elif test -f $TEST_OUTPUT; then
-  echo "Using the old results in $TEST_OUTPUT"  
+    echo "Using the old results in $TEST_OUTPUT"  
 else
-  echo "No results in $TEST_OUTPUT!"
-  exit 1
+    echo "No results in $TEST_OUTPUT!"
+    exit 1
 fi
-rm -rf $TMP
-DATATABLES=$RESULTSDIR/DataTables
-if test ! -d $DATATABLES ; then
-  echo
-#  /bin/echo -n "Did not found $DATATABLES. Would you like to install it? "
-  # read answer
-  # if test "$answer" != "y" && "$answer" != "yes"; then
-  #     exit 0
-  # fi
-  echo "Did not found \"$DATATABLES\"; installing it."
-  echo "Downloading http://datatables.net/releases/DataTables-1.9.4.zip"
-  curl -s -O http://datatables.net/releases/DataTables-1.9.4.zip
-  unzip -q -d $RESULTSDIR DataTables-1.9.4.zip
-  ln -s DataTables-1.9.4 $RESULTSDIR/DataTables
-  echo "Cloning https://github.com/cyberhobo/ColumnFilterWidgets.git into $DATATABLES/extras"
-  cd $DATATABLES/extras
-  git clone -q https://github.com/cyberhobo/ColumnFilterWidgets.git
-  cd $ROOT
-fi
-REPORT_HTML=syntax-test-results/index.html
+REPORT_HTML=${RESULTSDIR}/index.html
 cat > $REPORT_HTML <<EOF
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <html>
@@ -176,6 +147,6 @@ END {
 }
 EOF
 awk -f $AWK < $TEST_OUTPUT >> $REPORT_HTML
-#rm -rf $AWK
+rm -rf $AWK
 echo
 echo "File \"$REPORT_HTML\" contains the test results in HTML form."

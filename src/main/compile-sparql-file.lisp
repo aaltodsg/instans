@@ -5,11 +5,12 @@
 
 (in-package #:instans)
 
-(defun compile-sparql-file (file &key instans instans-name output-directory (mkhtml-script "../scripts/make-rete-html-page.sh") base (silentp t))
+(defun compile-sparql-file (file &key instans instans-name output-directory make-rete-html-page-script base (silentp t))
   (with-open-file (input-stream file)
-    (compile-sparql-stream input-stream :input-name file :instans instans :instans-name instans-name :output-directory output-directory :mkhtml-script mkhtml-script :base base :silentp silentp)))
+    (compile-sparql-stream input-stream :input-name file :instans instans :instans-name instans-name :output-directory output-directory
+			   :make-rete-html-page-script make-rete-html-page-script :base base :silentp silentp)))
 
-(defun compile-sparql-stream (stream &key input-name instans instans-name output-directory (mkhtml-script "mk-html1") (parser #'sparql-parse-stream) base silentp)
+(defun compile-sparql-stream (stream &key input-name instans instans-name output-directory (make-rete-html-page-script (find-make-rete-html-script)) (parser #'sparql-parse-stream) base silentp)
   (declare (special *node-color-alist*))
   (setf *node-color-alist* nil)
   (when (null instans)
@@ -57,10 +58,11 @@
 	    (setf string (cl-ppcre:regex-replace-all ">" (cl-ppcre:regex-replace-all "<"  string "&lt;") "&gt;"))
 	    (format out "~A" string)))
 	(print-dot-file instans dot-output-file :html-labels-p nil)
-	(assert (probe-file mkhtml-script))
+	(when (pathnamep make-rete-html-page-script) (setf make-rete-html-page-script (namestring make-rete-html-page-script)))
+	(assert (probe-file make-rete-html-page-script))
 	(unless silentp
-	  (inform "Running ~S on ~S" mkhtml-script input-name))
-	(shell-script mkhtml-script input-name output-directory)))
+	  (inform "Running ~S on ~S" make-rete-html-page-script input-name))
+	(shell-script make-rete-html-page-script input-name output-directory)))
       instans))
 
 (defun compile-sparql-algebra-expr (instans algebra-expr &key (color "Black") silentp)
