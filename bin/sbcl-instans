@@ -1,0 +1,15 @@
+#!/bin/sh
+function die () {
+    echo $*
+    exit 1
+}
+CORE=instans-core.sbcl
+cd `dirname $0`
+test -f ${CORE} || die "Cannot find the core file ${CORE}. Run ./configure at your instans installations root directory to create it".
+exec sbcl --core ${CORE} $*
+
+
+
+
+
+

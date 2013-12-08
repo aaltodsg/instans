@@ -1,21 +1,27 @@
 #!/bin/sh
+cd `dirname $0`
 ROOT=`pwd`
+echo "Running `basename $0` in directory $ROOT"
+echo
 LAST=`echo $ROOT | sed '/^.*[/]\([^/]*\)^/s//\1/'`
-function dir () {
-	 echo $*
-	 exit 1
+function die () {
+    echo $*
+    exit 1
 }
 test "$LAST" != instans || die "You should run this script in the instans root directory!"
 
 SRC=${ROOT}/src
 TESTS=${ROOT}/tests
 INIT=${ROOT}/init
+BIN=${ROOT}/bin
 SYNTAX_TEST_RESULTS=${TESTS}/syntax-test-results
 DATATABLES=${SYNTAX_TEST_RESULTS}/DataTables
 LISP_CONFIGURATION=${INIT}/lisp-configuration
+SBCL_INSTANS_CORE=${BIN}/instans-core.sbcl
 
 echo "Detecting your Lisp configuration"
 
+echo sbcl --noinform --load init/output-configuration.lisp --eval "(output-configuration \"$LISP_CONFIGURATION\")" --quit
 sbcl --noinform --load init/output-configuration.lisp --eval "(output-configuration \"$LISP_CONFIGURATION\")" --quit
 
 LISP_IMPLEMENTATION_TYPE=`sed -n "/^lisp-implementation-type:[ ]*\([^ ]*\)$/s//\1/p" ${LISP_CONFIGURATION}`
@@ -51,17 +57,10 @@ if test "$QUICKLISP" = "no"; then
 fi
 test "$ASDF" = "yes" || die "No ASDF found. It should come with $LISP_IMPLEMENTATION_TYPE. You may try to install it from http://common-lisp.net/project/asdf/ and then try again."
 echo
-echo "Creating a custom Lisp image for Instans in file 'sbcl.core-for-instans'."
-echo "After this, you should now be able to run sbcl with the special image by command:"
-echo
-echo "    sbcl --core sbcl.core-for-instans"
-echo
-echo "or by using make:"
-echo
-echo "make run"
-echo
+echo "Creating a custom Lisp image for Instans in file ${SBCL_INSTANS_CORE}"
 cd $SRC
-sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans) (save-lisp-and-die \"sbcl.core-for-instans\"))" --quit
+echo sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans) (save-lisp-and-die \"${SBCL_INSTANS_CORE}\"))" --quit
+sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans) (save-lisp-and-die \"${SBCL_INSTANS_CORE}\"))" --quit
 cd $TESTS
 if test -d data-r2; then
     echo "data-r2 already exists, skipping downloading it"
@@ -97,3 +96,13 @@ if test ! -d $DATATABLES ; then
   git clone -q https://github.com/cyberhobo/ColumnFilterWidgets.git
   cd $ROOT
 fi
+echo "Configuration done."
+echo
+echo "Run Lisp with INSTANS by:"
+echo
+echo "    instans/bin/sbcl-instans [SBCL arguments]"
+echo
+echo "Run INSTANS on command line by"
+echo
+echo "    instans/bin/instans [INSTANS arguments]"
+echo
