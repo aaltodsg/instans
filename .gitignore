@@ -5,3 +5,10 @@
 *.sa
 .DS_Store
 
+bin/instans-core.sbcl
+init/LISP-CONFIGURATION
+tests/data-r2
+tests/data-sparql11
+tests/output
+tests/syntax-test-results
+MKHTML_LOG
