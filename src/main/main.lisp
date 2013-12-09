@@ -23,10 +23,12 @@
 	       (format notifications "  -v or --version                                        Print version information and exit.~%")
 	       (format notifications "  -m <file or url> or --manifest <file or url>           Run instans using the configuration in <file or url>~%")
 	       (format notifications "~%Configuration options:~%")
+	       (format notifications "  -b <url> or --base <url>                               Use <url> as the base.~%")
 	       (format notifications "  -r <file or url> or --rules <file or url>              Use rules in <file or url>.~%")
 	       (format notifications "  -t <file or url> or --triples <file or url>            Input all triples in <file or url>.~%")
 	       (format notifications "  -i <url> or --input-stream <url>                       Input triples contiuously from stream.~%")
 	       (format notifications "  -o <file or url> or --output-stream <file or url>      Write output to <file or url>.~%")
+	       (format notifications "  -e <file or url> or --expect <file or url>             Expect the execution to yield the results in <file or url>.~%")
 	       (return-from main nil))
 	     (simple-option (&rest values)
 	       ;; (inform "simple-option arg=~S, values=~S" (first args) values)
@@ -48,7 +50,9 @@
 	     (setf configuration (parse-manifest (first args))))
 	    (t
 	     (loop while args
-		   do (cond ((value-option "-r" "--rules")
+		   do (cond ((value-option "-b" "--base")
+			     (push-to-end (list :base (pop args)) configuration))
+			    ((value-option "-r" "--rules")
 			     (push-to-end (list :rules (pop args)) configuration))
 			    ((value-option "-t" "--triples")
 			     (push-to-end (list :triples (pop args)) configuration))
@@ -56,6 +60,8 @@
 			     (push-to-end (list :input-stream (pop args)) configuration))
 			    ((value-option "-o" "--output-stream")
 			     (push-to-end (list :output-stream (pop args)) configuration))
+			    ((value-option "-e" "--expect")
+			     (push-to-end (list :expect (pop args)) configuration))
 			    (t
 			     (format notifications "Illegal option ~A~%" (first args))
 			     (usage))))))
