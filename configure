@@ -1,7 +1,7 @@
 #!/bin/sh
 cd `dirname $0`
 ROOT=`pwd`
-echo "Running `basename $0` in directory $ROOT"
+echo "In directory $ROOT: running `basename $0` $*"
 echo
 LAST=`echo $ROOT | sed '/^.*[/]\([^/]*\)^/s//\1/'`
 function die () {
@@ -9,7 +9,11 @@ function die () {
     exit 1
 }
 test "$LAST" != instans || die "You should run this script in the instans root directory!"
-
+if test "$1" = "--clean" -o "$1" = "-c"; then
+    CLEAN="true"
+else
+    CLEAN="false"
+fi
 SRC=${ROOT}/src
 TESTS=${ROOT}/tests
 INIT=${ROOT}/init
@@ -19,6 +23,12 @@ DATATABLES=${SYNTAX_TEST_RESULTS}/DataTables
 LISP_CONFIGURATION=${INIT}/lisp-configuration
 SBCL_INSTANS_CORE=${BIN}/sbcl-instans.core
 EXECUTABLE=${BIN}/instans.bin
+
+if test "$CLEAN" = "true"; then
+    rm -rf $HOME/quicklisp
+    rm -rf data-r2 data-sparql11
+    rm -rf $DATATABLES $DATATABLES-*
+fi
 
 echo "Detecting your Lisp configuration"
 
@@ -54,13 +64,18 @@ if test "$QUICKLISP" = "no"; then
     echo "Trying to download http://beta.quicklisp.org/quicklisp.lisp with curl"
     curl -s -O http://beta.quicklisp.org/quicklisp.lisp || die "Curl failed. Check http://www.quicklisp.org/beta/ how to install Quicklisp"
     echo "Trying to install Quicklisp into ~/quicklisp. Also updating your ~/.sbclrc file to automatically use Quicklisp"
-    sbcl --noinform --load quicklisp.lisp --eval "(quicklisp-quickstart:install)" --eval  "(ql:add-to-init-file)" --quit
+    yes | sbcl --noinform --load quicklisp.lisp \
+	       --eval "(quicklisp-quickstart:install)" \
+               --eval  "(let ((*query-io* (make-two-way-stream *standard-input* *standard-output*))) (ql:add-to-init-file))" --quit
     rm quicklisp.lisp
 fi
 test "$ASDF" = "yes" || die "No ASDF found. It should come with $LISP_IMPLEMENTATION_TYPE. You may try to install it from http://common-lisp.net/project/asdf/ and then try again."
 echo
 echo "Building $EXECUTABLE"
 cd $SRC
+if test "$CLEAN" = "true"; then
+    make
+fi
 echo sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans))" --eval "(sb-ext:save-lisp-and-die \"${EXECUTABLE}\" :toplevel (quote instans:main) :executable t)" --quit
 sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans))" --eval "(sb-ext:save-lisp-and-die \"${EXECUTABLE}\" :toplevel (quote instans:main) :executable t)" --quit
 echo

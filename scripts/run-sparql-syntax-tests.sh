@@ -1,6 +1,9 @@
 #!/bin/sh
+cd `dirname $0`/.. > /dev/null
 ROOT=`pwd`
-RESULTSDIR=tests/syntax-test-results
+BIN=${ROOT}/bin
+cd tests > /dev/null
+RESULTSDIR=syntax-test-results
 TEST_OUTPUT=${RESULTSDIR}/results
 if test ! -d $RESULTSDIR; then
   echo "Directory \"$RESULTSDIR\" does not exist; creating it"
@@ -8,8 +11,9 @@ if test ! -d $RESULTSDIR; then
   echo
 fi
 if test $# -eq 0 ; then
+    pwd
     /bin/echo -n "Running tests ... "
-    bin/sbcl-instans --noinform --eval '(run-all-syntax-tests)' --quit > $TEST_OUTPUT 2>&1
+    ${BIN}/sbcl-instans --noinform --eval '(run-all-syntax-tests)' --quit > $TEST_OUTPUT 2>&1
     echo "File \"$TEST_OUTPUT\" contains the test output."
 elif test -f $TEST_OUTPUT; then
     echo "Using the old results in $TEST_OUTPUT"  
