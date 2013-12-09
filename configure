@@ -18,7 +18,7 @@ SYNTAX_TEST_RESULTS=${TESTS}/syntax-test-results
 DATATABLES=${SYNTAX_TEST_RESULTS}/DataTables
 LISP_CONFIGURATION=${INIT}/lisp-configuration
 SBCL_INSTANS_CORE=${BIN}/sbcl-instans.core
-EXECUTABLE=${BIN}/instans
+EXECUTABLE=${BIN}/instans.bin
 
 echo "Detecting your Lisp configuration"
 
@@ -31,6 +31,7 @@ MINIMUM_SBCL_VERSION_FOR_INSTANS=`sed -n "/^minimum-sbcl-version-for-instans:[ ]
 CONSISTENT_SBCL_VERSION=`sed -n "/^consistent-sbcl-version:[ ]*\([^ ]*\)$/s//\1/p" ${LISP_CONFIGURATION}`
 QUICKLISP=`sed -n "/^quicklisp:[ ]*\([^ ]*\)$/s//\1/p" ${LISP_CONFIGURATION}`
 ASDF=`sed -n "/^asdf:[ ]*\([^ ]*\)$/s//\1/p" ${LISP_CONFIGURATION}`
+rm ${LISP_CONFIGURATION}
 echo
 echo "Detected the following configuration:"
 echo "  LISP_IMPLEMENTATION_TYPE=$LISP_IMPLEMENTATION_TYPE"

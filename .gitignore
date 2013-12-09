@@ -12,4 +12,4 @@ tests/data-sparql11
 tests/output
 tests/syntax-test-results
 MKHTML_LOG
-bin/instans
+bin/instans.bin
