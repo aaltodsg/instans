@@ -43,7 +43,7 @@
 
 (defgeneric add-rules-from-file (instans rules-file &key output-directory)
   (:method ((this instans) rules-file &key output-directory)
-    (compile-sparql-file rules-file :instans this :output-directory output-directory)))
+    (compile-sparql-file rules-file :instans this :rete-html-page-dir output-directory)))
 
 (defgeneric rete-add-rule-instance (instans node token)
   (:method ((this instans) (node node) token)
@@ -260,9 +260,26 @@
 ;;; Execution
 ;;; ---------
 
+(defgeneric process-triple-input (instans triples ops &key graph)
+  (:method ((this instans) triples ops &key graph)
+    (when (symbolp ops)
+      (setf ops (list ops)))
+    (loop for op in ops 
+	 do (case op
+	      (:add
+	       (loop for (subj pred obj) in triples
+		     do (rete-add this subj pred obj graph)))
+	      (:remove
+	       (loop for (subj pred obj) in triples 
+		     do (rete-remove this subj pred obj graph)))
+	      (:execute
+	       (execute-rules this))
+	      (t
+	       (error* "Illegal op ~S" op))))))
+
 (defgeneric execute-rules (instans)
   (:method ((this instans))
-    (let* ((policy (instans-execution-policy this))
+    (let* ((policy (instans-rule-execution-policy this))
 	   (queue (instans-rule-instance-queue this)))
       (case policy
 	(:first
@@ -274,29 +291,6 @@
 	(:repeat-snapshot
 	 (loop while (rule-instance-queue-execute-snapshot queue)))
 	(t (error* "Unknown execution policy ~A" policy))))))
-
-(defgeneric execute-system (instans)
-  (:method ((this instans))
-    (initialize-execution this)
-    (let ((input-function (instans-input-function this))
-	  (input-function-arguments (instans-input-function-arguments this)))
-      (loop for input = (apply input-function input-function-arguments)
-	    while input
-	    do (incf (instans-input-count this))
-	    do (let ((op (if (member (car input) '(:add :remove :add-exec-remove)) (pop input) :add)))
-		 (case op
-		   (:add
-		    (loop for (s p o g) in input do (rete-add this s p o g))
-		    (execute-rules this))
-		   (:remove
-		    (loop for (s p o g) in input do (rete-remove this s p o g))
-		    (execute-rules this))
-		   (:execute
-		    (loop for (s p o g) in input do (rete-add this s p o g))
-		    (execute-rules this)
-		    (loop for (s p o g) in input do (rete-remove this s p o g)))
-		   (t
-		    (error* "Illegal op ~S" op))))))))
 
 (defun call-succ-nodes (func node token stack)
   (cond ((null stack)

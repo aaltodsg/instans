@@ -149,23 +149,6 @@
 	(time (funcall triples-parser triples-lexer))
 	instans)))))
 
-(defgeneric process-triple-input (instans triples ops &key graph)
-  (:method ((this instans) triples ops &key graph)
-    (when (symbolp ops)
-      (setf ops (list ops)))
-    (loop for op in ops 
-	 do (case op
-	      (:add
-	       (loop for (subj pred obj) in triples
-		     do (rete-add this subj pred obj graph)))
-	      (:remove
-	       (loop for (subj pred obj) in triples 
-		     do (rete-remove this subj pred obj graph)))
-	      (:execute
-	       (execute-rules this))
-	      (t
-	       (error* "Illegal op ~S" op))))))
-
 (defvar *instanses*)
 (eval-when (:load-toplevel :execute)
   (setf *instanses*  (make-hash-table :test #'equal)))

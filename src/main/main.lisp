@@ -7,6 +7,12 @@
 
 ;(save-lisp-and-die "executable" :toplevel 'main :executable t)
 
+(defun parse-colon-separated-values (string)
+  (loop while (> (length string) 0)
+        collect (let ((pos (or (position #\: string) (length string))))
+		  (prog1 (subseq string 0 pos) (setf string (subseq string (min (length string) (1+ pos))))))))
+	     
+
 (defun process-configuration (configuration)
   (multiple-value-bind (instans instans-iri) (create-instans)
     (loop with base = nil
@@ -24,6 +30,10 @@
 	       (:output-stream (inform "Output streams not implemented yet!"))
 	       (:expect (inform "Expect not implemented yet!"))
 	       (:verbose (setf verbose (equalp (string-downcase value) "true")))
+	       (:triple-input-policy (setf (instans-triple-input-policy instans) (intern value :keyword)))
+	       (:triple-processing-policy (setf (instans-triple-processing-policy instans) (parse-colon-separated-values value)))
+	       (:rule-instance-removal-policy (setf (instans-rule-instance-removal-policy instans) (intern value :keyword)))
+	       (:rule-execution-policy (setf (instans-rule-execution-policy instans) (intern value :keyword)))
 	       (:rete-html-page-dir (setf rete-html-page-dir value))))))
 
 (defun main ()
@@ -74,8 +84,8 @@
     (setf configuration-options `((:name          (("-n" "<string>") ("--name" "<string>")) "Use <string> as the name of the system.")
 				  (:base          (("-b" "<url>") ("--base" "<url>")) "Use <url> as the base.")
 				  (:graph         (("-g" "<dataset>") ("--graph" "<dataset>")) "If <dataset> is 'default' add the following triple~%~
-                                                                                                ~52Tinputs to the default graph. If it is <url> add them~%~
-                                                                                                ~52Tto the graph named by <url>")
+                                                                                               ~52Tinputs to the default graph. If it is <url> add them~%~
+                                                                                               ~52Tto the graph named by <url>")
 				  (:rules         (("-r" "<file or url>") ("--rules" "<file or url>")) "Use rules in <file or url>.")
 				  (:triples       (("-t" "<file or url>") ("--triples" "<file or url>")) "Input all triples in <file or url>.")
 				  (:input-stream  (("-i" "<url>")         ("--input-stream" "<url>")) "Input triples contiuously from stream.")
@@ -83,8 +93,12 @@
 				  (:expect        (("-e" "<file or url>") ("--expect" "<file or url>")) "Expect the execution to yield the results in <file or url>.")
 				  (:file          (("-f" "<file or url>") ("--file" "<file or url>")) "Read options from <file or url>."
 				   ,#'(lambda (arg value) (declare (ignore arg)) (setf args (append (read-args-from-file value) args))))
-				  (:verbose       (("--verbose" "<true or false>")) "Whether to produce lots of diagnostic information.")
-				  (:rete-html-page-dir (("--rete-html-page-dir" "<dir>")) "Create an HTML page presenting the Rete network.")))
+				  (:verbose       (("--verbose" "<boolean>")) "Whether to produce lots of diagnostic information.")
+				  (:triple-input-policy          (("--triple-input-policy" "<policy>")) "Set the triple input policy. See documentation.")
+				  (:triple-processing-policy     (("--triple-processing-policy" "<policy>")) "Set the triple processing policy. See documentation.")
+				  (:rule-instance-removal-policy (("--rule-instance-removal-policy" "<boolean>")) "Set the rule instance removal policy. See documentation.")
+				  (:rule-execution-policy        (("--rule-execution-policy" "<policy>")) "Set the rule execution policy. See documentation.")
+				  (:rete-html-page-dir           (("--rete-html-page-dir" "<dir>")) "Create an HTML page presenting the Rete network.")))
       (pop args) ; Program path
       (when (equalp (first args) "--end-toplevel-options") (pop args)) ; Inserted by wrapper script
       (when (null args) (usage))
@@ -93,6 +107,7 @@
 	  (loop while args
 		unless (parse-arg configuration-options t)
 	        do (pop args))
-	  (when configuration (format notifications "Configuration:~%~{~{~S~^ ~}~^~%~}~%" configuration)))))))
-
+	  (when configuration
+	    (format notifications "Configuration:~%~{~{~S~^ ~}~^~%~}~%" configuration)
+	    (process-configuration configuration)))))))
 
