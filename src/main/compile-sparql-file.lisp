@@ -5,12 +5,12 @@
 
 (in-package #:instans)
 
-(defun compile-sparql-file (file &key instans instans-name output-directory make-rete-html-page-script base (silentp t))
+(defun compile-sparql-file (file &key instans instans-name rete-html-page-dir make-rete-html-page-script base (silentp t))
   (with-open-file (input-stream file)
-    (compile-sparql-stream input-stream :input-name file :instans instans :instans-name instans-name :output-directory output-directory
+    (compile-sparql-stream input-stream :input-name file :instans instans :instans-name instans-name :rete-html-page-dir rete-html-page-dir
 			   :make-rete-html-page-script make-rete-html-page-script :base base :silentp silentp)))
 
-(defun compile-sparql-stream (stream &key input-name instans instans-name output-directory (make-rete-html-page-script (find-make-rete-html-script)) (parser #'sparql-parse-stream) base silentp)
+(defun compile-sparql-stream (stream &key input-name instans instans-name rete-html-page-dir (make-rete-html-page-script (find-make-rete-html-script)) (parser #'sparql-parse-stream) base silentp)
   (declare (special *node-color-alist*))
   (setf *node-color-alist* nil)
   (when (null instans)
@@ -34,9 +34,9 @@
 	       (when error-msg
 		 (push error-msg (instans-error-messages instans))
 		 (return-from compile-sparql-stream (values nil error-msg)))))
-    (unless (null output-directory)
+    (unless (null rete-html-page-dir)
       (let* ((name-part (pathname-name input-name))
-	     (truedirname (pathname-directory (truename output-directory)))
+	     (truedirname (pathname-directory (truename rete-html-page-dir)))
 	     (dot-output-file (make-pathname :directory truedirname :name name-part :type "dot"))
 	     (bnd-output-file (make-pathname :directory truedirname :name name-part :type "bnd"))
 	     (sa-output-file (make-pathname :directory truedirname :name name-part :type "sa")))
@@ -62,7 +62,7 @@
 	(assert (probe-file make-rete-html-page-script))
 	(unless silentp
 	  (inform "Running ~S on ~S" make-rete-html-page-script input-name))
-	(shell-script make-rete-html-page-script input-name output-directory)))
+	(shell-script make-rete-html-page-script input-name rete-html-page-dir)))
       instans))
 
 (defun compile-sparql-algebra-expr (instans algebra-expr &key (color "Black") silentp)
@@ -132,11 +132,11 @@
 	    (rule-instance-queue-construct-count queue))
     instans))
 
-(defun build-and-execute-sparql-system (rules-file triples-file &key (report-function ) (report-function-arguments ) (output-directory "/Users/enu/instans/tests/output") base);  (show-turtle-parse-p nil))
+(defun build-and-execute-sparql-system (rules-file triples-file &key (report-function ) (report-function-arguments ) (rete-html-page-dir "/Users/enu/instans/tests/output") base);  (show-turtle-parse-p nil))
   (catch 'done
   (let* ((instans nil))
     (with-open-file (triples-stream triples-file)
-      (setf instans (compile-sparql-file rules-file :output-directory output-directory))
+      (setf instans (compile-sparql-file rules-file :rete-html-page-dir rete-html-page-dir))
       (setf (instans-select-function instans) report-function)
       (setf (instans-select-function-arguments instans) report-function-arguments)
       (let* ((triples-lexer (make-instance 'turtle-lexer :instans instans :input-stream triples-stream :base base))
@@ -211,7 +211,7 @@
 				     collect (car lines)
 				     else collect (format nil "~A~%" (car lines)))))
 
-(defun instans-add-rules (instans-iri rules &key output-directory base (silentp t) (create-instans-p t))
+(defun instans-add-rules (instans-iri rules &key rete-html-page-dir base (silentp t) (create-instans-p t))
   (let ((instans (if create-instans-p (create-instans instans-iri) (get-instans instans-iri))))
     (cond ((sparql-error-p instans) instans)
 	  ((file-or-uri-exists-p rules)
@@ -221,7 +221,7 @@
 	     (with-input-from-string (stream string)
 	       (multiple-value-bind (compile-result error)
 		   (compile-sparql-stream stream :instans instans :input-name (if (stringp rules) rules (rdf-iri-string rules))
-					  :output-directory output-directory :base base :silentp silentp)
+					  :rete-html-page-dir rete-html-page-dir :base base :silentp silentp)
 		 (declare (ignorable compile-result))
 		 (cond ((not error)
 			(values t nil))
@@ -231,7 +231,7 @@
 	   (inform "Cannot read SPARQL from ~S" rules)
 	   nil))))
 
-(defun instans-add-triples-from-url (instans-iri triples &key expected-results graph base silentp)
+(defun instans-add-triples (instans-iri triples &key expected-results graph base silentp)
   (let* ((instans (get-instans instans-iri))
 	 (comparep (and expected-results (not (rdf-iri-equal expected-results *rdf-nil*))))
 	 (expected-query-results (if comparep (if (stringp expected-results) (parse-results-file instans expected-results) (parse-results-from-url instans expected-results))))
@@ -294,7 +294,7 @@
 (defvar *instans-execute-system-previous-graph* nil)
 (defvar *instans-execute-system-previous-base* nil)
 
-(defun instans-execute-system (rules &key triples expected-results graph base (output-directory nil) ; "/Users/enu/instans/tests/output") ; nil) ;
+(defun instans-execute-system (rules &key triples expected-results graph base (rete-html-page-dir nil) ; "/Users/enu/instans/tests/output") ; nil) ;
 			       (silentp t) (use-previous-args-p nil))
   (cond ((not use-previous-args-p)
 	 (setf *instans-execute-system-previous-rules* rules)
@@ -316,12 +316,12 @@
   (multiple-value-bind (instans instans-iri) (create-instans)
     (format (instans-default-output instans) "~%execute_system ~A ~A ~A ~A ~A~&" rules triples expected-results graph base)
     (multiple-value-bind (add-rules-result error)
-	(instans-add-rules instans-iri rules :output-directory output-directory :base base :silentp silentp)
+	(instans-add-rules instans-iri rules :rete-html-page-dir rete-html-page-dir :base base :silentp silentp)
       (declare (ignore add-rules-result))
       (when (not (null error))
 	(return-from instans-execute-system (values nil error))))
     (if triples
-      (instans-add-triples-from-url instans-iri triples :graph graph :base base :silentp silentp))))
+      (instans-add-triples instans-iri triples :graph graph :base base :silentp silentp))))
 
 (defun execute-prev ()
   (instans-execute-system nil :use-previous-args-p t))
@@ -372,7 +372,7 @@
 		    (format t "~&Manifest file ~A not found~&" manifest-iri-string))
 		   (t
 		    (format t "~&Running tests ~A~&" name)
-		    (instans-execute-system rules :triples (parse-iri manifest-iri-string) :base (parse-iri base-iri-string) :silentp t :output-directory output-dir))))))
+		    (instans-execute-system rules :triples (parse-iri manifest-iri-string) :base (parse-iri base-iri-string) :silentp t :rete-html-page-dir output-dir))))))
 
 (defun run-data-r2-syntax-tests (&optional (test-sets '("syntax-sparql1" "syntax-sparql2" "syntax-sparql3" "syntax-sparql4" "syntax-sparql5")))
   (run-syntax-tests "../tests/input/syntax-test.rq" "../tests/data-r2" "http://www.w3.org/2001/sw/DataAccess/tests/data-r2" test-sets))

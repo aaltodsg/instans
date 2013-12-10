@@ -26,7 +26,7 @@
 							   &optional (expected-results iri-or-string) (graph-iri rdf-iri) (base rdf-iri))
 							  :returns xsd-boolean)
   (:method ((instans-iri rdf-iri) (triples iri-or-string) &optional (expected-results iri-or-string) (graph-iri rdf-iri) (base rdf-iri))
-    (instans-add-triples-from-url instans-iri triples :expected-results expected-results :graph graph-iri :base base)))
+    (instans-add-triples instans-iri triples :expected-results expected-results :graph graph-iri :base base)))
 
 (define-sparql-function "instans:execute_system" (:arguments ((rules iri-or-string) &optional (triples iri-or-string) (expected-results iri-or-string) (graph-iri rdf-iri) (base rdf-iri)) :returns xsd-boolean)
   (:method ((rules iri-or-string) &optional (triples iri-or-string) (expected-results iri-or-string) (graph-iri rdf-iri) (base rdf-iri))
