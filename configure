@@ -9,7 +9,7 @@ function die () {
     exit 1
 }
 test "$LAST" != instans || die "You should run this script in the instans root directory!"
-if test "$1" = "--clean" -o "$1" = "-c"; then
+if test "$1" = "clean" -o "$1" = "--clean" -o "$1" = "-c"; then
     CLEAN="true"
 else
     CLEAN="false"

@@ -82,7 +82,7 @@
 				  (:output-stream (("-o" "<file or url>") ("--output-stream" "<file or url>")) "Write output to <file or url>.")
 				  (:expect        (("-e" "<file or url>") ("--expect" "<file or url>")) "Expect the execution to yield the results in <file or url>.")
 				  (:file          (("-f" "<file or url>") ("--file" "<file or url>")) "Read options from <file or url>."
-				   ,#'(lambda (arg value) (declare (ignore arg)) (inform "args before ~S" args) (setf args (append (read-args-from-file value) args)) (inform "args after ~S" args)))
+				   ,#'(lambda (arg value) (declare (ignore arg)) (setf args (append (read-args-from-file value) args))))
 				  (:verbose       (("--verbose" "<true or false>")) "Whether to produce lots of diagnostic information.")
 				  (:rete-html-page-dir (("--rete-html-page-dir" "<dir>")) "Create an HTML page presenting the Rete network.")))
       (pop args) ; Program path
