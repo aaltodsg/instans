@@ -214,7 +214,7 @@
 	   (inform "Cannot read SPARQL from ~S" rules)
 	   nil))))
 
-(defun instans-add-triples (instans-iri triples &key expected-results graph base silentp)
+(defun instans-add-triples (instans-iri triples &key expected-results graph base (silentp t))
   (let* ((instans (get-instans instans-iri))
 	 (comparep (and expected-results (not (rdf-iri-equal expected-results *rdf-nil*))))
 	 (expected-query-results (if comparep (if (stringp expected-results) (parse-results-file instans expected-results) (parse-results-from-url instans expected-results))))
