@@ -234,7 +234,7 @@
 	 (string (read-from-url-or-file triples)))
     (unless silentp
       (inform "~S" string))
-    (setf (instans-remove-rule-instances-p instans) t)
+    (setf (instans-rule-instance-removal-policy instans) :remove)
     (when report-function
       (setf (instans-select-function instans) report-function))
     (setf (instans-select-function-arguments instans) report-function-arguments)
@@ -325,6 +325,7 @@
 	  ((pathnamep name) (probe-file name))
 	  ((file-iri-string-p name) (probe-file (file-iri-string-path name)))
 	  ((http-iri-string-p name) (probe-http-uri name))
+	  ((stringp name) (probe-file name))
 	  (t
 	   (error* "~A does not name a file or uri" name)))))
 

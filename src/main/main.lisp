@@ -14,27 +14,29 @@
 	     
 
 (defun process-configuration (configuration)
-  (multiple-value-bind (instans instans-iri) (create-instans)
-    (loop with base = nil
-	  with graph = nil
-	  with verbose = nil
-	  with rete-html-page-dir = nil
-	  for (key value) in configuration
-	  do (case key
-	       (:name (setf (instans-name instans) value))
-	       (:base (setf base (parse-iri value)))
-	       (:graph (if (string= (string-downcase value) "default") nil (setf graph (parse-iri value))))
-	       (:rules (instans-add-rules instans-iri value :base base :rete-html-page-dir rete-html-page-dir :silentp (not verbose)))
-	       (:triples (instans-add-triples instans-iri value :graph graph :base base))
-	       (:input-stream (inform "Input streams not implemented yet!"))
-	       (:output-stream (inform "Output streams not implemented yet!"))
-	       (:expect (inform "Expect not implemented yet!"))
-	       (:verbose (setf verbose (equalp (string-downcase value) "true")))
-	       (:triple-input-policy (setf (instans-triple-input-policy instans) (intern value :keyword)))
-	       (:triple-processing-policy (setf (instans-triple-processing-policy instans) (parse-colon-separated-values value)))
-	       (:rule-instance-removal-policy (setf (instans-rule-instance-removal-policy instans) (intern value :keyword)))
-	       (:rule-execution-policy (setf (instans-rule-execution-policy instans) (intern value :keyword)))
-	       (:rete-html-page-dir (setf rete-html-page-dir value))))))
+  (handler-case 
+      (multiple-value-bind (instans instans-iri) (create-instans)
+	(loop with base = nil
+	      with graph = nil
+	      with verbose = nil
+	      with rete-html-page-dir = nil
+	      for (key value) in configuration
+	      do (case key
+		   (:name (setf (instans-name instans) value))
+		   (:base (setf base (parse-iri value)))
+		   (:graph (if (string= (string-downcase value) "default") nil (setf graph (parse-iri value))))
+		   (:rules (instans-add-rules instans-iri value :base base :rete-html-page-dir rete-html-page-dir :silentp (not verbose)))
+		   (:triples (instans-add-triples instans-iri value :graph graph :base base))
+		   (:input-stream (inform "Input streams not implemented yet!"))
+		   (:output-stream (inform "Output streams not implemented yet!"))
+		   (:expect (inform "Expect not implemented yet!"))
+		   (:verbose (setf verbose (equalp (string-downcase value) "true")))
+		   (:triple-input-policy (setf (instans-triple-input-policy instans) (intern value :keyword)))
+		   (:triple-processing-policy (setf (instans-triple-processing-policy instans) (parse-colon-separated-values value)))
+		   (:rule-instance-removal-policy (setf (instans-rule-instance-removal-policy instans) (intern value :keyword)))
+		   (:rule-execution-policy (setf (instans-rule-execution-policy instans) (intern value :keyword)))
+		   (:rete-html-page-dir (setf rete-html-page-dir value)))))
+    (t (e) (inform "~A" e))))
 
 (defun main ()
   (let* ((args sb-ext:*posix-argv*)
