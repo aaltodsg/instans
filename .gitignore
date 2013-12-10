@@ -14,3 +14,4 @@ tests/syntax-test-results
 MKHTML_LOG
 bin/instans.bin
 bin/sbcl-instans.core
+tests/log

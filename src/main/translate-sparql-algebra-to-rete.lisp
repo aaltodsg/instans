@@ -198,7 +198,7 @@
 			  (apply #'make-or-share-instance 'ask-node :prev (translate ggp prev dataset) args)))
 		   (DESCRIBE (let ((ggp (getf args :where)))
 			       (remf args :where)
-			       (apply #'make-or-share-instance 'describe-node :prev (translate ggp prev dataset) args)))
+			       (apply #'make-or-share-instance 'describe-node :prev (if ggp (translate ggp prev dataset) (make-or-share-instance 'beta-memory :prev nil)) args)))
 		   (CONSTRUCT (let ((ggp (getf args :where)))
 				(remf args :where)
 				(apply #'make-or-share-instance 'construct-node :prev (translate ggp prev dataset) args)))

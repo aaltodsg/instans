@@ -20,3 +20,8 @@
 - check that literals with lang tags have a lang (results)
 - Fix: same blank node cannot be used in two different BGPs (test ~/Sparql/www.w3.org/2001/sw/DataAccess/tests/data-r2/syntax-sparql4/syn-bad-34.rq)
 - When parser executes rules, it assumes that the actions return multiple (or no) values intentionally. Thus, if you wish to return only a single value, take care that the actions don't produce many. This may be a bad thing.
+- Implement preprocessing of hex codepoints.
+- Implement joining of BGP:s after filter removal and move blank checking after the translation of ggp
+- Make function lookup to produce different kind of 'error' messaging, when a foreign function is not found.
+
+
