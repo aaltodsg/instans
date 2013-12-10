@@ -26,7 +26,7 @@ EXECUTABLE=${BIN}/instans.bin
 
 if test "$CLEAN" = "true"; then
     rm -rf $HOME/quicklisp
-    rm -rf data-r2 data-sparql11
+    rm -rf ${TESTS}/data-r2 ${TESTS}/data-sparql11
     rm -rf $DATATABLES $DATATABLES-*
 fi
 
