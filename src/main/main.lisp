@@ -16,13 +16,15 @@
 (defun process-configuration (configuration)
   (handler-case 
       (multiple-value-bind (instans instans-iri) (create-instans)
-	(loop with base = nil
+	(loop with directory = (namestring (probe-file "."))
+	      with base = nil
 	      with graph = nil
 	      with verbose = nil
 	      with rete-html-page-dir = nil
 	      for (key value) in configuration
 	      do (case key
 		   (:name (setf (instans-name instans) value))
+		   (:directory (setf directory (if (http-or-file-iri-string-p value) value (format nil "file://~A" value))))
 		   (:base (setf base (parse-iri value)))
 		   (:graph (if (string= (string-downcase value) "default") nil (setf graph (parse-iri value))))
 		   (:rules (instans-add-rules instans-iri value :base base :rete-html-page-dir rete-html-page-dir :silentp (not verbose)))
