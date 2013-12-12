@@ -38,8 +38,17 @@
 		   (:rete-html-page-dir (setf rete-html-page-dir value)))))
     (t (e) (inform "~A" e))))
 
+(defvar *test-argv*)
+
+(defun command-line-argv ()
+  (if (boundp '*test-argv*) *test-argv*  sb-ext:*posix-argv*))
+
+(defun main-test (&rest args)
+  (let ((*test-argv* (cons "instans" (cons "--end-toplevel-options" args))))
+    (main)))
+
 (defun main ()
-  (let* ((args sb-ext:*posix-argv*)
+  (let* ((args (command-line-argv))
 	 (configuration nil)
 	 (notifications *error-output*)
 	 (info-options nil)
