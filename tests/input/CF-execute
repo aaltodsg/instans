@@ -1,0 +1,1 @@
+../../bin/instans -b http://www.example.org/ -r CF-Queries-default.rq -t 5actors100events.ntriples --verbose true
