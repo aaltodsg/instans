@@ -445,7 +445,10 @@
 	finally (cond ((char=* ch #\>)
 		       (get-char lexer)
 		       (return-input-token lexer 'IRIREF-TERMINAL (expand-iri lexer (chbuf-string buf))))
-		      (t (lexer-error lexer "Missing '>' after IRIREF")))))
+		      (t ; we assume, that the original '<' was actually the operator less-than.
+		       (loop for i from (1- (chbuf-index buf)) downto 0
+			     do (unget-char lexer (elt (chbuf-contents buf) i)))
+		       (return-input-token lexer '<-TERMINAL "<")))))
 
 (defun eat-var-name (lexer terminal-type buf)  ; we are looking at a var-name-start-char, just get-char first-char away
   (chbuf-put-char buf (get-char lexer))
