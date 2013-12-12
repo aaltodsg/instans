@@ -182,7 +182,7 @@ cat >> $AWK <<EOF
   printf "</html>\n";
 }
 EOF
-awk -f $AWK < $TEST_OUTPUT >> $REPORT_HTML
+#awk -f $AWK < $TEST_OUTPUT >> $REPORT_HTML
 #rm -rf $AWK
 echo
 echo "File \"$REPORT_HTML\" contains the test results in HTML form."
