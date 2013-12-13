@@ -30,39 +30,45 @@
     ;; (describe iri)
     (setf (lexer-base this) iri)))
 
-(defgeneric expand-iri (lexer iri-string)
+(defgeneric lexer-expand-iri (lexer iri-string)
   (:method ((this abstract-sparql-turtle-lexer) iri-string)
-    (let ((iri (parse-iri iri-string)))
-      (cond ((rdf-iri-scheme iri) iri)
-	     ;; (cond ((rdf-iri-had-dot-segments-p iri)
-	     ;; 	    (recompose-iri iri))
-	     ;; 	   (t iri)))
+    (multiple-value-bind (expanded error-msg)
+	(expand-iri (lexer-base this) iri-string)
+      (cond ((null error-msg) expanded)
 	    (t
-	     (let ((base (lexer-base this))
-		   (cp (rdf-iri-path iri)))
-	       (cond ((null base)
-		      (lexer-error "Base not defined for relative IRI ~S" iri-string))
-		     (t
-		      (setf (rdf-iri-scheme iri) (rdf-iri-scheme base))
-		      (cond ((not (rdf-iri-authority iri))
-			     (setf (rdf-iri-authority iri) (rdf-iri-authority base))
-			     (cond ((string= cp "")
-				    (setf (rdf-iri-path iri) (rdf-iri-path base))
-				    (unless (rdf-iri-query iri)
-				      (setf (rdf-iri-query iri) (rdf-iri-query base))))
-				   (t
+	     (lexer-error this error-msg))))))
+
+(defun expand-iri (base iri-string)
+  (let ((iri (parse-iri iri-string)))
+    (cond ((rdf-iri-scheme iri) iri)
+	  ;; (cond ((rdf-iri-had-dot-segments-p iri)
+	  ;; 	    (recompose-iri iri))
+	  ;; 	   (t iri)))
+	  (t
+	   (let ((cp (rdf-iri-path iri)))
+	     (cond ((null base)
+		    (values nil (format nil "Base not defined for relative IRI ~S" iri-string)))
+		   (t
+		    (setf (rdf-iri-scheme iri) (rdf-iri-scheme base))
+		    (cond ((not (rdf-iri-authority iri))
+			   (setf (rdf-iri-authority iri) (rdf-iri-authority base))
+			   (cond ((string= cp "")
+				  (setf (rdf-iri-path iri) (rdf-iri-path base))
+				  (unless (rdf-iri-query iri)
 				    (setf (rdf-iri-query iri) (rdf-iri-query base))))
-			     (when (or (zerop (length cp)) (not (char= (char cp 0) #\/)))
-			       (setf (rdf-iri-path iri)
-				     (cond ((and (rdf-iri-authority base) (string= (rdf-iri-path base) ""))
-					    (concatenate 'string "/" (rdf-iri-path iri)))
-					   (t
-					    (let ((lsp (position #\/ (rdf-iri-path base) :from-end t)))
-					      (cond ((null lsp)
-						     (rdf-iri-path iri))
-						    (t
-						     (coerce (remove-dot-segments (concatenate 'list (subseq (rdf-iri-path base) 0 (1+ lsp)) (rdf-iri-path iri))) 'string))))))))))
-		      (recompose-iri iri)))))))))
+				 (t
+				  (setf (rdf-iri-query iri) (rdf-iri-query base))))
+			   (when (or (zerop (length cp)) (not (char= (char cp 0) #\/)))
+			     (setf (rdf-iri-path iri)
+				   (cond ((and (rdf-iri-authority base) (string= (rdf-iri-path base) ""))
+					  (concatenate 'string "/" (rdf-iri-path iri)))
+					 (t
+					  (let ((lsp (position #\/ (rdf-iri-path base) :from-end t)))
+					    (cond ((null lsp)
+						   (rdf-iri-path iri))
+						  (t
+						   (coerce (remove-dot-segments (concatenate 'list (subseq (rdf-iri-path base) 0 (1+ lsp)) (rdf-iri-path iri))) 'string))))))))))
+		    (recompose-iri iri))))))))
 
 (defgeneric resolve-prefix (lexer buf &optional start end)
   (:method ((this abstract-sparql-turtle-lexer) buf &optional (start 0) (end (chbuf-index buf)))
@@ -70,7 +76,7 @@
 
 (defgeneric pname-to-iri (lexer prefix-binding &optional suffix-string)
   (:method ((this abstract-sparql-turtle-lexer) prefix-binding &optional suffix-string)
-    (expand-iri this (cond ((null (cdr prefix-binding))
+    (lexer-expand-iri this (cond ((null (cdr prefix-binding))
 ;			    (error* "Unbound prefix binding ~A" (car prefix-binding)))
 ;			    (lexer-error this "Unbound prefix binding ~A" (car prefix-binding)))
 			    nil)
@@ -444,8 +450,11 @@
 	do (chbuf-put-char buf (get-char lexer))
 	finally (cond ((char=* ch #\>)
 		       (get-char lexer)
-		       (return-input-token lexer 'IRIREF-TERMINAL (expand-iri lexer (chbuf-string buf))))
-		      (t (lexer-error lexer "Missing '>' after IRIREF")))))
+		       (return-input-token lexer 'IRIREF-TERMINAL (lexer-expand-iri lexer (chbuf-string buf))))
+		      (t ; we assume, that the original '<' was actually the operator less-than.
+		       (loop for i from (1- (chbuf-index buf)) downto 0
+			     do (unget-char lexer (elt (chbuf-contents buf) i)))
+		       (return-input-token lexer '<-TERMINAL "<")))))
 
 (defun eat-var-name (lexer terminal-type buf)  ; we are looking at a var-name-start-char, just get-char first-char away
   (chbuf-put-char buf (get-char lexer))

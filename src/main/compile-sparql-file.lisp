@@ -141,7 +141,7 @@
       (setf (instans-select-function-arguments instans) report-function-arguments)
       (let* ((triples-lexer (make-instance 'turtle-lexer :instans instans :input-stream triples-stream :base base))
 	     (triples-parser (make-turtle-parser :triples-callback #'(lambda (triples)
-								       (inform "~%Event callback: ~D triples~%" (length triples))
+								       ;(inform "~%Event callback: ~D triples~%" (length triples))
 								       (loop for tr in triples do (inform " ~S~%" tr))
 								       (process-triple-input instans triples '(:add :execute))))))
 	(initialize-execution instans)
@@ -195,6 +195,8 @@
 				     else collect (format nil "~A~%" (car lines)))))
 
 (defun instans-add-rules (instans-iri rules &key rete-html-page-dir base (silentp t) (create-instans-p t))
+  (unless silentp
+    (inform "instans-add-rules ~S ~S :rete-html-page-dir ~S :base ~S" instans-iri rules rete-html-page-dir base))
   (let ((instans (if create-instans-p (create-instans instans-iri) (get-instans instans-iri))))
     (cond ((sparql-error-p instans) instans)
 	  ((file-or-uri-exists-p rules)
@@ -215,6 +217,8 @@
 	   nil))))
 
 (defun instans-add-triples (instans-iri triples &key expected-results graph base (silentp t))
+  (unless silentp
+    (inform "instans-add-triples ~S ~S :graph ~S :base ~S" instans-iri triples graph base))
   (let* ((instans (get-instans instans-iri))
 	 (comparep (and expected-results (not (rdf-iri-equal expected-results *rdf-nil*))))
 	 (expected-query-results (if comparep (if (stringp expected-results) (parse-results-file instans expected-results) (parse-results-from-url instans expected-results))))

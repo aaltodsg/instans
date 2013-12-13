@@ -2,19 +2,34 @@
 cd `dirname $0`/.. > /dev/null
 ROOT=`pwd`
 BIN=${ROOT}/bin
-cd tests > /dev/null
+TESTS=${ROOT}/tests
+cd ${TESTS} > /dev/null
 RESULTSDIR=syntax-test-results
 TEST_OUTPUT=${RESULTSDIR}/results
+REPORT_HTML=${RESULTSDIR}/index.html
 if test ! -d $RESULTSDIR; then
   echo "Directory \"$RESULTSDIR\" does not exist; creating it"
   mkdir $RESULTSDIR
   echo
 fi
+if test -f $REPORT_HTML ; then
+    cp -f $REPORT_HTML ${REPORT_HTML}.prev
+fi
 if test $# -eq 0 ; then
     pwd
+    echo > $TEST_OUTPUT
     /bin/echo -n "Running tests ... "
-    ${BIN}/sbcl-instans --noinform --eval '(run-all-syntax-tests)' --quit > $TEST_OUTPUT 2>&1
+    for i in data-r2/*/manifest.ttl data-sparql11/*/manifest.ttl ; do 
+        MANIFEST=`pwd`/$i
+	echo
+	echo ${BIN}/instans -b "file://`dirname $MANIFEST`/" -r ${TESTS}/input/syntax-test.rq -t $MANIFEST --verbose false
+	${BIN}/instans -b "file://`dirname $MANIFEST`/" -r ${TESTS}/input/syntax-test.rq -t $MANIFEST --verbose false >> ${TEST_OUTPUT} 2>&1
+    done
     echo "File \"$TEST_OUTPUT\" contains the test output."
+    # pwd
+    # /bin/echo -n "Running tests ... "
+    # ${BIN}/sbcl-instans --noinform --eval '(run-all-syntax-tests)' --quit > $TEST_OUTPUT 2>&1
+    # echo "File \"$TEST_OUTPUT\" contains the test output."
 elif test -f $TEST_OUTPUT; then
     echo "Using the old results in $TEST_OUTPUT"  
 else
@@ -142,10 +157,27 @@ END {
   printf "  <tbody>\n";
   printf "  </table>\n";
   printf "<hr/>\n";
+EOF
+if test -f ${REPORT_HTML}.prev; then
+   PREVTOTAL=`cat ${REPORT_HTML}.prev|sed -n '/^.*Total \([0-9]*\) tests.*$/s//\1/p'`
+   PREVOK=`cat ${REPORT_HTML}.prev|sed -n '/^[^0-9]*\([0-9]*\) tests OK.*$/s//\1/p'`
+   PREVPOSFAIL=`cat ${REPORT_HTML}.prev|sed -n '/^[^0-9]*\([0-9]*\) positive tests failed.*$/s//\1/p'`
+   PREVNEGSUCC=`cat ${REPORT_HTML}.prev|sed -n '/^[^0-9]*\([0-9]*\) negative tests succeeded.*$/s//\1/p'`
+cat >> $AWK <<EOF
+  printf "<p>Total %d tests (previously $PREVTOTAL)\n", test_ok_count + test_positive_failed_count + test_negative_succeeded_count;
+  printf "<ul><li>%d tests OK (previously $PREVOK)</li>\n", test_ok_count;
+  printf "<li>%d positive tests failed (previously $PREVPOSFAIL)</li>\n", test_positive_failed_count;
+  printf "<li>%d negative tests succeeded (previously $PREVNEGSUCC)</li></ul>\n", test_negative_succeeded_count;
+EOF
+else
+    cat >> $AWK <<EOF
   printf "<p>Total %d tests\n", test_ok_count + test_positive_failed_count + test_negative_succeeded_count;
   printf "<ul><li>%d tests OK</li>\n", test_ok_count;
   printf "<li>%d positive tests failed</li>\n", test_positive_failed_count;
   printf "<li>%d negative tests succeeded</li></ul>\n", test_negative_succeeded_count;
+EOF
+fi
+cat >> $AWK <<EOF
   printf "</body>\n";
   printf "</html>\n";
 }

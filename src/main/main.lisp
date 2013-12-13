@@ -14,32 +14,51 @@
 	     
 
 (defun process-configuration (configuration)
-  (handler-case 
-      (multiple-value-bind (instans instans-iri) (create-instans)
-	(loop with base = nil
-	      with graph = nil
-	      with verbose = nil
-	      with rete-html-page-dir = nil
-	      for (key value) in configuration
-	      do (case key
-		   (:name (setf (instans-name instans) value))
-		   (:base (setf base (parse-iri value)))
-		   (:graph (if (string= (string-downcase value) "default") nil (setf graph (parse-iri value))))
-		   (:rules (instans-add-rules instans-iri value :base base :rete-html-page-dir rete-html-page-dir :silentp (not verbose)))
-		   (:triples (instans-add-triples instans-iri value :graph graph :base base))
-		   (:input-stream (inform "Input streams not implemented yet!"))
-		   (:output-stream (inform "Output streams not implemented yet!"))
-		   (:expect (inform "Expect not implemented yet!"))
-		   (:verbose (setf verbose (equalp (string-downcase value) "true")))
-		   (:triple-input-policy (setf (instans-triple-input-policy instans) (intern value :keyword)))
-		   (:triple-processing-policy (setf (instans-triple-processing-policy instans) (parse-colon-separated-values value)))
-		   (:rule-instance-removal-policy (setf (instans-rule-instance-removal-policy instans) (intern value :keyword)))
-		   (:rule-execution-policy (setf (instans-rule-execution-policy instans) (intern value :keyword)))
-		   (:rete-html-page-dir (setf rete-html-page-dir value)))))
-    (t (e) (inform "~A" e))))
+  (flet ((expand-input-name (directory-iri-string url-or-file-name)
+	   (let* ((directory-iri (parse-iri directory-iri-string))
+		  (v
+	   (expand-iri directory-iri (if (not (http-or-file-iri-string-p url-or-file-name)) (format nil "file://~A" url-or-file-name)  url-or-file-name))
+		   ))
+	     (inform "expand-input-name ~A ~A -> ~A" directory-iri url-or-file-name v)
+	     v)
+	   ))
+    (handler-case
+	(multiple-value-bind (instans instans-iri) (create-instans)
+	  (loop with directory = (format nil "file://~A" (namestring (probe-file ".")))
+		with base = nil
+		with graph = nil
+		with verbose = nil
+		with rete-html-page-dir = nil
+		for (key value) in configuration
+		do (case key
+		     (:name (setf (instans-name instans) value))
+		     (:directory (setf directory (if (http-or-file-iri-string-p value) value (format nil "file://~A" value))))
+		     (:base (setf base (parse-iri value)))
+		     (:graph (if (string= (string-downcase value) "default") nil (setf graph (parse-iri value))))
+		     (:rules (instans-add-rules instans-iri (expand-input-name directory value) :base base :rete-html-page-dir rete-html-page-dir :silentp (not verbose)))
+		     (:triples (instans-add-triples instans-iri (expand-input-name directory value) :graph graph :base base))
+		     (:input-stream (inform "Input streams not implemented yet!"))
+		     (:output-stream (inform "Output streams not implemented yet!"))
+		     (:expect (inform "Expect not implemented yet!"))
+		     (:verbose (setf verbose (equalp (string-downcase value) "true")))
+		     (:triple-input-policy (setf (instans-triple-input-policy instans) (intern value :keyword)))
+		     (:triple-processing-policy (setf (instans-triple-processing-policy instans) (parse-colon-separated-values value)))
+		     (:rule-instance-removal-policy (setf (instans-rule-instance-removal-policy instans) (intern value :keyword)))
+		     (:rule-execution-policy (setf (instans-rule-execution-policy instans) (intern value :keyword)))
+		     (:rete-html-page-dir (setf rete-html-page-dir value)))))
+	  (t (e) (inform "~A" e)))))
+
+(defvar *test-argv*)
+
+(defun command-line-argv ()
+  (if (boundp '*test-argv*) *test-argv*  sb-ext:*posix-argv*))
+
+(defun main-test (&rest args)
+  (let ((*test-argv* (cons "instans" (cons "--end-toplevel-options" args))))
+    (main)))
 
 (defun main ()
-  (let* ((args sb-ext:*posix-argv*)
+  (let* ((args (command-line-argv))
 	 (configuration nil)
 	 (notifications *error-output*)
 	 (info-options nil)
@@ -84,6 +103,8 @@
 			 (:version ("-v" "--version") "Print version information and exit."
 				   ,#'(lambda (&rest ignore) (declare (ignore ignore)) (format t "INSTANS version ~A~%" (instans-version))))))
     (setf configuration-options `((:name          (("-n" "<string>") ("--name" "<string>")) "Use <string> as the name of the system.")
+				  (:directory     (("-d" "<file or url>") ("--directory" "<file-or-url>")) "Use <file or url> as the prefix for rule and triple~%~
+                                                                                                            file lookup.")
 				  (:base          (("-b" "<url>") ("--base" "<url>")) "Use <url> as the base.")
 				  (:graph         (("-g" "<dataset>") ("--graph" "<dataset>")) "If <dataset> is 'default' add the following triple~%~
                                                                                                ~52Tinputs to the default graph. If it is <url> add them~%~
