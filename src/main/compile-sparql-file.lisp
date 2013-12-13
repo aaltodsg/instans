@@ -141,7 +141,7 @@
       (setf (instans-select-function-arguments instans) report-function-arguments)
       (let* ((triples-lexer (make-instance 'turtle-lexer :instans instans :input-stream triples-stream :base base))
 	     (triples-parser (make-turtle-parser :triples-callback #'(lambda (triples)
-								       (inform "~%Event callback: ~D triples~%" (length triples))
+								       ;(inform "~%Event callback: ~D triples~%" (length triples))
 								       (loop for tr in triples do (inform " ~S~%" tr))
 								       (process-triple-input instans triples '(:add :execute))))))
 	(initialize-execution instans)
@@ -216,7 +216,7 @@
 	   (inform "Cannot read SPARQL from ~S" rules)
 	   nil))))
 
-(defun instans-add-triples (instans-iri triples &key expected-results graph base silentp)
+(defun instans-add-triples (instans-iri triples &key expected-results graph base (silentp t))
   (unless silentp
     (inform "instans-add-triples ~S ~S :graph ~S :base ~S" instans-iri triples graph base))
   (let* ((instans (get-instans instans-iri))

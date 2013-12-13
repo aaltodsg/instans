@@ -45,7 +45,7 @@ PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>
 			?place2	geo:long ?long2 .
 			?event2 event:time ?time2 .
 			?time2 tl:at ?dttm2 .
-			FILTER ((abs(?lat2-?lat1)<0.01) && (abs(?long2-?long1)<0.01))
+			FILTER ((abs(?lat2-?lat1) < 0.01) && (abs(?long2-?long1) < 0.01))
 			# Don't do anything, if the relation already exists
 			FILTER NOT EXISTS { ?person1 :nearby ?person2 }
 	} ;
@@ -69,6 +69,6 @@ PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>
 			?place2	geo:long ?long2 .
 			?event2 event:time ?time2 .
 			?time2 tl:at ?dttm2 .
-		    FILTER ( (abs(?lat2-?lat1)>0.02) || (abs(?long2-?long1)>0.02))
+		    FILTER ( (abs(?lat2-?lat1) > 0.02) || (abs(?long2-?long1) > 0.02))
 		    FILTER EXISTS {	?person1 :nearby ?person2  }
 	}

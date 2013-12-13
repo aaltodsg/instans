@@ -22,8 +22,8 @@ if test $# -eq 0 ; then
     for i in data-r2/*/manifest.ttl data-sparql11/*/manifest.ttl ; do 
         MANIFEST=`pwd`/$i
 	echo
-	echo ${BIN}/instans -b "file://`dirname $MANIFEST`/" -r ${TESTS}/input/syntax-test.rq -t $MANIFEST --verbose true
-	${BIN}/instans -b "file://`dirname $MANIFEST`/" -r ${TESTS}/input/syntax-test.rq -t $MANIFEST --verbose true >> ${TEST_OUTPUT} 2>&1
+	echo ${BIN}/instans -b "file://`dirname $MANIFEST`/" -r ${TESTS}/input/syntax-test.rq -t $MANIFEST --verbose false
+	${BIN}/instans -b "file://`dirname $MANIFEST`/" -r ${TESTS}/input/syntax-test.rq -t $MANIFEST --verbose false >> ${TEST_OUTPUT} 2>&1
     done
     echo "File \"$TEST_OUTPUT\" contains the test output."
     # pwd
@@ -182,7 +182,7 @@ cat >> $AWK <<EOF
   printf "</html>\n";
 }
 EOF
-#awk -f $AWK < $TEST_OUTPUT >> $REPORT_HTML
-#rm -rf $AWK
+awk -f $AWK < $TEST_OUTPUT >> $REPORT_HTML
+rm -rf $AWK
 echo
 echo "File \"$REPORT_HTML\" contains the test results in HTML form."
