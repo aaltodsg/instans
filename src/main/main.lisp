@@ -14,33 +14,42 @@
 	     
 
 (defun run-configuration (configuration)
-  (flet ((expand-input-name (directory-iri-string url-or-file-name)
+  (flet ((expand-dirname (dir)
+	   (let ((chars (remove-dot-segments (coerce (namestring (format nil "~A~A" (namestring (probe-file ".")) dir)) 'list))))
+	     (unless (char= (first (last chars)) #\/)
+	       (setf (cdr (last chars)) (list #\/)))
+	     (coerce chars 'string)))
+	 (expand-input-name (directory-iri-string url-or-file-name)
 	   (let* ((directory-iri (parse-iri directory-iri-string))
 		  (v
 		   (expand-iri directory-iri url-or-file-name)
 		   ))
-	     (inform "expand-input-name ~A ~A -> ~A" directory-iri url-or-file-name v)
+;	     (inform "expand-input-name ~A ~A -> ~A" directory-iri url-or-file-name v)
 	     v)
 	   ))
     (handler-case
 	(multiple-value-bind (instans instans-iri) (create-instans)
-	  (loop with directory = (format nil "file://~A" (namestring (probe-file ".")))
+	  (loop with directory = (format nil "file://~A" (expand-dirname "."))
 		with base = nil
 		with graph = nil
 		with verbose = nil
 		with rete-html-page-dir = nil
 		for (key value) in configuration
+		do (inform "key = ~S, value = ~S" key value)
 		do (case key
 		     (:name (setf (instans-name instans) value))
-		     (:directory (setf directory (if (http-or-file-iri-string-p value) value (format nil "file://~A" value))))
+		     (:directory (setf directory (if (http-or-file-iri-string-p value)
+						     value
+						     (format nil "file://~A" (expand-dirname value)))))
 		     (:base (setf base (parse-iri value)))
 		     (:graph (if (string= (string-downcase value) "default") nil (setf graph (parse-iri value))))
-		     (:rules (instans-add-rules instans-iri (expand-input-name directory value) :base base :rete-html-page-dir rete-html-page-dir :silentp (not verbose)))
-		     (:triples (instans-add-triples instans-iri (expand-input-name directory value) :graph graph :base base))
+		     (:rules (instans-add-rules instans-iri (expand-input-name directory value)
+						:base base :rete-html-page-dir rete-html-page-dir :silentp (not verbose)))
+		     (:triples (instans-add-triples instans-iri (expand-input-name directory value) :graph graph :base base :silentp (not verbose)))
 		     (:input-stream (inform "Input streams not implemented yet!"))
 		     (:output-stream (inform "Output streams not implemented yet!"))
 		     (:expect (inform "Expect not implemented yet!"))
-		     (:verbose (setf verbose (equalp (string-downcase value) "true")))
+		     (:verbose (print (setf verbose (equalp (string-downcase value) "true"))))
 		     (:triple-input-policy (setf (instans-triple-input-policy instans) (intern value :keyword)))
 		     (:triple-processing-policy (setf (instans-triple-processing-policy instans) (parse-colon-separated-values value)))
 		     (:rule-instance-removal-policy (setf (instans-rule-instance-removal-policy instans) (intern value :keyword)))

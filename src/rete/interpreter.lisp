@@ -770,3 +770,9 @@
 				   (setf (group-partition-part-aggr-values this) new-values)
 				   (setf (group-partition-part-token this) (make-token aggr-join nil output-vars new-values))))))))) ; returns updated part-token
 
+;;;
+
+(defun trace-rete ()
+  (trace rete-add rete-remove add-token remove-token add-alpha-token add-beta-token match-quad
+	 store-put-token store-get-token store-remove-token store-tokens
+	 index-put-token index-get-tokens index-remove-token))

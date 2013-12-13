@@ -39,10 +39,10 @@
 	     (lexer-error this error-msg))))))
 
 (defun expand-iri (base iri-string)
-  (inform "expand-iri ~S ~S" base iri-string)
+;  (inform "expand-iri ~S ~S" base iri-string)
   (let ((iri (parse-iri iri-string)))
     (cond ((rdf-iri-scheme iri)
-	   (inform "~S has scheme ~S, we use it" iri (rdf-iri-scheme iri))
+;	   (inform "~S has scheme ~S, we use it" iri (rdf-iri-scheme iri))
 	   iri)
 	  ;; (cond ((rdf-iri-had-dot-segments-p iri)
 	  ;; 	    (recompose-iri iri))

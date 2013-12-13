@@ -141,7 +141,7 @@
       (setf (instans-select-function-arguments instans) report-function-arguments)
       (let* ((triples-lexer (make-instance 'turtle-lexer :instans instans :input-stream triples-stream :base base))
 	     (triples-parser (make-turtle-parser :triples-callback #'(lambda (triples)
-								       ;(inform "~%Event callback: ~D triples~%" (length triples))
+								       (inform "~%Event callback: ~D triples~%" (length triples))
 								       (loop for tr in triples do (inform " ~S~%" tr))
 								       (process-triple-input instans triples '(:add :execute))))))
 	(initialize-execution instans)
@@ -216,9 +216,9 @@
 	   (inform "Cannot read SPARQL from ~S" rules)
 	   nil))))
 
-(defun instans-add-triples (instans-iri triples &key expected-results graph base (silentp t))
+(defun instans-add-triples (instans-iri triples &key expected-results graph base silentp)
   (unless silentp
-    (inform "instans-add-triples ~S ~S :graph ~S :base ~S" instans-iri triples graph base))
+    (inform "instans-add-triples ~S ~S :graph ~S :base ~S :silentp ~S" instans-iri triples graph base silentp))
   (let* ((instans (get-instans instans-iri))
 	 (comparep (and expected-results (not (rdf-iri-equal expected-results *rdf-nil*))))
 	 (expected-query-results (if comparep (if (stringp expected-results) (parse-results-file instans expected-results) (parse-results-from-url instans expected-results))))
@@ -236,8 +236,8 @@
 	 (report-function-arguments nil)
 	 (observed-query-results (make-instance 'sparql-query-results))
 	 (string (read-from-url-or-file triples)))
-    (unless silentp
-      (inform "~S" string))
+    ;; (unless silentp
+    ;;   (inform "~S" string))
     (setf (instans-rule-instance-removal-policy instans) :remove)
     (when report-function
       (setf (instans-select-function instans) report-function))
@@ -376,3 +376,4 @@
 ;;   (sparql-call "instans:execute_system" "/Users/enu/instans/tests/input/syntax-test-runner.rq" )
 
 ;(progn (untrace) (trace rete-add token-value make-token add-token remove-token add-alpha-token remove-alpha-token add-beta-token remove-beta-token))
+

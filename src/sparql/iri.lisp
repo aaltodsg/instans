@@ -32,7 +32,7 @@
 			(setf chars rest))))
       (loop for rest on chars
 	    for char = (car rest)
-	    while (not (char-in-set-p* char "?#")) collect path into path
+	    while (not (char-in-set-p* char "?#")) collect char into path
 	    finally (multiple-value-bind (cleaned dotsp) (remove-dot-segments path)
 		      (setf (rdf-iri-path result) (result-component cleaned))
 		      (setf (rdf-iri-had-dot-segments-p result) dotsp)
