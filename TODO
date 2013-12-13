@@ -23,5 +23,4 @@
 - Implement preprocessing of hex codepoints.
 - Implement joining of BGP:s after filter removal and move blank checking after the translation of ggp
 - Make function lookup to produce different kind of 'error' messaging, when a foreign function is not found.
-
-
+- Maybe replace iri parsing by some existing library?

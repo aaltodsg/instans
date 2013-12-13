@@ -24,15 +24,19 @@
 		      (setf (rdf-iri-scheme result) (result-component scheme))
 		      (setf chars (cdr rest))))
       (when (and (char=* (first chars) #\/) (char=* (second chars) #\/))
-	(loop for rest on (cddr chars)
-	      for char = (car rest)
-	      while (not (char-in-set-p* char "/?#")) collect char into authority
-	      finally (progn
-			(setf (rdf-iri-authority result) (result-component authority))
-			(setf chars rest))))
+	(cond ((string= (rdf-iri-scheme result) "file")
+	       (when (not (char=* (third chars) #\/))
+		 (setf (rdr-iri-relative-path-p result) t)))
+	      (t
+	       (loop for rest on (cddr chars)
+		     for char = (car rest)
+		     while (not (char-in-set-p* char "/?#")) collect char into authority
+		     finally (progn
+			       (setf (rdf-iri-authority result) (result-component authority))
+			       (setf chars rest))))))
       (loop for rest on chars
 	    for char = (car rest)
-	    while (not (char-in-set-p* char "?#")) collect char into path
+	    while (not (char-in-set-p* char "?#")) collect path into path
 	    finally (multiple-value-bind (cleaned dotsp) (remove-dot-segments path)
 		      (setf (rdf-iri-path result) (result-component cleaned))
 		      (setf (rdf-iri-had-dot-segments-p result) dotsp)

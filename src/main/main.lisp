@@ -13,11 +13,11 @@
 		  (prog1 (subseq string 0 pos) (setf string (subseq string (min (length string) (1+ pos))))))))
 	     
 
-(defun process-configuration (configuration)
+(defun run-configuration (configuration)
   (flet ((expand-input-name (directory-iri-string url-or-file-name)
 	   (let* ((directory-iri (parse-iri directory-iri-string))
 		  (v
-	   (expand-iri directory-iri (if (not (http-or-file-iri-string-p url-or-file-name)) (format nil "file://~A" url-or-file-name)  url-or-file-name))
+		   (expand-iri directory-iri url-or-file-name)
 		   ))
 	     (inform "expand-input-name ~A ~A -> ~A" directory-iri url-or-file-name v)
 	     v)
@@ -53,8 +53,31 @@
 (defun command-line-argv ()
   (if (boundp '*test-argv*) *test-argv*  sb-ext:*posix-argv*))
 
+(defun split-string (string delimiter)
+  (let* ((result (list nil))
+	 (tail result)
+	 (i 0)
+	 (strlen (length string))
+	 (delimlen (length delimiter)))
+    (flet ((add-piece (end)
+	     (setf (cdr tail) (list (subseq string i end)))
+	     (setf tail (cdr tail))
+	     (setf i end)))
+      (loop while (< i strlen)
+	    for pos = (search delimiter string :start2 i)
+;	    do (inform "i = ~D, pos = ~D, tail = ~S" i pos tail)
+	    do (cond ((null pos)
+		      (add-piece strlen))
+		     (t
+		      (add-piece pos)
+		      (incf i delimlen))))
+      (cdr result))))
+
 (defun main-test (&rest args)
-  (let ((*test-argv* (cons "instans" (cons "--end-toplevel-options" args))))
+  (let ((*test-argv* (cons "instans" (cons "--end-toplevel-options"
+					   (if (= 1 (length args))
+					       (split-string (first args) " ")
+					       args)))))
     (main)))
 
 (defun main ()
@@ -132,5 +155,5 @@
 	        do (pop args))
 	  (when configuration
 	    (format notifications "Configuration:~%~{~{~S~^ ~}~^~%~}~%" configuration)
-	    (process-configuration configuration)))))))
+	    (run-configuration configuration)))))))
 
