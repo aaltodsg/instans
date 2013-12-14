@@ -1,0 +1,4 @@
+@BASE <http://a.com/> .
+<#p1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Person>.
+<#e1> <http://purl.org/NET/c4dm/event.owl#place> _:bnode1.
+_:bnode2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/NET/c4dm/timeline.owl#Instant>.

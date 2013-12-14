@@ -1,0 +1,81 @@
+PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX tl:<http://purl.org/NET/c4dm/timeline.owl#>
+PREFIX geo:<http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX foaf:<http://xmlns.com/foaf/0.1/>
+PREFIX event:<http://purl.org/NET/c4dm/event.owl#>
+PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>
+
+# SELECT * WHERE {
+#        ?time tl:at ?dttm .
+#        ?time2 tl:at ?dttm2
+#        FILTER (?dttm < ?dttm2) 
+# }
+
+# QUERY 2 - PART B: Remove old events
+	# Leave only the newest event for each person
+	DELETE { 
+         ?event event:agent ?person .
+           # ?event event:place ?place .
+           # ?place geo:lat ?lat .
+           # ?place geo:long ?long .
+           ?event event:time ?time .
+           ?time tl:at ?dttm
+	}
+	WHERE {
+		?event event:agent ?person .
+		# ?event event:place ?place .
+		# ?place geo:lat ?lat .
+		# ?place geo:long ?long .
+		?event event:time ?time .
+		?time tl:at ?dttm
+		FILTER EXISTS {
+				?event2 event:agent ?person .
+                                # FILTER (?event2 != ?event)
+				?event2 event:time ?time2 .
+				?time2 tl:at ?dttm2
+				FILTER (?dttm < ?dttm2) 
+		}
+	} ;
+
+# # QUERY 3: Detect nearby
+# 	INSERT { ?person1 :nearby ?person2 }
+# 	WHERE { ?person1 foaf:knows ?person2 .
+# 			?event1 event:agent ?person1 .
+# 			?event1 event:place ?place1 .
+# 			?place1	geo:lat ?lat1 .
+# 			?place1	geo:long ?long1 .
+# 			?event1 event:time ?time1 .
+# 			?time1 tl:at ?dttm1 .
+# 			?event2 event:agent ?person2 .
+# 			?event2 event:place ?place2 .
+# 			?place2	geo:lat ?lat2 .
+# 			?place2	geo:long ?long2 .
+# 			?event2 event:time ?time2 .
+# 			?time2 tl:at ?dttm2 .
+# 			FILTER ((abs(?lat2-?lat1) < 0.01) && (abs(?long2-?long1) < 0.01))
+# 			# Don't do anything, if the relation already exists
+# 			FILTER NOT EXISTS { ?person1 :nearby ?person2 }
+# 	} ;
+
+# # QUERY 4: Notification
+# 	SELECT ?person1 ?person2
+# 	WHERE {  ?person1 :nearby ?person2 } ;
+
+# # QUERY 5: Detect not nearby
+# 	DELETE { ?person1 :nearby ?person2 }
+# 	WHERE { ?person1 foaf:knows ?person2 .
+# 			?event1 event:agent ?person1 .
+# 			?event1 event:place ?place1 .
+# 			?place1	geo:lat ?lat1 .
+# 			?place1	geo:long ?long1 .
+# 			?event1 event:time ?time1 .
+# 			?time1 tl:at ?dttm1 .
+# 			?event2 event:agent ?person2 .
+# 			?event2 event:place ?place2 .
+# 			?place2	geo:lat ?lat2 .
+# 			?place2	geo:long ?long2 .
+# 			?event2 event:time ?time2 .
+# 			?time2 tl:at ?dttm2 .
+# 		    FILTER ( (abs(?lat2-?lat1) > 0.02) || (abs(?long2-?long1) > 0.02))
+# 		    FILTER EXISTS {	?person1 :nearby ?person2  }
+# 	}
