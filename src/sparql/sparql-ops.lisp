@@ -137,7 +137,6 @@
   (:method ((a xsd-string-value) (b xsd-string-value)) (string< a b))
   (:method ((a xsd-boolean-value) (b xsd-boolean-value)) (and (not a) b))
   (:method ((a xsd-datetime-value) (b xsd-datetime-value)) (datetime< a b)))
-
 ;; A > B	numeric, numeric		-> xsd:boolean  =>  op:numeric-greater-than(A, B) 
 ;; A > B	simple literal, simple literal	-> xsd:boolean  =>  op:numeric-equal(fn:compare(A, B), 1) 
 ;; A > B	xsd:string, xsd:string		-> xsd:boolean  =>  op:numeric-equal(fn:compare(STR(A), STR(B)), 1) 

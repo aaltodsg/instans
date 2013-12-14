@@ -367,12 +367,14 @@
 (defun eat-blank-node-label (lexer) ; We saw _:, must get-char : first
   (let* ((first-char (get-char lexer))
 	 (buf (empty-chbuf #\_ #\: first-char)))
-    (loop for ch = (peekch lexer)
-	  for prev-ch = first-char then ch
+    (loop for prev-ch = first-char then ch
+	  for ch = (peekch lexer)
 	  while (or (pn-chars-p ch) (char=* ch #\.))
 	  do (chbuf-put-char buf (get-char lexer))
 	  finally (progn
+;		    (inform "Lexer detected blank node with text ~S. Prev-ch = ~C" (subseq (chbuf-contents buf) 0 (chbuf-index buf)) prev-ch)
 		    (when (char=* prev-ch #\.)
+;		      (inform "Dropping trailin .")
 		      (unget-char lexer prev-ch)
 		      (chbuf-drop-last-char buf))
 		    (return-input-token lexer 'BLANK_NODE_LABEL-TERMINAL (canonize-string lexer buf))))))
@@ -380,8 +382,8 @@
 (defun eat-identifier (lexer buf)
   (let ((first-char (get-char lexer)))
     (chbuf-put-char buf first-char) ; PN_CHARS_BASE, get-char that first
-    (loop for ch = (peekch lexer)
-	  for prev-ch = first-char then ch
+    (loop for prev-ch = first-char then ch
+	  for ch = (peekch lexer)
 	  while (or (pn-chars-p ch) (char=* ch #\.))
 	  do (chbuf-put-char buf (get-char lexer))
 	  finally (return (cond ((char=* prev-ch #\.)

@@ -55,6 +55,7 @@
 	(true-condition-found-p nil)
 	(default-body nil)
 	(default-body-present-p nil))
+    (inform "make-sparql-function-body ~S outer-arg-names = ~S" name outer-arg-names)
     (when (eq (car (car (last specs))) :default)
       (setf default-body-present-p t)
       (setf default-body (cdr (car (last specs))))
@@ -94,16 +95,17 @@
 						   (0 (format nil "~A: Cannot apply to zero arguments" name))
 						   (1 (format nil "~A: Cannot apply to argument ~~A" name))
 						   (t (format nil "~A: Cannot apply to arguments ~A" name (loop repeat (length outer-arg-names) collect "~A"))))))
-					`(sparql-error ,format nil ,@outer-arg-names))))))))))
+					`(sparql-error ,format ,@outer-arg-names))))))))))
 
-(defmacro define-xsd-value-type (short-name spec)
-  (let* ((xsd-value-type-prefix "http://www.w3.org/2001/XMLSchema#")
+(defmacro define-xsd-value-type (short-name-string spec)
+  (let* ((short-name (intern (string-downcase short-name-string)))
+	 (xsd-value-type-prefix "http://www.w3.org/2001/XMLSchema#")
 	 (lisp-type (fmt-intern "~:@(XSD-~A-VALUE~)" short-name))
 	 (value-parser (fmt-intern "~:@(PARSE-XSD-~A~)" short-name))
 	 (descriptor-var (fmt-intern "*~:@(XSD-~A-VALUE-TYPE-DESCRIPTOR~)*" short-name))
 	 (iri-var (fmt-intern "*~:@(XSD-~A-IRI~)*" short-name))
 	 (iri-string-var (fmt-intern "*~:@(XSD-~A-IRI-STRING~)*" short-name))
-	 (iri-string (format nil "~A~(~A~)" xsd-value-type-prefix short-name)))
+	 (iri-string (format nil "~A~A" xsd-value-type-prefix short-name-string)))
     `(progn 
        (deftype ,lisp-type () ',spec)
        (defvar ,iri-string-var)
@@ -134,7 +136,9 @@
 	 (add-sparql-op :kind ',kind :prefixed-name-string ,prefixed-name-string :lisp-name ',lisp-name :arguments ',arguments :returns ',returns :body ',body :hiddenp ,hiddenp)))))
 
 (defmacro define-sparql-function (prefixed-name-string (&key arguments returns hiddenp) &body methods)
-  `(define-sparql-op sparql-function ,prefixed-name-string (:arguments ,arguments :returns ,returns :hiddenp ,hiddenp) ,@(make-sparql-function-body prefixed-name-string arguments methods)))
+  `(define-sparql-op sparql-function ,prefixed-name-string (:arguments ,arguments :returns ,returns :hiddenp ,hiddenp)
+;     (inform "(~S ~{~A~^ ~})" ,prefixed-name-string (list ,@(loop for arg in arguments when (consp arg) collect (first arg) else when (not (member arg '(&rest &optional))) collect arg)))
+     ,@(make-sparql-function-body prefixed-name-string arguments methods)))
 
 (defmacro define-sparql-form (prefixed-name-string (&key arguments returns hiddenp) &body body)
   `(define-sparql-op sparql-form ,prefixed-name-string (:arguments ,arguments :returns ,returns :hiddenp ,hiddenp) ,@body))
@@ -185,3 +189,8 @@
 
 (defmacro sparql-distinct ()
   `*sparql-distinct*)
+
+
+
+
+

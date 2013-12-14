@@ -329,8 +329,10 @@
 		    (t
 		     (add-token next token stack))))))
   (:method ((this filter-node) token &optional stack)
-    (when (eval-sparql-filter (filter-test-func this) (loop for var in (node-use this) collect (token-value this token var)))
-      (call-succ-nodes #'add-token this token stack)))
+    (let ((arguments (loop for var in (node-use this) collect (token-value this token var))))
+;      (inform "~%in add-token ~S (calling ~S ~{~A~^ ~})~%" this (filter-test-func this) arguments)
+      (when (eval-sparql-filter (filter-test-func this) arguments)
+	(call-succ-nodes #'add-token this token stack))))
   (:method ((this filter-memory) token &optional stack)
     (let ((new-value (eval-sparql-filter (filter-test-func this) (loop for var in (node-use this) collect (token-value this token var))))
 	  (prev-value-var (filter-memory-prev-value-var this))
@@ -375,9 +377,15 @@
     (let* ((start-node (subgraph-start-node this))
 	   (active-p (token-value this token (existence-active-p-var start-node)))
 	   (counter (incf (token-value this token (existence-counter-var start-node)))))
+      ;; (inform "~%add-token ~S: this=~%" this)
+      ;; (describe this)
+      ;; (inform "~%start-node=~S~%" start-node)
+      ;; (describe start-node)
+;      (inform "~%add-token ~S, counter = ~S, active-p = ~S~%" this counter active-p)
       (when (not active-p)
 	(case (exists-kind this)
 	  (:simple-exists
+;	   (inform "Hit!~%")
 	   (when (= 1 counter) (call-succ-nodes #'add-token this (start-node-token this token) stack)))
 	  (:simple-not-exists
 	   (when (= 1 counter) (call-succ-nodes #'remove-token this (start-node-token this token) stack)))
@@ -774,5 +782,6 @@
 
 (defun trace-rete ()
   (trace rete-add rete-remove add-token remove-token add-alpha-token add-beta-token match-quad
+	 token-value make-token call-succ-nodes rete-add-rule-instance execute-rules rule-instance-queue-execute-instance
 	 store-put-token store-get-token store-remove-token store-tokens
 	 index-put-token index-get-tokens index-remove-token))

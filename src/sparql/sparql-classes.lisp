@@ -205,6 +205,8 @@
 
 (defun create-rdf-literal-with-type (string type-iri)
   (let ((type-descriptor (find-type-descriptor (rdf-iri-string type-iri))))
+;    (inform "create-rdf-literal-with-type ~S ~S" string type-iri)
+;    (describe type-descriptor)
     (cond ((null type-descriptor)
 	   (make-instance 'rdf-literal :string string :type type-iri))
 	  (t (funcall (type-descriptor-value-parser type-descriptor) string)))))

@@ -253,7 +253,7 @@
 	  (inform "~%Processing triples:~%"))
 	;; Is this OK?
 	(initialize-execution instans)
-	(funcall triples-parser triples-lexer)
+	(funcall triples-parser triples-lexer :show-parse-p (not silentp))
 	(pop observed-result-list)
 	(unless silentp
 	  (inform "Expected-results ~S" expected-results)

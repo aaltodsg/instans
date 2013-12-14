@@ -13,13 +13,13 @@
 ;;;   type = xsd:string or with type = nil and lang = nil
 ;;; - All number literals are always converted to some xsd-number-value type.
 
-(define-xsd-value-type boolean (member t nil))
-(define-xsd-value-type integer fixnum)
-(define-xsd-value-type decimal single-float)
-(define-xsd-value-type float single-float)
-(define-xsd-value-type double double-float)
-(define-xsd-value-type string string)
-(define-xsd-value-type datetime datetime)
+(define-xsd-value-type "boolean" (member t nil))
+(define-xsd-value-type "integer" fixnum)
+(define-xsd-value-type "decimal" single-float)
+(define-xsd-value-type "float" single-float)
+(define-xsd-value-type "double" double-float)
+(define-xsd-value-type "string" string)
+(define-xsd-value-type "dateTime" datetime)
 
 ;; (deftype xsd-number-value () (or xsd-integer-value xsd-decimal-value xsd-float-value xsd-double-value))
 ;; (deftype xsd-value () (or xsd-boolean-value xsd-integer-value xsd-decimal-value xsd-float-value xsd-double-value xsd-string-value xsd-datetime-value))
@@ -40,3 +40,4 @@
 (deftype iri-or-string () '(or rdf-iri xsd-string-value))
 (deftype literal-or-string () '(or rdf-literal xsd-string-value))
 (deftype ebv () '(or xsd-boolean-value xsd-string-value xsd-number-value rdf-literal))
+

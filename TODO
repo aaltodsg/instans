@@ -26,3 +26,4 @@
 - Maybe replace iri parsing by some existing library?
 - Problem with expand-iri: with the base and prefix productions, whose follower is iriref, and we provide a relative iriref, the expansion is
   done using the wrong base or prefix. We should postpone the expansion. This may cause large changes.
+- Should the iri's be case sensitive or not?

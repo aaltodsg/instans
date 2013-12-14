@@ -35,7 +35,7 @@
 		with verbose = nil
 		with rete-html-page-dir = nil
 		for (key value) in configuration
-		do (inform "key = ~S, value = ~S" key value)
+		do (inform "key = ~S, value = ~S~%" key value)
 		do (case key
 		     (:name (setf (instans-name instans) value))
 		     (:directory (setf directory (if (http-or-file-iri-string-p value)
@@ -49,7 +49,7 @@
 		     (:input-stream (inform "Input streams not implemented yet!"))
 		     (:output-stream (inform "Output streams not implemented yet!"))
 		     (:expect (inform "Expect not implemented yet!"))
-		     (:verbose (print (setf verbose (equalp (string-downcase value) "true"))))
+		     (:verbose (setf verbose (equalp (string-downcase value) "true")))
 		     (:triple-input-policy (setf (instans-triple-input-policy instans) (intern value :keyword)))
 		     (:triple-processing-policy (setf (instans-triple-processing-policy instans) (parse-colon-separated-values value)))
 		     (:rule-instance-removal-policy (setf (instans-rule-instance-removal-policy instans) (intern value :keyword)))
