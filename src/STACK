@@ -4,6 +4,7 @@
   + fixed bug in blank node lexing. Eat-blank loop had definition of 'ch' and 'prev-ch' in wrong order. Same in eat-identifier.
 - change the handling of IRIs and prefixed names in lexer to postpone expansion.
   - find out where the expansion happens now and when the expanded names are actually needed
+- Make sparql result set output facility
 - Why does friends-nearby not work?
   + Checking if we can delete old events
     + Fixed a bug in my test rule fnb.rq. Had FILTER (?event2 != ?event1), even though ?event1 is never set.  Got the simplest removal rule to work
@@ -16,6 +17,8 @@
         a red herring, only the output was wrong (an extra NIL for some reason) and 2) the inputs were literals of type xsd:dateTime, not objects
         of type datetime. 
       + Fixed a problem in finding the xsd types. The type name string used "datetime" whereas the real name is dateTime.
-    - Exists-end-node does not kill properly the counter and active-p variables.
+    + Exists-end-node does not kill properly the counter and active-p variables.
+      + replace list-difference ... with sparql-var specific versions
+  + Going on to events with all fields. Seems to delete events correctly
+  - Adding all rules
 
-      

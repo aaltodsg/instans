@@ -164,7 +164,7 @@
 			       optional-end))
 		   (MINUS (let ((e1 (first args))
 				(e2 (second args)))
-			    (cond ((null (list-intersection (collect-expression-variables e1) (collect-expression-variables e2)))
+			    (cond ((null (sparql-var-list-intersection (collect-expression-variables e1) (collect-expression-variables e2)))
 				   (translate e1 prev dataset))
 				  (t
 				   (let ((positive (translate e1 prev dataset))

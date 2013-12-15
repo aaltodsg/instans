@@ -122,8 +122,7 @@
 
 (defun report-execution (instans)
   (let ((queue (instans-rule-instance-queue instans)))
-    (inform "Read ~D inputs~&Added ~D quads~&Removed ~D quads~&Executed ~D rules: ~D select rules, ~D modify rules, and ~D construct rules"
-	    (instans-input-count instans)
+    (inform "Added ~D quads~&Removed ~D quads~&Executed ~D rules: ~D select rules, ~D modify rules, and ~D construct rules"
 	    (instans-add-quad-count instans)
 	    (instans-remove-quad-count instans)
 	    (rule-instance-queue-execute-count queue)
@@ -216,7 +215,7 @@
 	   (inform "Cannot read SPARQL from ~S" rules)
 	   nil))))
 
-(defun instans-add-triples (instans-iri triples &key expected-results graph base silentp)
+(defun instans-add-triples (instans-iri triples &key expected-results graph base silentp (reportp t))
   (unless silentp
     (inform "instans-add-triples ~S ~S :graph ~S :base ~S :silentp ~S" instans-iri triples graph base silentp))
   (let* ((instans (get-instans instans-iri))
@@ -226,19 +225,20 @@
 	 (observed-result-list (list nil))
 	 (observed-result-list-tail observed-result-list)
 	 (report-function (if comparep #'(lambda (node token)
-					   (let ((solution (make-instance 'sparql-result
-									  :bindings (loop for canonic-var in (node-use (node-prev node))
-											  for var = (reverse-resolve-binding instans canonic-var)
-											  collect (make-instance 'sparql-binding :variable var :value (token-value node token canonic-var))))))
-					     (inform "Node ~S, (node-use (node-prev node)) ~S, token ~S, solution ~S" node (node-use (node-prev node)) token solution)
-					     (setf (cdr observed-result-list-tail) (list solution))
-					     (setf observed-result-list-tail (cdr observed-result-list-tail))))))
+					  (let ((solution (make-instance 'sparql-result
+									 :bindings (loop for canonic-var in (node-use (node-prev node))
+											 for var = (reverse-resolve-binding instans canonic-var)
+											 collect (make-instance 'sparql-binding :variable var :value (token-value node token canonic-var))))))
+					    (inform "Node ~S, (node-use (node-prev node)) ~S, token ~S, solution ~S" node (node-use (node-prev node)) token solution)
+					    (setf (cdr observed-result-list-tail) (list solution))
+					    (setf observed-result-list-tail (cdr observed-result-list-tail))))))
 	 (report-function-arguments nil)
 	 (observed-query-results (make-instance 'sparql-query-results))
 	 (string (read-from-url-or-file triples)))
     ;; (unless silentp
     ;;   (inform "~S" string))
     (setf (instans-rule-instance-removal-policy instans) :remove)
+    (setf (rule-instance-queue-report-p (instans-rule-instance-queue instans)) reportp)
     (when report-function
       (setf (instans-select-function instans) report-function))
     (setf (instans-select-function-arguments instans) report-function-arguments)
@@ -254,6 +254,7 @@
 	;; Is this OK?
 	(initialize-execution instans)
 	(funcall triples-parser triples-lexer :show-parse-p (not silentp))
+	(report-execution-status instans)
 	(pop observed-result-list)
 	(unless silentp
 	  (inform "Expected-results ~S" expected-results)

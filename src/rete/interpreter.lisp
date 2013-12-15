@@ -13,7 +13,7 @@
   (:method ((this instans) subj pred obj graph)
     (let ((quad-store (instans-quad-store this)))
       (when quad-store (add-quad quad-store (list subj pred obj graph))))
-;    (incf (instans-add-quad-count this))
+    (incf (instans-add-quad-count this))
     (loop for (alpha . args) in (match-quad (instans-triple-pattern-matcher this) subj pred obj graph)
 	  do (add-token alpha args))))
 
@@ -21,7 +21,7 @@
   (:method ((this instans) subj pred obj graph)
     (let ((quad-store (instans-quad-store this)))
       (when quad-store (remove-quad quad-store (list subj pred obj graph))))
-;    (incf (instans-remove-quad-count this))
+    (incf (instans-remove-quad-count this))
     (loop for (alpha . args) in (match-quad (instans-triple-pattern-matcher this) subj pred obj graph)
 	  do (remove-token alpha args))))
 
@@ -219,7 +219,6 @@
 
 (defgeneric initialize-execution (instans)
   (:method ((this instans))
-    (setf (instans-input-count this) 0)
     (setf (instans-add-quad-count this) 0)
     (setf (instans-remove-quad-count this) 0)
     (let ((queue (instans-rule-instance-queue this)))
@@ -291,6 +290,17 @@
 	(:repeat-snapshot
 	 (loop while (rule-instance-queue-execute-snapshot queue)))
 	(t (error* "Unknown execution policy ~A" policy))))))
+
+(defgeneric report-execution-status (instans &key stream)
+  (:method ((this instans) &key (stream (instans-default-output this)))
+    (format stream "add-quad-count = ~S~%" (instans-add-quad-count this))
+    (format stream "remove-quad-count = ~S~%" (instans-remove-quad-count this))
+    (let ((queue (instans-rule-instance-queue this)))
+      (format stream "queue-add-count = ~S~%" (rule-instance-queue-add-count queue))
+      (format stream "queue-remove-count = ~S~%" (rule-instance-queue-remove-count queue))
+      (format stream "queue-select-count = ~S~%" (rule-instance-queue-select-count queue))
+      (format stream "queue-construct-count = ~S~%" (rule-instance-queue-construct-count queue))
+      (format stream "queue-modify-count = ~S~%" (rule-instance-queue-modify-count queue)))))
 
 (defun call-succ-nodes (func node token stack)
   (cond ((null stack)
@@ -647,7 +657,8 @@
 (defun rule-instance-queue-execute-instance (queue instance)
   (let ((node (rule-instance-node instance))
 	(token (rule-instance-token instance)))
-    (report-rule-execution node token)
+    (if (rule-instance-queue-report-p queue)
+	(report-rule-execution node token))
     (cond ((typep node 'select-node)
 	   (incf (rule-instance-queue-select-count queue)))
 	  ((typep node 'modify-node)
@@ -685,7 +696,7 @@
 (defun rule-instance-queue-execute-count (queue)
   (+ (rule-instance-queue-select-count queue) (rule-instance-queue-construct-count queue) (rule-instance-queue-modify-count queue)))
 
-(defun report-rule-execution (node token &key (variables :project))
+(defun report-rule-execution (node token &key (variables :project) (stream (instans-default-output (node-instans node))))
   (unless (typep node 'query-node)
     (when (eq variables :project)
       (setf variables :visible)))
@@ -697,7 +708,7 @@
 						       node)
 				   unless (null var)
 				   collect (list (uniquely-named-object-name (reverse-resolve-binding instans var)) (token-value node token var)))))
-    (format (instans-default-output (node-instans node)) "Rule ~A~%~{~{       ~A = ~S~}~^,~%~}~%" node displayed-bindings)))
+    (format stream "~A rule ~A~%~{~{       ~A = ~S~}~^,~%~}~%" (instans-name (node-instans node)) node displayed-bindings)))
  
 (defgeneric execute-rule-node (node token)
   (:method ((this select-node) token)

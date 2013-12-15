@@ -405,6 +405,15 @@
   (and (sparql-var-p v1) (sparql-var-p v2)
        (uniquely-named-object-equal v1 v2)))
 
+(defun sparql-var-list-difference (l1 l2)
+  (list-difference l1 l2 :test #'sparql-var-equal))
+
+(defun sparql-var-list-union (l1 l2)
+  (list-union l1 l2 :test #'sparql-var-equal))
+
+(defun sparql-var-list-intersection (l1 l2)
+  (list-intersection l1 l2 :test #'sparql-var-equal))
+
 (defun find-sparql-var (v vlist)
   (find v vlist :test #'sparql-var-equal))
 

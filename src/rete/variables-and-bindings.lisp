@@ -27,6 +27,9 @@
 (defun reverse-resolve-binding (instans to)
   (car (rassoc to (instans-bindings instans))))
 
+(defun reverse-resolve-bindings (instans to-vars)
+  (loop for var in to-vars collect (reverse-resolve-binding instans var)))
+
 (defun add-binding (instans from to-name)
   (let ((to (make-sparql-var instans to-name)))
     (push-to-end (cons from to) (instans-bindings instans))
