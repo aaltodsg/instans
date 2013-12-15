@@ -2,10 +2,7 @@
 + fix bug in objectlist parsing in turtle-parser
   + fixed bug in turtle-parser RDFLiteral handling. Required (nth-value 0 (create-rdf-literal-with-type s $1)). This was fixed already in sparql-parser!
   + fixed bug in blank node lexing. Eat-blank loop had definition of 'ch' and 'prev-ch' in wrong order. Same in eat-identifier.
-- change the handling of IRIs and prefixed names in lexer to postpone expansion.
-  - find out where the expansion happens now and when the expanded names are actually needed
-- Make sparql result set output facility
-- Why does friends-nearby not work?
++ Why does friends-nearby not work?
   + Checking if we can delete old events
     + Fixed a bug in my test rule fnb.rq. Had FILTER (?event2 != ?event1), even though ?event1 is never set.  Got the simplest removal rule to work
     + Trying to find out why, exists-end-node does not produce any results
@@ -20,5 +17,7 @@
     + Exists-end-node does not kill properly the counter and active-p variables.
       + replace list-difference ... with sparql-var specific versions
   + Going on to events with all fields. Seems to delete events correctly
-  - Adding all rules
-
+  + Adding all rules
+- change the handling of IRIs and prefixed names in lexer to postpone expansion.
+  - find out where the expansion happens now and when the expanded names are actually needed
+- Make sparql result set output facility
