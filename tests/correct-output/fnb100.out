@@ -1,3 +1,19 @@
+Configuration:
+:BASE "file:///."
+:DIRECTORY "input"
+:RULES "CF-Queries-default.rq"
+:REPORTING "all"
+:TRIPLES "5actors100events.ntriples"
+
+key = :BASE, value = "file:///."
+
+key = :DIRECTORY, value = "input"
+
+key = :RULES, value = "CF-Queries-default.rq"
+
+key = :REPORTING, value = "all"
+
+key = :TRIPLES, value = "5actors100events.ntriples"
 Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?EVENT = #<RDF-IRI file:////#e1>,
        ?PERSON = #<RDF-IRI file:////#p1>,

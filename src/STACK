@@ -10,8 +10,8 @@
   - Take care that the result stack is kept OK.
 - Change sparql-parser and turtle-parser to use define-ll1-parser
 - Clean cl-ll1 generator
-  - Rename parser -> grammar
-  - Rename parsing -> parser
-  - See which fields belong to grammar and which to parser
+  + Rename parser -> grammar
+  + Rename parsing -> ll-parser
+  + Made grammar the superclass of ll-parser (lots of small fixes)
   - Write define-ll1-parser macro
   

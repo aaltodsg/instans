@@ -47,16 +47,16 @@
 (defvar *parser-error-messages*)
 
 ;; (defun sparql-fatal-parse-error (fmt &rest args)
-;;   (apply #'parsing-failure fmt args))
+;;   (apply #'ll-parser-failure fmt args))
 
 (defun sparql-parse-error (fmt &rest args)
-  (apply #'parsing-failure fmt args))
+  (apply #'ll-parser-failure fmt args))
 
 ;; (defun sparql-parse-error (fmt &rest args)
 ;;   (push-to-end (apply #'format nil (format nil "~%~A" fmt) args) *parser-error-messages*))
 
 ;; (defun sparql-fatal-parse-error (fmt &rest args)
-;;   (apply #'parsing-failure fmt args))
+;;   (apply #'ll-parser-failure fmt args))
 
 
 (defun build-query-expression (clauses)
@@ -285,7 +285,7 @@
 		       (t
 ;			(inform "create-call-through-iri ~A ~A" sparql-op arglist)
 			(cons sparql-op arglist))))))
-      (with-ll1-parser (sparql-parser)
+      (with-ll1-rules (sparql-parser)
 	  ;; ((a ::= (:rep1 b)))
 	  ((Rules ::= (:OR (Tests :RESULT (if (eq mode :testing) $0 (sparql-parse-error "Not in test mode")))
 			   (Prologue (:OPT ((:OR Query1 Update1) ((:OPT (|;-TERMINAL| Rules :RESULT $1)) :RESULT (opt-value $0)) :RESULT (cons $0 $1)))
@@ -602,9 +602,9 @@
 	    (setf mode (if testingp :testing :query))
 	    (let ((result (apply #'sparql-parser lexer keys)))
 	      (when *parser-error-messages*
-		(setf (parsing-state result) :failed)
+		(setf (ll-parser-state result) :failed)
 		(loop for msg in *parser-error-messages*
-		      do (push-to-end msg (parsing-error-messages result))))
+		      do (push-to-end msg (ll-parser-error-messages result))))
 	      result))))))
 
 (defun sparql-parse-file (instans query-file &rest keys &key show-parse-p (newline-positions (list nil)) test-mode-p)
@@ -669,9 +669,9 @@
 		       while line
 		       do (inform "~A" line))))
 	     (let ((result (sparql-parse-file instans file :show-parse-p show-parse-p :newline-positions newline-positions :test-mode-p test-mode-p)))
-	       (cond ((not (parsing-succeeded-p result))
-		      (loop for msg in (parsing-error-messages result)
+	       (cond ((not (ll-parser-succeeded-p result))
+		      (loop for msg in (ll-parser-error-messages result)
 			    do (inform "~A:~A" file msg)))
 		     (print-result-p
-		      (loop for item in (car (parsing-result-stack result))
+		      (loop for item in (car (ll-parser-result-stack result))
 			    do (inform "~S" item))))))))

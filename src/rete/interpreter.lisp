@@ -265,8 +265,8 @@
 ;; 	  while continuep
 ;; 	  do (setf continuep nil)
 ;; 	  do (loop for processor in (instans-triple-processors instans)
-;; 		   for parsing = (run-triple-processor processor)
-;; 		   unless (parsing-done parsing)
+;; 		   for ll-parser = (run-triple-processor processor)
+;; 		   unless (ll-parser-done ll-parser)
 ;; 		   do (setf continuep t)))))
 
 

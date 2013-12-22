@@ -10,21 +10,21 @@
     (compile-sparql-stream input-stream :input-name file :instans instans :instans-name instans-name :rete-html-page-dir rete-html-page-dir
 			   :make-rete-html-page-script make-rete-html-page-script :base base :show-parse-p show-parse-p)))
 
-(defun compile-sparql-stream (stream &key input-name instans instans-name rete-html-page-dir (make-rete-html-page-script (find-make-rete-html-script)) (parser #'sparql-parse-stream) base show-parse-p)
+(defun compile-sparql-stream (stream &key input-name instans instans-name rete-html-page-dir (make-rete-html-page-script (find-make-rete-html-script)) (parser-function #'sparql-parse-stream) base show-parse-p)
   (declare (special *node-color-alist*))
   (setf *node-color-alist* nil)
   (when (null instans)
     (setf instans (make-instance 'instans :name instans-name)))
-  (let* ((parsing (funcall parser instans stream :base base :show-parse-p show-parse-p))
+  (let* ((ll-parser (funcall parser-function instans stream :base base :show-parse-p show-parse-p))
 	 (colors (list "Black" "Red" "Blue" "Green" "Orange"))
 	 (algebra-expr-list nil))
-    (cond ((not (parsing-succeeded-p parsing))
-	   (setf (instans-error-messages instans) (parsing-error-messages parsing))
+    (cond ((not (ll-parser-succeeded-p ll-parser))
+	   (setf (instans-error-messages instans) (ll-parser-error-messages ll-parser))
 	   (return-from compile-sparql-stream (values nil (instans-error-message instans))))
 	  (t
 	   (when show-parse-p
-	     (inform "Parsed ~S" (first (parsing-result-stack parsing))))
-	   (setf algebra-expr-list (filter-not #'(lambda (x) (member (car x) '(PREFIX BASE))) (first (parsing-result-stack parsing))))))
+	     (inform "Parsed ~S" (first (ll-parser-result-stack ll-parser))))
+	   (setf algebra-expr-list (filter-not #'(lambda (x) (member (car x) '(PREFIX BASE))) (first (ll-parser-result-stack ll-parser))))))
     (setf (rest (last colors)) colors)
     (loop for algebra-expr in algebra-expr-list
 	  for color in colors
@@ -257,7 +257,7 @@
   ;; 				    :lexer (make-instance 'turtle-lexer :instans instans :input-stream input-stream :base base)
   ;; 				    :show-parse-p (contains-key debug :parse-triples))))
   ;;     (setf (triple-processor-parser processor)
-  ;; 	    (make-turtle-parser :triples-callback #'(lambda (triples) (process-triples processor triples) (parsing-yields nil)) :continuep t))
+  ;; 	    (make-turtle-parser :triples-callback #'(lambda (triples) (process-triples processor triples) (ll-parser-yields nil)) :continuep t))
   ;;     (add-triple-processor instans processor))))
 
 (defun instans-run (instans-iri)
