@@ -1,18 +1,19 @@
 SCRIPTS=../scripts
 SYNTAX_TESTS=$(SCRIPTS)/run-sparql-syntax-tests.sh
+FNB-TEST=$(SCRIPTS)/fnb-test.sh
 INSTANS=../bin/instans
 
-all: syntax-tests
+all: syntax-tests fnb-tests
+
+fnb-tests: fnb100 fnb1000
 
 fnb100:
-	$(INSTANS) -b file:///. -d input -r CF-Queries-default.rq --report all -t 5actors100events.ntriples
+	$(FNB-TEST) 100
 
 fnb1000:
-	$(INSTANS) -b file:///. -d input -r CF-Queries-default.rq --report all -t 5actors1000events.ntriples
+	$(FNB-TEST) 1000
 
 syntax-tests:
 	$(SYNTAX_TESTS)
 
-.SILENT: all syntax-tests 
-
-.PHONY: all syntax-tests
+.PHONY: all syntax-tests fnb-tests fnb100 fnb1000

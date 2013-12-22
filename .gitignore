@@ -10,7 +10,7 @@ init/LISP-CONFIGURATION
 tests/data-r2
 tests/data-sparql11
 tests/output
-tests/syntax-test-results
+tests/syntax-test-results/DataTables*
 MKHTML_LOG
 bin/instans.bin
 bin/sbcl-instans.core
