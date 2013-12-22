@@ -1,0 +1,16 @@
+INSTANS 0.0.2 Release Notes
+===================
+
+Changes since 0.0.1
+-------------------
+
+* Tests:
+
+  - Makefile in tests runs syntax-tests and friends nearby tests (correctly) friends nearby with 100 and 1000 events
+  - New test script scripts/fnb-test.sh.
+  - The tests compare the output to previous correct results in tests/correct-results
+
+* Reporting:
+
+  - Instans now takes command line option --report [all|select|construct|modify] and reports
+     the execution of rules according to that
