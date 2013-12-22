@@ -1,0 +1,271 @@
+RETE> (fnb-tests)
+
+Running a no op run on file /Users/enu/Rete/inputs/5-100.lisp to find out the file read time etc.
+Evaluation took:
+  0.004 seconds of real time
+  0.003838 seconds of total run time (0.003797 user, 0.000041 system)
+  100.00% CPU
+  11,160,650 processor cycles
+  1,824,864 bytes consed
+  
+
+Running a no op run on file /Users/enu/Rete/inputs/5-1000.lisp to find out the file read time etc.
+Evaluation took:
+  0.038 seconds of real time
+  0.037543 seconds of total run time (0.037199 user, 0.000344 system)
+  100.00% CPU
+  108,631,823 processor cycles
+  17,703,536 bytes consed
+  
+
+Running a no op run on file /Users/enu/Rete/inputs/5-10000.lisp to find out the file read time etc.
+Evaluation took:
+  0.413 seconds of real time
+  0.414386 seconds of total run time (0.408072 user, 0.006314 system)
+  [ Run times consist of 0.046 seconds GC time, and 0.369 seconds non-GC time. ]
+  100.24% CPU
+  1,208,815,763 processor cycles
+  177,073,424 bytes consed
+  
+
+Running fnb on file /Users/enu/Rete/inputs/5-100.lisp.
+
+SELECT #1:  ?P1 = P4 ?P2 = P1
+
+SELECT #2:  ?P1 = P1 ?P2 = P4
+Evaluation took:
+  0.014 seconds of real time
+  0.013381 seconds of total run time (0.013339 user, 0.000042 system)
+  92.86% CPU
+  39,089,378 processor cycles
+  2,543,088 bytes consed
+  
+
+Running fnb on file /Users/enu/Rete/inputs/5-1000.lisp.
+
+SELECT #1:  ?P1 = P4 ?P2 = P1
+
+SELECT #2:  ?P1 = P1 ?P2 = P4
+
+SELECT #3:  ?P1 = P5 ?P2 = P4
+
+SELECT #4:  ?P1 = P4 ?P2 = P5
+
+SELECT #5:  ?P1 = P3 ?P2 = P5
+
+SELECT #6:  ?P1 = P3 ?P2 = P4
+
+SELECT #7:  ?P1 = P4 ?P2 = P3
+
+SELECT #8:  ?P1 = P5 ?P2 = P3
+
+SELECT #9:  ?P1 = P5 ?P2 = P1
+
+SELECT #10:  ?P1 = P1 ?P2 = P5
+
+SELECT #11:  ?P1 = P2 ?P2 = P5
+
+SELECT #12:  ?P1 = P5 ?P2 = P2
+
+SELECT #13:  ?P1 = P2 ?P2 = P3
+
+SELECT #14:  ?P1 = P3 ?P2 = P2
+
+SELECT #15:  ?P1 = P2 ?P2 = P1
+
+SELECT #16:  ?P1 = P1 ?P2 = P2
+
+SELECT #17:  ?P1 = P2 ?P2 = P4
+
+SELECT #18:  ?P1 = P4 ?P2 = P2
+Evaluation took:
+  0.176 seconds of real time
+  0.176417 seconds of total run time (0.175909 user, 0.000508 system)
+  100.00% CPU
+  514,341,277 processor cycles
+  28,867,952 bytes consed
+  
+
+Running fnb on file /Users/enu/Rete/inputs/5-10000.lisp.
+
+SELECT #1:  ?P1 = P4 ?P2 = P1
+
+SELECT #2:  ?P1 = P1 ?P2 = P4
+
+SELECT #3:  ?P1 = P5 ?P2 = P4
+
+SELECT #4:  ?P1 = P4 ?P2 = P5
+
+SELECT #5:  ?P1 = P3 ?P2 = P5
+
+SELECT #6:  ?P1 = P3 ?P2 = P4
+
+SELECT #7:  ?P1 = P4 ?P2 = P3
+
+SELECT #8:  ?P1 = P5 ?P2 = P3
+
+SELECT #9:  ?P1 = P5 ?P2 = P1
+
+SELECT #10:  ?P1 = P1 ?P2 = P5
+
+SELECT #11:  ?P1 = P2 ?P2 = P5
+
+SELECT #12:  ?P1 = P5 ?P2 = P2
+
+SELECT #13:  ?P1 = P2 ?P2 = P3
+
+SELECT #14:  ?P1 = P3 ?P2 = P2
+
+SELECT #15:  ?P1 = P2 ?P2 = P1
+
+SELECT #16:  ?P1 = P1 ?P2 = P2
+
+SELECT #17:  ?P1 = P2 ?P2 = P4
+
+SELECT #18:  ?P1 = P4 ?P2 = P2
+
+SELECT #19:  ?P1 = P1 ?P2 = P3
+
+SELECT #20:  ?P1 = P3 ?P2 = P1
+
+SELECT #21:  ?P1 = P5 ?P2 = P2
+
+SELECT #22:  ?P1 = P2 ?P2 = P5
+
+SELECT #23:  ?P1 = P1 ?P2 = P2
+
+SELECT #24:  ?P1 = P2 ?P2 = P1
+
+SELECT #25:  ?P1 = P5 ?P2 = P4
+
+SELECT #26:  ?P1 = P4 ?P2 = P5
+
+SELECT #27:  ?P1 = P1 ?P2 = P4
+
+SELECT #28:  ?P1 = P4 ?P2 = P1
+
+SELECT #29:  ?P1 = P3 ?P2 = P5
+
+SELECT #30:  ?P1 = P3 ?P2 = P1
+
+SELECT #31:  ?P1 = P1 ?P2 = P3
+
+SELECT #32:  ?P1 = P5 ?P2 = P3
+
+SELECT #33:  ?P1 = P3 ?P2 = P4
+
+SELECT #34:  ?P1 = P4 ?P2 = P3
+
+SELECT #35:  ?P1 = P2 ?P2 = P4
+
+SELECT #36:  ?P1 = P4 ?P2 = P2
+
+SELECT #37:  ?P1 = P3 ?P2 = P4
+
+SELECT #38:  ?P1 = P4 ?P2 = P3
+
+SELECT #39:  ?P1 = P2 ?P2 = P1
+
+SELECT #40:  ?P1 = P1 ?P2 = P2
+
+SELECT #41:  ?P1 = P3 ?P2 = P2
+
+SELECT #42:  ?P1 = P3 ?P2 = P1
+
+SELECT #43:  ?P1 = P2 ?P2 = P3
+
+SELECT #44:  ?P1 = P1 ?P2 = P3
+
+SELECT #45:  ?P1 = P3 ?P2 = P4
+
+SELECT #46:  ?P1 = P4 ?P2 = P3
+
+SELECT #47:  ?P1 = P5 ?P2 = P2
+
+SELECT #48:  ?P1 = P5 ?P2 = P1
+
+SELECT #49:  ?P1 = P1 ?P2 = P5
+
+SELECT #50:  ?P1 = P2 ?P2 = P5
+
+SELECT #51:  ?P1 = P5 ?P2 = P3
+
+SELECT #52:  ?P1 = P3 ?P2 = P5
+
+SELECT #53:  ?P1 = P5 ?P2 = P4
+
+SELECT #54:  ?P1 = P4 ?P2 = P5
+
+SELECT #55:  ?P1 = P5 ?P2 = P2
+
+SELECT #56:  ?P1 = P2 ?P2 = P5
+
+SELECT #57:  ?P1 = P5 ?P2 = P1
+
+SELECT #58:  ?P1 = P1 ?P2 = P5
+
+SELECT #59:  ?P1 = P3 ?P2 = P2
+
+SELECT #60:  ?P1 = P2 ?P2 = P3
+
+SELECT #61:  ?P1 = P3 ?P2 = P1
+
+SELECT #62:  ?P1 = P1 ?P2 = P3
+
+SELECT #63:  ?P1 = P3 ?P2 = P4
+
+SELECT #64:  ?P1 = P4 ?P2 = P3
+
+SELECT #65:  ?P1 = P4 ?P2 = P2
+
+SELECT #66:  ?P1 = P2 ?P2 = P4
+
+SELECT #67:  ?P1 = P5 ?P2 = P4
+
+SELECT #68:  ?P1 = P4 ?P2 = P5
+
+SELECT #69:  ?P1 = P4 ?P2 = P1
+
+SELECT #70:  ?P1 = P1 ?P2 = P4
+
+SELECT #71:  ?P1 = P4 ?P2 = P5
+
+SELECT #72:  ?P1 = P5 ?P2 = P4
+
+SELECT #73:  ?P1 = P4 ?P2 = P1
+
+SELECT #74:  ?P1 = P1 ?P2 = P4
+
+SELECT #75:  ?P1 = P5 ?P2 = P3
+
+SELECT #76:  ?P1 = P3 ?P2 = P5
+
+SELECT #77:  ?P1 = P3 ?P2 = P5
+
+SELECT #78:  ?P1 = P5 ?P2 = P3
+
+SELECT #79:  ?P1 = P1 ?P2 = P5
+
+SELECT #80:  ?P1 = P5 ?P2 = P1
+
+SELECT #81:  ?P1 = P2 ?P2 = P4
+
+SELECT #82:  ?P1 = P4 ?P2 = P2
+
+SELECT #83:  ?P1 = P4 ?P2 = P3
+
+SELECT #84:  ?P1 = P3 ?P2 = P4
+
+SELECT #85:  ?P1 = P4 ?P2 = P1
+
+SELECT #86:  ?P1 = P1 ?P2 = P4
+Evaluation took:
+  1.989 seconds of real time
+  1.992009 seconds of total run time (1.972202 user, 0.019807 system)
+  [ Run times consist of 0.079 seconds GC time, and 1.914 seconds non-GC time. ]
+  100.15% CPU
+  5,819,425,847 processor cycles
+  298,652,192 bytes consed
+  
+; No value
+RETE> 

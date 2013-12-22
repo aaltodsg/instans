@@ -508,6 +508,7 @@
 	(progn
 	  (skip-whitespace-and-comments lexer)
 	  (cond ((null (peekch lexer))
+		 (close (lexer-input-stream lexer))
 		 (return-input-token lexer :eof "End of input"))
 		((digit-char-p (peekch lexer))
 		 (eat-number lexer (empty-chbuf)))

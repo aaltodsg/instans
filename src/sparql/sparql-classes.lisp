@@ -99,6 +99,23 @@
 (define-class sparql-runtime-exception ()
   ((runtime-exception :accessor sparql-runtime-exception-data :initarg :data)))
 
+(define-class sparql-results ()
+  ((results)
+   (tail)))
+
+(defmethod initialize-instance :after ((this sparql-results) &key &allow-other-keys)
+  (setf (slot-value this 'results) (list nil))
+  (setf (slot-value this 'tail) (slot-value this 'results)))
+
+(defgeneric add-sparql-result (sparql-results result)
+  (:method ((this sparql-results) result)
+    (setf (cdr (slot-value this 'tail)) (list result))
+    (setf (slot-value this 'tail) (cdr (slot-value this 'tail)))))
+
+(defgeneric sparql-results (sparql-results)
+  (:method ((this sparql-results))
+    (cdr (slot-value this 'results))))
+
 (define-class sparql-query-results ()
   ((variables :accessor sparql-query-results-variables :initarg :variables :initform nil)
    (links :accessor sparql-query-results-links :initarg :links :initform nil)
@@ -106,18 +123,24 @@
    (triples :accessor sparql-query-results-triples :initarg :triples)
    (boolean :accessor sparql-query-results-boolean :initarg :boolean)))
 
-(define-class sparql-result ()
+(define-class sparql-abstract-result ()
+  ((rule :accessor sparql-result-rule :initarg :rule :initform nil)))
+
+(define-class sparql-result (sparql-abstract-result)
   ((bindings :accessor sparql-result-bindings :initarg :bindings)))
 
 (define-class sparql-binding ()
   ((variable :accessor sparql-binding-variable :initarg :variable)
    (value :accessor sparql-binding-value :initarg :value)))
 
-(define-class sparql-link ()
+(define-class sparql-link (sparql-abstract-result)
   ((href :accessor sparql-link-href :initarg :href)))
 
-(define-class sparql-boolean-result ()
+(define-class sparql-boolean-result (sparql-abstract-result)
   ((value :accessor sparql-boolean-result-value :initarg :value)))
+
+(define-class sparql-triples-result (sparql-abstract-result)
+  ((triples :accessor sparql-triples-result-triples :initarg :triples)))
 
 ;;; BEGIN initialize-instance :after
 

@@ -7,7 +7,7 @@
 
 (defmacro error-safe (form)
   `(handler-case ,form
-     (t (e) (sparql-error "~S" e))))
+     (t (e) (signal-sparql-error "~S" e))))
 
 (defmacro error-safe-ebv (v)
   (let ((v-var (gensym "V")))
@@ -95,7 +95,7 @@
 						   (0 (format nil "~A: Cannot apply to zero arguments" name))
 						   (1 (format nil "~A: Cannot apply to argument ~~A" name))
 						   (t (format nil "~A: Cannot apply to arguments ~A" name (loop repeat (length outer-arg-names) collect "~A"))))))
-					`(sparql-error ,format ,@outer-arg-names))))))))))
+					`(signal-sparql-error ,format ,@outer-arg-names))))))))))
 
 (defmacro define-xsd-value-type (short-name-string spec)
   (let* ((short-name (intern (string-downcase short-name-string)))
@@ -148,22 +148,22 @@
     `(define-sparql-function ,prefixed-name-string (:arguments ((arg1 literal-or-string) (arg2 literal-or-string)) :returns ,return-type)
        (:method ((arg1 xsd-string-value) (arg2 xsd-string-value)) (,string-operation arg1 arg2))
        (:method ((arg1 xsd-string-value) (arg2 rdf-literal))
-	 (cond ((not (rdf-literal-lang arg2)) (sparql-error "~A: Arg2 type ~A not compatible" ',op-name (rdf-literal-type arg2)))
+	 (cond ((not (rdf-literal-lang arg2)) (signal-sparql-error "~A: Arg2 type ~A not compatible" ',op-name (rdf-literal-type arg2)))
 	       (t (,string-operation arg1 (rdf-literal-string arg2)))))
        (:method ((arg1 rdf-literal) (arg2 xsd-string-value))
 	 (cond ((not (rdf-literal-lang arg1))
-		(sparql-error "~A: Arg1 type ~A not compatible" ',op-name (rdf-literal-type arg1)))
+		(signal-sparql-error "~A: Arg1 type ~A not compatible" ',op-name (rdf-literal-type arg1)))
 	       (t 
 		,(if (eq return-type 'literal-or-string)
 		     `(make-instance 'rdf-literal :string (,string-operation (rdf-literal-string arg1) arg2) :lang (rdf-literal-lang arg1))
 		     `(,string-operation (rdf-literal-string arg1) arg2)))))
        (:method ((arg1 rdf-literal) (arg2 rdf-literal))
 	 (cond ((not (rdf-literal-lang arg1))
-		(sparql-error "~A: Arg1 type ~A not compatible" ',op-name (rdf-literal-type arg1)))
+		(signal-sparql-error "~A: Arg1 type ~A not compatible" ',op-name (rdf-literal-type arg1)))
 	       ((not (rdf-literal-lang arg2))
-		(sparql-error "~A: Arg2 type ~A not compatible" ',op-name (rdf-literal-type arg2)))
+		(signal-sparql-error "~A: Arg2 type ~A not compatible" ',op-name (rdf-literal-type arg2)))
 	       ((not (string= (rdf-literal-lang arg1) (rdf-literal-lang arg2)))
-		(sparql-error "~A: Incompatible lang tags in ~A and ~A" ',op-name arg1 arg2))
+		(signal-sparql-error "~A: Incompatible lang tags in ~A and ~A" ',op-name arg1 arg2))
 	       (t
 		,(if (eq return-type 'literal-or-string)
 		     `(make-instance 'rdf-literal :string (,string-operation (rdf-literal-string arg1) (rdf-literal-string arg2)) :lang (rdf-literal-lang arg1))
@@ -178,7 +178,7 @@
     `(,(make-sparql-op-name library-name op-name) ,@args)))
 
 (defmacro incompatible-types-error (op a b)
-  `(sparql-error "~S: Types not compatible: ~S and ~S" ,(format nil "~A" op) ,a ,b))
+  `(signal-sparql-error "~S: Types not compatible: ~S and ~S" ,(format nil "~A" op) ,a ,b))
 
 (defvar *sparql-unbound*)
 

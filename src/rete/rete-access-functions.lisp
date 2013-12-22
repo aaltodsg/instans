@@ -272,3 +272,15 @@
 			       (if (rdf-literal-type literal) (list :type (get-constant-iri this (rdf-literal-type literal)))))))
 	(push-to-end item (instans-constant-literal-var-alist this)))
       (second item))))
+
+(defgeneric instans-policies (instans)
+  (:method ((this instans))
+    (list :triple-input-policy (instans-triple-input-policy this)
+	  :triple-processing-policy (instans-triple-processing-policy this)
+	  :rule-instance-removal-policy (instans-rule-instance-removal-policy this)
+	  :queue-execution-policy (instans-queue-execution-policy this))))
+
+(defgeneric add-triple-processor (instans processor)
+  (:method ((this instans) processor)
+    (push-to-end processor (instans-triple-processors this))))
+

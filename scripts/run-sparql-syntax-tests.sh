@@ -21,9 +21,8 @@ if test $# -eq 0 ; then
     /bin/echo -n "Running tests ... "
     for i in data-r2/*/manifest.ttl data-sparql11/*/manifest.ttl ; do 
         MANIFEST=`pwd`/$i
-	echo
-	echo ${BIN}/instans -b "file://`dirname $MANIFEST`/" -r ${TESTS}/input/syntax-test.rq -t $MANIFEST --verbose false
-	${BIN}/instans -b "file://`dirname $MANIFEST`/" -r ${TESTS}/input/syntax-test.rq -t $MANIFEST --verbose false >> ${TEST_OUTPUT} 2>&1
+	echo ${BIN}/instans -b "file://`dirname $MANIFEST`/" --report all -r ${TESTS}/input/syntax-test.rq -t $MANIFEST
+	${BIN}/instans -b "file://`dirname $MANIFEST`/" --report all -r ${TESTS}/input/syntax-test.rq -t $MANIFEST >> ${TEST_OUTPUT} 2>&1
     done
     echo "File \"$TEST_OUTPUT\" contains the test output."
     # pwd

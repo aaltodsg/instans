@@ -19,7 +19,7 @@
 	(exponent-sign 1)
 	(exponent 0))
     (block inner
-      (macrolet ((return-error (fmt &rest args) `(return-from inner (sparql-error ,fmt ,@args)))
+      (macrolet ((return-error (fmt &rest args) `(return-from inner (signal-sparql-error ,fmt ,@args)))
 		 (getch () `(prog1 (char string (+ start i)) (incf i)))
 		 (peekch () `(char string (+ start i)))
 		 (looking-at (&rest chars) (if (null (cdr chars)) `(char= (peekch) ,(car chars)) `(member (peekch) ',chars :test #'char=))))
@@ -79,7 +79,7 @@
   (cond ((string-equal string "true") t)
 	((string-equal string "false") nil)
 	(t
-	 (sparql-error "Unable to parse a boolean from ~S" string))))
+	 (signal-sparql-error "Unable to parse a boolean from ~S" string))))
 
 (defun parse-xsd-datetime (string)
   (datetime-from-string string))

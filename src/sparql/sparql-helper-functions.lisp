@@ -7,13 +7,13 @@
 
 ;;; Errors
 
-(defvar *sparql-error-op* :warn)
+(defvar *sparql-error-op* :inform-and-throw)
 
 (defun sparql-error-on-errors ()
   (setf *sparql-error-op* :error))
 
-(defun sparql-warn-on-errors ()
-  (setf *sparql-error-op* :warn))
+(defun sparql-inform-and-throw-on-errors ()
+  (setf *sparql-error-op* :inform-and-throw))
 
 (defun sparql-throw-on-errors ()
   (setf *sparql-error-op* :throw))
@@ -21,10 +21,11 @@
 (defun sparql-silent-on-errors ()
   (setf *sparql-error-op* nil))
 
-(defun sparql-error (fmt &rest args)
+(defun signal-sparql-error (fmt &rest args)
   (let ((result (make-instance 'sparql-error :format fmt :arguments args)))
     (case *sparql-error-op*
-      (:warn (warn "Warning: ~S" result))
+      (:inform-and-throw (inform "Warning: ~A" (apply #'format nil fmt args))
+			 (throw :sparql-error result))
       (:throw (throw :sparql-error result))
       (:error (error* "~S" result)))
     result))
@@ -39,7 +40,7 @@
   nil)
 
 (defun sparql-check-and-divide (a b)
-  (if (zerop b) (sparql-error "Divide by zero") (/ a b)))
+  (if (zerop b) (signal-sparql-error "Divide by zero") (/ a b)))
 
 (defun rdf-iri= (a b)
   (string= (rdf-iri-string a) (rdf-iri-string b)))
@@ -57,15 +58,15 @@
 			(lang-b (getf (cddr b) :lang)))
 		    (cond ((null lang-a)
 			   (cond ((null lang-b) (string= (second a) (second b)))
-				 (t (sparql-error "Literals not compatible: ~S and ~S" a b))))
+				 (t (signal-sparql-error "Literals not compatible: ~S and ~S" a b))))
 			  (t
 			   (cond ((null lang-b)
-				  (sparql-error "Literals not compatible: ~S and ~S" a b))
+				  (signal-sparql-error "Literals not compatible: ~S and ~S" a b))
 				 (t
 				  (and (string= (second a) (second b)) (string= lang-a lang-b))))))))
-		 (t (sparql-error "Literals not compatible: ~S and ~S" a b))))
+		 (t (signal-sparql-error "Literals not compatible: ~S and ~S" a b))))
 	  ((null type-b)
-	   (sparql-error "Literals not compatible: ~S and ~S" a b))
+	   (signal-sparql-error "Literals not compatible: ~S and ~S" a b))
 	  (t
 	   (cond ((getf (cddr a) :lang) (error* "Malformed RDF-literal ~S has both type and lang tag" a))
 		 ((getf (cddr b) :lang) (error* "Malformed RDF-literal ~S has both type and lang tag" b))

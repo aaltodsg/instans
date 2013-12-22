@@ -52,7 +52,7 @@
 	     (if (or (subtypep (type-descriptor-lisp-type type-descriptor) 'xsd-number-value)
 		     (eq (type-descriptor-lisp-type type-descriptor) 'xsd-boolean-value))
 		 nil
-		 (sparql-error "EBV: ~A cannot be used as an ebv" v))))
+		 (signal-sparql-error "EBV: ~A cannot be used as an ebv" v))))
 	  (t (sparql-call "ebv" (rdf-literal-value v)))))) ;;; This should never happen.
 
 ;; XQuery Unary Operators
@@ -179,10 +179,10 @@
 ;; A / B	xsd:integer, xsd:integer -> xsd:decimal  => op:numeric-divide(A, B)
 ;; A / B	numeric, numeric 	 -> numeric  	 => op:numeric-divide(A, B)
 (define-sparql-function "/" (:arguments ((a xsd-number-value) (b xsd-number-value)) :returns xsd-number-value)
-  (:method ((a xsd-integer-value) (b xsd-integer-value)) (if (zerop b) (sparql-error "Divide-by-zero") (/ (float a) b)))
-  (:method ((a xsd-integer-value) (b xsd-decimal-value)) (if (zerop b) (sparql-error "Divide-by-zero") (/ a b)))
-  (:method ((a xsd-decimal-value) (b xsd-integer-value)) (if (zerop b) (sparql-error "Divide-by-zero") (/ a b)))
-  (:method ((a xsd-decimal-value) (b xsd-decimal-value)) (if (zerop b) (sparql-error "Divide-by-zero") (/ a b)))
+  (:method ((a xsd-integer-value) (b xsd-integer-value)) (if (zerop b) (signal-sparql-error "Divide-by-zero") (/ (float a) b)))
+  (:method ((a xsd-integer-value) (b xsd-decimal-value)) (if (zerop b) (signal-sparql-error "Divide-by-zero") (/ a b)))
+  (:method ((a xsd-decimal-value) (b xsd-integer-value)) (if (zerop b) (signal-sparql-error "Divide-by-zero") (/ a b)))
+  (:method ((a xsd-decimal-value) (b xsd-decimal-value)) (if (zerop b) (signal-sparql-error "Divide-by-zero") (/ a b)))
   (:method ((a xsd-number-value) (b xsd-number-value)) (/ a b)))
 
 ;; A + B	numeric, numeric 	 -> numeric  	 => op:numeric-add(A, B)
@@ -253,7 +253,7 @@
 							      ((rdf-literal-type l1)
 							       (and (rdf-literal-type l2) (rdf-iri= (rdf-literal-type l1) (rdf-literal-type l2))))
 							      (t (error* "A literal with neither a type nor a lang ~A" l1))))
-						   (sparql-error "RDFterm-equal: Literals ~A and ~A are not the same term" l1 l2))))
+						   (signal-sparql-error "RDFterm-equal: Literals ~A and ~A are not the same term" l1 l2))))
 
 ;; 17.4.1.8 sameTerm
 ;; -----------------
@@ -522,7 +522,7 @@
     (loop with lang = :unset
 	  for lit in literals
 	  unless (typep lit 'literal-or-string)
-	  do (sparql-error "CONCAT: Illegal parameter ~A" lit)
+	  do (signal-sparql-error "CONCAT: Illegal parameter ~A" lit)
 	  when (typep lit 'rdf-literal) do (cond ((eq lang :unset) (setf lang (rdf-literal-lang lit)))
 						 ((not (and lang (string= lang (rdf-literal-lang lit)))) (setf lang nil)))
 	  else do (setf lang nil)
@@ -645,7 +645,7 @@
 (define-sparql-function "timezone" (:arguments ((dt xsd-datetime-value)) :returns xsd-integer-value)
   (:method ((dt xsd-datetime-value))
     (cond ((null (datetime-tz-string dt))
-	   (sparql-error "sparql-timezone: Missing timezone in datetime"))
+	   (signal-sparql-error "sparql-timezone: Missing timezone in datetime"))
 	  (t
 	   (datetime-tz dt)))))
 

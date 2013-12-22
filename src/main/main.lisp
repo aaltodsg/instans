@@ -7,87 +7,82 @@
 
 ;(save-lisp-and-die "executable" :toplevel 'main :executable t)
 
-(defun parse-colon-separated-values (string)
-  (loop while (> (length string) 0)
-        collect (let ((pos (or (position #\: string) (length string))))
-		  (prog1 (subseq string 0 pos) (setf string (subseq string (min (length string) (1+ pos))))))))
-	     
-
 (defun run-configuration (configuration)
-  (flet ((expand-dirname (dir)
-	   (let ((chars (remove-dot-segments (coerce (namestring (format nil "~A~A" (namestring (probe-file ".")) dir)) 'list))))
-	     (unless (char= (first (last chars)) #\/)
-	       (setf (cdr (last chars)) (list #\/)))
-	     (coerce chars 'string)))
-	 (expand-input-name (directory-iri-string url-or-file-name)
-	   (let* ((directory-iri (parse-iri directory-iri-string))
-		  (v
-		   (expand-iri directory-iri url-or-file-name)
-		   ))
-;	     (inform "expand-input-name ~A ~A -> ~A" directory-iri url-or-file-name v)
-	     v)
-	   ))
-    (handler-case
-	(multiple-value-bind (instans instans-iri) (create-instans)
-	  (loop with directory = (format nil "file://~A" (expand-dirname "."))
-		with base = nil
-		with graph = nil
-		with verbose = nil
-		with rete-html-page-dir = nil
-		for (key value) in configuration
-		do (inform "key = ~S, value = ~S~%" key value)
-		do (case key
-		     (:name (setf (instans-name instans) value))
-		     (:directory (setf directory (if (http-or-file-iri-string-p value)
-						     value
-						     (format nil "file://~A" (expand-dirname value)))))
-		     (:base (setf base (parse-iri value)))
-		     (:graph (if (string= (string-downcase value) "default") nil (setf graph (parse-iri value))))
-		     (:rules (instans-add-rules instans-iri (expand-input-name directory value)
-						:base base :rete-html-page-dir rete-html-page-dir :silentp (not verbose)))
-		     (:triples (instans-add-triples instans-iri (expand-input-name directory value)
-						    :graph graph :base base :silentp (not verbose) :reportp verbose))
-		     (:input-stream (inform "Input streams not implemented yet!"))
-		     (:output-stream (inform "Output streams not implemented yet!"))
-		     (:expect (inform "Expect not implemented yet!"))
-		     (:verbose (setf verbose (equalp (string-downcase value) "true")))
-		     (:triple-input-policy (setf (instans-triple-input-policy instans) (intern value :keyword)))
-		     (:triple-processing-policy (setf (instans-triple-processing-policy instans) (parse-colon-separated-values value)))
-		     (:rule-instance-removal-policy (setf (instans-rule-instance-removal-policy instans) (intern value :keyword)))
-		     (:rule-execution-policy (setf (instans-rule-execution-policy instans) (intern value :keyword)))
-		     (:rete-html-page-dir (setf rete-html-page-dir value)))))
-	  (t (e) (inform "~A" e)))))
+  (multiple-value-bind (instans instans-iri) (create-instans)
+    (let* ((policies (copy-list (instans-policies instans)))
+	   (directory (parse-iri (format nil "file://~A" (expand-dirname "."))))
+	   base graph output expected debug reporting rete-html-page-dir)
+      (labels ((valid-value-p (value accepted-values &key test)
+		 (or (funcall test value accepted-values)
+		     (error* "Value ~A not one of ~A" value accepted-values)))
+	       (set-policy (key value accepted-values &key (test #'equal))
+		 (if (valid-value-p value accepted-values :test test)
+		     (setf (getf policies key) value)))
+	       (parse-parameters (string &key colon-expand-fields)
+		 (loop for param in (parse-spec-string string)
+		       for (key value) = param
+		       collect (if (member key colon-expand-fields) (list key (parse-colon-separated-values value)) param))))
+	(handler-case
+	    (loop for (key value) in configuration
+		  do (inform "key = ~S, value = ~S~%" key value)
+		  do (case key
+		       (:name (setf (instans-name instans) value))
+		       (:directory (setf directory (parse-iri (if (http-or-file-iri-string-p value)
+								  value
+								  (format nil "file://~A" (expand-dirname value))))))
+		       (:base (setf base (parse-iri value)))
+		       (:graph (if (string= (string-downcase value) "default") nil (setf graph (parse-iri value))))
+		       (:execute (instans-run instans-iri))
+		       (:rules (instans-add-rules instans-iri (expand-iri directory value)
+						  :base base :rete-html-page-dir rete-html-page-dir
+						  :debug debug))
+		       (:triples
+			(instans-add-triples instans-iri (expand-iri directory value)
+					     :graph graph
+					     :base base
+					     :output output
+					     :reporting reporting
+					     :expected-results expected
+					     :debug debug))
+		     ;;; "base=http://example.org/friends/&graph=http://instans.org/events/&file=tests/input/fnb.ttl&input-policy=triples-block&operations:add:execute:remove:execute"
+		       (:input
+			(let* ((input-parameters (parse-parameters value :colon-expand-fields '(:triple-processing-policy)))
+			       (input-policy (getf input-parameters :triple-input-policy))
+			       (processing-policy (getf input-parameters :triple-processing-policy)))
+			  (when input-policy (setf (getf policies :triple-input-policy) input-policy))
+			  (when processing-policy (setf (getf policies :triple-processing-policy) processing-policy))
+			  (inform "~S" input-parameters)
+			  (instans-add-triple-processor instans-iri 
+							(expand-iri directory (or (getf input-parameters :file) (getf input-parameters :iri)))
+							:graph (or (getf input-parameters :graph) graph)
+							:base (or (getf input-parameters :base) base)
+							:policies policies
+							:debug debug)))
+		       (:output (let ((spec (parse-spec-string value)))
+				  (inform "output spec = ~S" spec)
+				  (setf output spec)))
+		       (:expect (let ((spec (parse-spec-string value)))
+				  (inform "expect spec = ~S" spec)
+				  (setf expected spec)))
+		       (:reporting (setf reporting (parse-colon-separated-values value)))
+		       (:debug (setf debug (parse-colon-separated-values value)))
+		       (:verbose (setf debug (parse-colon-separated-values value)))
+		       (:triple-input-policy (set-policy :triple-input-policy (intern value :keyword) (instans-available-triple-input-policies instans)))
+		       (:triple-processing-policy (set-policy :triple-processing-policy (parse-colon-separated-values value)
+							      (instans-available-triple-processing-operations instans)
+							      :test #'(lambda (values accepted) (every #'(lambda (v) (member v accepted :test #'equal)) values))))
+		       (:rule-instance-removal-policy (set-policy :rule-instance-removal-policy (intern value :keyword) (instans-available-rule-instance-removal-policies instans)))
+		       (:queue-execution-policy (set-policy :queue-execution-policy (intern value :keyword) (instans-available-queue-execution-policies instans)))
+		       (:rete-html-page-dir (setf rete-html-page-dir value))))
+	(t (e) (inform "~A" e)))))))
 
 (defvar *test-argv*)
 
 (defun command-line-argv ()
   (if (boundp '*test-argv*) *test-argv*  sb-ext:*posix-argv*))
 
-(defun split-string (string delimiter)
-  (let* ((result (list nil))
-	 (tail result)
-	 (i 0)
-	 (strlen (length string))
-	 (delimlen (length delimiter)))
-    (flet ((add-piece (end)
-	     (setf (cdr tail) (list (subseq string i end)))
-	     (setf tail (cdr tail))
-	     (setf i end)))
-      (loop while (< i strlen)
-	    for pos = (search delimiter string :start2 i)
-;	    do (inform "i = ~D, pos = ~D, tail = ~S" i pos tail)
-	    do (cond ((null pos)
-		      (add-piece strlen))
-		     (t
-		      (add-piece pos)
-		      (incf i delimlen))))
-      (cdr result))))
-
 (defun main-test (&rest args)
-  (let ((*test-argv* (cons "instans" (cons "--end-toplevel-options"
-					   (if (= 1 (length args))
-					       (split-string (first args) " ")
-					       args)))))
+  (let ((*test-argv* (cons "instans" (cons "--end-toplevel-options" (if (= 1 (length args)) (split-string (first args) " ") args)))))
     (main)))
 
 (defun main ()
@@ -98,13 +93,14 @@
 	 (configuration-options nil))
     (labels ((usage ()
 	       (format notifications "Usage: instans [ ~{~A~^ | ~} | { <configuration-option> } ]~%~%" (loop for option in info-options append (second option)))
-	       (format notifications "Options:~%")
-	       (loop for option in info-options do (format notifications "  ~{~A~^ | ~}~52T~A~%" (second option) (format nil (third option))))
+	       (format notifications "General options:~%")
+	       (loop for option in info-options do (format notifications "~{~A~^ | ~}~40T~A~%" (second option) (format nil (third option))))
 	       (format notifications "~%Configuration options:~%")
 	       (loop for option in configuration-options
-		     do (format notifications "  ~{~:[~A~;~{~A~^ ~}~]~^~19T| ~}~52T~A~%"
+		     do (format notifications "~{~:[~A~;~{~A~^ ~}~]~^~14T| ~}~40T~A~%"
 				(loop for o in (second option) nconc (list (consp o) o))
-				(format nil (third option)))))
+				(format nil (third option))))
+	       (format notifications "~%See the documentation for description of the parameters of the options above."))
 	     (parse-arg (options not-found-error-p)
 	       (loop with arg = (first args)
 		     for option in options
@@ -136,25 +132,29 @@
 			 (:version ("-v" "--version") "Print version information and exit."
 				   ,#'(lambda (&rest ignore) (declare (ignore ignore)) (format t "INSTANS version ~A~%" (instans-version))))))
     (setf configuration-options `((:name          (("-n" "<string>") ("--name" "<string>")) "Use <string> as the name of the system.")
-				  (:directory     (("-d" "<file or url>") ("--directory" "<file-or-url>")) "Use <file or url> as the prefix for rule and triple~%~
-                                                                                                            file lookup.")
+				  (:directory     (("-d" "<dir>") ("--directory" "<dir>")) "Use <dir> as the prefix for file lookup.~%~
+                                                                                            ~40TYou can use a file or an URL as <dir>")
 				  (:base          (("-b" "<url>") ("--base" "<url>")) "Use <url> as the base.")
-				  (:graph         (("-g" "<dataset>") ("--graph" "<dataset>")) "If <dataset> is 'default' add the following triple~%~
-                                                                                               ~52Tinputs to the default graph. If it is <url> add them~%~
-                                                                                               ~52Tto the graph named by <url>")
-				  (:rules         (("-r" "<file or url>") ("--rules" "<file or url>")) "Use rules in <file or url>.")
-				  (:triples       (("-t" "<file or url>") ("--triples" "<file or url>")) "Input all triples in <file or url>.")
-				  (:input-stream  (("-i" "<url>")         ("--input-stream" "<url>")) "Input triples contiuously from stream.")
-				  (:output-stream (("-o" "<file or url>") ("--output-stream" "<file or url>")) "Write output to <file or url>.")
-				  (:expect        (("-e" "<file or url>") ("--expect" "<file or url>")) "Expect the execution to yield the results in <file or url>.")
-				  (:file          (("-f" "<file or url>") ("--file" "<file or url>")) "Read options from <file or url>."
+				  (:graph         (("-g" "<graph>") ("--graph" "<graph>")) "If <graph> is 'default' add the following ~%~
+                                                                                            ~40Tinputs to the default graph. If it is <url>~%~
+                                                                                            ~40Tadd them to the graph named by <url>")
+				  (:rules         (("-r" "<rules>") ("--rules" "<rules>")) "Use rules in <rules>.")
+				  (:input         (("-i" "<input>")  ("--input" "<input>")) "Read input based on <input>.")
+				  (:triples       (("-t" "<input>") ("--triples" "<input>")) "Same as -i.")
+				  (:output        (("-o" "<output>") ("--output" "<output>")) "Write output based on <output>.")
+				  (:expect        (("-e" "<expect>") ("--expect" "<expect>")) "Compare the results to <expect>.")
+				  (:file          (("-f" "<commands>") ("--file" "<commands>")) "Read options from <commands>."
 				   ,#'(lambda (arg value) (declare (ignore arg)) (setf args (append (read-args-from-file value) args))))
-				  (:verbose       (("--verbose" "<boolean>")) "Whether to produce lots of diagnostic information.")
-				  (:triple-input-policy          (("--triple-input-policy" "<policy>")) "Set the triple input policy. See documentation.")
-				  (:triple-processing-policy     (("--triple-processing-policy" "<policy>")) "Set the triple processing policy. See documentation.")
-				  (:rule-instance-removal-policy (("--rule-instance-removal-policy" "<boolean>")) "Set the rule instance removal policy. See documentation.")
-				  (:rule-execution-policy        (("--rule-execution-policy" "<policy>")) "Set the rule execution policy. See documentation.")
-				  (:rete-html-page-dir           (("--rete-html-page-dir" "<dir>")) "Create an HTML page presenting the Rete network.")))
+				  (:reporting        (("--report" "<rules>")) "The kinds of rules you want to get reported; a ':'~%~
+                                                                           ~40Tseparated list of (select|construct|modify).")
+;				  (:triple-input-policy          (("--triple-input-policy" "<policy>")) "The triple input policy.")
+				  (:triple-processing-policy     (("--triple-processing-policy" "<policy>")) "See the documentation.")
+				  (:rule-instance-removal-policy (("--rule-instance-removal-policy" "<policy>")) "See the documentation.")
+				  (:rete-html-page-dir           (("--rete-html-page-dir" "<dir>")) "Create an HTML page about the Rete network.")
+				  (:queue-execution-policy        (("--queue-execution-policy" "<policy>")) "See the documentation.")
+				  (:execute       (("-e") ("--execute")) "Execute the system. This is done by default at the end of processing all arguments.")
+				  (:debug       (("--debug" "<phases>")) "See the documentation.")
+				  (:verbose       (("--verbose" "<phases>")) "Same ase --debug.")))
       (pop args) ; Program path
       (when (equalp (first args) "--end-toplevel-options") (pop args)) ; Inserted by wrapper script
       (when (null args) (usage))
@@ -166,4 +166,3 @@
 	  (when configuration
 	    (format notifications "Configuration:~%~{~{~S~^ ~}~^~%~}~%" configuration)
 	    (run-configuration configuration)))))))
-

@@ -259,8 +259,28 @@
 ;;; Execution
 ;;; ---------
 
-(defgeneric process-triple-input (instans triples ops &key graph)
-  (:method ((this instans) triples ops &key graph)
+;; (defgeneric run-triple-processors (instans)
+;;   (:method ((this instans))
+;;     (loop with continuep = t
+;; 	  while continuep
+;; 	  do (setf continuep nil)
+;; 	  do (loop for processor in (instans-triple-processors instans)
+;; 		   for parsing = (run-triple-processor processor)
+;; 		   unless (parsing-done parsing)
+;; 		   do (setf continuep t)))))
+
+
+;; (defgeneric run-triple-processor (triple-processor)
+;;   (:method ((this triple-processor))
+;;     (funcall (triple-processor-parser this) (triple-processor-lexer this) (triple-processor-show-parse-p this))))
+
+(defgeneric process-triples (triple-processor triples)
+  (:method ((this triple-processor) triples)
+    (process-triple-input (triple-processor-instans this) triples :graph (triple-processor-graph this) :ops (triple-processor-operations this))))
+
+(defgeneric process-triple-input (instans triples &key graph ops)
+  (:method ((this instans) triples &key graph ops)
+    (setf ops (or ops (instans-triple-processing-policy this)))
     (when (symbolp ops)
       (setf ops (list ops)))
     (loop for op in ops 
@@ -278,7 +298,7 @@
 
 (defgeneric execute-rules (instans)
   (:method ((this instans))
-    (let* ((policy (instans-rule-execution-policy this))
+    (let* ((policy (instans-queue-execution-policy this))
 	   (queue (instans-rule-instance-queue this)))
       (case policy
 	(:first
@@ -293,7 +313,7 @@
 
 (defgeneric report-execution-status (instans &key stream)
   (:method ((this instans) &key (stream (instans-default-output this)))
-    (format stream "add-quad-count = ~S~%" (instans-add-quad-count this))
+    (format stream "~&add-quad-count = ~S~%" (instans-add-quad-count this))
     (format stream "remove-quad-count = ~S~%" (instans-remove-quad-count this))
     (let ((queue (instans-rule-instance-queue this)))
       (format stream "queue-add-count = ~S~%" (rule-instance-queue-add-count queue))
@@ -708,7 +728,7 @@
 						       node)
 				   unless (null var)
 				   collect (list (uniquely-named-object-name (reverse-resolve-binding instans var)) (token-value node token var)))))
-    (format stream "~A rule ~A~%~{~{       ~A = ~S~}~^,~%~}~%" (instans-name (node-instans node)) node displayed-bindings)))
+    (format stream "Rule ~A in ~A~%~{~{       ~A = ~S~}~^,~%~}~%" node (instans-name (node-instans node)) displayed-bindings)))
  
 (defgeneric execute-rule-node (node token)
   (:method ((this select-node) token)

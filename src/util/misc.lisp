@@ -87,10 +87,62 @@
 
 ;;;
 
+(defun split-string (string delimiter &optional (start 0))
+  (if (>= start (length string)) nil
+      (let ((end (or (search delimiter string :start2 start) (length string))))
+	(cons (subseq string start end) (split-string string delimiter (+ end (length delimiter)))))))
+
+(defun split-string-with-backslash-escapes (string delimiter &optional (start 0))
+  (if (>= start (length string)) nil
+      (let ((end (loop with i = start
+		       do (cond ((>= i (length string)) (return i))
+				((char= (char string i) #\\) (incf i 2))
+				((eql i (search delimiter string :start2 i)) (return i))
+				(t (incf i))))))
+	(cons (subseq string start end) (split-string-with-backslash-escapes string delimiter (+ end (length delimiter)))))))
+
 (defun stream-contents-to-string (stream)
   (with-output-to-string (output)
     (loop for line = (read-line stream nil nil)
 	  while line do (format output "~A~%" line))))
+
+(defun http-get-to-string (iri-string)
+  (let ((data (drakma:http-request iri-string)))
+    (cond ((stringp data) data) (t (coerce (mapcar #'code-char (coerce data 'list)) 'string)))))
+
+(defun parse-colon-separated-values (string)
+  (loop while (> (length string) 0)
+        collect (let ((pos (or (position #\: string) (length string))))
+		  (prog1 (intern (string-upcase (subseq string 0 pos)) :keyword) (setf string (subseq string (min (length string) (1+ pos))))))))
+
+(defun parse-spec-string (string)
+  (let ((directives (split-string-with-backslash-escapes string "&")))
+    (loop for directive in directives
+	  for pieces = (split-string-with-backslash-escapes directive "=")
+	  when (not (= (length pieces) 2))
+	  do (return-from parse-spec-string (values nil (format nil "Illegal form in specification: ~S" pieces)))
+	  else collect (list (intern (string-upcase (first pieces)) :keyword) (second pieces)))))
+
+
+(defun create-temp-file-name (&key (directory ".") (name-prefix "tmp") type)
+  (let ((dir-path (namestring (probe-file directory))))
+    (loop for i from 0
+	  for file-name = (format nil "~A~A~D~@[.~(~A~)~]" dir-path name-prefix i type)
+	  for path = (probe-file file-name)
+	  unless path
+	  return file-name)))
+
+(defun create-empty-temp-file (&rest keys &key (directory ".") (name-prefix "tmp") type)
+  (declare (ignorable directory name-prefix type))
+  (let ((file-name (apply #'create-temp-file-name keys)))
+    (with-open-file (str file-name :direction :output)
+      file-name)))
+
+(defun expand-dirname (directory)
+  (let ((chars (remove-dot-segments (coerce (namestring (format nil "~A~A" (namestring (probe-file ".")) directory)) 'list))))
+    (unless (char= (first (last chars)) #\/)
+      (setf (cdr (last chars)) (list #\/)))
+    (coerce chars 'string)))
 
 #+sbcl
 (defun shell-script (script &rest args)

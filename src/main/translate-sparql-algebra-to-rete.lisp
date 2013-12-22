@@ -268,7 +268,7 @@
 						,(and graph (get-constant-iri instans (rdf-iri-string graph))))))
 	   (specials (append iri-vars literal-vars)))
       (cond ((and blanks (not allow-blanks-p))
-	     (sparql-error "Blank nodes not allowed in ~S" template))
+	     (signal-sparql-error "Blank nodes not allowed in ~S" template))
 	    (t
 	     `(,@(if specials `((declare (special ,@specials))))
 		 ,@(cond ((null blanks) triple-op-forms)

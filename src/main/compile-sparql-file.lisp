@@ -5,31 +5,31 @@
 
 (in-package #:instans)
 
-(defun compile-sparql-file (file &key instans instans-name rete-html-page-dir make-rete-html-page-script base (silentp t))
+(defun compile-sparql-file (file &key instans instans-name rete-html-page-dir make-rete-html-page-script base show-parse-p)
   (with-open-file (input-stream file)
     (compile-sparql-stream input-stream :input-name file :instans instans :instans-name instans-name :rete-html-page-dir rete-html-page-dir
-			   :make-rete-html-page-script make-rete-html-page-script :base base :silentp silentp)))
+			   :make-rete-html-page-script make-rete-html-page-script :base base :show-parse-p show-parse-p)))
 
-(defun compile-sparql-stream (stream &key input-name instans instans-name rete-html-page-dir (make-rete-html-page-script (find-make-rete-html-script)) (parser #'sparql-parse-stream) base silentp)
+(defun compile-sparql-stream (stream &key input-name instans instans-name rete-html-page-dir (make-rete-html-page-script (find-make-rete-html-script)) (parser #'sparql-parse-stream) base show-parse-p)
   (declare (special *node-color-alist*))
   (setf *node-color-alist* nil)
   (when (null instans)
     (setf instans (make-instance 'instans :name instans-name)))
-  (let* ((parsing (funcall parser instans stream :base base :show-parse-p (not silentp)))
+  (let* ((parsing (funcall parser instans stream :base base :show-parse-p show-parse-p))
 	 (colors (list "Black" "Red" "Blue" "Green" "Orange"))
 	 (algebra-expr-list nil))
     (cond ((not (parsing-succeeded-p parsing))
 	   (setf (instans-error-messages instans) (parsing-error-messages parsing))
 	   (return-from compile-sparql-stream (values nil (instans-error-message instans))))
 	  (t
-	   (unless silentp
+	   (when show-parse-p
 	     (inform "Parsed ~S" (first (parsing-result-stack parsing))))
 	   (setf algebra-expr-list (filter-not #'(lambda (x) (member (car x) '(PREFIX BASE))) (first (parsing-result-stack parsing))))))
     (setf (rest (last colors)) colors)
     (loop for algebra-expr in algebra-expr-list
 	  for color in colors
 	  do (multiple-value-bind (new-nodes error-msg)
-		 (compile-sparql-algebra-expr instans algebra-expr :color color :silentp silentp)
+		 (compile-sparql-algebra-expr instans algebra-expr :color color :show-transform-p show-parse-p)
 	       (declare (ignorable new-nodes))
 	       (when error-msg
 		 (push error-msg (instans-error-messages instans))
@@ -60,14 +60,14 @@
 	(print-dot-file instans dot-output-file :html-labels-p nil)
 	(when (pathnamep make-rete-html-page-script) (setf make-rete-html-page-script (namestring make-rete-html-page-script)))
 	(assert (probe-file make-rete-html-page-script))
-	(unless silentp
+	(when show-parse-p
 	  (inform "Running ~S on ~S" make-rete-html-page-script input-name))
 	(shell-script make-rete-html-page-script input-name rete-html-page-dir)))
       instans))
 
-(defun compile-sparql-algebra-expr (instans algebra-expr &key (color "Black") silentp)
+(defun compile-sparql-algebra-expr (instans algebra-expr &key (color "Black") show-transform-p)
   (declare (special *node-color-alist*))
-  (unless silentp
+  (when show-transform-p
     (inform "compiling ~S~%" algebra-expr))
   (let ((canonic (canonize-sparql-algebra-variables instans algebra-expr)))
     (multiple-value-bind (new-nodes error-msg) (translate-sparql-algebra-to-rete canonic instans)
@@ -93,7 +93,7 @@
 		     ((aggregate-join-node-p node)
 		      (setf (aggregate-join-group-form-func node) (compile nil `(lambda ,(sparql-var-lisp-names (node-use node)) ,(aggregate-join-group-form node)))))
 		     ((modify-node-p node)
-		      (unless silentp
+		      (when show-transform-p
 			(inform "compiling modify-insert-lambda ~S" (modify-insert-lambda node)))
 		      (setf (modify-delete-func node) (and (modify-delete-template node) (compile nil (modify-delete-lambda node))))
 		      (setf (modify-insert-func node) (and (modify-insert-template node) (compile nil (modify-insert-lambda node)))))))
@@ -112,41 +112,6 @@
 	((sparql-var-p expr)
 	 (intern (string (uniquely-named-object-name expr))))
 	(t expr)))
-
-(defun supply-defaults (overriding-keylist default-keylist)
-  (loop for default-key in default-keylist by #'cddr
-	for default-value in (cdr default-keylist) by #'cddr
-	unless (getf overriding-keylist default-key)
-	do (setf (getf overriding-keylist default-key) default-value))
-  overriding-keylist)
-
-(defun report-execution (instans)
-  (let ((queue (instans-rule-instance-queue instans)))
-    (inform "Added ~D quads~&Removed ~D quads~&Executed ~D rules: ~D select rules, ~D modify rules, and ~D construct rules"
-	    (instans-add-quad-count instans)
-	    (instans-remove-quad-count instans)
-	    (rule-instance-queue-execute-count queue)
-	    (rule-instance-queue-select-count queue)
-	    (rule-instance-queue-modify-count queue)
-	    (rule-instance-queue-construct-count queue))
-    instans))
-
-(defun build-and-execute-sparql-system (rules-file triples-file &key (report-function ) (report-function-arguments ) (rete-html-page-dir "/Users/enu/instans/tests/output") base);  (show-turtle-parse-p nil))
-  (catch 'done
-  (let* ((instans nil))
-    (with-open-file (triples-stream triples-file)
-      (setf instans (compile-sparql-file rules-file :rete-html-page-dir rete-html-page-dir))
-      (setf (instans-select-function instans) report-function)
-      (setf (instans-select-function-arguments instans) report-function-arguments)
-      (let* ((triples-lexer (make-instance 'turtle-lexer :instans instans :input-stream triples-stream :base base))
-	     (triples-parser (make-turtle-parser :triples-callback #'(lambda (triples)
-								       (inform "~%Event callback: ~D triples~%" (length triples))
-								       (loop for tr in triples do (inform " ~S~%" tr))
-								       (process-triple-input instans triples '(:add :execute))))))
-	(initialize-execution instans)
-	(warn "~%Processing triples:~%")
-	(time (funcall triples-parser triples-lexer))
-	instans)))))
 
 (defvar *instanses*)
 (eval-when (:load-toplevel :execute)
@@ -193,19 +158,22 @@
 				     collect (car lines)
 				     else collect (format nil "~A~%" (car lines)))))
 
-(defun instans-add-rules (instans-iri rules &key rete-html-page-dir base (silentp t) (create-instans-p t))
-  (unless silentp
+(defun contains-key (allowed-keys &rest keys)
+  (some #'(lambda (key) (member key allowed-keys)) (cons :all keys)))
+
+(defun instans-add-rules (instans-iri rules &key rete-html-page-dir base debug (create-instans-p t))
+  (when (contains-key debug :parse-rules)
     (inform "instans-add-rules ~S ~S :rete-html-page-dir ~S :base ~S" instans-iri rules rete-html-page-dir base))
   (let ((instans (if create-instans-p (create-instans instans-iri) (get-instans instans-iri))))
     (cond ((sparql-error-p instans) instans)
 	  ((file-or-uri-exists-p rules)
 	   (let ((string (read-from-url-or-file rules)))
-	     (unless silentp
+	     (when (contains-key debug :parse-rules)
 	       (inform "~S" string))
 	     (with-input-from-string (stream string)
 	       (multiple-value-bind (compile-result error)
 		   (compile-sparql-stream stream :instans instans :input-name (if (stringp rules) rules (rdf-iri-string rules))
-					  :rete-html-page-dir rete-html-page-dir :base base :silentp silentp)
+					  :rete-html-page-dir rete-html-page-dir :base base :show-parse-p (contains-key debug :parse-rules))
 		 (declare (ignorable compile-result))
 		 (cond ((not error)
 			(values t nil))
@@ -215,9 +183,93 @@
 	   (inform "Cannot read SPARQL from ~S" rules)
 	   nil))))
 
-(defun instans-add-triples (instans-iri triples &key expected-results graph base silentp (reportp t))
-  (unless silentp
-    (inform "instans-add-triples ~S ~S :graph ~S :base ~S :silentp ~S" instans-iri triples graph base silentp))
+(defun file-type (file)
+  (cond ((pathnamep file) (pathname-type file))
+	((rdf-iri-p file) (file-type (rdf-iri-path file)))
+	((http-or-file-iri-string-p file) (file-type (parse-iri file)))
+	((stringp file) (file-type (pathname file)))
+	(t
+	 nil)))
+	 
+
+(defun create-output-stream (spec)
+  (cond ((listp spec)
+	 (let* ((file (getf spec :file))
+		(iri (getf spec :iri))
+		(type (or (getf spec :type) (file-type (or file iri)))))
+	   (if iri (values nil nil (format nil "Cannot output to IRI (~A) yet" iri))
+	       (values (open file :if-exists :supersede) type))))
+	((file-iri-string-p spec)
+	 (create-output-stream (list :file (probe-file (subseq spec 7)))))
+	((http-iri-string-p spec)
+	 (create-output-stream (list :iri (parse-iri spec))))
+	((stringp spec)
+	 (create-output-stream (list :file (probe-file spec))))
+	((pathnamep spec)
+	 (create-output-stream (list :file spec)))
+	(t
+	 (error* "Cannot create output file from '~A'" spec))))
+
+(defun create-input-stream (input)
+  (cond ((rdf-iri-p input)
+	 (cond ((member (rdf-iri-scheme input) '("http" "https") :test #'equal)
+		(values (make-string-input-stream (http-get-to-string (rdf-iri-string input))) (file-type input)))
+	       ((equal (rdf-iri-scheme input) "file")
+		(values (open (rdf-iri-path input) :direction :input) (file-type input)))
+	       (t (values nil nil (format nil "Cannot create an input stream based on ~S" input)))))
+	((http-or-file-iri-string-p input)
+	 (create-input-stream (parse-iri input)))
+	((or (stringp input) (pathnamep input))
+	 (values (open input) (file-type input)))
+	(t (values nil nil (format nil "Cannot create an input stream based on ~S" input)))))
+
+(defun create-triple-input-stream (spec)
+  (cond ((listp spec)
+	 (let* ((file (getf spec :file))
+		(iri (getf spec :iri))
+		(type (getf spec :type))
+		(input-policy (getf spec :triple-input-policy)))
+	   (multiple-value-bind (stream name-type error-message) (create-input-stream (or file iri))
+	     (cond ((not error-message)
+		    (values stream (or type name-type) input-policy))
+		   (t
+		      (values nil nil nil error-message))))))
+	(t
+	 (multiple-value-bind (stream type error-message) (create-input-stream spec)
+	   (cond ((not error-message)
+		  (values stream type))
+		 (t
+		  (values nil nil nil error-message)))))))
+
+(defun instans-add-triple-processor (instans-iri input &key graph base debug policies)
+  (declare (ignorable instans-iri input graph base debug policies))
+  nil)
+  ;; (let* ((instans (get-instans instans-iri))
+  ;; 	 input-stream input-type error-message)
+  ;;   (multiple-value-setq (input-stream input-type error-message) (create-input-stream input))
+  ;;   (when error-message (error* error-message))
+  ;;   (let ((processor (make-instance 'triple-processor
+  ;; 				    :instans instans
+  ;; 				    :input-policy (getf policies :triple-input-policy)
+  ;; 				    :operations (getf policies :triple-processing-policy)
+  ;; 				    :graph graph
+  ;; 				    :base base
+  ;; 				    :lexer (make-instance 'turtle-lexer :instans instans :input-stream input-stream :base base)
+  ;; 				    :show-parse-p (contains-key debug :parse-triples))))
+  ;;     (setf (triple-processor-parser processor)
+  ;; 	    (make-turtle-parser :triples-callback #'(lambda (triples) (process-triples processor triples) (parsing-yields nil)) :continuep t))
+  ;;     (add-triple-processor instans processor))))
+
+(defun instans-run (instans-iri)
+  (declare (ignorable instans-iri))
+  nil)
+  ;; (let ((instans (get-instans instans-iri)))
+  ;;   (run-triple-processors instans)))
+
+(defun instans-add-triples (instans-iri input &key output expected-results graph base debug reporting)
+  (declare (ignorable output))
+  (when (contains-key debug :parse-triples :execute)
+    (inform "instans-add-triples ~S ~S :graph ~S :base ~S :debug ~S :reporting ~S" instans-iri input graph base debug reporting))
   (let* ((instans (get-instans instans-iri))
 	 (comparep (and expected-results (not (rdf-iri-equal expected-results *rdf-nil*))))
 	 (expected-query-results (if comparep (if (stringp expected-results) (parse-results-file instans expected-results) (parse-results-from-url instans expected-results))))
@@ -225,43 +277,41 @@
 	 (observed-result-list (list nil))
 	 (observed-result-list-tail observed-result-list)
 	 (report-function (if comparep #'(lambda (node token)
-					  (let ((solution (make-instance 'sparql-result
-									 :bindings (loop for canonic-var in (node-use (node-prev node))
-											 for var = (reverse-resolve-binding instans canonic-var)
-											 collect (make-instance 'sparql-binding :variable var :value (token-value node token canonic-var))))))
+					   (let ((solution (make-instance 'sparql-result
+									  :bindings (loop for canonic-var in (node-use (node-prev node))
+											  for var = (reverse-resolve-binding instans canonic-var)
+											  collect (make-instance 'sparql-binding :variable var :value (token-value node token canonic-var))))))
 					    (inform "Node ~S, (node-use (node-prev node)) ~S, token ~S, solution ~S" node (node-use (node-prev node)) token solution)
 					    (setf (cdr observed-result-list-tail) (list solution))
 					    (setf observed-result-list-tail (cdr observed-result-list-tail))))))
 	 (report-function-arguments nil)
 	 (observed-query-results (make-instance 'sparql-query-results))
-	 (string (read-from-url-or-file triples)))
-    ;; (unless silentp
-    ;;   (inform "~S" string))
+	 (string (stream-contents-to-string (create-input-stream input))))
     (setf (instans-rule-instance-removal-policy instans) :remove)
-    (setf (rule-instance-queue-report-p (instans-rule-instance-queue instans)) reportp)
+    (setf (rule-instance-queue-report-p (instans-rule-instance-queue instans)) (contains-key reporting :select :construct :modify))
     (when report-function
       (setf (instans-select-function instans) report-function))
     (setf (instans-select-function-arguments instans) report-function-arguments)
     (with-input-from-string (triples-stream string)
       (let* ((triples-lexer (make-instance 'turtle-lexer :instans instans :input-stream triples-stream :base base))
 	     (triples-parser (make-turtle-parser :triples-callback #'(lambda (triples)
-								       (unless silentp
+								       (when (contains-key debug :execute)
 									 (inform "~%Event callback: ~D triples~%" (length triples))
 									 (loop for tr in triples do (inform " ~S~%" tr)))
-								       (process-triple-input instans triples '(:add :execute) :graph (if (and graph (rdf-iri-equal graph *rdf-nil*)) nil graph))))))
-	(unless silentp
+								       (process-triple-input instans triples :ops '(:add :execute) :graph (if (and graph (rdf-iri-equal graph *rdf-nil*)) nil graph))))))
+	(when (contains-key debug :execute :parse-triples)
 	  (inform "~%Processing triples:~%"))
 	;; Is this OK?
 	(initialize-execution instans)
-	(funcall triples-parser triples-lexer :show-parse-p (not silentp))
+	(funcall triples-parser triples-lexer :show-parse-p (contains-key debug :parse-triples))
 	(report-execution-status instans)
 	(pop observed-result-list)
-	(unless silentp
+	(when (contains-key debug :execute)
 	  (inform "Expected-results ~S" expected-results)
 	  (inform "Expected ~S" expected-result-list)
 	  (inform "Observed-result-list ~S~%Observed-query-results ~S" observed-result-list observed-query-results))
-	(unless silentp
-	  (sparql-query-results-to-json instans observed-query-results)
+	(when (contains-key debug :execute)
+	  ;; (sparql-query-results-to-json instans observed-query-results)
 	  (when comparep
 	    (sparql-query-results-to-json instans expected-query-results)))
 	(setf (sparql-query-results-variables observed-query-results)
@@ -283,7 +333,7 @@
 (defvar *instans-execute-system-previous-base* nil)
 
 (defun instans-execute-system (rules &key triples expected-results graph base (rete-html-page-dir nil) ; "/Users/enu/instans/tests/output") ; nil) ;
-			       (silentp t) (use-previous-args-p nil))
+			       debug reporting (use-previous-args-p nil))
   (cond ((not use-previous-args-p)
 	 (setf *instans-execute-system-previous-rules* rules)
 	 (setf *instans-execute-system-previous-triples* triples)
@@ -304,12 +354,12 @@
   (multiple-value-bind (instans instans-iri) (create-instans)
     (format (instans-default-output instans) "~%execute_system ~A ~A ~A ~A ~A~&" rules triples expected-results graph base)
     (multiple-value-bind (add-rules-result error)
-	(instans-add-rules instans-iri rules :rete-html-page-dir rete-html-page-dir :base base :silentp silentp)
+	(instans-add-rules instans-iri rules :rete-html-page-dir rete-html-page-dir :base base :debug debug)
       (declare (ignore add-rules-result))
       (when (not (null error))
 	(return-from instans-execute-system (values nil error))))
     (if triples
-      (instans-add-triples instans-iri triples :graph graph :base base :silentp silentp))))
+	(instans-add-triples instans-iri triples :graph graph :base base :debug debug :reporting reporting))))
 
 (defun execute-prev ()
   (instans-execute-system nil :use-previous-args-p t))
@@ -361,7 +411,8 @@
 		    (format t "~&Manifest file ~A not found~&" manifest-iri-string))
 		   (t
 		    (format t "~&Running tests ~A~&" name)
-		    (instans-execute-system rules :triples (parse-iri manifest-iri-string) :base (parse-iri base-iri-string) :silentp t :rete-html-page-dir output-dir))))))
+		    (instans-execute-system rules :triples (parse-iri manifest-iri-string) :base (parse-iri base-iri-string)
+					    :debug nil :reporting '(:all) :rete-html-page-dir output-dir))))))
 
 (defun run-data-r2-syntax-tests (&optional (test-sets '("syntax-sparql1" "syntax-sparql2" "syntax-sparql3" "syntax-sparql4" "syntax-sparql5")))
   (run-syntax-tests "../tests/input/syntax-test.rq" "../tests/data-r2" "http://www.w3.org/2001/sw/DataAccess/tests/data-r2" test-sets))
