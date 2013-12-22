@@ -1,23 +1,17 @@
 - why does /2001/sw/DataAccess/tests/data-r2/(syntax-sparql[1-5]|bnode-coreference|construct) not produce any results?
-+ fix bug in objectlist parsing in turtle-parser
-  + fixed bug in turtle-parser RDFLiteral handling. Required (nth-value 0 (create-rdf-literal-with-type s $1)). This was fixed already in sparql-parser!
-  + fixed bug in blank node lexing. Eat-blank loop had definition of 'ch' and 'prev-ch' in wrong order. Same in eat-identifier.
-+ Why does friends-nearby not work?
-  + Checking if we can delete old events
-    + Fixed a bug in my test rule fnb.rq. Had FILTER (?event2 != ?event1), even though ?event1 is never set.  Got the simplest removal rule to work
-    + Trying to find out why, exists-end-node does not produce any results
-      + Fixed a bug in my test output (wrong order of fmt parameters)!
-    + Yes
-    + Fixed a bug in my triple input. Forgat to remove comments when changing the rule!
-    + Trying to find out why when filter is called, the '<' is called with right looking arguments but still some error occurs
-      + It was called with RIGHT LOOKING arguments, but there were two problems: 1) output showed that NIL was used as one of the arguments,
-        a red herring, only the output was wrong (an extra NIL for some reason) and 2) the inputs were literals of type xsd:dateTime, not objects
-        of type datetime. 
-      + Fixed a problem in finding the xsd types. The type name string used "datetime" whereas the real name is dateTime.
-    + Exists-end-node does not kill properly the counter and active-p variables.
-      + replace list-difference ... with sparql-var specific versions
-  + Going on to events with all fields. Seems to delete events correctly
-  + Adding all rules
 - change the handling of IRIs and prefixed names in lexer to postpone expansion.
   - find out where the expansion happens now and when the expanded names are actually needed
 - Make sparql result set output facility
+  + Wrote new classes for this; don't destroy the old functionality, until the new thing works
+  - Add calls to the new functionality to create results
+  - Add comparisons
+- Make triple input processors
+  - Change the parser to be able to yield in between parsing
+  - Take care that the result stack is kept OK.
+- Change sparql-parser and turtle-parser to use define-ll1-parser
+- Clean cl-ll1 generator
+  - Rename parser -> grammar
+  - Rename parsing -> parser
+  - See which fields belong to grammar and which to parser
+  - Write define-ll1-parser macro
+  

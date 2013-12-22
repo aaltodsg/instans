@@ -25,9 +25,9 @@
 
 (defsystem "instans"
   :description "A Standing SPARQL Query Evaluator"
-  :version "0.0.2"
+  :version "0.0.2.1"
   :author "Esko Nuutila <esko.nuutila@aalto.fi>"
-  :licence "Not defined yet"
+  :licence "The MIT License (MIT). See the file LICENSE in .."
   :depends-on (#:cl-ppcre #:cl-ppcre-unicode)
   :components ((:module "util"
 			:components ((:file "version")
