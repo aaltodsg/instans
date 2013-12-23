@@ -17,3 +17,8 @@
       + replace list-difference ... with sparql-var specific versions
   + Going on to events with all fields. Seems to delete events correctly
   + Adding all rules
++ Clean cl-ll1 generator
+  + Rename parser -> grammar
+  + Rename parsing -> ll-parser
+  + Made grammar the superclass of ll-parser (lots of small fixes)
+  + Write define-ll1-parser macro
