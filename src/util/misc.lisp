@@ -144,6 +144,14 @@
       (setf (cdr (last chars)) (list #\/)))
     (coerce chars 'string)))
 
+;;;
+
+(defun debugp (subscribe &rest publish)
+  (and (not (null publish))
+       (or (eq subscribe t)
+	   (eq subscribe :all)
+	   (some #'(lambda (key) (member key subscribe)) publish))))
+
 #+sbcl
 (defun shell-script (script &rest args)
   (let ((process (sb-ext:run-program "/bin/sh" (cons script args) :output t :error :output)))

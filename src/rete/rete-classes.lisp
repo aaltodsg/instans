@@ -222,7 +222,7 @@
    (graph :accessor triple-processor-graph :initarg :graph)
    (lexer :accessor triple-processor-lexer :initarg :lexer)
    (parser :accessor triple-processor-parser :initarg :parser)
-   (show-parse-p :accessor triple-processor-show-parse-p :initarg :show-parse-p :initform nil)))
+   (subscribe :accessor triple-processor-subscribe :initarg :subscribe :initform nil)))
 
 ;;; System
 (define-class instans ()

@@ -5,31 +5,31 @@
 
 (in-package #:instans)
 
-(defun compile-sparql-file (file &key instans instans-name rete-html-page-dir make-rete-html-page-script base show-parse-p)
+(defun compile-sparql-file (file &key instans instans-name rete-html-page-dir base subscribe)
   (with-open-file (input-stream file)
-    (compile-sparql-stream input-stream :input-name file :instans instans :instans-name instans-name :rete-html-page-dir rete-html-page-dir
-			   :make-rete-html-page-script make-rete-html-page-script :base base :show-parse-p show-parse-p)))
+    (compile-sparql-stream input-stream :input-name file :instans instans :instans-name instans-name
+			   :rete-html-page-dir rete-html-page-dir :base base :subscribe subscribe)))
 
-(defun compile-sparql-stream (stream &key input-name instans instans-name rete-html-page-dir (make-rete-html-page-script (find-make-rete-html-script)) (parser-function #'sparql-parse-stream) base show-parse-p)
+(defun compile-sparql-stream (stream &key input-name instans instans-name rete-html-page-dir (make-rete-html-page-script (find-make-rete-html-script)) base subscribe)
   (declare (special *node-color-alist*))
   (setf *node-color-alist* nil)
   (when (null instans)
     (setf instans (make-instance 'instans :name instans-name)))
-  (let* ((ll-parser (funcall parser-function instans stream :base base :show-parse-p show-parse-p))
+  (let* ((ll-parser (sparql-parse-stream instans stream :base base :subscribe subscribe))
 	 (colors (list "Black" "Red" "Blue" "Green" "Orange"))
 	 (algebra-expr-list nil))
     (cond ((not (ll-parser-succeeded-p ll-parser))
 	   (setf (instans-error-messages instans) (ll-parser-error-messages ll-parser))
 	   (return-from compile-sparql-stream (values nil (instans-error-message instans))))
 	  (t
-	   (when show-parse-p
+	   (when (debugp subscribe :sparql-parsing)
 	     (inform "Parsed ~S" (first (ll-parser-result-stack ll-parser))))
 	   (setf algebra-expr-list (filter-not #'(lambda (x) (member (car x) '(PREFIX BASE))) (first (ll-parser-result-stack ll-parser))))))
     (setf (rest (last colors)) colors)
     (loop for algebra-expr in algebra-expr-list
 	  for color in colors
 	  do (multiple-value-bind (new-nodes error-msg)
-		 (compile-sparql-algebra-expr instans algebra-expr :color color :show-transform-p show-parse-p)
+		 (compile-sparql-algebra-expr instans algebra-expr :color color :show-transform-p subscribe)
 	       (declare (ignorable new-nodes))
 	       (when error-msg
 		 (push error-msg (instans-error-messages instans))
@@ -60,7 +60,7 @@
 	(print-dot-file instans dot-output-file :html-labels-p nil)
 	(when (pathnamep make-rete-html-page-script) (setf make-rete-html-page-script (namestring make-rete-html-page-script)))
 	(assert (probe-file make-rete-html-page-script))
-	(when show-parse-p
+	(when subscribe
 	  (inform "Running ~S on ~S" make-rete-html-page-script input-name))
 	(shell-script make-rete-html-page-script input-name rete-html-page-dir)))
       instans))
@@ -158,22 +158,19 @@
 				     collect (car lines)
 				     else collect (format nil "~A~%" (car lines)))))
 
-(defun contains-key (allowed-keys &rest keys)
-  (some #'(lambda (key) (member key allowed-keys)) (cons :all keys)))
-
-(defun instans-add-rules (instans-iri rules &key rete-html-page-dir base debug (create-instans-p t))
-  (when (contains-key debug :parse-rules)
+(defun instans-add-rules (instans-iri rules &key rete-html-page-dir base subscribe (create-instans-p t))
+  (when (debugp subscribe :parse-rules)
     (inform "instans-add-rules ~S ~S :rete-html-page-dir ~S :base ~S" instans-iri rules rete-html-page-dir base))
   (let ((instans (if create-instans-p (create-instans instans-iri) (get-instans instans-iri))))
     (cond ((sparql-error-p instans) instans)
 	  ((file-or-uri-exists-p rules)
 	   (let ((string (read-from-url-or-file rules)))
-	     (when (contains-key debug :parse-rules)
+	     (when (debugp subscribe :parse-rules)
 	       (inform "~S" string))
 	     (with-input-from-string (stream string)
 	       (multiple-value-bind (compile-result error)
 		   (compile-sparql-stream stream :instans instans :input-name (if (stringp rules) rules (rdf-iri-string rules))
-					  :rete-html-page-dir rete-html-page-dir :base base :show-parse-p (contains-key debug :parse-rules))
+					  :rete-html-page-dir rete-html-page-dir :base base :subscribe subscribe)
 		 (declare (ignorable compile-result))
 		 (cond ((not error)
 			(values t nil))
@@ -241,8 +238,8 @@
 		 (t
 		  (values nil nil nil error-message)))))))
 
-(defun instans-add-triple-processor (instans-iri input &key graph base debug policies)
-  (declare (ignorable instans-iri input graph base debug policies))
+(defun instans-add-triple-processor (instans-iri input &key graph base subscribe policies)
+  (declare (ignorable instans-iri input graph base subscribe policies))
   nil)
   ;; (let* ((instans (get-instans instans-iri))
   ;; 	 input-stream input-type error-message)
@@ -255,7 +252,7 @@
   ;; 				    :graph graph
   ;; 				    :base base
   ;; 				    :lexer (make-instance 'turtle-lexer :instans instans :input-stream input-stream :base base)
-  ;; 				    :show-parse-p (contains-key debug :parse-triples))))
+  ;; 				    :subscribe (debugp subscribe :parse-triples))))
   ;;     (setf (triple-processor-parser processor)
   ;; 	    (make-turtle-parser :triples-callback #'(lambda (triples) (process-triples processor triples) (ll-parser-yields nil)) :continuep t))
   ;;     (add-triple-processor instans processor))))
@@ -266,10 +263,10 @@
   ;; (let ((instans (get-instans instans-iri)))
   ;;   (run-triple-processors instans)))
 
-(defun instans-add-triples (instans-iri input &key output expected-results graph base debug reporting)
+(defun instans-add-triples (instans-iri input &key output expected-results graph base subscribe reporting)
   (declare (ignorable output))
-  (when (contains-key debug :parse-triples :execute)
-    (inform "instans-add-triples ~S ~S :graph ~S :base ~S :debug ~S :reporting ~S" instans-iri input graph base debug reporting))
+  (when (debugp subscribe :parse-triples :execute)
+    (inform "instans-add-triples ~S ~S :graph ~S :base ~S :subscribe ~S :reporting ~S" instans-iri input graph base subscribe reporting))
   (let* ((instans (get-instans instans-iri))
 	 (comparep (and expected-results (not (rdf-iri-equal expected-results *rdf-nil*))))
 	 (expected-query-results (if comparep (if (stringp expected-results) (parse-results-file instans expected-results) (parse-results-from-url instans expected-results))))
@@ -288,29 +285,29 @@
 	 (observed-query-results (make-instance 'sparql-query-results))
 	 (string (stream-contents-to-string (create-input-stream input))))
     (setf (instans-rule-instance-removal-policy instans) :remove)
-    (setf (rule-instance-queue-report-p (instans-rule-instance-queue instans)) (contains-key reporting :select :construct :modify))
+    (setf (rule-instance-queue-report-p (instans-rule-instance-queue instans)) reporting)
     (when report-function
       (setf (instans-select-function instans) report-function))
     (setf (instans-select-function-arguments instans) report-function-arguments)
     (with-input-from-string (triples-stream string)
-      (let* ((triples-lexer (make-instance 'turtle-lexer :instans instans :input-stream triples-stream :base base))
-	     (triples-parser (make-turtle-parser :triples-callback #'(lambda (triples)
-								       (when (contains-key debug :execute)
-									 (inform "~%Event callback: ~D triples~%" (length triples))
-									 (loop for tr in triples do (inform " ~S~%" tr)))
-								       (process-triple-input instans triples :ops '(:add :execute) :graph (if (and graph (rdf-iri-equal graph *rdf-nil*)) nil graph))))))
-	(when (contains-key debug :execute :parse-triples)
+      (let ((triples-parser (make-turtle-parser instans triples-stream :base base :subscribe subscribe
+						:triples-callback #'(lambda (triples)
+								      (when (debugp subscribe :execute)
+									(inform "~%Event callback: ~D triples~%" (length triples))
+									(loop for tr in triples do (inform " ~S~%" tr)))
+								      (process-triple-input instans triples :ops '(:add :execute) :graph (if (and graph (rdf-iri-equal graph *rdf-nil*)) nil graph))))))
+	(when (debugp subscribe :execute :parse-triples)
 	  (inform "~%Processing triples:~%"))
 	;; Is this OK?
 	(initialize-execution instans)
-	(funcall triples-parser triples-lexer :show-parse-p (contains-key debug :parse-triples))
+	(parse triples-parser)
 	(report-execution-status instans)
 	(pop observed-result-list)
-	(when (contains-key debug :execute)
+	(when (debugp subscribe :execute)
 	  (inform "Expected-results ~S" expected-results)
 	  (inform "Expected ~S" expected-result-list)
 	  (inform "Observed-result-list ~S~%Observed-query-results ~S" observed-result-list observed-query-results))
-	(when (contains-key debug :execute)
+	(when (debugp subscribe :execute)
 	  ;; (sparql-query-results-to-json instans observed-query-results)
 	  (when comparep
 	    (sparql-query-results-to-json instans expected-query-results)))
@@ -333,7 +330,7 @@
 (defvar *instans-execute-system-previous-base* nil)
 
 (defun instans-execute-system (rules &key triples expected-results graph base (rete-html-page-dir nil) ; "/Users/enu/instans/tests/output") ; nil) ;
-			       debug reporting (use-previous-args-p nil))
+			       subscribe reporting (use-previous-args-p nil))
   (cond ((not use-previous-args-p)
 	 (setf *instans-execute-system-previous-rules* rules)
 	 (setf *instans-execute-system-previous-triples* triples)
@@ -354,12 +351,12 @@
   (multiple-value-bind (instans instans-iri) (create-instans)
     (format (instans-default-output instans) "~%execute_system ~A ~A ~A ~A ~A~&" rules triples expected-results graph base)
     (multiple-value-bind (add-rules-result error)
-	(instans-add-rules instans-iri rules :rete-html-page-dir rete-html-page-dir :base base :debug debug)
+	(instans-add-rules instans-iri rules :rete-html-page-dir rete-html-page-dir :base base :subscribe subscribe)
       (declare (ignore add-rules-result))
       (when (not (null error))
 	(return-from instans-execute-system (values nil error))))
     (if triples
-	(instans-add-triples instans-iri triples :graph graph :base base :debug debug :reporting reporting))))
+	(instans-add-triples instans-iri triples :graph graph :base base :subscribe subscribe :reporting reporting))))
 
 (defun execute-prev ()
   (instans-execute-system nil :use-previous-args-p t))
@@ -412,7 +409,7 @@
 		   (t
 		    (format t "~&Running tests ~A~&" name)
 		    (instans-execute-system rules :triples (parse-iri manifest-iri-string) :base (parse-iri base-iri-string)
-					    :debug nil :reporting '(:all) :rete-html-page-dir output-dir))))))
+					    :subscribe nil :reporting '(:all) :rete-html-page-dir output-dir))))))
 
 (defun run-data-r2-syntax-tests (&optional (test-sets '("syntax-sparql1" "syntax-sparql2" "syntax-sparql3" "syntax-sparql4" "syntax-sparql5")))
   (run-syntax-tests "../tests/input/syntax-test.rq" "../tests/data-r2" "http://www.w3.org/2001/sw/DataAccess/tests/data-r2" test-sets))

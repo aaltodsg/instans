@@ -198,7 +198,7 @@
   (let* ((args (list :instans instans :input-stream stream))
 	 (triples-lexer (apply #'make-instance 'turtle-lexer (if base (cons :base (cons base args)) args)))
 	 (callback-results nil)
-	 (triples-parser (make-turtle-parser :triples-callback #'(lambda (triples) (push triples callback-results))))
+	 (triples-parser (make-turtle-parser :lexer triples-lexer :triples-callback #'(lambda (triples) (push triples callback-results))))
 	 (query-results (make-instance 'sparql-query-results)))
     (funcall triples-parser triples-lexer)
     (setf (sparql-query-results-triples query-results) (apply #'append (nreverse callback-results)))

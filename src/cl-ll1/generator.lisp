@@ -59,6 +59,22 @@
 	   :terminals (list-difference grammar-symbols nonterminals)
 	   keys)))
 
+(defun create-parser-grammar (parser specs)
+  (let* ((rules (convert-from-rhs-list-form (copy-tree specs)))
+	 (productions (loop for i from 1 for p in rules collect (make-production :lhs (car p) :number i :rhs (getf (cdr p) ::=) :properties (progn (remf (cdr p) ::=) (cdr p)))))
+	 (grammar-symbols nil)
+	 (nonterminals (delete-duplicates (mapcar #'production-lhs productions)))
+	 (start-symbol (production-lhs (first productions))))
+    (loop for p in productions do (loop for sym in (production-rhs p) do (pushnew sym grammar-symbols :test #'equal)))
+    (dbg "~%nonterminals: ~A~%grammar-symbols: ~A~%terminals: ~A~&"
+	 nonterminals grammar-symbols 
+	 (list-difference grammar-symbols nonterminals))
+    (setf (grammar-start-symbol parser) start-symbol)
+    (setf (grammar-productions parser) productions)
+    (setf (grammar-nonterminals parser) nonterminals)
+    (setf (grammar-terminals parser) (list-difference grammar-symbols nonterminals)))
+  parser)
+
 ;;; -------------------- Accessors etc.--------------------
 
 (defun nonterminal-productions (grammar nonterminal)
@@ -93,7 +109,7 @@
 						 (list (make-production :lhs new-nonterminal :rhs nil)))
 					 new-nonterminal)))))))
 
-(defun remove-immediate-left-recursion (grammar)
+(defun remove-immediate-left-recursion (grammar &key updatep)
   (let ((result-productions nil)
 	(modifiedp nil)
 	(result-nonterminals nil))
@@ -107,16 +123,23 @@
 	       (pushnew new-nonterminal result-nonterminals)
 	       (setf result-productions (append result-productions new-productions))
 	       (setf modifiedp t)))))
-    (cond ((not modifiedp)
-	   grammar)
-	  (t
-	   (loop for i from 0 for p in result-productions do (setf (production-number p) i))
-	   (make-instance (type-of grammar)
-			  :name (grammar-name grammar)
-			  :start-symbol (grammar-start-symbol grammar)
-			  :terminals (grammar-terminals grammar)
-			  :nonterminals (nreverse result-nonterminals)
-			  :productions result-productions)))))
+    (values
+     (cond ((not modifiedp)
+	    grammar)
+	   (t
+	    (loop for i from 0 for p in result-productions do (setf (production-number p) i))
+	    (cond ((not updatep)
+		   (make-instance (type-of grammar)
+				  :name (grammar-name grammar)
+				  :start-symbol (grammar-start-symbol grammar)
+				  :terminals (grammar-terminals grammar)
+				  :nonterminals (nreverse result-nonterminals)
+				  :productions result-productions))
+		  (t
+		   (setf (grammar-nonterminals grammar) (nreverse result-nonterminals))
+		   (setf (grammar-productions grammar) result-productions)
+		   grammar))))
+     modifiedp)))
 
 ;;; -------------------- Left factoring --------------------
 
@@ -150,7 +173,7 @@
 								     (append new-nt-prods-list (cons new-nonterminal (loop for rhs in class collect (make-production :lhs new-nonterminal :rhs rhs)))))))
 				  finally (return-from left-factor-one (values (cons nonterminal (nreverse modified-productions)) new-nt-prods-list)))))))
 
-(defun left-factoring (grammar)
+(defun left-factoring (grammar &key updatep)
   (let ((result-productions nil)
 	(modifiedp nil)
 	(nonterminal-and-productions-list (loop for nonterminal in (grammar-nonterminals grammar) collect (cons nonterminal (nonterminal-productions grammar nonterminal)))))
@@ -166,16 +189,23 @@
 		      (setf result-productions (append result-productions (rest modified-nt-prods)))
 		      (setf nonterminal-and-productions-list (cons new-nt-prods-list nonterminal-and-productions-list))))
 	       (dbg "nonterminal-and-productions-list = ~S " nonterminal-and-productions-list)))
-    (cond ((not modifiedp)
-	   grammar)
-	  (t
-	   (loop for i from 0 for p in result-productions do (setf (production-number p) i))
-	   (make-instance (type-of grammar)
-			  :name (grammar-name grammar)
-			  :start-symbol (grammar-start-symbol grammar)
-			  :terminals (grammar-terminals grammar)
-			  :nonterminals (delete-duplicates (mapcar #'production-lhs result-productions))
-			  :productions result-productions)))))
+    (values 
+     (cond ((not modifiedp)
+	    grammar)
+	   (t
+	    (loop for i from 0 for p in result-productions do (setf (production-number p) i))
+	    (cond ((not updatep)
+		   (make-instance (type-of grammar)
+				  :name (grammar-name grammar)
+				  :start-symbol (grammar-start-symbol grammar)
+				  :terminals (grammar-terminals grammar)
+				  :nonterminals (delete-duplicates (mapcar #'production-lhs result-productions))
+				  :productions result-productions))
+		  (t
+		   (setf (grammar-nonterminals grammar) (delete-duplicates (mapcar #'production-lhs result-productions)))
+		   (setf (grammar-productions grammar) result-productions)
+		   grammar))))
+     modifiedp)))
 
 ;;; -------------------- FIRST --------------------
 
@@ -405,29 +435,28 @@
 (defmacro grammar-symbol-value (grammar x)
   `(get ,x (grammar-symbol-value-tag ,grammar)))
 
-(defun assign-numbers-to-symbols-and-productions (grammar &optional show-parse-p)
-  (declare (ignorable show-parse-p))
+(defun assign-numbers-to-symbols-and-productions (grammar &optional subscribe)
+  (declare (ignorable subscribe))
   (setf (grammar-symbol-value-tag grammar) (gensym "SYMBOL-VALUE"))
   (loop for i from 0 below (length (grammar-productions grammar))
 	for p = (aref (grammar-productions grammar) i)
 	do (progn (setf (production-grammar-symbol-value p) (1- (- i)))
-		  (when show-parse-p (inform "~%(production-grammar-symbol-value ~S) = ~S"
-					     (cons (production-lhs p) (cons '-> (production-rhs p))) (production-grammar-symbol-value p)))
+		  (when (debugp subscribe :parser)
+		    (inform "~%(production-grammar-symbol-value ~S) = ~S"
+			    (cons (production-lhs p) (cons '-> (production-rhs p))) (production-grammar-symbol-value p)))
 		  ))
   (loop for nonterminal in (grammar-nonterminals grammar)
 	do (progn (setf (grammar-symbol-value grammar nonterminal) 
 			(nonterminal-position nonterminal (grammar-nonterminals grammar)))
-		  (when show-parse-p (inform "~%(grammar-symbol-value ~S) = ~S" nonterminal (grammar-symbol-value grammar nonterminal)))
-		  ))
+		  (when (debugp subscribe :parser) (inform "~%(grammar-symbol-value ~S) = ~S" nonterminal (grammar-symbol-value grammar nonterminal)))))
   (loop for terminal in (grammar-terminals grammar)
 	do (progn (setf (grammar-symbol-value grammar terminal)
 			(+ (length (grammar-nonterminals grammar))
 			   (terminal-position terminal (grammar-terminals grammar)))))
-       (when show-parse-p (inform "~%(grammar-symbol-value ~S) = ~S" terminal (grammar-symbol-value grammar terminal)))
+       (when (debugp subscribe :parser) (inform "~%(grammar-symbol-value ~S) = ~S" terminal (grammar-symbol-value grammar terminal)))
        )
   (setf (grammar-symbol-value grammar '$) (+ (length (grammar-nonterminals grammar)) (length (grammar-terminals grammar))))
-  (when show-parse-p (inform "~%(grammar-symbol-value ~S) = ~S" '$ (grammar-symbol-value grammar '$)))
-  )
+  (when (debugp subscribe :parser) (inform "~%(grammar-symbol-value ~S) = ~S" '$ (grammar-symbol-value grammar '$))))
 
 (defun number-to-symbol-or-production (n grammar)
   (let* ((production-count (length (grammar-productions grammar)))
@@ -473,13 +502,13 @@
 (defun ll-parse (parser)
   (catch 'parsed
     (let* ((lexer (ll-parser-lexer parser))
-	   (show-parse-p (ll-parser-show-parse-p parser))
+	   (subscribe (ll-parser-subscribe parser))
 	   (parse-table (grammar-ll1-table parser))
 	   (nonterminals (grammar-nonterminals parser))
 	   (nonterminal-count (length nonterminals))
 	   (productions (grammar-productions parser)))
       (setf *parser* parser)
-      (assign-numbers-to-symbols-and-productions parser show-parse-p)
+      (assign-numbers-to-symbols-and-productions parser subscribe)
       (setf (ll-parser-stack parser) (list (grammar-symbol-value parser (grammar-start-symbol parser)) (grammar-symbol-value parser '$)))
       (labels ((nonterminalp (grammar-symbol-value) (< -1 grammar-symbol-value nonterminal-count))
 	       (terminalp (grammar-symbol-value) (<= nonterminal-count grammar-symbol-value))
@@ -488,7 +517,7 @@
 	       (next-input-token ()
 		 (and (not (ll-parser-end-of-input-p parser))
 		      (let ((input-token (get-input-token lexer)))
-			(when show-parse-p (inform "~%lexer yields ~S" input-token))
+			(when (debugp subscribe :token) (inform "~%lexer yields ~S" input-token))
 			(cond ((error-input-token-p input-token)
 			       (ll-parser-failure "Lexer error ~A" (input-token-value input-token)))
 			      ((eof-input-token-p input-token)
@@ -502,27 +531,27 @@
 	(loop with input-token = (next-input-token)
 	      for round from 0
 	      while (and (ll-parser-stack parser) input-token)
-	      do (when show-parse-p
+	      do (when (debugp subscribe :parse-operations)
 		   (inform "~%Round ~D:~&input-token = ~A~&stack = "
 			   round (if (and (consp input-token) (eq (car input-token) 'input-token))
 				     (format nil "(~A ~S ~{~S~^ ~})" (car input-token) (number-to-symbol-or-production (second input-token) parser) (cddr input-token))
 				     input-token))
-		       (loop for x in (reverse (ll-parser-stack parser))
-			     do (inform "~S " (number-to-symbol-or-production x parser)))
-		       (inform "~&result = ")
-		       (loop for v in (ll-parser-result-stack parser) do (let ((*print-right-margin* 150)) (inform "  ~S" v))))
+		   (loop for x in (reverse (ll-parser-stack parser))
+			 do (inform "~S " (number-to-symbol-or-production x parser)))
+		   (inform "~&result = ")
+		   (loop for v in (ll-parser-result-stack parser) do (let ((*print-right-margin* 150)) (inform "  ~S" v))))
 	      do (progn
 		   (setf (ll-parser-position parser) (input-token-position input-token))
-		   (when show-parse-p (push (list (copy-list (ll-parser-stack parser)) nil (copy-list (ll-parser-parsed-input parser))) (ll-parser-phases parser)))
+		   (when (debugp subscribe :phases) (push (list (copy-list (ll-parser-stack parser)) nil (copy-list (ll-parser-parsed-input parser))) (ll-parser-phases parser)))
 		   (let ((top (first (ll-parser-stack parser)))
 			 (symbol (input-token-type input-token)))
-		     (when show-parse-p (inform "~%Top = ~S, symbol = ~S" (number-to-symbol-or-production top parser) (number-to-symbol-or-production symbol parser)))
+		     (when (debugp subscribe :parse-operations) (inform "~%Top = ~S, symbol = ~S" (number-to-symbol-or-production top parser) (number-to-symbol-or-production symbol parser)))
 		     (cond ((terminalp top)
-			    (when show-parse-p (inform "Terminal ~S" (number-to-symbol-or-production top parser)))
+			    (when (debugp subscribe :parse-operations) (inform "Terminal ~S" (number-to-symbol-or-production top parser)))
 			    (cond ((equal top symbol)
 				   (pop (ll-parser-stack parser))
 				   (push (input-token-value input-token) (ll-parser-result-stack parser))
-				   (when show-parse-p
+				   (when (debugp subscribe :phases)
 				     (setf (rest (last (first (ll-parser-phases parser)))) (list (list 'advance top)))
 				     (push symbol (ll-parser-parsed-input parser)))
 				   (setf input-token (next-input-token)))
@@ -530,37 +559,37 @@
 				   (ll-parser-failure "Expecting ~A instead of ~A (~A)" 
 					    (second (number-to-symbol-or-production top parser)) (second (number-to-symbol-or-production symbol parser)) input-token))))
 			   ((nonterminalp top)
-			    (when show-parse-p (inform "Nonterminal ~S (~S)" (number-to-symbol-or-production top parser) top))
+			    (when (debugp subscribe :parse-operations) (inform "Nonterminal ~S (~S)" (number-to-symbol-or-production top parser) top))
 			    (let ((table-value (parse-table-entry top symbol)))
 			      (cond ((eq table-value 'error)
-				     (when show-parse-p (inform "No legal action for nonterminal ~A and input symbol ~A" top symbol))
+				     (when (debugp subscribe :parse-operations) (inform "No legal action for nonterminal ~A and input symbol ~A" top symbol))
 				     (ll-parser-failure "No legal action for nonterminal ~A and input symbol (~A ~S))"
 					      (second (number-to-symbol-or-production top parser)) (second (number-to-symbol-or-production (input-token-type input-token) parser))
 					      (input-token-value input-token)))
 				    (t
 				     (let* ((p (elt productions table-value))
 					    (rhs (production-rhs p)))
-				       (when show-parse-p (setf (rest (last (first (ll-parser-phases parser)))) (list (cons 'push rhs))))
+				       (when (debugp subscribe :phases) (setf (rest (last (first (ll-parser-phases parser)))) (list (cons 'push rhs))))
 				       (pop (ll-parser-stack parser))
 				       (push (production-grammar-symbol-value p) (ll-parser-stack parser))
 				       (dolist (x (reverse rhs)) (push (grammar-symbol-value parser x) (ll-parser-stack parser))))))))
 			   (t ; (productionp top)
 			    (let* ((pnum (- (1+ top)))
 				   (p (elt productions pnum)))
-			      (when show-parse-p (inform "Production number ~D: ~S" pnum p))
+			      (when (debugp subscribe :parse-operations) (inform "Production number ~D: ~S" pnum p))
 			      (pop (ll-parser-stack parser))
-			      (when show-parse-p (setf (rest (last (first (ll-parser-phases parser)))) (list (list 'execute (format nil "[~d]" (production-number p))))))
+			      (when (debugp subscribe :phases) (setf (rest (last (first (ll-parser-phases parser)))) (list (list 'execute (format nil "[~d]" (production-number p))))))
 			      (let ((result-func (production-result-func p)))
 				(when result-func
 				  (let ((args nil))
 				    (loop repeat (production-result-arg-count p) do (push (pop (ll-parser-result-stack parser)) args))
-				    (when show-parse-p (inform "Rule [~D], arg-count = ~D" (production-number p) (production-result-arg-count p)))
+				    (when (debugp subscribe :parse-operations) (inform "Rule [~D], arg-count = ~D" (production-number p) (production-result-arg-count p)))
 ;				    (let ((values (multiple-value-list (execute-rule result-func p args))))
 				    (let ((values (multiple-value-list (execute-rule result-func p args))))
-				      (when show-parse-p (inform "  Execute rule [~D] with args = ~A ->~&  ~A" (production-number p) args values))
+				      (when (debugp subscribe :parse-operations) (inform "  Execute rule [~D] with args = ~A ->~&  ~A" (production-number p) args values))
 				      (loop for value in values do (push value (ll-parser-result-stack parser))))))))))))
 	      finally (cond ((and (null (ll-parser-stack parser)) (null input-token))
-			     (when show-parse-p (push (list nil nil (copy-list (ll-parser-parsed-input parser)) (list 'accept nil)) (ll-parser-phases parser)))
+			     (when (debugp subscribe :phases) (push (list nil nil (copy-list (ll-parser-parsed-input parser)) (list 'accept nil)) (ll-parser-phases parser)))
 			     (pop (ll-parser-result-stack parser)) ; Remove the value corresponding '$
 			     (ll-parser-success))
 			    ((null (ll-parser-stack parser))
@@ -568,10 +597,9 @@
 			    (t
 			     (ll-parser-failure "End of input while expecting ~A" (second (number-to-symbol-or-production (first (ll-parser-stack parser)) parser))))))))))
 
-;; (defgeneric parse (parser lexer)
-;;   (:method ((this parser) (lexer abstract-lexer))
-;;     (let ((parser (make-instance 'parser :lexer lexer)))
-;;       (ll-parse parser))))
+(defgeneric parse (ll-parser)
+  (:method ((this ll-parser))
+    (ll-parse this)))
 
 ;;; -------------------- Generate an LL(1) grammar --------------------
 
@@ -616,5 +644,27 @@
     (nonterminal-firsts g3)
     (followers g3)
     (generate-ll1-table g3)
+    (describe g3)
     (print-grammar g3)
     g3))
+
+(defun generate-parser-ll1-grammar (parser rules-or-file)
+  "Generate an LL(1) grammar from a set of rules (or a file) for a parser object"
+  (let ((rules (cond ((consp rules-or-file) rules-or-file)
+		     (t
+		      (with-open-file (input-stream rules-or-file)
+			(read input-stream))))))
+    (create-parser-grammar parser rules)
+    (multiple-value-bind (parser1 modifiedp1) (remove-immediate-left-recursion parser :updatep t)
+      (declare (ignorable parser1))
+      (when modifiedp1
+	(error* "Not accepting a grammar with left recursion"))
+      (multiple-value-bind (parser2 modifiedp2) (left-factoring parser :updatep t)
+	(declare (ignorable parser2))
+	(when modifiedp2
+	  (error* "Not accepting a grammar that need left factoring"))))
+    (nonterminal-firsts parser)
+    (followers parser)
+    (generate-ll1-table parser)
+    (print-grammar parser)
+    parser))

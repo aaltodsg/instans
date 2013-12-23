@@ -35,7 +35,7 @@
 		       (:execute (instans-run instans-iri))
 		       (:rules (instans-add-rules instans-iri (expand-iri directory value)
 						  :base base :rete-html-page-dir rete-html-page-dir
-						  :debug debug))
+						  :subscribe debug))
 		       (:triples
 			(instans-add-triples instans-iri (expand-iri directory value)
 					     :graph graph
@@ -43,7 +43,7 @@
 					     :output output
 					     :reporting reporting
 					     :expected-results expected
-					     :debug debug))
+					     :subscribe debug))
 		     ;;; "base=http://example.org/friends/&graph=http://instans.org/events/&file=tests/input/fnb.ttl&input-policy=triples-block&operations:add:execute:remove:execute"
 		       (:input
 			(let* ((input-parameters (parse-parameters value :colon-expand-fields '(:triple-processing-policy)))
@@ -57,7 +57,7 @@
 							:graph (or (getf input-parameters :graph) graph)
 							:base (or (getf input-parameters :base) base)
 							:policies policies
-							:debug debug)))
+							:subscribe debug)))
 		       (:output (let ((spec (parse-spec-string value)))
 				  (inform "output spec = ~S" spec)
 				  (setf output spec)))

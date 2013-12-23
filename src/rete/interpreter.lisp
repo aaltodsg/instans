@@ -272,7 +272,7 @@
 
 ;; (defgeneric run-triple-processor (triple-processor)
 ;;   (:method ((this triple-processor))
-;;     (funcall (triple-processor-parser this) (triple-processor-lexer this) (triple-processor-show-parse-p this))))
+;;     (funcall (triple-processor-parser this) (triple-processor-lexer this) (triple-processor-subscribe this))))
 
 (defgeneric process-triples (triple-processor triples)
   (:method ((this triple-processor) triples)

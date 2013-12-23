@@ -2460,83 +2460,83 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql3/syn-bad-01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "No legal action for nonterminal SELECTQUERY-18 and input symbol ($ NIL))"
+       ?ERROR_MSG = "No legal action for nonterminal SELECTQUERY-9 and input symbol ($ NIL))"
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql3/syn-bad-02.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "3:18:No legal action for nonterminal OBJECTLISTPATH-129-130 and input symbol (PNAME_LN-TERMINAL ((\"\"
+       ?ERROR_MSG = "3:18:No legal action for nonterminal OBJECTLISTPATH-120-121 and input symbol (PNAME_LN-TERMINAL ((\"\"
                                                                                              #<RDF-IRI http://example/ns#>)
                                                                                             \"s2\")))"
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql3/syn-bad-03.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "3:18:No legal action for nonterminal OBJECTLISTPATH-129-130 and input symbol (PNAME_LN-TERMINAL ((\"\"
+       ?ERROR_MSG = "3:18:No legal action for nonterminal OBJECTLISTPATH-120-121 and input symbol (PNAME_LN-TERMINAL ((\"\"
                                                                                              #<RDF-IRI http://example/ns#>)
                                                                                             \"s2\")))"
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql3/syn-bad-04.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "3:28:No legal action for nonterminal OBJECTLISTPATH-129-130 and input symbol (PNAME_LN-TERMINAL ((\"\"
+       ?ERROR_MSG = "3:28:No legal action for nonterminal OBJECTLISTPATH-120-121 and input symbol (PNAME_LN-TERMINAL ((\"\"
                                                                                              #<RDF-IRI http://example/ns#>)
                                                                                             \"o2\")))"
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql3/syn-bad-05.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "2:4:No legal action for nonterminal GROUPGRAPHPATTERN-84 and input symbol (.-TERMINAL \".\"))"
+       ?ERROR_MSG = "2:4:No legal action for nonterminal GROUPGRAPHPATTERN-75 and input symbol (.-TERMINAL \".\"))"
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql3/syn-bad-06.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "2:4:No legal action for nonterminal GROUPGRAPHPATTERN-84 and input symbol (.-TERMINAL \".\"))"
+       ?ERROR_MSG = "2:4:No legal action for nonterminal GROUPGRAPHPATTERN-75 and input symbol (.-TERMINAL \".\"))"
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql3/syn-bad-07.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "2:4:No legal action for nonterminal GROUPGRAPHPATTERN-84 and input symbol (.-TERMINAL \".\"))"
+       ?ERROR_MSG = "2:4:No legal action for nonterminal GROUPGRAPHPATTERN-75 and input symbol (.-TERMINAL \".\"))"
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql3/syn-bad-08.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "2:15:No legal action for nonterminal TRIPLESBLOCKINNER-92-93-94 and input symbol (.-TERMINAL \".\"))"
+       ?ERROR_MSG = "2:15:No legal action for nonterminal TRIPLESBLOCKINNER-83-84-85 and input symbol (.-TERMINAL \".\"))"
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql3/syn-bad-09.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "2:14:No legal action for nonterminal TRIPLESBLOCKINNER-92-93-94 and input symbol (.-TERMINAL \".\"))"
+       ?ERROR_MSG = "2:14:No legal action for nonterminal TRIPLESBLOCKINNER-83-84-85 and input symbol (.-TERMINAL \".\"))"
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql3/syn-bad-10.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "2:15:No legal action for nonterminal TRIPLESBLOCKINNER-92-93-94 and input symbol (.-TERMINAL \".\"))"
+       ?ERROR_MSG = "2:15:No legal action for nonterminal TRIPLESBLOCKINNER-83-84-85 and input symbol (.-TERMINAL \".\"))"
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql3/syn-bad-11.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "2:14:No legal action for nonterminal TRIPLESBLOCKINNER-92-93-94 and input symbol (.-TERMINAL \".\"))"
+       ?ERROR_MSG = "2:14:No legal action for nonterminal TRIPLESBLOCKINNER-83-84-85 and input symbol (.-TERMINAL \".\"))"
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql3/syn-bad-12.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "2:15:No legal action for nonterminal TRIPLESBLOCKINNER-92-93-94 and input symbol (.-TERMINAL \".\"))"
+       ?ERROR_MSG = "2:15:No legal action for nonterminal TRIPLESBLOCKINNER-83-84-85 and input symbol (.-TERMINAL \".\"))"
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql3/syn-bad-13.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "2:28:No legal action for nonterminal TRIPLESBLOCKINNER-92-93-94 and input symbol (.-TERMINAL \".\"))"
+       ?ERROR_MSG = "2:28:No legal action for nonterminal TRIPLESBLOCKINNER-83-84-85 and input symbol (.-TERMINAL \".\"))"
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql3/syn-bad-14.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "2:4:No legal action for nonterminal GROUPGRAPHPATTERN-84 and input symbol (.-TERMINAL \".\"))"
+       ?ERROR_MSG = "2:4:No legal action for nonterminal GROUPGRAPHPATTERN-75 and input symbol (.-TERMINAL \".\"))"
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql3/syn-bad-15.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "2:3:No legal action for nonterminal GROUPGRAPHPATTERN-84 and input symbol (;-TERMINAL \";\"))"
+       ?ERROR_MSG = "2:3:No legal action for nonterminal GROUPGRAPHPATTERN-75 and input symbol (;-TERMINAL \";\"))"
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql3/syn-bad-16.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
@@ -2546,17 +2546,17 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql3/syn-bad-17.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "3:9:No legal action for nonterminal PATHELT-136 and input symbol (;-TERMINAL \";\"))"
+       ?ERROR_MSG = "3:9:No legal action for nonterminal PATHELT-127 and input symbol (;-TERMINAL \";\"))"
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql3/syn-bad-18.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "3:9:No legal action for nonterminal PATHELT-136 and input symbol (;-TERMINAL \";\"))"
+       ?ERROR_MSG = "3:9:No legal action for nonterminal PATHELT-127 and input symbol (;-TERMINAL \";\"))"
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql3/syn-bad-19.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "3:14:No legal action for nonterminal TRIPLESBLOCKINNER-92-93-94 and input symbol (;-TERMINAL \";\"))"
+       ?ERROR_MSG = "3:14:No legal action for nonterminal TRIPLESBLOCKINNER-83-84-85 and input symbol (;-TERMINAL \";\"))"
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql3/syn-bad-20.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
@@ -2566,12 +2566,12 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql3/syn-bad-21.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "3:10:No legal action for nonterminal PATHELT-136 and input symbol (,-TERMINAL \",\"))"
+       ?ERROR_MSG = "3:10:No legal action for nonterminal PATHELT-127 and input symbol (,-TERMINAL \",\"))"
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql3/syn-bad-22.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "3:10:No legal action for nonterminal PATHELT-136 and input symbol (,-TERMINAL \",\"))"
+       ?ERROR_MSG = "3:10:No legal action for nonterminal PATHELT-127 and input symbol (,-TERMINAL \",\"))"
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql3/syn-bad-23.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
@@ -2581,19 +2581,19 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql3/syn-bad-24.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "3:23:No legal action for nonterminal OBJECTLISTPATH-129-130 and input symbol (PNAME_LN-TERMINAL ((\"\"
+       ?ERROR_MSG = "3:23:No legal action for nonterminal OBJECTLISTPATH-120-121 and input symbol (PNAME_LN-TERMINAL ((\"\"
                                                                                              #<RDF-IRI http://example/ns#>)
                                                                                             \"o2\")))"
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql3/syn-bad-25.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "No legal action for nonterminal CONSTRUCTQUERY-25 and input symbol ($ NIL))"
+       ?ERROR_MSG = "No legal action for nonterminal CONSTRUCTQUERY-16 and input symbol ($ NIL))"
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql3/syn-bad-26.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "4:20:No legal action for nonterminal MULTIPLICATIVEEXPRESSION-157 and input symbol (IRIREF-TERMINAL #<RDF-IRI http:///?a&&?b>))"
+       ?ERROR_MSG = "4:20:No legal action for nonterminal MULTIPLICATIVEEXPRESSION-148 and input symbol (IRIREF-TERMINAL #<RDF-IRI http://instans.org/default//default/?a&&?b>))"
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql3/syn-bad-27.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest>,
@@ -3515,12 +3515,12 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/construct/constructwhere05.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "3:24:No legal action for nonterminal OBJECTLIST-119-120 and input symbol (FILTER-TERMINAL \"FILTER\"))"
+       ?ERROR_MSG = "3:24:No legal action for nonterminal OBJECTLIST-110-111 and input symbol (FILTER-TERMINAL \"FILTER\"))"
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/construct/constructwhere06.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "1:14:No legal action for nonterminal CONSTRUCTQUERY-25-31 and input symbol (GRAPH-TERMINAL \"GRAPH\"))"
+       ?ERROR_MSG = "1:14:No legal action for nonterminal CONSTRUCTQUERY-16-22 and input symbol (GRAPH-TERMINAL \"GRAPH\"))"
 add-quad-count = 62
 remove-quad-count = 0
 queue-add-count = 6
@@ -4862,13 +4862,13 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/property-path/pp04.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "4:19:No legal action for nonterminal PATHELT-136 and input symbol ({-TERMINAL \"{\"))"
+       ?ERROR_MSG = "4:19:No legal action for nonterminal PATHELT-127 and input symbol ({-TERMINAL \"{\"))"
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-27>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/property-path/pp05.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "5:12:No legal action for nonterminal PATHELT-136 and input symbol ({-TERMINAL \"{\"))"
+       ?ERROR_MSG = "5:12:No legal action for nonterminal PATHELT-127 and input symbol ({-TERMINAL \"{\"))"
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-28>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/property-path/pp06.rq>,
@@ -4927,7 +4927,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/property-path/pp13.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "3:13:No legal action for nonterminal PATHELT-136 and input symbol ({-TERMINAL \"{\"))"
+       ?ERROR_MSG = "3:13:No legal action for nonterminal PATHELT-127 and input symbol ({-TERMINAL \"{\"))"
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-36>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/property-path/pp14.rq>,
@@ -4942,7 +4942,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/property-path/pp15.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "3:14:No legal action for nonterminal PATHELT-136 and input symbol ({-TERMINAL \"{\"))"
+       ?ERROR_MSG = "3:14:No legal action for nonterminal PATHELT-127 and input symbol ({-TERMINAL \"{\"))"
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-38>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/property-path/pp14.rq>,
@@ -4957,7 +4957,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/property-path/path-2-1.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "3:10:No legal action for nonterminal PATHELT-136 and input symbol ({-TERMINAL \"{\"))"
+       ?ERROR_MSG = "3:10:No legal action for nonterminal PATHELT-127 and input symbol ({-TERMINAL \"{\"))"
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-40>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/property-path/path-2-2.rq>,
@@ -4971,7 +4971,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/property-path/path-2-3.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "3:10:No legal action for nonterminal PATHELT-136 and input symbol ({-TERMINAL \"{\"))"
+       ?ERROR_MSG = "3:10:No legal action for nonterminal PATHELT-127 and input symbol ({-TERMINAL \"{\"))"
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-42>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/property-path/path-2-2.rq>,
@@ -4985,7 +4985,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/property-path/path-2-1.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "3:10:No legal action for nonterminal PATHELT-136 and input symbol ({-TERMINAL \"{\"))"
+       ?ERROR_MSG = "3:10:No legal action for nonterminal PATHELT-127 and input symbol ({-TERMINAL \"{\"))"
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-44>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/property-path/path-2-2.rq>,
@@ -4999,13 +4999,13 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/property-path/path-3-1.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "3:10:No legal action for nonterminal PATHELT-136 and input symbol ({-TERMINAL \"{\"))"
+       ?ERROR_MSG = "3:10:No legal action for nonterminal PATHELT-127 and input symbol ({-TERMINAL \"{\"))"
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-46>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/property-path/path-3-2.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "3:10:No legal action for nonterminal PATHELT-136 and input symbol ({-TERMINAL \"{\"))"
+       ?ERROR_MSG = "3:10:No legal action for nonterminal PATHELT-127 and input symbol ({-TERMINAL \"{\"))"
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-47>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/property-path/path-3-3.rq>,
@@ -5021,7 +5021,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/property-path/path-3-4.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "3:10:No legal action for nonterminal PATHELT-136 and input symbol ({-TERMINAL \"{\"))"
+       ?ERROR_MSG = "3:10:No legal action for nonterminal PATHELT-127 and input symbol ({-TERMINAL \"{\"))"
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-49>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/property-path/path-p1.rq>,
@@ -5761,7 +5761,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-bad-05.ru>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeUpdateSyntaxTest11>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "4:10:Expecting }-TERMINAL instead of GRAPH-TERMINAL ((INPUT-TOKEN 441 GRAPH 72))"
+       ?ERROR_MSG = "4:10:Expecting }-TERMINAL instead of GRAPH-TERMINAL ((INPUT-TOKEN 427 GRAPH 72))"
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS823
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-bad-06.ru>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeUpdateSyntaxTest11>,
