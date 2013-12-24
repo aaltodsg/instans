@@ -848,6 +848,6 @@ td.test_passed { }
 <ul><li>675 tests OK (previously 675)</li>
 <li>114 positive tests failed (previously 114)</li>
 <li>0 negative tests succeeded (previously 0)</li>
-<li>10 malformed tests ignored (previously )</li></ul>
+<li>10 malformed tests ignored (previously 10)</li></ul>
 </body>
 </html>
