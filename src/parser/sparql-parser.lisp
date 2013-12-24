@@ -265,9 +265,13 @@
 	     (create-call-through-iri (iri arglist)
 	       (let ((sparql-op (find-sparql-op (rdf-iri-string iri))))
 		 (cond ((null sparql-op)
-			(sparql-parse-error "~A does not name a Sparql function or form" (rdf-iri-string iri)))
+			(let* ((dynamic-call-op-name "instans:dynamic_call")
+			       (dynamic-call-op (find-sparql-op dynamic-call-op-name)))
+			  (cond ((null dynamic-call-op)
+				 (error* "Dynamic call operation ~A not found!" dynamic-call-op))
+				(t
+				 (cons dynamic-call-op (cons iri arglist))))))
 		       (t
-;			(inform "create-call-through-iri ~A ~A" sparql-op arglist)
 			(cons sparql-op arglist))))))
       (setf
        parser

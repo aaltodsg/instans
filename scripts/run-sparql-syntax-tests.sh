@@ -80,6 +80,7 @@ EOF
 AWK=$$-syntax-test-filter.awk
 touch $AWK
 INVALID_TESTS=invalid-sparql-tests
+#echo "INVALID_TESTS" = `pwd`/$INVALID_TESTS
 LOG=log
 touch $LOG
 if test -f $INVALID_TESTS; then
@@ -102,12 +103,13 @@ function output() {
         entry_number++;
         split(queryfile, parts, "/");
         long_name = sprintf("%s/%s/%s", parts[1], parts[2], parts[3]);
-        is_negative = (index(type, "Negative") == 1) || is_invalid_test(long_name);
-        if (!is_negative && has_error) { passed = 0; test_outcome="test_positive_failed"; test_positive_failed_count++}
-        else if (is_negative && !has_error) { passed = 0; test_outcome = "test_negative_succeeded"; test_negative_succeeded_count++}
-        else { passed = 1; test_outcome = "test_ok"; test_ok_count++}
-	printf "<TR class=\"%s\"><TD class=\"test_entry_number\">%d</TD><TD class=\"test_passed\">%s</TD><TD class=\"test_collection\">%s</TD><TD class=\"test_set\">%s</TD><TD class=\"test_type\">%s</TD><TD class=\"test_name\"><a href=\"%s\" type=\"text/plain\">%s</a></TD><TD class=\"test_error\">%s</TD>",
-          test_outcome, entry_number, (passed ? "Yes" : "No"), parts[1], parts[2], type, linkuri, parts[3], (has_error ? "Error" : "OK");
+        is_negative = (index(type, "Negative") == 1);
+        if (is_invalid_test(long_name)) { status = -1; test_outcome = "test_malformed" ; test_malformed_count++;}
+        else if (!is_negative && has_error) { status = 0; test_outcome="test_positive_failed"; test_positive_failed_count++}
+        else if (is_negative && !has_error) { status = 0; test_outcome = "test_negative_succeeded"; test_negative_succeeded_count++}
+        else { status = 1; test_outcome = "test_ok"; test_ok_count++}
+	printf "<TR class=\"%s\"><TD class=\"test_entry_number\">%d</TD><TD class=\"test_status\">%s</TD><TD class=\"test_collection\">%s</TD><TD class=\"test_set\">%s</TD><TD class=\"test_type\">%s</TD><TD class=\"test_name\"><a href=\"%s\" type=\"text/plain\">%s</a></TD><TD class=\"test_error\">%s</TD>",
+          test_outcome, entry_number, (status == 1 ? "Yes" : (status == 0 ? "No" : "Skipped")), parts[1], parts[2], type, linkuri, parts[3], (has_error ? "Error" : "OK");
 	if (error_msg && length(error_msg) > 2) printf "<TD class=\"test_error_message\">%s</TD></TR>\n", error_msg;
 	else printf "<TD class=\"error_test_error_message\">&nbsp;</TD></TR>\n";
 	error_msg = "";
@@ -162,18 +164,21 @@ if test -f ${REPORT_HTML}.prev; then
    PREVOK=`cat ${REPORT_HTML}.prev|sed -n '/^[^0-9]*\([0-9]*\) tests OK.*$/s//\1/p'`
    PREVPOSFAIL=`cat ${REPORT_HTML}.prev|sed -n '/^[^0-9]*\([0-9]*\) positive tests failed.*$/s//\1/p'`
    PREVNEGSUCC=`cat ${REPORT_HTML}.prev|sed -n '/^[^0-9]*\([0-9]*\) negative tests succeeded.*$/s//\1/p'`
+   PREVIGNORED=`cat ${REPORT_HTML}.prev|sed -n '/^[^0-9]*\([0-9]*\) malformed tests ignored.*$/s//\1/p'`
 cat >> $AWK <<EOF
   printf "<p>Total %d tests (previously $PREVTOTAL)\n", test_ok_count + test_positive_failed_count + test_negative_succeeded_count;
   printf "<ul><li>%d tests OK (previously $PREVOK)</li>\n", test_ok_count;
   printf "<li>%d positive tests failed (previously $PREVPOSFAIL)</li>\n", test_positive_failed_count;
-  printf "<li>%d negative tests succeeded (previously $PREVNEGSUCC)</li></ul>\n", test_negative_succeeded_count;
+  printf "<li>%d negative tests succeeded (previously $PREVNEGSUCC)</li>\n", test_negative_succeeded_count;
+  printf "<li>%d malformed tests ignored (previously $PREVIGNORED)</li></ul>\n", test_malformed_count;
 EOF
 else
     cat >> $AWK <<EOF
   printf "<p>Total %d tests\n", test_ok_count + test_positive_failed_count + test_negative_succeeded_count;
   printf "<ul><li>%d tests OK</li>\n", test_ok_count;
   printf "<li>%d positive tests failed</li>\n", test_positive_failed_count;
-  printf "<li>%d negative tests succeeded</li></ul>\n", test_negative_succeeded_count;
+  printf "<li>%d negative tests succeeded</li>\n", test_negative_succeeded_count;
+  printf "<li>%d malformed tests ignored</li></ul>\n", test_malformed_count;
 EOF
 fi
 cat >> $AWK <<EOF

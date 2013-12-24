@@ -32,3 +32,10 @@
   (:method ((rules iri-or-string) &optional (triples iri-or-string) (expected-results iri-or-string) (graph-iri rdf-iri) (base rdf-iri))
     (instans-execute-system rules :triples triples :expected-results expected-results :graph graph-iri :base base)))
 
+(define-sparql-function "instans:dynamic_call" (:arguments ((func rdf-iri) &rest args) :returns t)
+  (:method ((func rdf-iri) &rest args)
+    (let ((sparql-op (find-sparql-op (rdf-iri-string func))))
+      (cond ((null sparql-op)
+	     (signal-sparql-error "~A does not name a Sparql function or form" (rdf-iri-string func)))
+	    (t
+	     (apply (sparql-op-lisp-name sparql-op) args))))))
