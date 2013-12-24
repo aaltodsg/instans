@@ -1,5 +1,20 @@
+Changes since 0.0.2
+-------------------
+
 INSTANS 0.0.2 Release Notes
-===================
+===========================
+
+* Bug fixes
+  - Changed parsing to accept functions calls through unknown IRIs. Now we produce a call to "instans:dynamic_call", which
+    resolves the function in run-time. (0.0.2.3)
+
+* Tests:
+  - Syntax tests ignore malformed tests of property paths of type {n,m}, which have been dropped off the specs. (0.0.2.2)
+
+* Refactoring and changes in implementation
+  - Refactored old classes 'parser' and 'parsing' to two classes 'grammar' and 'll-parser', which has 'grammar' as its superclass.
+  - Replaced macro with-ll1-parsing by a macro generate-ll-parser. The functions make-turtle-parser and make-sparql-parser
+    now take an instans object, an input stream and return an ll-parser object. Calling 'parse' on that object does the parsing. (0.0.2.1)
 
 Changes since 0.0.1
 -------------------
@@ -14,3 +29,4 @@ Changes since 0.0.1
 
   - Instans now takes command line option --report [all|select|construct|modify] and reports
      the execution of rules according to that
+
