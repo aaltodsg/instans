@@ -44,7 +44,7 @@
    (parsed-input :accessor ll-parser-parsed-input :initform nil)
    (position :accessor ll-parser-position :initform 0)
    (end-of-input-p :accessor ll-parser-end-of-input-p :initform nil)
-   (state :accessor ll-parser-state :initform nil)
+   (state :accessor ll-parser-state :initform :uninitialized)
    (error-messages :accessor ll-parser-error-messages :initform nil)
    (parse-function :accessor ll-parser-parse-function :initarg :parse-function :initform nil)))
 

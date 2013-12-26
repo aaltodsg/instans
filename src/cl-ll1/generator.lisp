@@ -485,31 +485,42 @@
 
 (defvar *parser* nil)
 
-(defun return-from-grammar (succeededp &optional fmt &rest args)
+(defun return-from-parser (status &optional fmt &rest args)
   (let ((parser *parser*))
-    (setf (ll-parser-state parser) (if succeededp :succeeded :failed))
-    (setf (ll-parser-phases parser) (nreverse (ll-parser-phases parser)))
-    (unless succeededp
+    (setf (ll-parser-state parser) status)
+    (unless (eq status :yield)
+      (setf (ll-parser-phases parser) (nreverse (ll-parser-phases parser)))
+    (when (eq status :failed)
       (push-to-end (make-ll-parser-error-message (ll-parser-lexer parser) (ll-parser-position parser) fmt args) (ll-parser-error-messages parser)))
-    (throw 'parsed parser)))
+    (throw 'parsed parser))))
 
 (defun ll-parser-failure (fmt &rest args)
-  (apply #'return-from-grammar nil fmt args))
+  (apply #'return-from-parser :failed fmt args))
 
 (defun ll-parser-success ()
-  (return-from-grammar t))
+  (return-from-parser :succeeded))
+
+(defun ll-parser-yields (&optional value-to-stack)
+  (let ((parsing *parser*))
+    (push value-to-stack (ll-parser-result-stack parsing))
+    (return-from-parser :yield)))
+
+(defun initialize-ll-parser (parser)
+  (assign-numbers-to-symbols-and-productions parser (ll-parser-subscribe parser))
+  (setf (ll-parser-stack parser) (list (grammar-symbol-value parser (grammar-start-symbol parser)) (grammar-symbol-value parser '$)))
+  (setf (ll-parser-state parser) :initialized))
 
 (defun ll-parse (parser)
   (catch 'parsed
-    (let* ((lexer (ll-parser-lexer parser))
+    (let* ((*parser* parser)
+	   (lexer (ll-parser-lexer parser))
 	   (subscribe (ll-parser-subscribe parser))
 	   (parse-table (grammar-ll1-table parser))
 	   (nonterminals (grammar-nonterminals parser))
 	   (nonterminal-count (length nonterminals))
 	   (productions (grammar-productions parser)))
-      (setf *parser* parser)
-      (assign-numbers-to-symbols-and-productions parser subscribe)
-      (setf (ll-parser-stack parser) (list (grammar-symbol-value parser (grammar-start-symbol parser)) (grammar-symbol-value parser '$)))
+      (when (eq (ll-parser-state parser) :uninitialized)
+	(initialize-ll-parser parser))
       (labels ((nonterminalp (grammar-symbol-value) (< -1 grammar-symbol-value nonterminal-count))
 	       (terminalp (grammar-symbol-value) (<= nonterminal-count grammar-symbol-value))
 	       (parse-table-entry (nonterminal-pos terminal-pos)

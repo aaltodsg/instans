@@ -28,3 +28,4 @@
   done using the wrong base or prefix. We should postpone the expansion. This may cause large changes.
 - Should the iri's be case sensitive or not?
 - Search for a tool for making todo and stack
+- make sure, that parsers are re-entrant
