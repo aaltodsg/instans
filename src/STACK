@@ -8,5 +8,7 @@
 - Make triple input processors
   - Change the parser to be able to yield in between parsing
   - Take care that the result stack is kept OK.
-- Change sparql-parser and turtle-parser to use define-ll1-parser
-  
+- Complete parser resume/suspend
+  - Check that the parser correctly continues, e.g., by making turtle parser yielding whenever it emits.
+- Hunt down the bug that generates tests/-inf
+  + Is not produced by actual running the tests by sbcl

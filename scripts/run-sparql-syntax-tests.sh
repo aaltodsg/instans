@@ -1,4 +1,5 @@
 #!/bin/sh
+CNT=0
 cd `dirname $0`/.. > /dev/null
 ROOT=`pwd`
 BIN=${ROOT}/bin
@@ -81,12 +82,9 @@ AWK=$$-syntax-test-filter.awk
 touch $AWK
 INVALID_TESTS=invalid-sparql-tests
 #echo "INVALID_TESTS" = `pwd`/$INVALID_TESTS
-LOG=log
-touch $LOG
 if test -f $INVALID_TESTS; then
 cat >> $AWK <<EOF
 function is_invalid_test(name) {
-  printf "is_invalid_test(%s): grep --silent %s $INVALID_TESTS", name, name >> $LOG
   return (system(sprintf("grep --silent %s $INVALID_TESTS", name)) == 0);
 }
 EOF

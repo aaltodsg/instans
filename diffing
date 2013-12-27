@@ -1,0 +1,9 @@
+ddd () {
+diff -b instans/src/$1 spare-instans/src/$1
+}
+drq () {
+diff -rq spare-instans/src instans/src |grep .lisp |sed '/spare-instans\/src\//s///'|sed '/and instans[^ ]* /s///'|sed '/Files /s///'|sed '/ differ/s///'
+}
+ccc () {
+diff -b instans/src/$1 spare-instans/src/$1|egrep -v '(---)'|egrep -v '^[0-9]*c[0-9]*$'|wc -l
+}
