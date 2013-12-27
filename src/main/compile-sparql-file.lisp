@@ -254,7 +254,7 @@
   ;; 				    :lexer (make-instance 'turtle-lexer :instans instans :input-stream input-stream :base base)
   ;; 				    :subscribe (debugp subscribe :parse-triples))))
   ;;     (setf (triple-processor-parser processor)
-  ;; 	    (make-turtle-parser :triples-callback #'(lambda (triples) (process-triples processor triples) (ll-parser-yields nil)) :continuep t))
+  ;; 	    (make-turtle-parser :triples-block-callback #'(lambda (triples) (process-triples processor triples) (ll-parser-yields nil))))
   ;;     (add-triple-processor instans processor))))
 
 (defun instans-run (instans-iri)
@@ -291,11 +291,11 @@
     (setf (instans-select-function-arguments instans) report-function-arguments)
     (with-input-from-string (triples-stream string)
       (let ((triples-parser (make-turtle-parser instans triples-stream :base base :subscribe subscribe
-						:triples-callback #'(lambda (triples)
-								      (when (debugp subscribe :execute)
-									(inform "~%Event callback: ~D triples~%" (length triples))
-									(loop for tr in triples do (inform " ~S~%" tr)))
-								      (process-triple-input instans triples :ops '(:add :execute) :graph (if (and graph (rdf-iri-equal graph *rdf-nil*)) nil graph))))))
+						:triples-block-callback #'(lambda (triples)
+									    (when (debugp subscribe :execute)
+									      (inform "~%Event callback: ~D triples~%" (length triples))
+									      (loop for tr in triples do (inform " ~S~%" tr)))
+									    (process-triple-input instans triples :ops '(:add :execute) :graph (if (and graph (rdf-iri-equal graph *rdf-nil*)) nil graph))))))
 	(when (debugp subscribe :execute :parse-triples)
 	  (inform "~%Processing triples:~%"))
 	;; Is this OK?

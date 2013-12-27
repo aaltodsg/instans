@@ -1,0 +1,4 @@
+PREFIX : <file:///>
+:s :p :o .
+:s1 :p1 :o1 .
+

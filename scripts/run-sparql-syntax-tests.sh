@@ -80,17 +80,17 @@ td.test_passed { }
 EOF
 AWK=$$-syntax-test-filter.awk
 touch $AWK
-INVALID_TESTS=invalid-sparql-tests
-#echo "INVALID_TESTS" = `pwd`/$INVALID_TESTS
-if test -f $INVALID_TESTS; then
+MALFORMED_TESTS=malformed-sparql-tests
+#echo "MALFORMED_TESTS" = `pwd`/$MALFORMED_TESTS
+if test -f $MALFORMED_TESTS; then
 cat >> $AWK <<EOF
-function is_invalid_test(name) {
-  return (system(sprintf("grep --silent %s $INVALID_TESTS", name)) == 0);
+function is_malformed_test(name) {
+  return (system(sprintf("grep --silent %s $MALFORMED_TESTS", name)) == 0);
 }
 EOF
 else
 cat >> $AWK <<EOF
-function is_invalid_test(name) {
+function is_malformed_test(name) {
   return 0;
 }
 EOF
@@ -102,7 +102,7 @@ function output() {
         split(queryfile, parts, "/");
         long_name = sprintf("%s/%s/%s", parts[1], parts[2], parts[3]);
         is_negative = (index(type, "Negative") == 1);
-        if (is_invalid_test(long_name)) { status = -1; test_outcome = "test_malformed" ; test_malformed_count++;}
+        if (is_malformed_test(long_name)) { status = -1; test_outcome = "test_malformed" ; test_malformed_count++;}
         else if (!is_negative && has_error) { status = 0; test_outcome="test_positive_failed"; test_positive_failed_count++}
         else if (is_negative && !has_error) { status = 0; test_outcome = "test_negative_succeeded"; test_negative_succeeded_count++}
         else { status = 1; test_outcome = "test_ok"; test_ok_count++}

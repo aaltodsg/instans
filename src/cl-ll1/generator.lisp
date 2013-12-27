@@ -415,9 +415,6 @@
 
 ;;; -------------------- LL(1) Parsing --------------------
 
-(defun execute-rule (func p args)
-  (apply func p args))
-
 (defun nonterminal-position (symbol nonterminals)
 					; (position symbol nonterminals)
   (let ((p (position symbol nonterminals)))
@@ -485,14 +482,18 @@
 
 (defvar *parser* nil)
 
-(defun return-from-parser (status &optional fmt &rest args)
+(defun initialize-ll-parser (parser)
+  (assign-numbers-to-symbols-and-productions parser (ll-parser-subscribe parser))
+  (setf (ll-parser-stack parser) (list (grammar-symbol-value parser (grammar-start-symbol parser)) (grammar-symbol-value parser '$)))
+  (setf (ll-parser-state parser) :initialized))
+
+(defun return-from-parser (state &optional fmt &rest args)
   (let ((parser *parser*))
-    (setf (ll-parser-state parser) status)
-    (unless (eq status :yield)
-      (setf (ll-parser-phases parser) (nreverse (ll-parser-phases parser)))
-    (when (eq status :failed)
+    (setf (ll-parser-state parser) state)
+    (setf (ll-parser-phases parser) (nreverse (ll-parser-phases parser)))
+    (when (eq state :failed)
       (push-to-end (make-ll-parser-error-message (ll-parser-lexer parser) (ll-parser-position parser) fmt args) (ll-parser-error-messages parser)))
-    (throw 'parsed parser))))
+    (throw 'parsed parser)))
 
 (defun ll-parser-failure (fmt &rest args)
   (apply #'return-from-parser :failed fmt args))
@@ -500,15 +501,10 @@
 (defun ll-parser-success ()
   (return-from-parser :succeeded))
 
-(defun ll-parser-yields (&optional value-to-stack)
-  (let ((parsing *parser*))
-    (push value-to-stack (ll-parser-result-stack parsing))
-    (return-from-parser :yield)))
-
-(defun initialize-ll-parser (parser)
-  (assign-numbers-to-symbols-and-productions parser (ll-parser-subscribe parser))
-  (setf (ll-parser-stack parser) (list (grammar-symbol-value parser (grammar-start-symbol parser)) (grammar-symbol-value parser '$)))
-  (setf (ll-parser-state parser) :initialized))
+(defun ll-parser-yields (value)
+  (let ((parser *parser*))
+    (setf (ll-parser-state parser) :yield)
+    (throw 'parsed (values parser value))))
 
 (defun ll-parse (parser)
   (catch 'parsed
@@ -521,24 +517,29 @@
 	   (productions (grammar-productions parser)))
       (when (eq (ll-parser-state parser) :uninitialized)
 	(initialize-ll-parser parser))
+;      (inform "Entering parser")
       (labels ((nonterminalp (grammar-symbol-value) (< -1 grammar-symbol-value nonterminal-count))
 	       (terminalp (grammar-symbol-value) (<= nonterminal-count grammar-symbol-value))
 	       (parse-table-entry (nonterminal-pos terminal-pos)
 		 (aref parse-table nonterminal-pos (- terminal-pos nonterminal-count)))
 	       (next-input-token ()
-		 (and (not (ll-parser-end-of-input-p parser))
-		      (let ((input-token (get-input-token lexer)))
-			(when (debugp subscribe :token) (inform "~%lexer yields ~S" input-token))
-			(cond ((error-input-token-p input-token)
-			       (ll-parser-failure "Lexer error ~A" (input-token-value input-token)))
-			      ((eof-input-token-p input-token)
-			       (setf (ll-parser-end-of-input-p parser) t)
-			       (make-input-token :type (grammar-symbol-value parser '$)))
-			      (t
-			       (let ((token-symbol-value (grammar-symbol-value parser (second input-token))))
-				 (unless token-symbol-value (error* "Could not find the symbol value of token ~A" (second input-token)))
-				 (setf (second input-token) token-symbol-value)
-				 input-token)))))))
+		 (cond ((ll-parser-saved-input-token parser)
+;			(inform "using saved token ~S" (ll-parser-saved-input-token parser))
+			(prog1 (ll-parser-saved-input-token parser)
+			  (setf (ll-parser-saved-input-token parser) nil))) ; this is needed, when the parser yields and then we resume
+		       ((not (ll-parser-end-of-input-p parser))
+			(let ((input-token (get-input-token lexer)))
+			  (when (debugp subscribe :token) (inform "~%lexer yields ~S" input-token))
+			  (cond ((error-input-token-p input-token)
+				 (ll-parser-failure "Lexer error ~A" (input-token-value input-token)))
+				((eof-input-token-p input-token)
+				 (setf (ll-parser-end-of-input-p parser) t)
+				 (make-input-token :type (grammar-symbol-value parser '$)))
+				(t
+				 (let ((token-symbol-value (grammar-symbol-value parser (second input-token))))
+				   (unless token-symbol-value (error* "Could not find the symbol value of token ~A" (second input-token)))
+				   (setf (second input-token) token-symbol-value)
+				   input-token))))))))
 	(loop with input-token = (next-input-token)
 	      for round from 0
 	      while (and (ll-parser-stack parser) input-token)
@@ -595,8 +596,10 @@
 				  (let ((args nil))
 				    (loop repeat (production-result-arg-count p) do (push (pop (ll-parser-result-stack parser)) args))
 				    (when (debugp subscribe :parse-operations) (inform "Rule [~D], arg-count = ~D" (production-number p) (production-result-arg-count p)))
-;				    (let ((values (multiple-value-list (execute-rule result-func p args))))
-				    (let ((values (multiple-value-list (execute-rule result-func p args))))
+				    (setf (ll-parser-saved-input-token parser) input-token) ; Save input-token, in case result-func does a nonlocal exit
+;				    (inform "Saving input token: (ll-parser-saved-input-token parser) = ~S" (ll-parser-saved-input-token parser))
+				    (let ((values (multiple-value-list (apply result-func p args))))
+				      (setf (ll-parser-saved-input-token parser) nil) ; Unset saved-input-token, if we did not do a nonlocal exit
 				      (when (debugp subscribe :parse-operations) (inform "  Execute rule [~D] with args = ~A ->~&  ~A" (production-number p) args values))
 				      (loop for value in values do (push value (ll-parser-result-stack parser))))))))))))
 	      finally (cond ((and (null (ll-parser-stack parser)) (null input-token))

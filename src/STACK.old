@@ -22,3 +22,9 @@
   + Rename parsing -> ll-parser
   + Made grammar the superclass of ll-parser (lots of small fixes)
   + Write define-ll1-parser macro
++ Hunt down the bug that generates tests/-inf
+  + Is not produced by actual running the tests by sbcl
++ Complete parser resume/suspend
+  + Check that the parser correctly continues, e.g., by making turtle parser yielding whenever it emits.
+    + Add ll-parser-saved-input-token to avoid missing the input token when the callback does a non-local exit
+  + Change make-turtle-parser parameters to have two callbacks, :triple-callback :triples-block-callback

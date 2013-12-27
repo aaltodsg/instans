@@ -40,6 +40,7 @@
    (subscribe :accessor ll-parser-subscribe :initarg :subscribe :initform nil)
    (stack :accessor ll-parser-stack :initform nil)
    (result-stack :accessor ll-parser-result-stack :initform nil)
+   (saved-input-token :accessor ll-parser-saved-input-token :initform nil)
    (phases :accessor ll-parser-phases :initform nil)
    (parsed-input :accessor ll-parser-parsed-input :initform nil)
    (position :accessor ll-parser-position :initform 0)
@@ -76,6 +77,9 @@
 
 (defun ll-parser-failed-p (ll-parser)
   (eq (ll-parser-state ll-parser) :failed))
+
+(defun ll-parser-finished-p (ll-parser)
+  (or (ll-parser-succeeded-p ll-parser) (ll-parser-failed-p ll-parser)))
 
 (defun make-error-input-token (msg position)
   (make-input-token :type :error :value msg :position position))

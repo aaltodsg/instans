@@ -195,12 +195,10 @@
 
 (defun parse-ttl-stream (instans stream input-name &key base &allow-other-keys)
   (declare (ignorable input-name base))
-  (let* ((args (list :instans instans :input-stream stream))
-	 (triples-lexer (apply #'make-instance 'turtle-lexer (if base (cons :base (cons base args)) args)))
-	 (callback-results nil)
-	 (triples-parser (make-turtle-parser :lexer triples-lexer :triples-callback #'(lambda (triples) (push triples callback-results))))
+  (let* ((callback-results nil)
+	 (triples-parser (make-turtle-parser instans stream :base base :triples-block-callback #'(lambda (triples) (push triples callback-results))))
 	 (query-results (make-instance 'sparql-query-results)))
-    (funcall triples-parser triples-lexer)
+    (parse triples-parser)
     (setf (sparql-query-results-triples query-results) (apply #'append (nreverse callback-results)))
     query-results))
 
