@@ -1,1 +1,1 @@
-../../bin/instans -b file:///. -r CF-Queries-default.rq -t 5actors100events.ntriples --verbose true
+../../bin/instans -b file:///. -r CF-Queries-default.rq --report select -t 5actors100events.ntriples

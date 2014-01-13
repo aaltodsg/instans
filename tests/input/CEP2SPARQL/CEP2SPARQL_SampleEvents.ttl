@@ -1,0 +1,42 @@
+@prefix : <http:example.org/default#> .
+@prefix ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#> .
+@prefix geo:  <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix ssn: <http://purl.oclc.org/NET/ssnx/ssn#> .
+
+
+# Office hours 1
+[] a ep:EventObject ;
+     ssn:Sensor :loc1 ;
+     geo:Point [ geo:lat 60.158776 ; geo:long 24.881490 ; ] ;
+     ep:hasEventObjectSamplingTime "2014-01-07T09:18:21"^^xsd:dateTime .
+
+# Office hours 2 - same hour with office hours 1
+[] a ep:EventObject ;
+     ssn:Sensor :loc1 ;
+     geo:Point [ geo:lat 60.187458 ; geo:long 24.821272 ; ] ;
+     ep:hasEventObjectSamplingTime "2014-01-07T09:42:00"^^xsd:dateTime .
+
+# Office hours 3 - different hour with 1 & 2
+[] a ep:EventObject ;
+     ssn:Sensor :loc1 ;
+     geo:Point [ geo:lat 60.187634 ; geo:long 24.821491 ; ] ;
+     ep:hasEventObjectSamplingTime "2014-01-07T10:18:21"^^xsd:dateTime .
+
+# Office hours 4 - different hour with 1, 2 & 3
+[] a ep:EventObject ;
+     ssn:Sensor :loc1 ;
+     geo:Point [ geo:lat 60.187595 ; geo:long 24.821255 ; ] ;
+     ep:hasEventObjectSamplingTime "2014-01-07T11:32:34"^^xsd:dateTime .
+
+# Evening 1
+[] a ep:EventObject ;
+     ssn:Sensor :loc1 ;
+     geo:Point [ geo:lat 60.187595 ; geo:long 24.821255 ; ] ;
+     ep:hasEventObjectSamplingTime "2014-01-07T21:12:32"^^xsd:dateTime .
+
+# Night 1
+[] a ep:EventObject ;
+     ssn:Sensor :loc1 ;
+     geo:Point [ geo:lat 60.186623 ; geo:long 24.820017 ; ] ;
+     ep:hasEventObjectSamplingTime "2014-01-08T04:02:11"^^xsd:dateTime .
+
