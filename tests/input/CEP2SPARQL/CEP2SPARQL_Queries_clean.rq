@@ -18,41 +18,41 @@ WHERE { ?sub ?pred ?obj }
 
 # Stateless filter (EPA 1): Only events generated during business hours
 
-INSERT { GRAPH <http://example.org/poststateless/> {
+INSERT { GRAPH <http://example.org/poststateless> {  # Forward outgoing events
       ?event ?p1 ?o1 .
       ?h2 ?p2 ?o2 } }
-WHERE {  GRAPH <http://example.org/source/> {
-    ?event a ep:EventObject ;
+WHERE { GRAPH <http://example.org/source/> {
+    ?event a ep:EventObject ;    # Match incoming events
            ?p1 ?o1 ;
-           ep:hasEventObjectSamplingTime ?time .
            OPTIONAL { BIND ( IF (isBlank(?o1), ?o1, 0) as ?h2)
-                  ?h2 ?p2 ?o2 }
+                ?h2 ?p2 ?o2 }
+           ep:hasEventObjectSamplingTime ?time .
     FILTER ( ( HOURS(?time) > 8 ) && ( HOURS(?time) < 17 ) ) } }
 
 ;
 
 # Stateful filter (EPA 2): Only 1 event per hour
 
-DELETE { GRAPH <http://example.org/memory/> { 
+DELETE { GRAPH <http://example.org/memory/> { # Clear memory
     ?mem :prevHour ?prevhour } }
-INSERT { GRAPH <http://example.org/poststateful/> {
+INSERT { GRAPH <http://example.org/poststateful/> { # Forward outgoing events
       ?event ?p1 ?o1 .
       ?h2 ?p2 ?o2 }
- GRAPH <http://example.org/memory/> { 
+ GRAPH <http://example.org/memory/> { # Write new value to memory
      [] :prevHour ?hour }  
 }
 WHERE { GRAPH <http://example.org/poststateless/> {
-    ?event a ep:EventObject ;
+    ?event a ep:EventObject ; # Match incoming events
            ?p1 ?o1 ;
            ep:hasEventObjectSamplingTime ?time .
     OPTIONAL { BIND ( IF (isBlank(?o1), ?o1, 0) as ?h2)
             ?h2 ?p2 ?o2 }
     }
-   GRAPH <http://example.org/memory/> {
+   GRAPH <http://example.org/memory/> { # Retrieve value from memory, if available
     OPTIONAL  { ?mem :prevHour ?prevhour }
   }
   BIND ( HOURS(?time) as ?hour)
-  FILTER ( ?hour != COALESCE(?prevhour,-1) ) 
+  FILTER ( ?hour != COALESCE(?prevhour,-1) ) # Compare current with memory
 }
 
 ;
@@ -60,12 +60,21 @@ WHERE { GRAPH <http://example.org/poststateless/> {
 # Enrich (EPA 3): Enrich events with the name of the closest location
 # If there are problems with the SERVICE-query, it can be temporarily replaced with BIND ( "Espoo" as ?label )
 
+PREFIX omgeo: <http://www.ontotext.com/owlim/geo#>
+PREFIX ff: <http://factforge.net/>
+
 INSERT { GRAPH <http://example.org/translated/> { 
-    ?event ex:locationName ?label } }
+    ?event a ep:EventObject ; # Forward enriched event
+         ssn:Sensor ?sensor ;
+         geo:Point [ geo:lat ?lat ; geo:long ?long ; ] ;
+         ep:hasEventObjectSamplingTime ?time ;
+         ex:locationName ?label } }
 WHERE { GRAPH <http://example.org/poststateful/> { 
-    ?event a ep:EventObject ;
-    geo:Point [ geo:lat ?lat ; geo:long ?long ; ] .
-    SERVICE <http://factforge.net/sparql> \{
+    ?event a ep:EventObject ; # Match incoming event
+           ssn:Sensor ?sensor ;
+           geo:Point [ geo:lat ?lat ; geo:long ?long ; ] ;
+           ep:hasEventObjectSamplingTime ?time .
+    SERVICE <http://factforge.net/sparql> { # Retrieve location label
        ?location omgeo:nearby(?lat ?long "1km"); 
                  ff:preferredLabel ?label } } }
 
@@ -74,28 +83,28 @@ WHERE { GRAPH <http://example.org/poststateful/> {
 # Project (EPA 4): Delete information from the incoming events
 
 INSERT {  GRAPH <http://example.org/projected/> { 
-    ?event a ep:EventObject ;
-           ssn:Sensor ?sensor ;
-           geo:Point [ geo:lat ?lat ; geo:long ?long ; ] ;
-           ep:hasEventObjectSamplingTime ?time } }
+    ?event a ep:EventObject ; # Forward projected event
+         ssn:Sensor ?sensor ;
+         geo:Point [ geo:lat ?lat ; geo:long ?long ; ] ;
+         ep:hasEventObjectSamplingTime ?time } }
 WHERE {  GRAPH <http://example.org/translated/> { 
-    ?event a ep:EventObject ;
-           ssn:Sensor ?sensor ;
-           geo:Point [ geo:lat ?lat ; geo:long ?long ; ] ;
-           ep:hasEventObjectSamplingTime ?time } }
+    ?event a ep:EventObject ; # Match wanted triples only
+         ssn:Sensor ?sensor ;
+         geo:Point [ geo:lat ?lat ; geo:long ?long ; ] ;
+         ep:hasEventObjectSamplingTime ?time } }
 
 ;
 
 # Split (EPA 5): Split into separate channels using original blank nodes.
 
-INSERT { GRAPH <http://example.org/geoevents/> {
+INSERT { GRAPH <http://example.org/geoevents/> { # Insert GeoEvents
     ?event a ep:EventObject ;
            geo:Point [ geo:lat ?lat ; geo:long ?long ; ] }
-  GRAPH <http://example.org/timeevents/> {
+  GRAPH <http://example.org/timeevents/> { # Insert TimeEvents
     ?event a ep:EventObject ;
            ssn:Sensor ?sensor ;
            ep:hasEventObjectSamplingTime ?time } }
-WHERE { GRAPH <http://example.org/poststateful/> {
+WHERE { GRAPH <http://example.org/poststateful/> { # Match incoming events
     ?event a ep:EventObject ;
            ssn:Sensor ?sensor ;
            geo:Point [ geo:lat ?lat ; geo:long ?long ; ] ;
@@ -106,32 +115,32 @@ WHERE { GRAPH <http://example.org/poststateful/> {
 # Aggregate (EPA 6): Create new events out of the number of events observed in each hour
 
 INSERT { GRAPH <http://example.org/eventcounts/> {
-   [] a ep:EventObject ;
+   [] a ep:EventObject ; # Insert counter events
       :eventType :eventCount ;
       :hour ?hour ;
       :count ?nrevent } }
-WHERE { 
-  SELECT ?hour (COUNT(?event) as ?nrevent)
+WHERE {
+  SELECT ?hour (COUNT(?event) as ?nrevent) # Count the number of events
   WHERE { GRAPH <http://example.org/source/> {
       ?event a ep:EventObject ;
              ep:hasEventObjectSamplingTime ?time .
       BIND ( HOURS(?time) as ?hour ) } }
-  GROUP BY ?hour }
+  GROUP BY ?hour } # Group results based on hour
 
 ;
 
 # Compose (EPA 7): Combine two event streams into one
 
 INSERT { GRAPH <http://example.org/combined/> {
-    ?event a ep:EventObject ;
+    ?event a ep:EventObject ; # Forward re-combined events
            ssn:Sensor ?sensor ;
            geo:Point [ geo:lat ?lat ; geo:long ?long ; ] ;
            ep:hasEventObjectSamplingTime ?time } }
 WHERE { 
-GRAPH <http://example.org/geoevents/> {
+GRAPH <http://example.org/geoevents/> { # Match GeoEvents
     ?event a ep:EventObject ;
            geo:Point [ geo:lat ?lat ; geo:long ?long ; ] }
-  GRAPH <http://example.org/timeevents/> {
+  GRAPH <http://example.org/timeevents/> { # Match TimeEvents
     ?event a ep:EventObject ;
            ssn:Sensor ?sensor ;
            ep:hasEventObjectSamplingTime ?time } }
@@ -140,82 +149,82 @@ GRAPH <http://example.org/geoevents/> {
 
 # Transform (auxiliary rule): Create directional events
 
-DELETE {  GRAPH <http://example.org/memory/> {
+DELETE {  GRAPH <http://example.org/memory/> { # Delete previous memory entry
   ?mem ssn:Sensor ?sensor ;
        :prevLat ?prevlat ;
        :prevLong ?prevlong } }
-INSERT { GRAPH <http://example.org/memory/> {
+INSERT { GRAPH <http://example.org/memory/> { # Write new entry to memory
     [] ssn:Sensor ?sensor ;
        :prevLat ?lat ;
        :prevLong ?long  }
-  GRAPH <http://example.org/directions/> {
+  GRAPH <http://example.org/directions/> { # Output directional information
     ?event a ep:EventObject ;
            ssn:Sensor ?sensor ;
 	   :direction ?dir } }
 WHERE { GRAPH <http://example.org/source/> {
-    ?event a ep:EventObject ;
+    ?event a ep:EventObject ; # Match incoming events
            ssn:Sensor ?sensor ;
            geo:Point [ geo:lat ?lat ; geo:long ?long ; ] . } 
-  GRAPH <http://example.org/memory/> {
+  GRAPH <http://example.org/memory/> { # Retrieve coordinates of previous event from memory-graph
     OPTIONAL  { ?mem ssn:Sensor ?sensor ;
     	      	     :prevLat ?prevlat ;
                      :prevLong ?prevlong  }
-      BIND ( IF ( ?lat > ?prevlat, "N", "") as ?latdir1)
+      BIND ( IF ( ?lat > ?prevlat, "N", "") as ?latdir1) # Test for directions
       BIND ( IF ( ?lat < ?prevlat, "S", "") as ?latdir2)
       BIND ( IF ( ?long > ?prevlong, "E", "") as ?longdir1)
       BIND ( IF ( ?long < ?prevlong, "W", "") as ?longdir2) 
-      BIND ( concat(?latdir1, ?latdir2, ?longdir1, ?longdir2) as ?dir )
+      BIND ( concat(?latdir1, ?latdir2, ?longdir1, ?longdir2) as ?dir ) # Concatenate result
 } }
 
 ;
 
 # Pattern Detection (EPA 8-1): Compare incoming pattern with pattern in database, advance index in memory if a match
 
-DELETE {  GRAPH <http://example.org/memory/> {
+DELETE {  GRAPH <http://example.org/memory/> { # Clear old index from memory
   ?mem :patternindex ?memindex } }
-INSERT { GRAPH <http://example.org/memory/> {
+INSERT { GRAPH <http://example.org/memory/> { # Write new index to memory
     [] :patternindex ?newindex } }
 WHERE { GRAPH <http://example.org/directions/> {
-    ?event a ep:EventObject ;
+    ?event a ep:EventObject ; # Match directional input
            ssn:Sensor ?sensor ;
 	   :direction ?dir }
-  GRAPH <http://example.org/memory/> {
+  GRAPH <http://example.org/memory/> { # Retrieve index from memory
     OPTIONAL  { ?mem :patternindex ?memindex } }
-  GRAPH <http://example.org/pattern/> {
+  GRAPH <http://example.org/pattern/> { # Retrieve pattern index and value
     ?pattern :index ?ptindex ;
              :value ?ptvalue }
   BIND ( COALESCE(?memindex+1,1) as ?newindex ) # COALESCE in case ?memindex not bound
-  FILTER ( (?dir = ?ptvalue) && (?newindex = ?ptindex) )
+  FILTER ( (?dir = ?ptvalue) && (?newindex = ?ptindex) ) # Pass through if value and index match
 }
 
 ;
 
 # Pattern Detection (EPA 8-2): Reset index if the latest event does not match
 
-DELETE {  GRAPH <http://example.org/memory/> {
+DELETE {  GRAPH <http://example.org/memory/> { # Remove index from memory
   ?mem :patternindex ?memindex } }
-WHERE { GRAPH <http://example.org/directions/> {
+WHERE { GRAPH <http://example.org/directions/> { # Match directional input
     ?event a ep:EventObject ;
            ssn:Sensor ?sensor ;
 	   :direction ?dir }
-  GRAPH <http://example.org/memory/> {
+  GRAPH <http://example.org/memory/> { # Retrieve index from memory
     ?mem :patternindex ?memindex }
   GRAPH <http://example.org/pattern/> {
     ?pattern :index ?ptindex ;
              :value ?ptvalue }
-  FILTER ( (?dir != ?ptvalue) && (?memindex+1 = ?ptindex) )
+  FILTER ( (?dir != ?ptvalue) && (?memindex+1 = ?ptindex) ) # Pass through if value and index do not match
 }
 
 ;
 
 # Pattern Detection (EPA 8-3): Insert an event into "patterndetect" channel, when the designated pattern is detected. Reset pattern index.
 
-DELETE {  GRAPH <http://example.org/memory/> {
+DELETE {  GRAPH <http://example.org/memory/> { # Remove index from memory
   ?mem :patternindex ?memindex } }
-INSERT { GRAPH <http://example.org/patterndetect/> {
+INSERT { GRAPH <http://example.org/patterndetect/> { # Create an event object to announce pattern match
     [] a ep:EventObject ;
        :patterndetected "BackAndForth!" } }
-WHERE { GRAPH <http://example.org/memory/> {
+WHERE { GRAPH <http://example.org/memory/> { # Check, when pattern index in memory matches pattern length.
     ?mem :patternindex ?memindex }
-    FILTER ( ?memindex = 2 )
+    FILTER ( ?memindex = 2 ) # Instead of literal constant, also the pattern length could be saved to a graph as a parameter.
 }
