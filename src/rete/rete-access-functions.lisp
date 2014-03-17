@@ -258,7 +258,7 @@
     (let* ((string (rdf-iri-string iri))
 	   (item (assoc string (instans-constant-iri-var-alist this) :test #'string=)))
       (when (null item)
-	(setf item (list string (intern string)))
+	(setf item (list string (intern string :instans)))
 	(push-to-end item (instans-constant-iri-var-alist this)))
       (second item))))
 
@@ -267,7 +267,7 @@
     (let* ((string (rdf-literal-to-string literal))
 	   (item (assoc string (instans-constant-literal-var-alist this) :test #'string=)))
       (when (null item)
-	(setf item (append (list string (intern string) (rdf-literal-string literal))
+	(setf item (append (list string (intern string :instans) (rdf-literal-string literal))
 			   (if (rdf-literal-lang literal) (list :lang (rdf-literal-lang literal))
 			       (if (rdf-literal-type literal) (list :type (get-constant-iri this (rdf-literal-type literal)))))))
 	(push-to-end item (instans-constant-literal-var-alist this)))

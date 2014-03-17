@@ -60,24 +60,29 @@ if test "$CONSISTENT_SBCL_VERSION" = "no" ; then
     exit 1
 fi
 if test "$QUICKLISP" = "no"; then
+#    touch $HOME/.sbclrc
     echo "Installing Quicklisp"
     echo "Trying to download http://beta.quicklisp.org/quicklisp.lisp with curl"
     curl -s -O http://beta.quicklisp.org/quicklisp.lisp || die "Curl failed. Check http://www.quicklisp.org/beta/ how to install Quicklisp"
     echo "Trying to install Quicklisp into ~/quicklisp. Also updating your ~/.sbclrc file to automatically use Quicklisp"
-    yes | sbcl --noinform --load quicklisp.lisp \
-	       --eval "(quicklisp-quickstart:install)" \
-               --eval  "(let ((*query-io* (make-two-way-stream *standard-input* *standard-output*))) (ql:add-to-init-file))" --quit
-    rm quicklisp.lisp
+    sbcl --noinform --load quicklisp.lisp \
+ 	--eval "(quicklisp-quickstart:install)" \
+ 	--eval  "(let ((ql-util::*do-not-prompt* t) (*query-io* (make-two-way-stream *standard-input* *standard-output*))) (ql:add-to-init-file))"  --quit
+     rm quicklisp.lisp
 fi
 test "$ASDF" = "yes" || die "No ASDF found. It should come with $LISP_IMPLEMENTATION_TYPE. You may try to install it from http://common-lisp.net/project/asdf/ and then try again."
-echo
-echo "Building $EXECUTABLE"
 cd $SRC
-if test "$CLEAN" = "true"; then
+#if test "$CLEAN" = "true"; then
+    echo
+    echo "Compiling system"
+    echo
     make
-fi
-echo sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans))" --eval "(sb-ext:save-lisp-and-die \"${EXECUTABLE}\" :toplevel (quote instans:main) :executable t)" --quit
-sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans))" --eval "(sb-ext:save-lisp-and-die \"${EXECUTABLE}\" :toplevel (quote instans:main) :executable t)" --quit
+#fi
+#echo
+echo "Building $EXECUTABLE"
+#sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans))" --eval "(sb-ext:save-lisp-and-die \"${EXECUTABLE}\" :toplevel (quote instans:main) :executable t)" --quit
+echo sbcl --load $ROOT/init/make-executable.lisp --eval "(sb-ext:save-lisp-and-die \"${EXECUTABLE}\" :toplevel (quote instans:main) :executable t)" --quit
+sbcl --load $ROOT/init/make-executable.lisp --eval "(sb-ext:save-lisp-and-die \"${EXECUTABLE}\" :toplevel (quote instans:main) :executable t)" --quit
 echo
 echo "Creating a custom Lisp image for Instans in file ${SBCL_INSTANS_CORE}"
 cd $SRC

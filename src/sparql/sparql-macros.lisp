@@ -21,9 +21,9 @@
 
 (defun make-sparql-op-name (library-name op-name)
   (cond ((alpha-char-p (char (string op-name) 0))
-	 (intern (format nil "~:@(%~A-~A%~)" library-name op-name)))
+	 (intern (format nil "~:@(%~A-~A%~)" library-name op-name) :instans))
 	(t
-	 (intern (format nil "~:@(%~A~A%~)" library-name op-name)))))
+	 (intern (format nil "~:@(%~A~A%~)" library-name op-name) :instans))))
 
 (defun make-sparql-function-lambda-list (args)
   (loop for item in args
@@ -98,7 +98,7 @@
 					`(signal-sparql-error ,format ,@outer-arg-names))))))))))
 
 (defmacro define-xsd-value-type (short-name-string spec)
-  (let* ((short-name (intern (string-downcase short-name-string)))
+  (let* ((short-name (intern (string-downcase short-name-string) :instans))
 	 (xsd-value-type-prefix "http://www.w3.org/2001/XMLSchema#")
 	 (lisp-type (fmt-intern "~:@(XSD-~A-VALUE~)" short-name))
 	 (value-parser (fmt-intern "~:@(PARSE-XSD-~A~)" short-name))

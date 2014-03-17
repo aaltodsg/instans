@@ -34,7 +34,7 @@
     (setf (slot-value x 'tz) tz)))
 
 (defmacro define-datetime-lazy-getter (slot-name)
-  (let ((getter-name (intern (format nil "~A-~A" 'datetime slot-name))))
+  (let ((getter-name (intern (format nil "~A-~A" 'datetime slot-name) :instans)))
     `(defun ,getter-name (x)
        (unless (slot-value x 'year)
 	 (datetime-fill-slots x))

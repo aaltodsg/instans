@@ -110,7 +110,7 @@
 		 (t
 		  (cons (sparql-op-lisp-name sparql-op) args-in-lisp)))))
 	((sparql-var-p expr)
-	 (intern (string (uniquely-named-object-name expr))))
+	 (intern (string (uniquely-named-object-name expr)) :instans))
 	(t expr)))
 
 (defvar *instanses*)
@@ -238,8 +238,8 @@
 		 (t
 		  (values nil nil nil error-message)))))))
 
-(defun instans-add-triple-processor (instans-iri input &key graph base subscribe policies)
-  (declare (ignorable instans-iri input graph base subscribe policies))
+(defun instans-add-triple-processor (instans-iri input &key graph base subscribe output policies)
+  (declare (ignorable instans-iri input graph base subscribe output policies))
   nil)
   ;; (let* ((instans (get-instans instans-iri))
   ;; 	 input-stream input-type error-message)

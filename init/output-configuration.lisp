@@ -3,6 +3,8 @@
 ;;; Author: Esko Nuutila (esko.nuutila@aalto.fi)
 ;;;
 
+(require 'asdf)
+
 (defvar *minimum-sbcl-version-for-instans* "1.1.12")
 
 (defun parse-version-number (version-string)

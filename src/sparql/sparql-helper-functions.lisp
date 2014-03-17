@@ -83,7 +83,7 @@
 	   (cons sparql-op args)))))
 
 (defun sparql-var-lisp-name (var)
-  (intern (string (uniquely-named-object-name var))))
+  (intern (string (uniquely-named-object-name var)) :instans))
 
 (defun sparql-var-lisp-names (var-list)
   (mapcar #'sparql-var-lisp-name var-list))
