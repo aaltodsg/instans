@@ -224,6 +224,15 @@
    (parser :accessor triple-processor-parser :initarg :parser)
    (subscribe :accessor triple-processor-subscribe :initarg :subscribe :initform nil)))
 
+;;; Select processor
+(define-class select-processor ()
+  ((output-name :accessor select-processor-output-name :initarg :output-name)
+   (output-stream :accessor select-processor-output-stream :initarg :output-stream)
+   (output-type :accessor select-processor-output-type :initarg :output-type)
+   (headers-written-p :accessor select-processor-headers-written-p :initform nil)))
+
+(define-class select-csv-processor (select-processor) ())
+
 ;;; System
 (define-class instans ()
   ((name :accessor instans-name :initarg :name)
@@ -240,15 +249,16 @@
    (triple-processors :accessor instans-triple-processors :initarg :triple-processors :initform nil)
    (triple-input-policy :accessor instans-triple-input-policy :initarg :triple-input-policy :initform :single-triple)
    (available-triple-input-policies :accessor instans-available-triple-input-policies :allocation :class :initform '(:single-triple :triples-block :all))
-   (triple-processing-policy :accessor instans-triple-processing-policy :initarg :triple-processing-policy :initform '(:add :execute))
+   (triple-processing-operations :accessor instans-triple-processing-operations :initarg :triple-processing-operations :initform '(:add :execute))
    (available-triple-processing-operations :accessor instans-available-triple-processing-operations :allocation :class :initform '(:add :remove :execute))
    (rule-instance-removal-policy :accessor instans-rule-instance-removal-policy :initarg :rule-instance-removal-policy :initform nil)
    (available-rule-instance-removal-policies :accessor instans-available-rule-instance-removal-policies :allocation :class :initform '(:remove :keep))
    (queue-execution-policy :accessor instans-queue-execution-policy :initarg :queue-execution-policy :initform :repeat-first)
    (available-queue-execution-policies :accessor instans-available-queue-execution-policies :allocation :class :initform '(:first :snapshot :repeat-first :repeat-snapshot))
 ;   (default-rete-input-op :accessor instans-default-rete-input-op :initarg :default-rete-input-op :initform :add)
-   (select-function :accessor instans-select-function :initarg :select-function :initform nil)
-   (select-function-arguments :accessor instans-select-function-arguments :initarg :select-function-arguments :initform nil)
+   (select-processor :accessor instans-select-processor :initarg :select-processor :initform nil)
+   (select-compare-function :accessor instans-select-compare-function :initarg :select-compare-function :initform nil)
+   ;; (select-function-arguments :accessor instans-select-function-arguments :initarg :select-function-arguments :initform nil)
    (modify-function :accessor instans-modify-function :initarg :modify-function :initform nil)
    (modify-function-arguments :accessor instans-modify-function-arguments :initarg :modify-function-arguments :initform nil)
    (construct-function :accessor instans-construct-function :initarg :construct-function :initform nil)

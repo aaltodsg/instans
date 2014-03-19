@@ -248,7 +248,7 @@
   ;;   (let ((processor (make-instance 'triple-processor
   ;; 				    :instans instans
   ;; 				    :input-policy (getf policies :triple-input-policy)
-  ;; 				    :operations (getf policies :triple-processing-policy)
+  ;; 				    :operations (getf policies :triple-processing-operations)
   ;; 				    :graph graph
   ;; 				    :base base
   ;; 				    :lexer (make-instance 'turtle-lexer :instans instans :input-stream input-stream :base base)
@@ -263,8 +263,7 @@
   ;; (let ((instans (get-instans instans-iri)))
   ;;   (run-triple-processors instans)))
 
-(defun instans-add-triples (instans-iri input &key output expected-results graph base subscribe reporting)
-  (declare (ignorable output))
+(defun instans-add-triples (instans-iri input &key select-processor expected-results graph base subscribe reporting report-execution-status-p)
   (when (debugp subscribe :parse-triples :execute)
     (inform "instans-add-triples ~S ~S :graph ~S :base ~S :subscribe ~S :reporting ~S" instans-iri input graph base subscribe reporting))
   (let* ((instans (get-instans instans-iri))
@@ -273,22 +272,21 @@
 	 (expected-result-list (if comparep (sparql-query-results-results expected-query-results)))
 	 (observed-result-list (list nil))
 	 (observed-result-list-tail observed-result-list)
-	 (report-function (if comparep #'(lambda (node token)
-					   (let ((solution (make-instance 'sparql-result
-									  :bindings (loop for canonic-var in (node-use (node-prev node))
-											  for var = (reverse-resolve-binding instans canonic-var)
-											  collect (make-instance 'sparql-binding :variable var :value (token-value node token canonic-var))))))
-					    (inform "Node ~S, (node-use (node-prev node)) ~S, token ~S, solution ~S" node (node-use (node-prev node)) token solution)
-					    (setf (cdr observed-result-list-tail) (list solution))
-					    (setf observed-result-list-tail (cdr observed-result-list-tail))))))
-	 (report-function-arguments nil)
+	 (compare-function (if comparep #'(lambda (node token)
+	 				    (let ((solution (make-instance 'sparql-result
+	 								   :bindings (loop for canonic-var in (node-use (node-prev node))
+	 										for var = (reverse-resolve-binding instans canonic-var)
+	 										collect (make-instance 'sparql-binding :variable var :value (token-value node token canonic-var))))))
+	 				      (inform "Node ~S, (node-use (node-prev node)) ~S, token ~S, solution ~S" node (node-use (node-prev node)) token solution)
+	 				      (setf (cdr observed-result-list-tail) (list solution))
+	 				      (setf observed-result-list-tail (cdr observed-result-list-tail))))))
 	 (observed-query-results (make-instance 'sparql-query-results))
 	 (string (stream-contents-to-string (create-input-stream input))))
     (setf (instans-rule-instance-removal-policy instans) :remove)
     (setf (rule-instance-queue-report-p (instans-rule-instance-queue instans)) reporting)
-    (when report-function
-      (setf (instans-select-function instans) report-function))
-    (setf (instans-select-function-arguments instans) report-function-arguments)
+    (when compare-function
+      (setf (instans-select-compare-function instans) compare-function))
+    (setf (instans-select-processor instans) select-processor)
     (with-input-from-string (triples-stream string)
       (let ((triples-parser (make-turtle-parser instans triples-stream :base base :subscribe subscribe
 						:triples-block-callback #'(lambda (triples)
@@ -301,7 +299,8 @@
 	;; Is this OK?
 	(initialize-execution instans)
 	(parse triples-parser)
-	(report-execution-status instans)
+	(when report-execution-status-p
+	  (report-execution-status instans))
 	(pop observed-result-list)
 	(when (debugp subscribe :execute)
 	  (inform "Expected-results ~S" expected-results)
@@ -313,9 +312,9 @@
 	    (sparql-query-results-to-json instans expected-query-results)))
 	(setf (sparql-query-results-variables observed-query-results)
 	      (loop with vars = nil
-		    for result in observed-result-list
-		    do (setf vars (union vars (mapcar #'sparql-binding-variable (sparql-result-bindings result))))
-		    finally (return vars)))
+		 for result in observed-result-list
+		 do (setf vars (union vars (mapcar #'sparql-binding-variable (sparql-result-bindings result))))
+		 finally (return vars)))
 	(setf (sparql-query-results-results observed-query-results) observed-result-list)
 	(multiple-value-bind (similarp same-order-p)
 	    (cond ((null comparep) (values t t))

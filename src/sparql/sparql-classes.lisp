@@ -226,6 +226,13 @@
     (not (or (slot-boundp this 'type) (slot-boundp this 'lang))))
   (:method ((this rdf-term)) nil))
 
+(defgeneric rdf-term-as-string (term)
+  (:method ((this rdf-iri)) (rdf-iri-string this))
+  (:method ((this rdf-literal)) (rdf-literal-to-string this))
+  (:method ((this rdf-blank-node)) (uniquely-named-object-name this))
+  (:method ((this sparql-unbound)) "UNBOUND")
+  (:method ((this rdf-term)) (format nil "~A" this)))
+
 (defun create-rdf-literal-with-type (string type-iri)
   (let ((type-descriptor (find-type-descriptor (rdf-iri-string type-iri))))
 ;    (inform "create-rdf-literal-with-type ~S ~S" string type-iri)

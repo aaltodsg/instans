@@ -280,7 +280,7 @@
 
 (defgeneric process-triple-input (instans triples &key graph ops)
   (:method ((this instans) triples &key graph ops)
-    (setf ops (or ops (instans-triple-processing-policy this)))
+    (setf ops (or ops (instans-triple-processing-operations this)))
     (when (symbolp ops)
       (setf ops (list ops)))
     (loop for op in ops 
@@ -732,10 +732,11 @@
  
 (defgeneric execute-rule-node (node token)
   (:method ((this select-node) token)
-    (let* ((instans (node-instans this))
-	   (select-function (instans-select-function instans)))
-      (unless (null select-function)
-	(apply select-function this token (instans-select-function-arguments instans)))))
+    (let ((instans (node-instans this)))
+      (unless (null (instans-select-processor instans))
+	(write-select-output (instans-select-processor instans) this token))
+      (unless (null (instans-select-compare-function instans))
+	(funcall (instans-select-compare-function instans) this token))))
   (:method ((this modify-node) token)
     (let* ((instans (node-instans this))
 	   (modify-function (instans-modify-function instans)))

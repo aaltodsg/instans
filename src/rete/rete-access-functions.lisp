@@ -34,6 +34,12 @@
 	(setf (node-number node) (incf (instans-node-id-counter instans)))
 	(setf (node-name node) (format nil "~A~D" (type-of node) (node-number node)))))))
 
+(defmethod initialize-instance :after ((this select-processor) &key output-name output-stream &allow-other-keys)
+  (cond ((not (null output-name))
+	 (setf (select-processor-output-stream this) (open output-name :direction :output :if-exists :supersede)))
+	((null output-stream)
+	 (setf (select-processor-output-stream this) *standard-output*))))
+
 (defmethod initialize-instance :after ((this instans) &key &allow-other-keys)
   (when (and (instans-use-quad-store-p this) (null (instans-quad-store this)))
     (setf (instans-quad-store this) (make-instance 'list-quad-store)))
@@ -276,7 +282,7 @@
 (defgeneric instans-policies (instans)
   (:method ((this instans))
     (list :triple-input-policy (instans-triple-input-policy this)
-	  :triple-processing-policy (instans-triple-processing-policy this)
+	  :triple-processing-operations (instans-triple-processing-operations this)
 	  :rule-instance-removal-policy (instans-rule-instance-removal-policy this)
 	  :queue-execution-policy (instans-queue-execution-policy this))))
 
@@ -284,3 +290,23 @@
   (:method ((this instans) processor)
     (push-to-end processor (instans-triple-processors this))))
 
+(defun create-select-processor (output-name output-type)
+  (case output-type
+    (:csv (make-instance 'select-csv-processor :output-name output-name :output-type output-type))
+    (t (error* "Unknown select output processor type ~S" output-type))))
+
+(defgeneric write-select-output (select-processor node token)
+  (:method ((this select-csv-processor) node token)
+    (let ((instans (node-instans node))
+	  (vars (solution-modifiers-project-vars node)))
+      (unless (select-processor-headers-written-p this)
+	(setf (select-processor-headers-written-p this) t)
+	(format (select-processor-output-stream this) "~{~A~^,~}~%" (mapcar #'(lambda (var) (format nil "~(~A~)" (subseq (uniquely-named-object-name (reverse-resolve-binding instans var)) 1))) vars)))
+      (format (select-processor-output-stream this) "~{~A~^,~}~%" (mapcar #'(lambda (var) (let ((value (token-value this token var)))
+											    (cond ((rdf-term-p value) (rdf-term-as-string value))
+												  (t value)))) vars)))))
+(defgeneric close-select-processor (select-processor)
+  (:method ((this select-csv-processor))
+    (when (and (select-processor-output-name this) (select-processor-output-stream this))
+      (close (select-processor-output-stream this))
+      (setf (select-processor-output-stream this) nil))))
