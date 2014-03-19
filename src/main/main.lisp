@@ -68,7 +68,8 @@
 							  :subscribe debug)))
 			 (:select-output
 			  (setf select-output-name value)
-			  (setf select-output-type (pathname-type (parse-namestring value))))
+;			  (inform "select-output-name = ~S" select-output-name)
+			  (setf select-output-type (intern (string-upcase (pathname-type (parse-namestring value))) :keyword)))
 			 (:expect (let ((spec (parse-spec-string value)))
 				    (inform "expect spec = ~S" spec)
 				    (setf expected spec)))
@@ -125,7 +126,7 @@
 				   (push-to-end (list (first option) value) configuration)))
 			    (return option)))
 		     finally (cond (not-found-error-p
-				    (format notifications "Illegal argument ~A~%" arg)
+				    (format notifications "Illegal argument \"~A\"~%" arg)
 				    (return-from main nil))
 				   (t
 				    (return nil)))))
@@ -173,6 +174,7 @@
       (let ((option (parse-arg info-options nil)))
 	(when (null option)
 	  (loop while args
+;	       do (inform "args = ~S" args)
 		unless (parse-arg configuration-options t)
 	        do (pop args))
 	  (when configuration
