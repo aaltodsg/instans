@@ -100,7 +100,7 @@
 	))))
 
 (defun make-sparql-parser (instans input-stream &key base subscribe)
-  (when (null base) (setf base (parse-iri "http://instans.org/default/")))
+  (when (null base) (setf base (parse-iri "http://")))
   (let* ((lexer (make-instance 'sparql-lexer :input-stream input-stream :instans instans :base base :show-parses-p subscribe))
 	 (triples (list nil))
 	 (triples-last triples)

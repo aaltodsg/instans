@@ -92,6 +92,8 @@
 
 (defun recompose-iri (iri)
   (let ((parts nil))
+;    (inform "enter recompose-iri")
+;    (describe iri)
     (when (rdf-iri-fragment iri)
       (push (rdf-iri-fragment iri) parts)
       (push "#" parts))
@@ -107,4 +109,6 @@
       (push (rdf-iri-scheme iri) parts))
     (setf (rdf-iri-string iri) (apply #'concatenate 'string parts))
     (setf (hashkeyed-hashkey iri) nil)
+;    (describe iri)
+;    (inform "recompose-iri (parts ~S) -> ~S" parts iri)
     iri))

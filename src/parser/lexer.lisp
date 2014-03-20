@@ -53,24 +53,23 @@
 		    (values nil (format nil "Base not defined for relative IRI ~S" iri-string)))
 		   (t
 		    (setf (rdf-iri-scheme iri) (rdf-iri-scheme base))
-		    (cond ((not (rdf-iri-authority iri))
-			   (setf (rdf-iri-authority iri) (rdf-iri-authority base))
-			   (cond ((string= cp "")
-				  (setf (rdf-iri-path iri) (rdf-iri-path base))
-				  (unless (rdf-iri-query iri)
-				    (setf (rdf-iri-query iri) (rdf-iri-query base))))
-				 (t
-				  (setf (rdf-iri-query iri) (rdf-iri-query base))))
-			   (when (or (zerop (length cp)) (not (char= (char cp 0) #\/)))
-			     (setf (rdf-iri-path iri)
-				   (cond ((and (rdf-iri-authority base) (string= (rdf-iri-path base) ""))
-					  (concatenate 'string "/" (rdf-iri-path iri)))
-					 (t
-					  (let ((lsp (position #\/ (rdf-iri-path base) :from-end t)))
-					    (cond ((null lsp)
-						   (rdf-iri-path iri))
-						  (t
-						   (coerce (remove-dot-segments (concatenate 'list (subseq (rdf-iri-path base) 0 (1+ lsp)) (rdf-iri-path iri))) 'string))))))))))
+		    (when (not (rdf-iri-authority iri))
+		      (setf (rdf-iri-authority iri) (rdf-iri-authority base))
+		      (cond ((string= cp "")
+			     (setf (rdf-iri-path iri) (rdf-iri-path base))
+			     (unless (rdf-iri-query iri)
+			       (setf (rdf-iri-query iri) (rdf-iri-query base))))
+			    (t
+			     (when (or (zerop (length cp)) (not (char= (char cp 0) #\/)))
+			       (setf (rdf-iri-path iri)
+				     (cond ((and (rdf-iri-authority base) (string= (rdf-iri-path base) ""))
+					    (concatenate 'string "/" (rdf-iri-path iri)))
+					   (t
+					    (let ((lsp (position #\/ (rdf-iri-path base) :from-end t)))
+					      (cond ((null lsp)
+						     (rdf-iri-path iri))
+						    (t
+						     (coerce (remove-dot-segments (concatenate 'list (subseq (rdf-iri-path base) 0 (1+ lsp)) (rdf-iri-path iri))) 'string)))))))))))
 		    (recompose-iri iri))))))))
 
 (defgeneric resolve-prefix (lexer buf &optional start end)
