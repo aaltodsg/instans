@@ -73,7 +73,9 @@
 			 (:expect (let ((spec (parse-spec-string value)))
 				    (inform "expect spec = ~S" spec)
 				    (setf expected spec)))
-			 (:reporting (setf reporting (parse-colon-separated-values value)))
+			 (:reporting (setf reporting (parse-colon-separated-values value))
+				     (if (member :all reporting)
+					 (setf reporting '(:select :construct :modify :all))))
 			 (:debug (setf debug (parse-colon-separated-values value)))
 			 (:verbose (setf debug (parse-colon-separated-values value)))
 			 (:triple-input-policy (set-policy :triple-input-policy (intern value :keyword) (instans-available-triple-input-policies instans)))
@@ -159,7 +161,7 @@
 				  (:file          (("-f" "<commands>") ("--file" "<commands>")) "Read options from <commands>."
 						  :operation ,#'(lambda (arg value) (declare (ignore arg)) (setf args (append (read-args-from-file value) args))))
 				  (:reporting        (("--report" "<rules>")) "The kinds of rules you want to get reported; a ':'~%~
-                                                                           ~40Tseparated list of (select|construct|modify)." :hiddenp t)
+                                                                           ~40Tseparated list of (select|construct|modify|all)." :hiddenp t)
 				  (:rete-html-page-dir           (("--rete-html-page-dir" "<dir>")) "Create an HTML page about the Rete network.")
 				  (:triple-input-policy          (("--triple-input-policy" "<policy>")) "The triple input policy.")
 				  (:triple-processing-operations     (("--triple-processing-operations" "<policy>")) "See the documentation.")
