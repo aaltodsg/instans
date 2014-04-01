@@ -300,6 +300,8 @@
 	;; Is this OK?
 	(initialize-execution instans)
 	(parse triples-parser)
+	(unless (ll-parser-succeeded-p triples-parser)
+	  (inform "~A:~A" input (instans-error-message instans)))
 	(when report-execution-status-p
 	  (report-execution-status instans))
 	(pop observed-result-list)
