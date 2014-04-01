@@ -5,6 +5,8 @@
 
 (in-package #:instans)
 
+(defvar *instanssi*)
+
 ;(save-lisp-and-die "executable" :toplevel 'main :executable t)
 
 (defun run-configuration (configuration)
@@ -15,6 +17,7 @@
 	   (select-output-type :csv)
 	   (select-output-name nil)
 	   base graph expected debug reporting rete-html-page-dir)
+      (setf *instanssi* instans)
       (labels ((valid-value-p (value accepted-values &key test)
 		 (or (funcall test value accepted-values)
 		     (error* "Value ~A not one of ~A" value accepted-values)))
@@ -37,9 +40,13 @@
 			 (:base (setf base (parse-iri value)))
 			 (:graph (if (string= (string-downcase value) "default") nil (setf graph (parse-iri value))))
 			 (:execute (instans-run instans-iri))
-			 (:rules (instans-add-rules instans-iri (expand-iri directory value)
-						    :base base :rete-html-page-dir rete-html-page-dir
-						    :subscribe debug))
+			 (:rules
+			  (unless (instans-add-rules instans-iri (expand-iri directory value)
+						     :create-instans-p nil
+						     :base base :rete-html-page-dir rete-html-page-dir
+						     :subscribe debug)
+			    (inform "~%~A:~A~%" value (instans-error-message instans))
+			    (return-from run-configuration nil)))
 			 (:triples
 			  (when (null select-processor)
 			    (setf select-processor (create-select-processor select-output-name select-output-type)))

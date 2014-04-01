@@ -158,6 +158,7 @@
 				     collect (car lines)
 				     else collect (format nil "~A~%" (car lines)))))
 
+(defvar *instanssi*)
 (defun instans-add-rules (instans-iri rules &key rete-html-page-dir base subscribe (create-instans-p t))
   (when (debugp subscribe :parse-rules)
     (inform "instans-add-rules ~S ~S :rete-html-page-dir ~S :base ~S" instans-iri rules rete-html-page-dir base))
