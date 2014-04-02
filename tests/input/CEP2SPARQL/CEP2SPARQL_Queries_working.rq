@@ -14,9 +14,9 @@ INSERT { GRAPH <http://example.org/poststateless> {  # Forward outgoing events
 WHERE { GRAPH <http://example.org/source/> {
     ?event a ep:EventObject ;    # Match incoming events
            ?p1 ?o1 ;
+           ep:hasEventObjectSamplingTime ?time .
            OPTIONAL { BIND ( IF (isBlank(?o1), ?o1, 0) as ?h2)
                 ?h2 ?p2 ?o2 }
-           ep:hasEventObjectSamplingTime ?time .
     FILTER ( ( HOURS(?time) > 8 ) && ( HOURS(?time) < 17 ) ) } }
 
 ;
@@ -24,7 +24,7 @@ WHERE { GRAPH <http://example.org/source/> {
 # Output everything
 
 SELECT *
-WHERE { GRAPH <http://example.org/source/> { ?s ?p ?o }}
+WHERE { GRAPH ?g { ?s ?p ?o }}
 
 ;
 
