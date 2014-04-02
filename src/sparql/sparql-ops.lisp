@@ -212,12 +212,23 @@
 ;; 17.4.1.2 IF
 ;; -----------
 ;; rdfTerm  IF (expression1, expression2, expression3)
-(define-sparql-form "if" (:arguments ((test ebv) (then term-or-value) (else term-or-value)) :returns term-or-value :hiddenp t)
+(define-sparql-form "if" (:arguments ((test ebv) (then term-or-value) (else term-or-value)) :returns term-or-value :hiddenp nil)
   `(if (sparql-call "ebv" ,test) ,then ,else))
 
 ;; 17.4.1.3 COALESCE !!! Missing !!!
 ;; -----------------
 ;; rdfTerm  COALESCE(expression, ....)
+(define-sparql-form "coalesce" (:arguments (&rest expressions) :returns term-or-value :hiddenp nil)
+  (let ((result-var (gensym "RESULT")))
+    (labels ((rdf-term-or-else (expressions)
+	       (cond ((null expressions)
+		      `(signal-sparql-error "None of the arguments of COALESCE evaluated to a legal RDF term"))
+		     (t
+		      `(let ((,result-var ,(car expressions)))
+			 (if (not (sparql-error-p ,result-var))
+			     ,result-var
+			     ,(rdf-term-or-else (cdr expressions))))))))
+      (rdf-term-or-else expressions))))
 
 ;; 17.4.1.4 NOT EXISTS and EXISTS (Implemented at RETE level)
 ;; ------------------------------
@@ -259,7 +270,7 @@
 ;; -----------------
 ;; sameTerm	RDF term, RDF term -> xsd:boolean	 => term1 = term2
 ;;    Returns TRUE iff term1 and term2 are the same RDF term as defined in Resource Description Framework (RDF): Concepts and Abstract Syntax [CONCEPTS]
-(define-sparql-function "sameTerm" (:arguments ((t1 term-or-value) (t2 term-or-value)) :returns xsd-boolean :hiddenp t)
+(define-sparql-function "sameTerm" (:arguments ((t1 term-or-value) (t2 term-or-value)) :returns xsd-boolean :hiddenp nil)
   (:method ((v1 xsd-value) (v2 xsd-value)) (sparql-call "=" v1 v2))
   (:method ((i1 rdf-iri) (i2 rdf-iri)) (rdf-iri= i1 i2))
   (:method ((b1 rdf-blank-node) (b2 rdf-blank-node)) (string= (uniquely-named-object-name b1) (uniquely-named-object-name b2)))
@@ -275,7 +286,7 @@
 ;; -----------
 ;; xsd:boolean rdfTerm IN(expression, ...)
 ;;    The IN operator is equivalent to the SPARQL expression: (lhs = expression1) || (lhs = expression2) || ...
-(define-sparql-form "in" (:arguments (x &rest expressions) :returns xsd-boolean-value :hiddenp t)
+(define-sparql-form "in" (:arguments (x &rest expressions) :returns xsd-boolean-value :hiddenp nil)
   (let ((xvar (gensym "X")))
     `(let ((,xvar ,x))
        (or ,@(loop for expr in expressions collect `(sparql-call "=" ,xvar ,expr))))))
@@ -285,7 +296,7 @@
 ;; xsd:boolean rdfTerm NOT IN(expression, ...)
 ;;    Equivalent to (lhs != expression1) && (lhs != expression2) && ... and !(IN (expression1, expression2, ...))
 ;;
-(define-sparql-form "not in" (:arguments (x &rest expressions) :returns xsd-boolean-value :hiddenp t)
+(define-sparql-form "not in" (:arguments (x &rest expressions) :returns xsd-boolean-value :hiddenp nil)
   (let ((xvar (gensym "X")))
     `(let ((,xvar ,x))
        (and ,@(loop for expr in expressions collect `(not (sparql-call "=" ,xvar ,expr)))))))
