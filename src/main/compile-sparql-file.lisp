@@ -87,7 +87,7 @@
 			(setf (filter-test-func node) (compile nil filter-lambda))))
 		     ((bind-node-p node)
 		      (let ((bind-lambda `(lambda ,(sparql-var-lisp-names (node-use node)) ,(sparql-expr-to-lisp (bind-form node)))))
-					;		      (warn "bind-lambda = ~S" bind-lambda)
+			(warn "bind-lambda = ~S" bind-lambda)
 			(setf (bind-form-lambda node) bind-lambda)
 			(setf (bind-form-func node) (compile nil bind-lambda))))
 		     ((aggregate-join-node-p node)
