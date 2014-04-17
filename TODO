@@ -1,3 +1,4 @@
+- Change (AS var expr) to (AS expr var)
 - Aquamacs home directory
 - .config/common-lisp/source-registry.conf.d
 - Parser generator: :RESULT nil not working. Replaced it by :RESULT (progn nil), but should fix the generator.

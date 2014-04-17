@@ -82,6 +82,13 @@
 	  (t
 	   (cons sparql-op args)))))
 
+(defun create-sparql-aggregate-call (group-var aggr-index op-name &rest args)
+  (let ((sparql-op (find-sparql-op (format nil "~(aggregate_~A~)" op-name))))
+    (cond ((null sparql-op)
+	   nil)
+	  (t
+	   (cons sparql-op (cons group-var (cons aggr-index args)))))))
+
 (defun sparql-var-lisp-name (var)
   (intern (string (uniquely-named-object-name var)) :instans))
 

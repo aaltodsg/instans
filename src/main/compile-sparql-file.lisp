@@ -91,7 +91,22 @@
 			(setf (bind-form-lambda node) bind-lambda)
 			(setf (bind-form-func node) (compile nil bind-lambda))))
 		     ((aggregate-join-node-p node)
-		      (setf (aggregate-join-group-form-func node) (compile nil `(lambda ,(sparql-var-lisp-names (node-use node)) ,(aggregate-join-group-form node)))))
+		      (let* ((key-lambda `(lambda ,(aggregate-join-key-vars node)
+					    (list ,@(loop for key-expr in (aggregate-join-key-exprs node)
+						       collect (sparql-expr-to-lisp key-expr)))))
+			     
+			     (part-arg (gensym "PART"))
+			     (instans-arg (gensym "INSTANS"))
+			     (aggr-temp (gensym "AGGR"))
+			     (aggr-lambda `(lambda (,instans-arg ,part-arg ,@(aggregate-join-aggr-vars node))
+						   ,@(loop for index from 0
+							for aggr-expr in (aggregate-join-aggr-exprs node)
+							collect `(let ((,aggr-temp (nth ,index (group-aggregates ,part-arg))))
+								   (aggregate-update ,aggr-temp ,(sparql-expr-to-lisp aggr-expr)))))))
+			(setf (aggregate-join-key-lambda node) key-lambda)
+			(setf (aggregate-join-key-func node) (compile nil key-lambda))
+			(setf (aggregate-join-aggr-lambda node) aggr-lambda)
+			(setf (aggregate-join-aggr-func node) (compile nil aggr-lambda))))
 		     ((modify-node-p node)
 		      (when show-transform-p
 			(inform "compiling modify-insert-lambda ~S" (modify-insert-lambda node)))

@@ -658,8 +658,8 @@
     (nonterminal-firsts g3)
     (followers g3)
     (generate-ll1-table g3)
-    (describe g3)
-    (print-grammar g3)
+;    (describe g3)
+;    (print-grammar g3)
     g3))
 
 (defun generate-parser-ll1-grammar (parser rules-or-file)

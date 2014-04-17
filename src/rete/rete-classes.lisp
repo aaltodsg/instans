@@ -104,30 +104,57 @@
    (negative :accessor minus-node-negative :initarg :negative)))
 
 (define-class aggregate-join-node (node)
-  ((group :accessor aggregate-join-group :initarg :group)
-   (group-form :accessor aggregate-join-group-form :initarg :group-form)
-   (group-form-func :accessor aggregate-join-group-form-func :initarg :group-form-func)
-   (var-aggr-list :accessor aggregate-join-var-aggr-list :initarg :var-aggr-list)
-   (group-partition :accessor aggregate-join-group-partition)))
+  ((group :accessor aggregate-group :initarg :group)
+   (group-var :accessor aggregate-join-group-var)
+   (key-exprs :accessor aggregate-join-key-exprs)
+   (key-vars :accessor aggregate-join-key-vars)
+   (key-lambda :accessor aggregate-join-key-lambda)
+   (key-func :accessor aggregate-join-key-func)
+   (aggr-var-list :accessor aggregate-join-aggr-var-list :initarg :aggr-var-list)
+   (aggr-exprs :accessor aggregate-join-aggr-exprs)
+   (aggr-vars :accessor aggregate-join-aggr-vars)
+   (aggr-lambda :accessor aggregate-join-aggr-lambda)
+   (aggr-func :accessor aggregate-join-aggr-func)
+   (groups :accessor aggregate-join-groups)))
 
-(define-class group-partition ()
-  ((parts :accessor group-partition-parts :initform nil)))
+(define-class group ()
+  ((aggregate-join :accessor group-aggregate-join :initarg :aggregate-join)
+   (key :accessor group-key :initarg :key)
+   (aggregates :accessor group-aggregates)
+   (token :accessor group-token)))
 
-(define-class group-partition-part ()
-  ((key :accessor group-partition-part-key :initarg :key)
-   (input-token-count :accessor group-partition-part-input-token-count :initform 0)
-   (aggr-values :accessor group-partition-part-aggr-values :initform nil)
-   (aggr-values-histories :accessor group-partition-part-aggr-values-histories :initform nil)
-   (token :accessor group-partition-part-token)))
+;; (define-class aggregate ()
+;;   ((history :accessor aggregate-history :initform nil)
+;;    (ops :accessor aggregate-ops
+  
+
+;; (define-class aggregate-count (aggregate))
+
+;; (define-class aggregate-sum (aggregate))
+
+;; (define-class aggregate-min (aggregate))
+
+;; (define-class aggregate-max (aggregate))
+
+;; (define-class aggregate-avg (aggregate))
+
+;; (define-class numeric-aggregate (aggregate)
+;;   ((count :accessor numeric-aggregate-count :initform 0)
+;;    (sum :accessor numeric-aggregate-sum :initform 0)
+;;    (min :accessor numeric-aggregate-min :initform nil)
+;;    (max :accessor numeric-aggregate-max :initform nil)
+;;    (avg :accessor numeric-aggregate-avg :initform nil)))
+
+;; (define-class group-concat-aggregate (aggregate))
 
 (define-class solution-modifiers-mixin (node)
   ((order-by :accessor solution-modifiers-order-by :initarg :order-by :initform nil)
-   (project :accessor solution-modifiers-project :initarg :project :initform nil)
+;   (project :accessor solution-modifiers-project :initarg :project :initform nil)
    (distinctp :accessor solution-modifiers-distinct-p :initarg :distinctp :initform nil)
    (start :accessor solution-modifiers-start :initarg :start :initform nil)
    (length :accessor solution-modifiers-length :initarg :length :initform nil)
    (project-vars :accessor solution-modifiers-project-vars :initarg :project-vars :initform nil)
-   (project-as-exprs :accessor solution-modifiers-project-as-exprs :initarg :project-as-exprs :initform nil)
+;   (project-as-exprs :accessor solution-modifiers-project-as-exprs :initarg :project-as-exprs :initform nil)
    (project-index :accessor solution-modifiers-project-index)))
 
 (define-class rule-node (node) ())

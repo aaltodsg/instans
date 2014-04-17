@@ -12,6 +12,7 @@
 ;;; replace them with canonic variables.
 ;;; !NOTE! Level is updated never. What is its purpose?
 (defun translate-sparql-algebra-to-rete (sae instans)
+;  (inform "translate-sparql-algebra-to-rete ~S" sae)
   (let ((new-nodes nil)
 					;	(level 0)
 	)
@@ -68,6 +69,7 @@
 		       (when prev (push-to-end-new result (node-succ prev))))
 		     result))))
 	     (translate (expr prev dataset)
+;	       (inform "translate ~S" expr)
 	       (let ((op (first expr))
 		     (args (rest expr)))
 		 (case op
@@ -87,14 +89,15 @@
 		   (EXTEND (setf prev (translate (first args) prev dataset))
 			   (let ((var (second args))
 				 (form (third args)))
-			     (cond ((and (consp form) (eq (first form) 'agg))
-				    (assert* (typep prev 'aggregate-join-node) "AGG not inside an aggregate-join-node: ~S inside ~S" form prev)
-				    (let ((var-aggr-list (aggregate-join-var-aggr-list prev)))
-				      (setf (first (nth (- (second form) 1) var-aggr-list)) var)))
-				   (t
-				    (setf prev (make-or-share-instance 'bind-node :prev prev :variable var
-								       :form form :form-parameters (collect-expression-variables form))))))
-			   prev)
+			     ;; (cond ((and (consp form) (eq (first form) 'agg))
+			     ;; 	    (assert* (typep prev 'aggregate-join-node) "AGG not inside an aggregate-join-node: ~S inside ~S" form prev)
+			     ;; 	    (let ((var-aggr-list (aggregate-join-var-aggr-list prev)))
+			     ;; 	      (setf (first (nth (- (second form) 1) var-aggr-list)) var)))
+			     ;; 	   (t
+			     (setf prev (make-or-share-instance 'bind-node :prev prev :variable var
+								:form form :form-parameters (collect-expression-variables form)))
+				    ;; ))
+			   prev))
 		   (FILTER (setf prev (translate (second args) prev dataset))
 			   (let ((f (first args)))
 			     (cond ((eq f T)
@@ -179,14 +182,9 @@
 			    (push-to-end-new end (node-succ arg1-end))
 			    (push-to-end-new end (node-succ arg2-end))
 			    (setf (subgraph-end-node start) end)))
-		   (AGGREGATEJOIN (let* ((aggregations (first args))
-					 (aggregation-specs (mapcar #'(lambda (a) (list (generate-and-canonize-var "!AGG") (second a) (third a) (fourth a))) aggregations))
-					 (agg1 (first aggregations))
-					 (group (fifth agg1))
-					 (group-expr (second group))
-					 (pattern (third group)))
-				    (make-or-share-instance 'aggregate-join-node :prev (translate pattern prev dataset)
-							    :group group-expr :group-form group-expr :var-aggr-list aggregation-specs)))
+		   (AGGREGATE-JOIN (make-or-share-instance 'aggregate-join-node :prev (translate (first args) prev dataset)
+							   :aggr-var-list (second args)
+							   :group (third args)))
 		   (TO-LIST (translate (first args) prev dataset))
 		   (TO-MULTI-SET (translate (first args) prev dataset))
 		   (GRAPH (translate (second args) prev (first args)))

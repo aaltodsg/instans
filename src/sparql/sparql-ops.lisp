@@ -769,3 +769,41 @@
     (error "Not implemented yet!")))
 
 
+;;; Aggregates
+(define-sparql-function "aggregate_min" (:arguments ((g group) (arg xsd-value)) :returns xsd-value :hiddenp t)
+  (:method ((g group) (arg xsd-value))
+    (declare (ignorable g arg))
+    nil))
+
+(define-sparql-function "aggregate_max" (:arguments ((g group) (arg xsd-value)) :returns xsd-value :hiddenp t)
+  (:method ((g group) (arg xsd-value))
+    (declare (ignorable g arg))
+    nil))
+
+(define-sparql-function "aggregate_avg" (:arguments ((g group) (arg xsd-value)) :returns xsd-value :hiddenp t)
+  (:method ((g group) (arg xsd-value))
+    (declare (ignorable g arg))
+    nil))
+
+(define-sparql-function "aggregate_sum" (:arguments ((g group) (arg xsd-number-value)) :returns xsd-number-value :hiddenp t)
+  (:method ((g group) (arg xsd-number-value))
+    (declare (ignorable g arg))
+    nil))
+
+(define-sparql-function "aggregate_count" (:arguments ((g group) (arg term-or-value)) :returns xsd-integer-value :hiddenp t)
+  (:method ((g group) (arg xsd-value))
+    (declare (ignorable g arg))
+    nil))
+
+(define-sparql-function "aggregate_sample" (:arguments ((g group) (arg term-or-value)) :returns term-or-value :hiddenp t)
+  (:method ((g group) (arg xsd-value))
+    (declare (ignorable g arg))
+    nil))
+
+(define-sparql-function "aggregate_group_concat" (:arguments ((g group) (arg xsd-value) &optional separator) :returns xsd-value :hiddenp t)
+  (:method ((g group) (arg xsd-value) &optional separator)
+    (declare (ignorable g arg separator))
+    nil))
+
+
+

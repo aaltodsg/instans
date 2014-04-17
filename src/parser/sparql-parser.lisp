@@ -68,13 +68,140 @@
 ;;
 ;; Note: aggi is a temporary variable. E is then used in 18.2.4.4 for the processing of select expressions.
 
+(defun as-form-p (x)
+  (and (consp x) (eq (car x) 'AS)))
+
+(defun aggregate-function-name-p (name)
+  (member name '(COUNT SUM MIN MAX AVG GROUP_CONCAT SAMPLE)))
+
+(defun translate-algebra (instans clauses)
+  (let* ((ggp (getf clauses :where))
+	 (scope-vars (getf (rest ggp) (if (eq (car ggp) 'SELECT) :project-vars :scope-vars)))
+	 (project (if (eq (getf clauses :project) '*) scope-vars (getf clauses :project)))
+	 (project-vars nil)
+	 (aggregate-aggr-var-list nil)
+	 (aggr-var-counter -1)
+	 (group-expr nil)
+	 (group-var nil)
+	 (expr-var-list nil))
+    (labels ((contains-aggregates-p (form) (and (consp form) (or (aggregate-function-name-p (first form)) (some #'contains-aggregates-p (rest form)))))
+	     (samplify (expr)
+	       (cond ((sparql-var-p expr) (list 'SAMPLE expr))
+		     ((or (not (consp expr)) (aggregate-function-name-p (first expr))) expr)
+		     (t
+		      (mapcar #'samplify expr))))
+	     (aggregatify (expr)
+;	       (inform "aggregatify ~S" expr)
+	       (cond ((not (consp expr)) expr)
+		     ;;; Note: Nested aggregates not allowed!
+		     ((aggregate-function-name-p (first expr))
+		      (let ((aggr-var (generate-sparql-var instans (format nil "!AGG~D" (incf aggr-var-counter)))))
+			(push (cons (apply #'create-sparql-aggregate-call group-var aggr-var-counter expr) aggr-var) aggregate-aggr-var-list)
+			aggr-var))
+		     (t
+		      (mapcar #'aggregatify expr))))
+	     (translate-aggregates ()
+	       (setf group-var (generate-sparql-var instans "!GROUP"))
+	       (loop for item in project
+		  when (as-form-p item)
+		  do (setf (third item) (aggregatify (samplify (third item)))))
+	       (when (getf clauses :having)
+		 (setf (getf clauses :having) (aggregatify (samplify (getf clauses :having)))))
+	       (when (getf clauses :order-by)
+		 (setf (getf clauses :order-by) (aggregatify (samplify (getf clauses :order-by)))))
+	       (loop for item in project
+		  when (not (consp item))
+		  do (let ((var (generate-sparql-var instans (format nil "!AGG~D" (incf aggr-var-counter))))
+			   (aggregate (create-sparql-aggregate-call group-var aggr-var-counter 'SAMPLE item)))
+		       (push (cons aggregate var) aggregate-aggr-var-list)
+		       (push (cons var item) expr-var-list)))
+	       (setf ggp (list 'AGGREGATE-JOIN ggp (reverse aggregate-aggr-var-list) (list 'GROUP group-expr group-var)))))
+      (loop for item in (getf clauses :group-by)
+	 when (as-form-p item)
+	 do (let ((var (second item)))
+	      (cond ((find-sparql-var var scope-vars)
+		     (sparql-parse-error "Variable ~S already bound" var))
+		    (t
+		     (push-to-end var scope-vars)))))
+      (cond ((eq (getf clauses :project) '*)
+	     (setf project-vars scope-vars))
+	    (t
+	     (loop for item in project
+		when (sparql-var-p item)
+		do (cond ((not (find-sparql-var item scope-vars))
+			  (sparql-parse-error "Variable ~S not in SELECT" (uniquely-named-object-name item)))
+			 (t
+			  (push-to-end item project-vars)))
+		else
+		do (let ((var (second item)))
+;		     (inform "AS expression ~S, var = ~S, scope-vars ~S" item var scope-vars)
+		     (cond ((find-sparql-var var scope-vars)
+			    (sparql-parse-error "Variable ~S already bound" var))
+			   (t
+			    (push-to-end var scope-vars)
+			    (push-to-end var project-vars)))))))
+;      (inform "h3")
+      (cond ((not (null (getf clauses :group-by)))
+	     (loop for condition in (getf clauses :group-by)
+		collect (cond ((as-form-p condition)
+			       (setf ggp (list 'EXTEND ggp (second condition) (third condition)))
+			       (second condition))
+			      (t
+			       condition)) into conditions
+		finally (setf group-expr conditions))
+	     (translate-aggregates))
+	    ((or (and (consp project)
+		      (some #'(lambda (ve)
+				(and (as-form-p ve) (contains-aggregates-p (third ve))))
+			    project))
+		 (some #'contains-aggregates-p (getf clauses :having))
+		 (some #'(lambda (oc) (contains-aggregates-p (second oc))) (getf clauses :order-by)))
+	     (setf group-expr '(1))
+	     (translate-aggregates)))
+;      (inform "h4")
+      (when (getf clauses :having)
+	(setf ggp (list 'FILTER () ggp)))
+      (when (getf clauses :values) 
+	(setf ggp (list 'DATABLOCK () ggp )))
+;      (inform "h7")
+      (loop with vars = nil
+	 for item in project
+	 when (as-form-p item)
+	 do (progn
+	      (pushnew (second item) vars)
+	      (push (cons (third item) (second item)) expr-var-list))
+	 else do (pushnew item vars))
+      (loop for (expr . var) in expr-var-list
+	 do (setf ggp (list 'EXTEND ggp var expr)))
+      (let ((form (getf clauses :query-form)))
+	(remf clauses :query-form)
+	(setf (getf clauses :where) ggp)
+	(append (list form :project-vars project-vars) clauses)))))
+
+(defun build-query-expression-new (instans clauses)
+  ;; (inform "build-query-expression clauses = ~S" clauses)
+  (case (getf clauses :query-form)
+    ((SELECT ASK DESCRIBE CONSTRUCT DELETE-INSERT)
+     (translate-algebra instans clauses))
+    (LOAD (sparql-parse-error "LOAD not implemented yet"))
+    (CLEAR (sparql-parse-error "CLEAR not implemented yet"))
+    (ADD (sparql-parse-error "ADD not implemented yet"))
+    (MOVE (sparql-parse-error "MOVE not implemented yet"))
+    (COPY (sparql-parse-error "COPY not implemented yet"))
+    (INSERT-DATA (sparql-parse-error "INSERT not implemented yet"))
+    (DELETE-DATA (sparql-parse-error "DELETE not implemented yet"))
+    (DELETE-WHERE (sparql-parse-error "DELETE not implemented yet"))
+    (SERVICE (sparql-parse-error "SERVICE not implemented yet"))))
+
+;;; Old running version for aggregates
+
 (defun handle-aggregates (ggp clauses)
   (labels ((level-has-aggregates-p (clauses)
 	     (let ((project (getf clauses :project))
 		   (having (getf clauses :having))
 		   (order-by (getf clauses :order-by)))
 	       (or (and (consp project)
-			(some #'(lambda (ve) (and (consp ve) (eq (first ve) 'AS) (contains-aggregates-p (third ve)))) project))
+			(some #'(lambda (ve) (and (as-form-p ve) (contains-aggregates-p (third ve)))) project))
 		   (some #'contains-aggregates-p having)
 		   (some #'(lambda (oc) (contains-aggregates-p (second oc))) order-by))))
 	   (contains-aggregates-p (form)
@@ -88,63 +215,55 @@
 	   (group (cond ((not (null group-by)) (list 'GROUP group-by ggp))
 			(has-aggregates-p (list 'GROUP '(1) ggp)))))
       (when group
-	(sparql-parse-error "Aggregation not implemented yet!")
-	;;       (let ((aggregates (list nil))
-	;; 	    (expr-var-list (list nil)))
-	;; 	(when (consp project)
-	;; 	  (setf project (loop for ve in project
-	;; 			      collect (cond ((eq (first ve) 'AS)
-	;; 					     (destructuring-bind (as var expr) ve
-	;; 					       (list as var (replace-aggregates expr aggregates expr-var-list group))))
-	;; 					    (t ve)))))
-	;; 	(setf having (loop for expr in having collect (replace-aggregates expr aggegrates expr-var-list group)))
-	;; 	(setf order-by (loop for (order expr) in order-by collect (list order (replace-aggregates expr aggregates expr-var-list group))))
-	;; 	(loop for expr in having do (setf ggp (list 'FILTER expr ggp)))
-	;; ;kesken	(loop 
-	;; 	(setf ggp (cons 'AGGREGATE-JOIN (cdr (reverse aggregates))))
-	)
+	(sparql-parse-error "Aggregation not implemented yet!"))
       ggp)))
 
 (defun sparql-parse-error (fmt &rest args)
   (apply #'ll-parser-failure fmt args))
 
-(defun build-query-expression (clauses)
-;  (inform "build-query-expression clauses = ~S" clauses)
+(defun build-query-expression (instans clauses)
+ (build-query-expression-old instans clauses)
+;  (build-query-expression-new instans clauses)
+  )
+
+(defun build-query-expression-old (instans clauses)
+  (declare (ignorable instans))
+					;  (inform "build-query-expression clauses = ~S" clauses)
   (let ((form (getf clauses :query-form))
 	(ggp (getf clauses :where)))
     (remf clauses :query-form)
     (remf clauses :where)
-;    (inform "                       form = ~S, ggp = ~S" form ggp)
+					;    (inform "                       form = ~S, ggp = ~S" form ggp)
     (flet ((get-project-vars ()
 	     (let ((scope-vars (getf (rest ggp) (if (eq (car ggp) 'SELECT) :project-vars :scope-vars))))
-;	       (inform "                       scope-vars = ~S" scope-vars)
+					;	       (inform "                       scope-vars = ~S" scope-vars)
 	       (loop for item in (getf clauses :group-by)
-		     when (and (consp item) (eq (car item) 'AS))
-		     do (let ((var (second item)))
-			  (cond ((find-sparql-var var scope-vars)
-				 (sparql-parse-error "Variable ~S already bound" var))
-				(t
-				 (push-to-end var scope-vars)))))
+		  when (as-form-p item)
+		  do (let ((var (second item)))
+		       (cond ((find-sparql-var var scope-vars)
+			      (sparql-parse-error "Variable ~S already bound" var))
+			     (t
+			      (push-to-end var scope-vars)))))
 	       (cond ((eq (getf clauses :project) '*) scope-vars)
 		     (t
 		      (loop with project-vars = nil
-			    for item in (getf clauses :project)
-;			    do (inform "get-project-vars: item = ~S" item)
-			    when (sparql-var-p item)
-			    do (push-to-end item project-vars)
-			    ;; do (cond ((not (find-sparql-var item scope-vars))
-			    ;; 	      (sparql-parse-error "Variable ~S not in SELECT" (uniquely-named-object-name item)))
-			    ;; 	     (t
-			    ;; 	      (push-to-end item project-vars)))
-			    else
-			    do (let ((var (second item)))
-;				 (inform "AS expression ~S, var = ~S, scope-vars ~S" item var scope-vars)
-				 (cond ((find-sparql-var var scope-vars)
-					(sparql-parse-error "Variable ~S already bound" var))
-				       (t
-					(push-to-end var scope-vars)
-					(push-to-end var project-vars))))
-			    finally (return project-vars)))))))
+			 for item in (getf clauses :project)
+					;			    do (inform "get-project-vars: item = ~S" item)
+			 when (sparql-var-p item)
+			 do (push-to-end item project-vars)
+			 ;; do (cond ((not (find-sparql-var item scope-vars))
+			 ;; 	      (sparql-parse-error "Variable ~S not in SELECT" (uniquely-named-object-name item)))
+			 ;; 	     (t
+			 ;; 	      (push-to-end item project-vars)))
+			 else
+			 do (let ((var (second item)))
+					;				 (inform "AS expression ~S, var = ~S, scope-vars ~S" item var scope-vars)
+			      (cond ((find-sparql-var var scope-vars)
+				     (sparql-parse-error "Variable ~S already bound" var))
+				    (t
+				     (push-to-end var scope-vars)
+				     (push-to-end var project-vars))))
+			 finally (return project-vars)))))))
       (case form
 	((SELECT ASK DESCRIBE CONSTRUCT DELETE-INSERT)
 	 (setf ggp (handle-aggregates ggp clauses))
@@ -223,7 +342,7 @@
 		     (t (generate-sparql-var instans "!BLANK"))))
 	     (fold-left-binary (value funcs)
 	       (loop for func in funcs
-		     do (setf value (funcall func value)))
+		  do (setf value (funcall func value)))
 	       value)
 	     (translate-path (triple)
 	       (incf indent)
@@ -237,9 +356,9 @@
 			       (let* ((preds (cdr path))
 				      (objs (nconc (loop repeat (1- (length preds)) collect (generate-var "!PATH")) (list (third triple)))))
 				 (loop for pred in preds
-				       for subj = (first triple) then obj
-				       for obj in objs
-				       nconc (translate-path (list subj pred obj)))))
+				    for subj = (first triple) then obj
+				    for obj in objs
+				    nconc (translate-path (list subj pred obj)))))
 			      (t
 			       (list (cons 'PATH triple)))))
 		       ))
@@ -247,7 +366,7 @@
 		 v))
 	     (translate-paths (triple-list)
 	       (loop for triple in triple-list
-		     nconc (translate-path triple)))
+		  nconc (translate-path triple)))
 	     (zero-pattern-p (x) (equal x '(ZERO-PATTERN)))
 	     (simplify-joins (e)
 	       (case (first e)
@@ -275,51 +394,51 @@
 			(add-vars (vlist) (setf vars (nconc vars vlist)))
 			(join (x) (setf g (list 'JOIN g x))))
 		   (loop with fs = nil
-			 for e in ggp
-			 do (case (first e)
-			      (GGP
-			       (add-vars (ggp-scope-vars e))
-			       (join e))
-			      (SELECT (add-vars (getf (rest e) :project-vars)) ; this is taken care of elsewhere
-				      (join e))
-			      (BGP
-			       (add-vars (collect-expression-variables (rest e)))
-			       (join e))
-			      (UNION
-			       (add-vars (ggp-scope-vars (second e)))
-			       (add-vars (ggp-scope-vars (third e)))
-			       (join e))
-			      (OPTIONAL
-			       (let ((a (second e)))
-				 (add-vars (ggp-scope-vars (second e)))
-				 (setf g (cond ((eq (first a) 'FILTER) (list 'LEFTJOIN g (second a) (third a)))
-					       (t (list 'LEFTJOIN g a t))))))
-			      (MINUS
-			       (setf g (list 'MINUS g (second e))))
-			      ((GRAPH SERVICE)
-			       (let ((var-or-iri (second e))
-				     (subggp-vars (ggp-scope-vars (third e))))
-				 (add-vars (if (sparql-var-p var-or-iri) (cons var-or-iri subggp-vars) subggp-vars))
-				 (join e)))
-			      (FILTER
-			       (setf fs (if (null fs) (second e) (create-sparql-call "logical-and" fs (second e)))))
-			      (BIND
-			       (let ((var (third e))
-				     (expr (second e)))
-				 (cond ((find-sparql-var var vars)
-					(sparql-parse-error "Variable ~S already defined in scope" var))
-				       (t
-					(push-to-end var vars)))
-				 (setf g (list 'EXTEND g var expr))))
-			      (INLINEDATA
-			       (add-vars (second e))
-			       (join e))
-			      (t (error* "Illegal form ~S" e)))
-			 finally (progn
-				   (setf g (simplify-joins g))
-				   (when (not (null fs))
-				     (setf g (list 'FILTER fs g)))
-				   (return (list 'GGP :form g :scope-vars (remove-duplicates vars :test #'sparql-var-equal))))))))
+		      for e in ggp
+		      do (case (first e)
+			   (GGP
+			    (add-vars (ggp-scope-vars e))
+			    (join e))
+			   (SELECT (add-vars (getf (rest e) :project-vars)) ; this is taken care of elsewhere
+				   (join e))
+			   (BGP
+			    (add-vars (collect-expression-variables (rest e)))
+			    (join e))
+			   (UNION
+			    (add-vars (ggp-scope-vars (second e)))
+			    (add-vars (ggp-scope-vars (third e)))
+			    (join e))
+			   (OPTIONAL
+			    (let ((a (second e)))
+			      (add-vars (ggp-scope-vars (second e)))
+			      (setf g (cond ((eq (first a) 'FILTER) (list 'LEFTJOIN g (second a) (third a)))
+					    (t (list 'LEFTJOIN g a t))))))
+			   (MINUS
+			    (setf g (list 'MINUS g (second e))))
+			   ((GRAPH SERVICE)
+			    (let ((var-or-iri (second e))
+				  (subggp-vars (ggp-scope-vars (third e))))
+			      (add-vars (if (sparql-var-p var-or-iri) (cons var-or-iri subggp-vars) subggp-vars))
+			      (join e)))
+			   (FILTER
+			    (setf fs (if (null fs) (second e) (create-sparql-call "logical-and" fs (second e)))))
+			   (BIND
+			    (let ((var (third e))
+				  (expr (second e)))
+			      (cond ((find-sparql-var var vars)
+				     (sparql-parse-error "Variable ~S already defined in scope" var))
+				    (t
+				     (push-to-end var vars)))
+			      (setf g (list 'EXTEND g var expr))))
+			   (INLINEDATA
+			    (add-vars (second e))
+			    (join e))
+			   (t (error* "Illegal form ~S" e)))
+		      finally (progn
+				(setf g (simplify-joins g))
+				(when (not (null fs))
+				  (setf g (list 'FILTER fs g)))
+				(return (list 'GGP :form g :scope-vars (remove-duplicates vars :test #'sparql-var-equal))))))))
 	     (create-call (op-name &rest args)
 	       (or (apply #'create-sparql-call op-name args)
 		   (sparql-parse-error "~A does not name a Sparql function or form" op-name)))
@@ -339,7 +458,7 @@
        (generate-ll1-parser sparql-parser
 	 (Rules ::= (Prologue (:OPT ((:OR Query1 Update1) ((:OPT (|;-TERMINAL| Rules :RESULT $1)) :RESULT (opt-value $0)) :RESULT (cons $0 $1)))
 			      :RESULT (append $0 (opt-value $1))))
-	 (Query1 ::= ((:OR SelectQuery ConstructQuery DescribeQuery AskQuery) ValuesClause :RESULT (build-query-expression (append $0 (opt-value $1)))))
+	 (Query1 ::= ((:OR SelectQuery ConstructQuery DescribeQuery AskQuery) ValuesClause :RESULT (build-query-expression instans (append $0 (opt-value $1)))))
 	 (Prologue ::= (:REP0 (:OR BaseDecl PrefixDecl)))
 	 (BaseDecl ::= (BASE-TERMINAL IRIREF-TERMINAL :RESULT (progn (set-base $1) (list 'BASE $1))))
 	 (PrefixDecl ::= (PREFIX-TERMINAL PNAME_NS-TERMINAL IRIREF-TERMINAL :RESULT (progn (set-prefix $1 $2) (list 'PREFIX (car $1) $2))))
@@ -348,7 +467,7 @@
 					;						    (inform "Scope vars in ~S~%~S" result (scope-vars result))
 						  result)))
 	 (SubSelect ::= (SelectClause WhereClause SolutionModifier ValuesClause
-				      :RESULT (build-query-expression (append '(:query-form SELECT) $0 $1 $2 (opt-value $3)))))
+				      :RESULT (build-query-expression instans (append '(:query-form SELECT) $0 $1 $2 (opt-value $3)))))
 					; `(SELECT ,@$0 :where ,$1 ,@$2 ,@(if (opt-yes-p $3) (opt-value $3)))))
 	 (SelectClause ::= (SELECT-TERMINAL ((:OPT (:OR (DISTINCT-TERMINAL :RESULT :distinct) (REDUCED-TERMINAL :RESULT :reduced)))
 					     :RESULT (if (opt-yes-p $0) (list (opt-value $0) t)))
@@ -392,7 +511,7 @@
 	 (OffsetClause ::= (OFFSET-TERMINAL INTEGER-TERMINAL :RESULT $1))
 	 (ValuesClause ::= (:OPT (VALUES-TERMINAL DataBlock :RESULT (list :datablock $1))))
 	 ;; (Update ::= (Prologue (:OPT (Update1 (:OPT (|;-TERMINAL| Update))))))
-	 (Update1 ::= (:OR Load Clear Drop Add Move Copy Create InsertData DeleteData DeleteWhere Modify) :RESULT (build-query-expression $0))
+	 (Update1 ::= (:OR Load Clear Drop Add Move Copy Create InsertData DeleteData DeleteWhere Modify) :RESULT (build-query-expression instans $0))
 	 (_OptSilent ::= (:OPT SILENT-TERMINAL) :RESULT (if (opt-yes-p $0) (list :silent t)))
 	 (Load ::= (LOAD-TERMINAL _OptSilent iri (:OPT (INTO-TERMINAL GraphRef :RESULT $1)) :RESULT (append '(:query-form LOAD) $1 (list :from $2) (if (opt-yes-p $3) (list :to (opt-value $3))))))
 	 (Clear ::= (CLEAR-TERMINAL _OptSilent GraphRefAll :RESULT (append '(:query-form CLEAR) $1 $2)))
@@ -437,7 +556,7 @@
 	 (GraphPatternNotTriples ::= (:OR GroupOrUnionGraphPattern OptionalGraphPattern MinusGraphPattern GraphGraphPattern ServiceGraphPattern Filter Bind InlineData))
 	 (OptionalGraphPattern ::= (OPTIONAL-TERMINAL GroupGraphPattern) :RESULT (list 'OPTIONAL $1))
 	 (GraphGraphPattern ::= (GRAPH-TERMINAL VarOrIri GroupGraphPattern :RESULT (list 'GRAPH $1 $2)))
-	 (ServiceGraphPattern ::= (SERVICE-TERMINAL _OptSilent VarOrIri GroupGraphPattern :RESULT (build-query-expression (append '(:query-form SERVICE) $1 (list :endpoint $2) (list :pattern $3)))))
+	 (ServiceGraphPattern ::= (SERVICE-TERMINAL _OptSilent VarOrIri GroupGraphPattern :RESULT (build-query-expression instans (append '(:query-form SERVICE) $1 (list :endpoint $2) (list :pattern $3)))))
 	 (Bind ::= (BIND-TERMINAL |(-TERMINAL| Expression AS-TERMINAL Var |)-TERMINAL|) :RESULT (list 'BIND $2 $4))
 	 (InlineData ::= (VALUES-TERMINAL DataBlock :RESULT $1))
 	 (DataBlock ::= (:OR InlineDataOneVar InlineDataFull))
@@ -484,9 +603,9 @@
 	 (PathPrimary ::= (:OR iri (a-TERMINAL :RESULT *rdf-type*)
 			       (|!-TERMINAL| PathNegatedPropertySet
 					     :RESULT (loop for x in $1 when (and (consp x) (eq (car x) 'INV)) collect (second x) into inv else collect x into noinv
-							   finally (return (cond ((null inv) (cons 'NPS noinv))
-										 ((null noinv) (list 'INV (cons 'NPS inv)))
-										 (t (list 'ALT (cons 'NPS noinv) (list 'INV (cons 'NPS inv))))))))
+							finally (return (cond ((null inv) (cons 'NPS noinv))
+									      ((null noinv) (list 'INV (cons 'NPS inv)))
+									      (t (list 'ALT (cons 'NPS noinv) (list 'INV (cons 'NPS inv))))))))
 			       (|(-TERMINAL| Path |)-TERMINAL| :RESULT $1)))
 	 (PathNegatedPropertySet ::= (:OR (PathOneInPropertySet :RESULT (list $0))
 					  (|(-TERMINAL| (:OPT (PathOneInPropertySet (:REP0 (|\|-TERMINAL| PathOneInPropertySet :RESULT $1))
@@ -604,7 +723,7 @@
 	 (ExistsFunc ::= (EXISTS-TERMINAL GroupGraphPattern :RESULT (list 'EXISTS $1)))
 	 (NotExistsFunc ::= (NOT-TERMINAL EXISTS-TERMINAL GroupGraphPattern :RESULT (list 'NOT-EXISTS $2)))
 	 (Aggregate ::= (:OR (COUNT-TERMINAL |(-TERMINAL| (:OPT DISTINCT-TERMINAL) (:OR (|*-TERMINAL| :RESULT '*) Expression) |)-TERMINAL|
-					     :RESULT (if (opt-yes-p $2) (list 'COUNT :distinct t $3) (list 'COUNT $3)))
+					     :RESULT (if (opt-yes-p $2) (list 'create-call :distinct t $3) (list 'COUNT $3)))
 			     (SUM-TERMINAL |(-TERMINAL| (:OPT DISTINCT-TERMINAL) Expression |)-TERMINAL| :RESULT (if (opt-yes-p $2) (list 'SUM :distinct t $3) (list 'SUM $3)))
 			     (MIN-TERMINAL |(-TERMINAL| (:OPT DISTINCT-TERMINAL) Expression |)-TERMINAL| :RESULT (if (opt-yes-p $2) (list 'MIN :distinct t $3) (list 'MIN $3)))
 			     (MAX-TERMINAL |(-TERMINAL| (:OPT DISTINCT-TERMINAL) Expression |)-TERMINAL| :RESULT (if (opt-yes-p $2) (list 'MAX :distinct t $3) (list 'MAX $3)))
@@ -615,8 +734,8 @@
 						    :RESULT (if (opt-yes-p $2) (list 'GROUP_CONCAT :distinct t $3 (opt-value $4)) (list 'GROUP_CONCAT $3 (opt-value $4))))))
 	 (iriOrFunction ::= (iri (:OPT ArgList) :RESULT (if (opt-no-p $1) $0 (create-call-through-iri $0 (opt-value $1)))))
 	 (RDFLiteral		  ::= (String (:OPT (:OR (LANGTAG-TERMINAL :RESULT #'(lambda (s) (create-rdf-literal-with-lang s (subseq $0 1))))
-	   						 (^^-TERMINAL iri :RESULT #'(lambda (s) (nth-value 0 (create-rdf-literal-with-type s $1))))))
-	   				      :RESULT (if (opt-yes-p $1) (funcall (opt-value $1) $0) $0)))
+							 (^^-TERMINAL iri :RESULT #'(lambda (s) (nth-value 0 (create-rdf-literal-with-type s $1))))))
+					      :RESULT (if (opt-yes-p $1) (funcall (opt-value $1) $0) $0)))
 	 (NumericLiteral ::= (:OR NumericLiteralUnsigned NumericLiteralPositive NumericLiteralNegative))
 	 (NumericLiteralUnsigned ::= (:OR INTEGER-TERMINAL DECIMAL-TERMINAL DOUBLE-TERMINAL))
 	 (NumericLiteralPositive ::= (:OR INTEGER_POSITIVE-TERMINAL DECIMAL_POSITIVE-TERMINAL DOUBLE_POSITIVE-TERMINAL))
@@ -643,55 +762,55 @@
 
 (defun replace-codepoint-escape-sequences (str)
   (loop with i = -1
-	with max = (1- (length str))
-	with result = (list nil)
-	with tail = result
-	while (< i max)
-	for ch = (char str (incf i))
-;        do (inform "str = ~S, max = ~D, i = ~D, ch = ~C, result = ~S, tail = ~S" str max i ch result tail)
-	do (cond ((not (char= ch #\\))
-		  (setf (cdr tail) (list ch))
-		  (setf tail (cdr tail)))
-		 ((< i max)
-		  (setf ch (char str (incf i)))
-		  (let (ch1 ch2 ch3 ch4)
-		    (cond ((or (not (or (char= ch #\u) (char= ch #\U)))
-			       (>= (+ i 4) max)
-			       (not (and (setf ch1 (digit-char-p (char str (+ i 1)) 16))
-					 (setf ch2 (digit-char-p (char str (+ i 2)) 16))
-					 (setf ch3 (digit-char-p (char str (+ i 3)) 16))
-					 (setf ch4 (digit-char-p (char str (+ i 4)) 16)))))
-			   (setf (cdr tail) (list #\\ ch))
-			   (setf tail (cddr tail)))
-			  (t
-			   (let ((num1234 (+ ch4 (* 16 (+ ch3 (* 16 (+ ch2 (* 16 ch1)))))))
-				 ch5 ch6)
-			     (incf i 4)
-			     (cond ((or (> (+ i 2) max)
-					(not (and (setf ch5 (digit-char-p (char str (+ i 1)) 16))
-						  (setf ch6 (digit-char-p (char str (+ i 2)) 16)))))
-				    (setf (cdr tail) (list (code-char num1234)))
-				    (setf tail (cdr tail)))
-				   (t
-				    (incf i 2)
-				    (setf (cdr tail) (list (code-char (+ ch6 (* 16 (+ ch5 (* 16 num1234)))))))
-				    (setf tail (cdr tail))))))))))
-	finally (return (coerce (cdr result) 'string))))
+     with max = (1- (length str))
+     with result = (list nil)
+     with tail = result
+     while (< i max)
+     for ch = (char str (incf i))
+					;        do (inform "str = ~S, max = ~D, i = ~D, ch = ~C, result = ~S, tail = ~S" str max i ch result tail)
+     do (cond ((not (char= ch #\\))
+	       (setf (cdr tail) (list ch))
+	       (setf tail (cdr tail)))
+	      ((< i max)
+	       (setf ch (char str (incf i)))
+	       (let (ch1 ch2 ch3 ch4)
+		 (cond ((or (not (or (char= ch #\u) (char= ch #\U)))
+			    (>= (+ i 4) max)
+			    (not (and (setf ch1 (digit-char-p (char str (+ i 1)) 16))
+				      (setf ch2 (digit-char-p (char str (+ i 2)) 16))
+				      (setf ch3 (digit-char-p (char str (+ i 3)) 16))
+				      (setf ch4 (digit-char-p (char str (+ i 4)) 16)))))
+			(setf (cdr tail) (list #\\ ch))
+			(setf tail (cddr tail)))
+		       (t
+			(let ((num1234 (+ ch4 (* 16 (+ ch3 (* 16 (+ ch2 (* 16 ch1)))))))
+			      ch5 ch6)
+			  (incf i 4)
+			  (cond ((or (> (+ i 2) max)
+				     (not (and (setf ch5 (digit-char-p (char str (+ i 1)) 16))
+					       (setf ch6 (digit-char-p (char str (+ i 2)) 16)))))
+				 (setf (cdr tail) (list (code-char num1234)))
+				 (setf tail (cdr tail)))
+				(t
+				 (incf i 2)
+				 (setf (cdr tail) (list (code-char (+ ch6 (* 16 (+ ch5 (* 16 num1234)))))))
+				 (setf tail (cdr tail))))))))))
+     finally (return (coerce (cdr result) 'string))))
 
 (defun sparql-parse-files (instans directory-path &key subscribe print-input-p print-result-p)
   (loop for file in (directory directory-path)
-        do (progn
-	     (when subscribe
-	       (inform "File ~A:" file))
-	     (when print-input-p
-	       (with-open-file (input file)
-		 (loop for line = (read-line input nil nil)
-		       while line
-		       do (inform "~A" line))))
-	     (let ((result (sparql-parse-file instans file :subscribe subscribe)))
-	       (cond ((not (ll-parser-succeeded-p result))
-		      (loop for msg in (ll-parser-error-messages result)
-			    do (inform "~A:~A" file msg)))
-		     (print-result-p
-		      (loop for item in (car (ll-parser-result-stack result))
-			    do (inform "~S" item))))))))
+     do (progn
+	  (when subscribe
+	    (inform "File ~A:" file))
+	  (when print-input-p
+	    (with-open-file (input file)
+	      (loop for line = (read-line input nil nil)
+		 while line
+		 do (inform "~A" line))))
+	  (let ((result (sparql-parse-file instans file :subscribe subscribe)))
+	    (cond ((not (ll-parser-succeeded-p result))
+		   (loop for msg in (ll-parser-error-messages result)
+		      do (inform "~A:~A" file msg)))
+		  (print-result-p
+		   (loop for item in (car (ll-parser-result-stack result))
+		      do (inform "~S" item))))))))

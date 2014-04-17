@@ -9,7 +9,7 @@
 			   collect (and (production-result-func-name p) `(,(production-result-func-name p) ,@(cdr (production-result-func-lambda p))))))
 	 (parser-var (gensym (format nil "~A-PARSER" name)))
 	 (lexer-var (gensym (format nil "~A-LEXER" name))))
-    (describe parser)
+;    (describe parser)
     `(labels ,(loop for op in result-ops when op collect op)
        (let ((,parser-var
        	      ,(serialize-parser
@@ -31,7 +31,7 @@
   (let* ((parser (generate-ll1-grammar name 'll-parser rules :warn-about-transformations-p t))
 	 (result-ops (loop for p in (grammar-productions parser)
 			   collect (and (production-result-func-name p) `(,(production-result-func-name p) ,@(cdr (production-result-func-lambda p)))))))
-    (describe parser)
+;    (describe parser)
     `(labels ,(loop for op in result-ops when op collect op)
        ,(serialize-parser
 	 parser
