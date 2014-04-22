@@ -770,39 +770,39 @@
 
 
 ;;; Aggregates
-(define-sparql-function "aggregate_min" (:arguments ((g group) (arg xsd-value)) :returns xsd-value :hiddenp t)
-  (:method ((g group) (arg xsd-value))
-    (declare (ignorable g arg))
+(define-sparql-function "aggregate_min" (:arguments ((g group) (index xsd-integer-value) (arg xsd-value)) :returns xsd-value :hiddenp t)
+  (:method ((g group) (index xsd-integer-value)  (arg xsd-value))
+    (declare (ignorable g index arg))
     nil))
 
-(define-sparql-function "aggregate_max" (:arguments ((g group) (arg xsd-value)) :returns xsd-value :hiddenp t)
-  (:method ((g group) (arg xsd-value))
-    (declare (ignorable g arg))
+(define-sparql-function "aggregate_max" (:arguments ((g group) (index xsd-integer-value) (arg xsd-value)) :returns xsd-value :hiddenp t)
+  (:method ((g group) (index xsd-integer-value)  (arg xsd-value))
+    (declare (ignorable g index arg))
     nil))
 
-(define-sparql-function "aggregate_avg" (:arguments ((g group) (arg xsd-value)) :returns xsd-value :hiddenp t)
-  (:method ((g group) (arg xsd-value))
-    (declare (ignorable g arg))
+(define-sparql-function "aggregate_avg" (:arguments ((g group) (index xsd-integer-value) (arg xsd-value)) :returns xsd-value :hiddenp t)
+  (:method ((g group) (index xsd-integer-value)  (arg xsd-value))
+    (declare (ignorable g index arg))
     nil))
 
-(define-sparql-function "aggregate_sum" (:arguments ((g group) (arg xsd-number-value)) :returns xsd-number-value :hiddenp t)
-  (:method ((g group) (arg xsd-number-value))
-    (declare (ignorable g arg))
+(define-sparql-function "aggregate_sum" (:arguments ((g group) (index xsd-integer-value) (arg xsd-number-value)) :returns xsd-number-value :hiddenp t)
+  (:method ((g group) (index xsd-integer-value)  (arg xsd-number-value))
+    (declare (ignorable g index arg))
     nil))
 
-(define-sparql-function "aggregate_count" (:arguments ((g group) (arg term-or-value)) :returns xsd-integer-value :hiddenp t)
-  (:method ((g group) (arg xsd-value))
-    (declare (ignorable g arg))
+(define-sparql-function "aggregate_count" (:arguments ((g group) (index xsd-integer-value) (arg term-or-value)) :returns xsd-integer-value :hiddenp t)
+  (:method ((g group) (index xsd-integer-value)  (arg xsd-value))
+    (declare (ignorable g index arg))
     nil))
 
-(define-sparql-function "aggregate_sample" (:arguments ((g group) (arg term-or-value)) :returns term-or-value :hiddenp t)
-  (:method ((g group) (arg xsd-value))
-    (declare (ignorable g arg))
+(define-sparql-function "aggregate_sample" (:arguments ((g group) (index xsd-integer-value) (arg term-or-value)) :returns term-or-value :hiddenp t)
+  (:method ((g group) (index xsd-integer-value)  (arg xsd-value))
+    (declare (ignorable g index arg))
     nil))
 
-(define-sparql-function "aggregate_group_concat" (:arguments ((g group) (arg xsd-value) &optional separator) :returns xsd-value :hiddenp t)
-  (:method ((g group) (arg xsd-value) &optional separator)
-    (declare (ignorable g arg separator))
+(define-sparql-function "aggregate_group_concat" (:arguments ((g group) (index xsd-integer-value) (arg xsd-value) &optional separator) :returns xsd-value :hiddenp t)
+  (:method ((g group) (index xsd-integer-value)  (arg xsd-value) &optional separator)
+    (declare (ignorable g index arg separator))
     nil))
 
 

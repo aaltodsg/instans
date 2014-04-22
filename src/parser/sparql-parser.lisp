@@ -222,8 +222,8 @@
   (apply #'ll-parser-failure fmt args))
 
 (defun build-query-expression (instans clauses)
- (build-query-expression-old instans clauses)
-;  (build-query-expression-new instans clauses)
+; (build-query-expression-old instans clauses)
+  (build-query-expression-new instans clauses)
   )
 
 (defun build-query-expression-old (instans clauses)

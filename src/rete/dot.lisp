@@ -117,7 +117,7 @@
 (defun var-orig-names (node canonic-vars)
   (let ((alist (node-bindings node)))
     (loop for var in canonic-vars
-;	  do (inform "var = ~S" var)
+	  do (inform "var = ~S" var)
 	  unless (null var)
 	  collect (uniquely-named-object-name (car (rassoc var alist))))))
 

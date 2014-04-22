@@ -91,14 +91,14 @@
 			(setf (bind-form-lambda node) bind-lambda)
 			(setf (bind-form-func node) (compile nil bind-lambda))))
 		     ((aggregate-join-node-p node)
-		      (let* ((key-lambda `(lambda ,(aggregate-join-key-vars node)
+		      (let* ((key-lambda `(lambda ,(sparql-var-lisp-names (aggregate-join-key-vars node))
 					    (list ,@(loop for key-expr in (aggregate-join-key-exprs node)
 						       collect (sparql-expr-to-lisp key-expr)))))
 			     
 			     (part-arg (gensym "PART"))
 			     (instans-arg (gensym "INSTANS"))
 			     (aggr-temp (gensym "AGGR"))
-			     (aggr-lambda `(lambda (,instans-arg ,part-arg ,@(aggregate-join-aggr-vars node))
+			     (aggr-lambda `(lambda (,instans-arg ,part-arg ,@(sparql-var-lisp-names (aggregate-join-aggr-vars node)))
 						   ,@(loop for index from 0
 							for aggr-expr in (aggregate-join-aggr-exprs node)
 							collect `(let ((,aggr-temp (nth ,index (group-aggregates ,part-arg))))

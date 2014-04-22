@@ -48,8 +48,8 @@
 
 (defmethod initialize-instance :after ((this aggregate-join-node) &key group aggr-var-list &allow-other-keys)
   (setf (aggregate-join-group-var this) (third group))
-  (setf (aggregate-join-key-vars this) (sparql-var-lisp-names (collect-expression-variables (setf (aggregate-join-key-exprs this) (second group)))))
-  (setf (aggregate-join-aggr-vars this) (sparql-var-lisp-names (collect-expression-variables (setf (aggregate-join-aggr-exprs this) (mapcar #'car aggr-var-list))))))
+  (setf (aggregate-join-key-vars this) (collect-expression-variables (setf (aggregate-join-key-exprs this) (second group))))
+  (setf (aggregate-join-aggr-vars this) (collect-expression-variables (setf (aggregate-join-aggr-exprs this) (mapcar #'car aggr-var-list)))))
 
 ;;; Var and blank creationg
 
