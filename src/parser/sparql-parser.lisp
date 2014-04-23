@@ -96,7 +96,7 @@
 		     ;;; Note: Nested aggregates not allowed!
 		     ((aggregate-function-name-p (first expr))
 		      (let ((aggr-var (generate-sparql-var instans (format nil "!AGG~D" (incf aggr-var-counter)))))
-			(push (cons (apply #'create-sparql-aggregate-call group-var aggr-var-counter expr) aggr-var) aggregate-aggr-var-list)
+			(push (cons (apply #'create-sparql-aggregate-call expr) aggr-var) aggregate-aggr-var-list)
 			aggr-var))
 		     (t
 		      (mapcar #'aggregatify expr))))
@@ -112,7 +112,7 @@
 	       (loop for item in project
 		  when (not (consp item))
 		  do (let ((var (generate-sparql-var instans (format nil "!AGG~D" (incf aggr-var-counter))))
-			   (aggregate (create-sparql-aggregate-call group-var aggr-var-counter 'SAMPLE item)))
+			   (aggregate (create-sparql-aggregate-call 'SAMPLE item)))
 		       (push (cons aggregate var) aggregate-aggr-var-list)
 		       (push (cons var item) expr-var-list)))
 	       (setf ggp (list 'AGGREGATE-JOIN ggp (reverse aggregate-aggr-var-list) (list 'GROUP group-expr group-var)))))

@@ -120,32 +120,30 @@
 (define-class group ()
   ((aggregate-join :accessor group-aggregate-join :initarg :aggregate-join)
    (key :accessor group-key :initarg :key)
-   (aggregates :accessor group-aggregates)
+   (aggregates :accessor group-aggregates :initform nil)
    (token :accessor group-token)))
 
-;; (define-class aggregate ()
-;;   ((history :accessor aggregate-history :initform nil)
-;;    (ops :accessor aggregate-ops
-  
+(define-class aggregate ())
 
-;; (define-class aggregate-count (aggregate))
+(define-class aggregate-with-history ()
+  ((history :accessor aggregate-history :initform nil)))
 
-;; (define-class aggregate-sum (aggregate))
+(define-class aggregate-count (aggregate)
+  ((count :accessor aggregate-count :initform 0)))
 
-;; (define-class aggregate-min (aggregate))
+(define-class aggregate-sum (aggregate)
+  ((sum :accessor aggregate-sum :initform 0)))
 
-;; (define-class aggregate-max (aggregate))
+(define-class aggregate-avg (aggregate-count aggregate-sum) ())
 
-;; (define-class aggregate-avg (aggregate))
+(define-class aggregate-min (aggregate-with-history) ())
 
-;; (define-class numeric-aggregate (aggregate)
-;;   ((count :accessor numeric-aggregate-count :initform 0)
-;;    (sum :accessor numeric-aggregate-sum :initform 0)
-;;    (min :accessor numeric-aggregate-min :initform nil)
-;;    (max :accessor numeric-aggregate-max :initform nil)
-;;    (avg :accessor numeric-aggregate-avg :initform nil)))
+(define-class aggregate-max (aggregate-with-history) ())
 
-;; (define-class group-concat-aggregate (aggregate))
+(define-class aggregate-sample (aggregate-with-history) ())
+
+(define-class aggregate-group-concat (aggregate-with-history)
+  ((separator :accessor aggregate-group-concat-separator :initarg :separator)))
 
 (define-class solution-modifiers-mixin (node)
   ((order-by :accessor solution-modifiers-order-by :initarg :order-by :initform nil)
