@@ -183,7 +183,7 @@
 			    (push-to-end-new end (node-succ arg2-end))
 			    (setf (subgraph-end-node start) end)))
 		   (AGGREGATE-JOIN (make-or-share-instance 'aggregate-join-node :prev (translate (first args) prev dataset)
-							   :aggr-var-list (second args)
+							   :aggr-exprs (second args)
 							   :group (third args)))
 		   (TO-LIST (translate (first args) prev dataset))
 		   (TO-MULTI-SET (translate (first args) prev dataset))
