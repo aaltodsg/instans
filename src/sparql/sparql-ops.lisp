@@ -804,6 +804,3 @@
   (:method ((g group) (index xsd-integer-value)  (arg xsd-value) &optional separator)
     (declare (ignorable g index arg separator))
     nil))
-
-
-

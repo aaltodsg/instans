@@ -113,17 +113,19 @@
    (aggr-var-list :accessor aggregate-join-aggr-var-list :initarg :aggr-var-list)
    (aggr-exprs :accessor aggregate-join-aggr-exprs)
    (aggr-vars :accessor aggregate-join-aggr-vars)
-   (aggr-lambda :accessor aggregate-join-aggr-lambda)
-   (aggr-func :accessor aggregate-join-aggr-func)
+   (aggr-add-lambda :accessor aggregate-join-aggr-add-lambda)
+   (aggr-add-func :accessor aggregate-join-aggr-add-func)
+   (aggr-remove-lambda :accessor aggregate-join-aggr-remove-lambda)
+   (aggr-remove-func :accessor aggregate-join-aggr-remove-func)
    (groups :accessor aggregate-join-groups)))
 
 (define-class group ()
   ((aggregate-join :accessor group-aggregate-join :initarg :aggregate-join)
    (key :accessor group-key :initarg :key)
    (aggregates :accessor group-aggregates :initform nil)
-   (token :accessor group-token)))
+   (token :accessor group-token :initarg :token)))
 
-(define-class aggregate ())
+(define-class aggregate () ())
 
 (define-class aggregate-with-history ()
   ((history :accessor aggregate-history :initform nil)))

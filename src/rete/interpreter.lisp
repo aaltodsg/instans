@@ -422,24 +422,12 @@
 	  (t
 	   (when (= 1 counter) (call-succ-nodes #'add-token this (start-node-token this token) stack)))))))
   (:method ((this aggregate-join-node) token &optional stack)
-    (let* ((key-args (loop for var in (aggregate-join-key-vars this) collect (token-value this token var)))
-	   (key (apply (aggregate-join-key-func this) key-args)))
-      (multiple-value-bind (part newp) (aggregate-join-get-group this key)
+      (multiple-value-bind (group newp) (aggregate-join-get-group this token)
 	(unless newp
-	  (call-succ-nodes #'remove-token this (group-token part) stack))
+	  (call-succ-nodes #'remove-token this (group-token group) stack))
 	(let* ((aggr-args (loop for var in (aggregate-join-aggr-vars this) collect (token-value this token var))))
-	  (apply (aggregate-join-aggr-func this) (node-instans this) part aggr-args))
-	(call-succ-nodes #'add-token this (group-add-token part this token) stack))))
-  ;; (:method ((this aggregate-join-node) token &optional stack)
-  ;;   (let* ((args (loop for var in (node-use this) collect (token-value this token var))))
-  ;;     (cond ((null part)
-  ;; 	     (funcall (aggregate-join-group 
-  ;; 					;(setf part (aggregate-join-insert-group partition key))
-  ;; 	     (error* "Not ready yet"))
-  ;; 	    (t
-  ;; 	     (call-succ-nodes #'remove-token this (group-token part) stack)))
-  ;;     (let ((part-token (group-add-token part this token)))
-  ;; 	(call-succ-nodes #'add-token this part-token stack))))
+	  (apply (aggregate-join-aggr-add-func this) (node-instans this) group aggr-args))
+	(call-succ-nodes #'add-token this (group-token group) stack)))
   (:method ((this optional-start-node) token &optional stack)
     (unless (store-get-token this token)
       (let* ((active-p-var (existence-active-p-var this))
@@ -573,23 +561,12 @@
 	  (t
 	   (call-succ-nodes #'remove-token this (start-node-token this token) stack))))))
   (:method ((this aggregate-join-node) token &optional stack)
-    (let* ((key-args (loop for var in (node-use this) collect (token-value this token var)))
-	   (key (apply (aggregate-join-key-func this) key-args)))
-      (multiple-value-bind (part newp) (aggregate-join-get-group this key)
-	(unless newp (error* "Trying to access missing partition part"))
-	(call-succ-nodes #'remove-token this (group-token part) stack)
-	(let ((part-token (group-remove-token part this token)))
-	  (when part-token
-	    (call-succ-nodes #'add-token this part-token stack))))))
-  ;; (:method ((this aggregate-join-node) token &optional stack)
-  ;;   (let* ((key-args (loop for var in (node-use this) collect (token-value this token var)))
-  ;; 	   (key (apply (aggregate-join-key-func this) key-args))
-  ;; 	   (partition (aggregate-join-groups this))
-  ;; 	   (part (aggregate-join-get-group partition key)))
-  ;;     (call-succ-nodes #'remove-token this (group-token part) stack)
-  ;;     (let ((part-token (group-remove-token part this token)))
-  ;; 	(when part-token
-  ;; 	  (call-succ-nodes #'add-token this part-token stack)))))
+    (multiple-value-bind (group newp) (aggregate-join-get-group this token)
+      (when newp (error* "Trying to access missing group"))
+      (call-succ-nodes #'remove-token this (group-token group) stack)
+      (let* ((aggr-args (loop for var in (aggregate-join-aggr-vars this) collect (token-value this token var))))
+	(apply (aggregate-join-aggr-remove-func this) (node-instans this) group aggr-args))
+      (call-succ-nodes #'add-token this (group-token group) stack)))
   (:method ((this optional-start-node) token &optional stack)
     (let ((stored-token (store-get-token this token)))
       (store-remove-token this stored-token)
@@ -770,62 +747,19 @@
 
 ;;; Group partition
 
-(defgeneric aggregate-join-get-group (aggregate-join key)
-  (:method ((this aggregate-join-node) key)
-    (let ((part (gethash key (aggregate-join-groups this))))
-      (cond ((null part)
-	     (values (setf (gethash key (aggregate-join-groups this)) (make-instance 'group :key key :aggregate-join this)) t))
+(defgeneric aggregate-join-get-group (aggregate-join token)
+  (:method ((this aggregate-join-node) token)
+    (let* ((key-args (loop for var in (aggregate-join-key-vars this) collect (token-value this token var)))
+	   (key (apply (aggregate-join-key-func this) key-args))
+	   (group (gethash key (aggregate-join-groups this))))
+      (cond ((null group)
+	     (values (setf (gethash key (aggregate-join-groups this))
+			   (make-instance 'group :key key :aggregate-join this :token (make-token this token (list (aggregate-join-group-var this)) (list group))))
+		     t))
 	    (t
-	      (values part nil))))))
-
-;; (defgeneric group-add-token (group aggr-join token)
-;;   (:method ((this group) (aggr-join aggregate-join-node) token)
-;;     (loop with prev-values = (group-aggr-values this)
-;; 	  for prev-value = (pop prev-values)
-;; 	  for (output-var input-var op scalars) in (aggregate-join-var-aggr-list aggr-join)
-;; 	  collect output-var into output-vars
-;; 	  collect (case op
-;; 		    (sum (+ (or prev-value 0) (token-value aggr-join token input-var)))
-;; 		    (min (if (null prev-value) (token-value aggr-join token input-var)
-;; 			     (min prev-value (token-value aggr-join token input-var))))
-;; 		    (max (if (null prev-value) (token-value aggr-join token input-var)
-;; 			     (max prev-value (token-value aggr-join token input-var))))
-;; 		    (sample (token-value aggr-join token input-var))
-;; 		    (t (error* "Not implemented yet!")))
-;; 	  into new-values
-;; 	  finally (return (progn
-;; 			    (incf (group-input-token-count this))
-;; 			    (setf (group-aggr-values this) new-values)
-;; 			    (setf (group-token this) (make-token aggr-join nil output-vars new-values))))))) ; returns updated group-token
-
-;; (defgeneric group-remove-token (group aggr-join token)
-;;   (:method ((this group) (aggr-join aggregate-join-node) token)
-;;     (cond ((zerop (decf (group-input-token-count this)))
-;; 	   (setf (group-aggr-values this) nil)
-;; 	   (setf (group-token this) nil)) ; returns nil
-;; 	  (t
-;; 	   (loop with prev-values = (group-aggr-values this)
-;; 		 for prev-value = (pop prev-values)
-;; 		 for (output-var input-var op scalars) in (aggregate-join-var-aggr-list aggr-join)
-;; 		 collect output-var into output-vars
-;; 		 collect (case op
-;; 			   (sum (- prev-value (token-value aggr-join token input-var)))
-;; 			   (min (if (null prev-value) (token-value aggr-join token input-var)
-;; 				    (min prev-value (token-value aggr-join token input-var))))
-;; 			   (max (if (null prev-value) (token-value aggr-join token input-var)
-;; 				    (max prev-value (token-value aggr-join token input-var))))
-;; 			   (sample (token-value aggr-join token input-var))
-;; 			   (t (error* "Not implemented yet!")))
-;; 		 into new-values
-;; 		 finally (return (progn 
-;; 				   (setf (group-aggr-values this) new-values)
-;; 				   (setf (group-token this) (make-token aggr-join nil output-vars new-values))))))))) ; returns updated group-token
+	     (values group nil))))))
 
 ;;;
-
-;; (defgeneric aggregate-add-value (aggregate value)
-;;   (:method ((this aggregate) value)
-;;     (
 
 (defun trace-rete ()
   (trace rete-add rete-remove add-token remove-token add-alpha-token add-beta-token match-quad

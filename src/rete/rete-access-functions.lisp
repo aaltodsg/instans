@@ -343,7 +343,8 @@
 	  (t
 	   (first (aggregate-history this)))))
   (:method ((this aggregate-group-concat))
-    (loop with separator = (coerce (aggregate-group-concat-separator this) 'string)
+    (loop with separator = (coerce (aggregate-group-concat-separator this) 'list)
+       for firstp = t then nil
        for elem in (aggregate-history this)
        when firstp nconc (coerce (sparql-call "xsd:string" elem) 'list) into chars
        else nconc (append separator (coerce (sparql-call "xsd:string" elem) 'list)) into chars
@@ -388,5 +389,22 @@
 			     finally (cons smallest (rest rest))))))
 		  (t
 		   (remove value history :test #'(lambda (a b) (sparql-call "=" a b))))))))
+  (:method ((this aggregate-max) value)
+    (let ((history (aggregate-history this)))
+      (setf (aggregate-history this)
+	    (cond ((null history)
+		   (error* "Trying to remove ~A from an empty group" value))
+		  ((sparql-call "=" value (first history))
+		   (cond ((null (rest history)) nil)
+			 (t
+			  (loop with smallest = (first (rest history))
+			     for rest on (rest history)
+			     while (rest rest)
+			     when (sparql-call ">" (first (rest rest)) smallest)
+			     do (psetf smallest (first (rest rest)) (first (rest rest)) smallest)
+			     finally (cons smallest (rest rest))))))
+		  (t
+		   (remove value history :test #'(lambda (a b) (sparql-call "=" a b))))))))
   (:method ((this aggregate-with-history) value)
-    (remove value history :test #'(lambda (a b) (sparql-call "=" a b)))))
+    (setf (aggregate-history this)
+	  (remove value (aggregate-history this) :test #'(lambda (a b) (sparql-call "=" a b))))))

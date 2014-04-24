@@ -36,3 +36,46 @@
 		   (t
 		    (error* "Illegal op ~S" op))))))))
 
+;; (defgeneric group-add-token (group aggr-join token)
+;;   (:method ((this group) (aggr-join aggregate-join-node) token)
+;;     (loop with prev-values = (group-aggr-values this)
+;; 	  for prev-value = (pop prev-values)
+;; 	  for (output-var input-var op scalars) in (aggregate-join-var-aggr-list aggr-join)
+;; 	  collect output-var into output-vars
+;; 	  collect (case op
+;; 		    (sum (+ (or prev-value 0) (token-value aggr-join token input-var)))
+;; 		    (min (if (null prev-value) (token-value aggr-join token input-var)
+;; 			     (min prev-value (token-value aggr-join token input-var))))
+;; 		    (max (if (null prev-value) (token-value aggr-join token input-var)
+;; 			     (max prev-value (token-value aggr-join token input-var))))
+;; 		    (sample (token-value aggr-join token input-var))
+;; 		    (t (error* "Not implemented yet!")))
+;; 	  into new-values
+;; 	  finally (return (progn
+;; 			    (incf (group-input-token-count this))
+;; 			    (setf (group-aggr-values this) new-values)
+;; 			    (setf (group-token this) (make-token aggr-join nil output-vars new-values))))))) ; returns updated group-token
+
+;; (defgeneric group-remove-token (group aggr-join token)
+;;   (:method ((this group) (aggr-join aggregate-join-node) token)
+;;     (cond ((zerop (decf (group-input-token-count this)))
+;; 	   (setf (group-aggr-values this) nil)
+;; 	   (setf (group-token this) nil)) ; returns nil
+;; 	  (t
+;; 	   (loop with prev-values = (group-aggr-values this)
+;; 		 for prev-value = (pop prev-values)
+;; 		 for (output-var input-var op scalars) in (aggregate-join-var-aggr-list aggr-join)
+;; 		 collect output-var into output-vars
+;; 		 collect (case op
+;; 			   (sum (- prev-value (token-value aggr-join token input-var)))
+;; 			   (min (if (null prev-value) (token-value aggr-join token input-var)
+;; 				    (min prev-value (token-value aggr-join token input-var))))
+;; 			   (max (if (null prev-value) (token-value aggr-join token input-var)
+;; 				    (max prev-value (token-value aggr-join token input-var))))
+;; 			   (sample (token-value aggr-join token input-var))
+;; 			   (t (error* "Not implemented yet!")))
+;; 		 into new-values
+;; 		 finally (return (progn 
+;; 				   (setf (group-aggr-values this) new-values)
+;; 				   (setf (group-token this) (make-token aggr-join nil output-vars new-values))))))))) ; returns updated group-token
+
