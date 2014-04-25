@@ -86,29 +86,33 @@
 	 (expr-var-list nil))
     (labels ((contains-aggregates-p (form) (and (consp form) (or (aggregate-function-name-p (first form)) (some #'contains-aggregates-p (rest form)))))
 	     (samplify (expr)
-	       (inform "samplify ~S" expr)
+;	       (inform "samplify ~S" expr)
 	       (cond ((sparql-var-p expr) (list 'SAMPLE expr))
 		     ((or (not (consp expr)) (aggregate-function-name-p (first expr))) expr)
 		     (t
 		      (mapcar #'samplify expr))))
 	     (aggregatify (expr)
-	       (inform "aggregatify ~S" expr)
+;	       (inform "aggregatify ~S" expr)
 	       (cond ((not (consp expr)) expr)
 		     ;;; Note: Nested aggregates not allowed!
 		     ((aggregate-function-name-p (first expr))
 		      ;; (let ((aggr-var (generate-sparql-var instans (format nil "!AGG~D" (incf aggr-var-counter)))))
 		      ;; 	(push (cons (apply #'create-sparql-aggregate-call expr) aggr-var) aggregate-aggr-var-list)
 		      ;; 	aggr-var)
-		      (push (apply #'create-sparql-aggregate-call group-var (incf aggr-var-counter) expr) aggregate-call-forms)
-		      )
+		      (let ((form (append (list 'AGGREGATE (first expr) group-var (incf aggr-var-counter)) (rest expr))))
+			(push form aggregate-call-forms)
+			form))
 		     (t
 		      (mapcar #'aggregatify expr))))
 	     (translate-aggregates ()
 	       (setf group-var (generate-sparql-var instans "!GROUP"))
 	       (loop for item in project
-		  do (inform "translate-aggregates:loop1 item = ~A" item)
 		  when (as-form-p item)
-		  do (setf (third item) (aggregatify (samplify (third item)))))
+		  do (progn
+;		       (inform "translate-aggregates:loop1 item = ~A" item)
+		       (setf (third item) (aggregatify (samplify (third item))))
+;		       (inform "item now = ~A" item)
+		       ))
 	       (when (getf clauses :having)
 		 (setf (getf clauses :having) (aggregatify (samplify (getf clauses :having)))))
 	       (when (getf clauses :order-by)
@@ -149,7 +153,7 @@
       (cond ((not (null (getf clauses :group-by)))
 	     (loop for condition in (getf clauses :group-by)
 		collect (cond ((as-form-p condition)
-			       (inform "EXTEND expr ~A AS var ~A" (third condition) (second condition))
+;			       (inform "EXTEND expr ~A AS var ~A" (third condition) (second condition))
 			       (setf ggp (list 'EXTEND ggp (second condition) (third condition)))
 			       (second condition))
 			      (t
@@ -172,15 +176,19 @@
 ;      (inform "h7")
       (loop with vars = nil
 	 for item in project
+;	 do (inform "t: item = ~A" item)
 	 when (as-form-p item)
 	 do (progn
 	      (pushnew (second item) vars)
 	      (push (cons (third item) (second item)) expr-var-list))
 	 else do (pushnew item vars))
       (loop for (expr . var) in expr-var-list
-	 do (inform "extend expr ~A AS var ~A" expr var)
+;	 do (inform "extend expr ~A AS var ~A" expr var)
+	 when (eq (first expr) 'AGGREGATE)
+	 do (setf ggp (list 'EXTEND ggp var (list (find-sparql-op "aggregate") (third expr) (fourth expr))))
+	 else
 	 do (setf ggp (list 'EXTEND ggp var expr)))
-      (inform "")
+;      (inform "")
       (let ((form (getf clauses :query-form)))
 	(remf clauses :query-form)
 	(setf (getf clauses :where) ggp)

@@ -49,7 +49,12 @@
 (defmethod initialize-instance :after ((this aggregate-join-node) &key group aggr-exprs &allow-other-keys)
   (setf (aggregate-join-group-var this) (third group))
   (setf (aggregate-join-key-vars this) (collect-expression-variables (setf (aggregate-join-key-exprs this) (second group))))
-  (setf (aggregate-join-aggr-vars this) (collect-expression-variables aggr-exprs)))
+  (setf (aggregate-join-aggr-vars this) (collect-expression-variables (mapcar #'fifth aggr-exprs)))
+;  (describe this)
+  )
+
+;(defmethod initialize-instance :after ((this group) &key  &allow-other-keys)
+;  (describe this))
 
 ;;; Var and blank creationg
 

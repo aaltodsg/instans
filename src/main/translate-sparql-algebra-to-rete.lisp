@@ -94,6 +94,7 @@
 			     ;; 	    (let ((var-aggr-list (aggregate-join-var-aggr-list prev)))
 			     ;; 	      (setf (first (nth (- (second form) 1) var-aggr-list)) var)))
 			     ;; 	   (t
+;			     (inform "translate-satr: bind-form ~A = ~A" expr form)
 			     (setf prev (make-or-share-instance 'bind-node :prev prev :variable var
 								:form form :form-parameters (collect-expression-variables form)))
 				    ;; ))

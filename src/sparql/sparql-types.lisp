@@ -34,6 +34,7 @@
 (deftype xsd-number-value () '(or xsd-integer-value xsd-decimal-value xsd-float-value xsd-double-value))
 (deftype xsd-value () '(or xsd-boolean-value xsd-integer-value xsd-decimal-value xsd-float-value xsd-double-value xsd-string-value xsd-datetime-value))
 (deftype term-or-value () '(or xsd-value rdf-term))
+(deftype term-or-value-or-group () '(or term-or-value group))
 (deftype term-or-value-or-error () '(or term-or-value sparql-error))
 (deftype literal () '(or rdf-literal xsd-value))
 (deftype iri-or-literal () '(or literal rdf-iri))

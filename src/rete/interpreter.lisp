@@ -426,6 +426,7 @@
 	(unless newp
 	  (call-succ-nodes #'remove-token this (group-token group) stack))
 	(let* ((aggr-args (loop for var in (aggregate-join-aggr-vars this) collect (token-value this token var))))
+;	  (inform "calling aggregate-join-aggr-add-func in ~A. Group = ~A,  aggr-vars = ~A, aggr-args = ~A" this group  (aggregate-join-aggr-vars this) aggr-args)
 	  (apply (aggregate-join-aggr-add-func this) (node-instans this) group aggr-args))
 	(call-succ-nodes #'add-token this (group-token group) stack)))
   (:method ((this optional-start-node) token &optional stack)
@@ -753,9 +754,10 @@
 	   (key (apply (aggregate-join-key-func this) key-args))
 	   (group (gethash key (aggregate-join-groups this))))
       (cond ((null group)
-	     (values (setf (gethash key (aggregate-join-groups this))
-			   (make-instance 'group :key key :aggregate-join this :token (make-token this token (list (aggregate-join-group-var this)) (list group))))
-		     t))
+	     (setf group (make-instance 'group :key key :aggregate-join this))
+	     (setf (group-token group) (make-token this token (list (aggregate-join-group-var this)) (list group)))
+	     (setf (gethash key (aggregate-join-groups this)) group)
+	     (values group t))
 	    (t
 	     (values group nil))))))
 
@@ -765,4 +767,5 @@
   (trace rete-add rete-remove add-token remove-token add-alpha-token add-beta-token match-quad
 	 token-value make-token call-succ-nodes rete-add-rule-instance execute-rules rule-instance-queue-execute-instance
 	 store-put-token store-get-token store-remove-token store-tokens
-	 index-put-token index-get-tokens index-remove-token))
+	 index-put-token index-get-tokens index-remove-token
+	 aggregate-get-value aggregate-add-value aggregate-remove-value))

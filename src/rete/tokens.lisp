@@ -28,7 +28,9 @@
     (let* ((key (or (second (car prev-token)) (sxhash nil))) ; We retrieve the key of prev-token and use it as a basis for the key of new-token
 	   (new-token (cdr prev-token))) ; We eliminate the key of prev-token
       (loop for var in new-vars for value in new-values
-	    unless (typep value 'term-or-value) do (error* "Trying to bind an illegal value ~S to variable ~A" value var)
+	    unless (or (typep value 'term-or-value)
+		       (and (typep value 'group) (typep node 'aggregate-join-node)))
+	 do (error* "Trying to bind an illegal value ~S to variable ~A" value var)
 	    do (push (list var value) new-token)
 	    do (setf key (mix (mix (get-hashkey var) (get-hashkey value)) key)))
       (cons (list nil key) new-token))))
