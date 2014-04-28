@@ -80,13 +80,15 @@
 							  (setf true-condition-found-p t))
 							 (t
 							  (error* "~A: Two methods yield an empty argument type test (T)!" name))))
-						 (return (if (null tests)
-							     `(t ((lambda (,@inner-lambda-list) ,@body) ,@outer-arg-names))
+						 (let ((op-lambda-call `(,@(if (member '&rest inner-args-spec) '(apply))
+									   (lambda (,@inner-lambda-list) ,@body) ,@outer-arg-names)))
+						   (return (if (null tests)
+							       `(t ,op-lambda-call)
 							     `(((lambda (,@inner-lambda-list)
 								  ,@(if inner-ignorable `((declare (ignorable ,@inner-ignorable))))
 								  (and ,@tests))
 								,@outer-arg-names)
-							       ((lambda (,@inner-lambda-list) ,@body) ,@outer-arg-names)))))))
+							       ,op-lambda-call)))))))
 		 ,@(cond ((not (null default-body-present-p))
 			  (list `(t ,@default-body)))
 			 ((not true-condition-found-p)
@@ -189,8 +191,3 @@
 
 (defmacro sparql-distinct ()
   `*sparql-distinct*)
-
-
-
-
-

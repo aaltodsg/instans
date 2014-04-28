@@ -1,14 +1,4 @@
 
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
 
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/algebra/join-combo-1.rq>,
@@ -108,17 +98,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-r2/algebra/var-scope-join-1.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-27>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-27>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/ask/ask-1.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -147,17 +127,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-r2/ask/ask-8.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-7>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-7>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/basic/bgp-no-match.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -347,28 +317,8 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-r2/basic/var-2.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-53>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
-#<RDF-IRI file:///Users/enu/instans/tests/data-r2/bnode-coreference/manifest.ttl>:WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-53>
+#<RDF-IRI file:///Users/enu/instans/tests/data-r2/bnode-coreference/manifest.ttl>:
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/boolean-effective-value/query-boolean-literal.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -418,17 +368,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-r2/boolean-effective-value/query-bev-6.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-13>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-13>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/bound/bound1.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -436,17 +376,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?ERROR_MSG = ""
 queryfile,testtype,parsed_ok,error_msg
 file:///Users/enu/instans/tests/data-r2/bound/bound1.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-1>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-1>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/cast/cast-str.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -496,28 +426,8 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-r2/cast/cast-bool.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-13>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
-#<RDF-IRI file:///Users/enu/instans/tests/data-r2/construct/manifest.ttl>:WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-13>
+#<RDF-IRI file:///Users/enu/instans/tests/data-r2/construct/manifest.ttl>:
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/dataset/dataset-01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -623,17 +533,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-r2/dataset/dataset-12b.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-29>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-29>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/distinct/distinct-star-1.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -711,17 +611,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-r2/distinct/distinct-1.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-21>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-21>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/expr-builtin/q-isliteral-1.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -890,17 +780,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-r2/expr-builtin/sameTerm-not-eq.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-47>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-47>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/expr-equals/query-eq-1.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -985,17 +865,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-r2/expr-equals/query-eq-graph-5.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-23>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-23>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/expr-ops/query-unplus-1.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -1045,17 +915,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-r2/expr-ops/query-le-1.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-13>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-13>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/graph/graph-01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -1140,17 +1000,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-r2/graph/graph-11.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-23>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-23>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/i18n/kanji-01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -1186,17 +1036,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-r2/i18n/normalization-03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-9>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-9>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/open-world/open-eq-01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -1323,17 +1163,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-r2/open-world/open-cmp-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-35>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-35>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/optional-filter/expr-1.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -1376,17 +1206,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-r2/optional-filter/expr-5.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-11>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-11>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/optional/q-opt-complex-1.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -1436,17 +1256,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-r2/optional/q-opt-3.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-13>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-13>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/reduced/reduced-1.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -1461,17 +1271,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-r2/reduced/reduced-2.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-3>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-3>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/regex/regex-query-001.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -1500,17 +1300,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-r2/regex/regex-query-004.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-7>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-7>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/solution-seq/slice-01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -1602,17 +1392,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-r2/solution-seq/slice-24.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-25>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-25>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/sort/query-sort-1.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -1704,17 +1484,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-r2/sort/query-sort-function.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-25>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-25>Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql1/syntax-basic-01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
        ?PARSED_OK = T,
@@ -2201,16 +1971,6 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-r2/syntax-sparql1/syntax-pat-04.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest,T,
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-general-01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
@@ -2449,27 +2209,27 @@ file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-form-describe02.rq
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-dataset-01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-dataset-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest,T,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Variable \"?X\" not in SELECT"
+file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-dataset-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest,NIL,Variable "?X" not in SELECT
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-dataset-02.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-dataset-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest,T,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Variable \"?X\" not in SELECT"
+file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-dataset-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest,NIL,Variable "?X" not in SELECT
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-dataset-03.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-dataset-03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest,T,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Variable \"?X\" not in SELECT"
+file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-dataset-03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest,NIL,Variable "?X" not in SELECT
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-dataset-04.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-dataset-04.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest,T,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Variable \"?X\" not in SELECT"
+file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-dataset-04.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest,NIL,Variable "?X" not in SELECT
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-graph-01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
@@ -2530,16 +2290,6 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-esc-05.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest,T,
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql3/syn-01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
@@ -2863,16 +2613,6 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = NIL,
        ?ERROR_MSG = "10:32:Blank node \"!BLANK__:who\" used in separate basic graph patterns"
 file:///Users/enu/instans/tests/data-r2/syntax-sparql3/syn-blabel-cross-union-bad.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest,NIL,10:32:Blank node "!BLANK__:who" used in separate basic graph patterns
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql4/syn-09.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
@@ -2946,16 +2686,6 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = NIL,
        ?ERROR_MSG = "7:43:Blank node \"!BLANK__:a\" used in separate basic graph patterns"
 file:///Users/enu/instans/tests/data-r2/syntax-sparql4/syn-bad-GRAPH-breaks-BGP.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest,NIL,7:43:Blank node "!BLANK__:a" used in separate basic graph patterns
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql5/syntax-reduced-01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
@@ -2969,16 +2699,6 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-r2/syntax-sparql5/syntax-reduced-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest,T,
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
 
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/triple-match/dawg-tp-01.rq>,
@@ -3008,17 +2728,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-r2/triple-match/dawg-tp-04.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-7>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-7>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/type-promotion/tP-double-double.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -3229,17 +2939,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-r2/type-promotion/tP-float-decimal-fail.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-59>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-59>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-9>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-12>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-17>
@@ -3247,224 +2947,64 @@ Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-22>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-28>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-33>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-37>
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-41>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-41>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
 queryfile,testtype,parsed_ok,error_msg
-file:///Users/enu/instans/tests/data-sparql11/aggregates/agg01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Aggregation not implemented yet!
+file:///Users/enu/instans/tests/data-sparql11/aggregates/agg01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-28>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg02.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/aggregates/agg02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Aggregation not implemented yet!
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/aggregates/agg02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-29>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg03.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/aggregates/agg03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Aggregation not implemented yet!
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/aggregates/agg03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-30>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg04.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/aggregates/agg04.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Aggregation not implemented yet!
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/aggregates/agg04.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-31>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg05.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/aggregates/agg05.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Aggregation not implemented yet!
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/aggregates/agg05.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-32>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg06.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/aggregates/agg06.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Aggregation not implemented yet!
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/aggregates/agg06.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-33>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg07.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/aggregates/agg07.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Aggregation not implemented yet!
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg08.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/aggregates/agg08.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,Aggregation not implemented yet!
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/aggregates/agg07.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-34>
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg08b.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/aggregates/agg08b.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Aggregation not implemented yet!
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg09.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/aggregates/agg09.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,Aggregation not implemented yet!
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg10.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/aggregates/agg10.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,Aggregation not implemented yet!
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg11.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/aggregates/agg11.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,Aggregation not implemented yet!
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg12.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/aggregates/agg12.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,Aggregation not implemented yet!
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-35>
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-groupconcat-1.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "4:3:Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-groupconcat-1.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,4:3:Aggregation not implemented yet!
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-36>
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-groupconcat-2.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "4:15:Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-groupconcat-2.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,4:15:Aggregation not implemented yet!
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-37>
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-groupconcat-3.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "4:3:Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-groupconcat-3.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,4:3:Aggregation not implemented yet!
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-38>
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-avg-01.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-avg-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Aggregation not implemented yet!
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-39>
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-avg-02.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-avg-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Aggregation not implemented yet!
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-40>
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-min-01.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-min-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Aggregation not implemented yet!
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-41>
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-min-02.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-min-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Aggregation not implemented yet!
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-42>
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-max-01.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-max-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Aggregation not implemented yet!
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-43>
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-max-02.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-max-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Aggregation not implemented yet!
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-44>
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-sum-01.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-sum-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Aggregation not implemented yet!
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-45>
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-sum-02.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-sum-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Aggregation not implemented yet!
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-46>
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-sample-01.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "7:2:Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-sample-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,7:2:Aggregation not implemented yet!
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-47>
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-err-01.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-err-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Aggregation not implemented yet!
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-48>
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-err-02.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-err-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Aggregation not implemented yet!
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-49>
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-empty-group.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-empty-group.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Aggregation not implemented yet!
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-empty-group.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-empty-group.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Aggregation not implemented yet!
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-50>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
+
+debugger invoked on a SIMPLE-ERROR in thread
+#<THREAD "main thread" RUNNING {100547D7D3}>:
+  There is no applicable method for the generic function
+    #<STANDARD-GENERIC-FUNCTION INSTANS::SPARQL-OP-LISP-NAME (1)>
+  when called with arguments
+    (INSTANS::AGGREGATE).
 
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-13>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-15>
@@ -3479,19 +3019,7 @@ Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-46>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-51>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-54>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-57>
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-60>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-10>
-WARNING: bind-lambda = (LAMBDA (INSTANS::?2) (INSTANS::%+% INSTANS::?2 10))
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-60>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/bind/bind01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -3499,100 +3027,70 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?ERROR_MSG = ""
 queryfile,testtype,parsed_ok,error_msg
 file:///Users/enu/instans/tests/data-sparql11/bind/bind01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-11>
-WARNING: bind-lambda = (LAMBDA (INSTANS::?2) (INSTANS::%+% INSTANS::?2 10))
-WARNING: bind-lambda = (LAMBDA (INSTANS::?2) (INSTANS::%+% INSTANS::?2 100))
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-10>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/bind/bind02.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/bind/bind02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-12>
-WARNING: bind-lambda = (LAMBDA (INSTANS::?2) (INSTANS::%+% INSTANS::?2 1))
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-11>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/bind/bind03.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/bind/bind03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-13>
-WARNING: bind-lambda = (LAMBDA (INSTANS::?4) INSTANS::?4)
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-12>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/bind/bind04.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/bind/bind04.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-14>
-WARNING: bind-lambda = (LAMBDA (INSTANS::?3) (INSTANS::%+% INSTANS::?3 1))
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-13>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/bind/bind05.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/bind/bind05.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-15>
-WARNING: bind-lambda = (LAMBDA (INSTANS::?2) (INSTANS::%+% INSTANS::?2 10))
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-14>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/bind/bind06.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/bind/bind06.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-16>
-WARNING: bind-lambda = (LAMBDA (INSTANS::?2) (INSTANS::%+% INSTANS::?2 1))
-WARNING: bind-lambda = (LAMBDA (INSTANS::?2) (INSTANS::%+% INSTANS::?2 2))
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-15>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/bind/bind07.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/bind/bind07.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-17>
-WARNING: bind-lambda = (LAMBDA (INSTANS::?3) (INSTANS::%+% INSTANS::?3 1))
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-16>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/bind/bind08.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/bind/bind08.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-18>
-WARNING: bind-lambda = (LAMBDA () 4)
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-17>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/bind/bind10.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/bind/bind10.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-19>
-WARNING: bind-lambda = (LAMBDA () 4)
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-18>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/bind/bind11.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/bind/bind11.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-19>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/bindings/values01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -3663,31 +3161,11 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/bindings/inline02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-19>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-19>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-6>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-12>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-18>
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-24>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-24>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/construct/constructwhere01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -3728,33 +3206,13 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = NIL,
        ?ERROR_MSG = "1:14:No legal action for nonterminal CONSTRUCTQUERY-16-22 and input symbol (GRAPH-TERMINAL \"GRAPH\"))"
 file:///Users/enu/instans/tests/data-sparql11/construct/constructwhere06.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,1:14:No legal action for nonterminal CONSTRUCTQUERY-16-22 and input symbol (GRAPH-TERMINAL "GRAPH"))
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-9>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-9>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-7>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-10>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-15>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-20>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-25>
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-29>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-29>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/csv-tsv-res/csvtsv01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#CSVResultFormatTest>,
@@ -3797,33 +3255,13 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/csv-tsv-res/csvtsv01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-11>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-11>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-6>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-9>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-12>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-15>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-20>
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-26>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-26>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-16>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-18>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-20>
@@ -3880,33 +3318,13 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = NIL,
        ?ERROR_MSG = "3:10:Blank node (!BLANK__:a) not allowed here"
 file:///Users/enu/instans/tests/data-sparql11/delete-insert/delete-insert-09.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,3:10:Blank node (!BLANK__:a) not allowed here
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-30>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-30>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-6>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-9>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-12>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-15>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-20>
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-26>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-26>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-19>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-22>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-25>
@@ -3925,31 +3343,11 @@ Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-85>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-90>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-95>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-102>
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-110>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-110>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-6>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-12>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-17>
-#<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/drop/manifest.ttl>:WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+#<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/drop/manifest.ttl>:
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/entailment/rdf01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -4140,80 +3538,62 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/entailment/paper-sparqldl-Q5.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-215>
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-226>
-WARNING: bind-lambda = (LAMBDA (INSTANS::?2) (INSTANS::%+% INSTANS::?2 10))
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/entailment/bind01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/entailment/bind01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-237>
-WARNING: bind-lambda = (LAMBDA (INSTANS::?2) (INSTANS::%+% INSTANS::?2 10))
-WARNING: bind-lambda = (LAMBDA (INSTANS::?2) (INSTANS::%+% INSTANS::?2 100))
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-226>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/entailment/bind02.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/entailment/bind02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-248>
-WARNING: bind-lambda = (LAMBDA (INSTANS::?2) (INSTANS::%+% INSTANS::?2 1))
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-237>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/entailment/bind03.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/entailment/bind03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-259>
-WARNING: bind-lambda = (LAMBDA (INSTANS::?4) INSTANS::?4)
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-248>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/entailment/bind04.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/entailment/bind04.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-270>
-WARNING: bind-lambda = (LAMBDA (INSTANS::?3) (INSTANS::%+% INSTANS::?3 1))
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-259>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/entailment/bind05.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/entailment/bind05.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-281>
-WARNING: bind-lambda = (LAMBDA (INSTANS::?2) (INSTANS::%+% INSTANS::?2 10))
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-270>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/entailment/bind06.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/entailment/bind06.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-292>
-WARNING: bind-lambda = (LAMBDA (INSTANS::?2) (INSTANS::%+% INSTANS::?2 1))
-WARNING: bind-lambda = (LAMBDA (INSTANS::?2) (INSTANS::%+% INSTANS::?2 2))
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-281>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/entailment/bind07.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/entailment/bind07.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-303>
-WARNING: bind-lambda = (LAMBDA (INSTANS::?3) (INSTANS::%+% INSTANS::?3 1))
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-292>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/entailment/bind08.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/entailment/bind08.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-303>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/entailment/sparqldl-01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -4430,17 +3810,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/entailment/simple8.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-447>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-447>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/exists/exists01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -4476,17 +3846,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/exists/exists05.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-9>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-9>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/functions/strdt01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -4812,24 +4172,20 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/functions/notin02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-105>
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-106>
-WARNING: bind-lambda = (LAMBDA () (INSTANS::%-NOW%))
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/functions/now01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/functions/now01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-107>
-WARNING: bind-lambda = (LAMBDA () (INSTANS::%-RAND%))
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-106>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/functions/rand01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/functions/rand01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-107>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/functions/bnode02.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -4941,74 +4297,144 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = NIL,
        ?ERROR_MSG = "4:19:STRUUID does not name a Sparql function or form"
 file:///Users/enu/instans/tests/data-sparql11/functions/struuid01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,4:19:STRUUID does not name a Sparql function or form
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-123>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-123>
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-6>; in: LAMBDA (#:INSTANS848 #:GROUP847)
+;     (LET ((#:AGGRS849 (OR (INSTANS::GROUP-AGGREGATES #:GROUP847) (SETF #))))
+;       )
+; 
+; caught STYLE-WARNING:
+;   The variable #:AGGRS849 is defined but never used.
+; 
+; compilation unit finished
+;   caught 1 STYLE-WARNING condition
+; in: LAMBDA (#:INSTANS848 #:GROUP847)
+;     (LET ((#:AGGRS849 (INSTANS::GROUP-AGGREGATES #:GROUP847)))
+;       )
+; 
+; caught STYLE-WARNING:
+;   The variable #:AGGRS849 is defined but never used.
+; 
+; compilation unit finished
+;   caught 1 STYLE-WARNING condition
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/grouping/group01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
 queryfile,testtype,parsed_ok,error_msg
-file:///Users/enu/instans/tests/data-sparql11/grouping/group01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Aggregation not implemented yet!
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-6>
+file:///Users/enu/instans/tests/data-sparql11/grouping/group01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
+
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-7>; in: LAMBDA (#:INSTANS853 #:GROUP852)
+;     (LET ((#:AGGRS854 (OR (INSTANS::GROUP-AGGREGATES #:GROUP852) (SETF #))))
+;       )
+; 
+; caught STYLE-WARNING:
+;   The variable #:AGGRS854 is defined but never used.
+; 
+; compilation unit finished
+;   caught 1 STYLE-WARNING condition
+; in: LAMBDA (#:INSTANS853 #:GROUP852)
+;     (LET ((#:AGGRS854 (INSTANS::GROUP-AGGREGATES #:GROUP852)))
+;       )
+; 
+; caught STYLE-WARNING:
+;   The variable #:AGGRS854 is defined but never used.
+; 
+; compilation unit finished
+;   caught 1 STYLE-WARNING condition
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/grouping/group02.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/grouping/group02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Aggregation not implemented yet!
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-7>
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/grouping/group02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
+
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/grouping/group03.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/grouping/group03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Aggregation not implemented yet!
+       ?ERROR_MSG = "Variable #<SPARQL-VAR ?S> already bound"
+file:///Users/enu/instans/tests/data-sparql11/grouping/group03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Variable #<SPARQL-VAR ?S> already bound
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-8>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/grouping/group04.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/grouping/group04.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Aggregation not implemented yet!
+       ?ERROR_MSG = "Variable #<SPARQL-VAR ?S> already bound"
+file:///Users/enu/instans/tests/data-sparql11/grouping/group04.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Variable #<SPARQL-VAR ?S> already bound
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-9>
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-10>; in: LAMBDA (#:INSTANS860 #:GROUP859)
+;     (LET ((#:AGGRS861 (OR (INSTANS::GROUP-AGGREGATES #:GROUP859) (SETF #))))
+;       )
+; 
+; caught STYLE-WARNING:
+;   The variable #:AGGRS861 is defined but never used.
+; 
+; compilation unit finished
+;   caught 1 STYLE-WARNING condition
+; in: LAMBDA (#:INSTANS860 #:GROUP859)
+;     (LET ((#:AGGRS861 (INSTANS::GROUP-AGGREGATES #:GROUP859)))
+;       )
+; 
+; caught STYLE-WARNING:
+;   The variable #:AGGRS861 is defined but never used.
+; 
+; compilation unit finished
+;   caught 1 STYLE-WARNING condition
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/grouping/group05.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/grouping/group05.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Aggregation not implemented yet!
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/grouping/group05.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
+; in: LAMBDA (#:INSTANS865 #:GROUP864)
+;     (LET ((#:AGGRS866 (OR (INSTANS::GROUP-AGGREGATES #:GROUP864) (SETF #))))
+;       )
+; 
+; caught STYLE-WARNING:
+;   The variable #:AGGRS866 is defined but never used.
+; 
+; compilation unit finished
+;   caught 1 STYLE-WARNING condition
+; in: LAMBDA (#:INSTANS865 #:GROUP864)
+;     (LET ((#:AGGRS866 (INSTANS::GROUP-AGGREGATES #:GROUP864)))
+;       )
+; 
+; caught STYLE-WARNING:
+;   The variable #:AGGRS866 is defined but never used.
+; 
+; compilation unit finished
+;   caught 1 STYLE-WARNING condition
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/grouping/group06.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/grouping/group06.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,Aggregation not implemented yet!
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/grouping/group06.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,T,
+; in: LAMBDA (#:INSTANS870 #:GROUP869)
+;     (LET ((#:AGGRS871 (OR (INSTANS::GROUP-AGGREGATES #:GROUP869) (SETF #))))
+;       )
+; 
+; caught STYLE-WARNING:
+;   The variable #:AGGRS871 is defined but never used.
+; 
+; compilation unit finished
+;   caught 1 STYLE-WARNING condition
+; in: LAMBDA (#:INSTANS870 #:GROUP869)
+;     (LET ((#:AGGRS871 (INSTANS::GROUP-AGGREGATES #:GROUP869)))
+;       )
+; 
+; caught STYLE-WARNING:
+;   The variable #:AGGRS871 is defined but never used.
+; 
+; compilation unit finished
+;   caught 1 STYLE-WARNING condition
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/grouping/group07.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/grouping/group07.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,Aggregation not implemented yet!
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-10>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/grouping/group07.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,T,
 
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/json-res/jsonres01.rq>,
@@ -5038,33 +4464,13 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/json-res/jsonres04.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-7>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-7>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-7>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-10>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-15>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-19>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-23>
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-26>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-26>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/negation/subsetByExcl01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -5095,71 +4501,11 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/negation/temporalProximity02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,
 Cannot read SPARQL from #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/negation/temporalProximity02.rq>
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/negation/subset-01.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/negation/subset-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-15>
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/negation/subset-02.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/negation/subset-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-16>
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/negation/set-equals-1.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/negation/set-equals-1.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-17>
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/negation/subset-03.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/negation/subset-03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-18>
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/negation/exists-01.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/negation/exists-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-19>
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/negation/exists-02.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/negation/exists-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-20>
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/negation/full-minuend.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/negation/full-minuend.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-21>
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/negation/part-minuend.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/negation/part-minuend.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-22>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
+
+debugger invoked on a TYPE-ERROR in thread
+#<THREAD "main thread" RUNNING {100547D7C3}>:
+  The value #<SPARQL-VAR ?S2> is not of type LIST.
 
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/project-expression/projexp01.rq>,
@@ -5210,17 +4556,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/project-expression/projexp07.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-13>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-13>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/property-path/pp01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -5510,13 +4846,13 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
                                  (INSTANS::ALT
                                   #<RDF-IRI http://www.example.org/p1>
                                   #<RDF-IRI http://www.example.org/p2>)
-                                 #<SPARQL-VAR ?0>)"
+                                 #<SPARQL-VAR ?1>)"
 file:///Users/enu/instans/tests/data-sparql11/property-path/path-p2.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Paths not fully implemented yet (INSTANS::PATH
                                  #<RDF-IRI http://www.example.org/a>
                                  (INSTANS::ALT
                                   #<RDF-IRI http://www.example.org/p1>
                                   #<RDF-IRI http://www.example.org/p2>)
-                                 #<SPARQL-VAR ?0>)
+                                 #<SPARQL-VAR ?1>)
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-51>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/property-path/path-p3.rq>,
@@ -5574,27 +4910,27 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/property-path/path-ng-01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Paths not fully implemented yet (INSTANS::PATH #<SPARQL-VAR ?0>
+       ?ERROR_MSG = "Paths not fully implemented yet (INSTANS::PATH #<SPARQL-VAR ?1>
                                  (INSTANS::ZERO-OR-MORE-PATH
                                   #<RDF-IRI http://www.example.org/p1>)
-                                 #<SPARQL-VAR ?1>)"
-file:///Users/enu/instans/tests/data-sparql11/property-path/path-ng-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Paths not fully implemented yet (INSTANS::PATH #<SPARQL-VAR ?0>
+                                 #<SPARQL-VAR ?0>)"
+file:///Users/enu/instans/tests/data-sparql11/property-path/path-ng-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Paths not fully implemented yet (INSTANS::PATH #<SPARQL-VAR ?1>
                                  (INSTANS::ZERO-OR-MORE-PATH
                                   #<RDF-IRI http://www.example.org/p1>)
-                                 #<SPARQL-VAR ?1>)
+                                 #<SPARQL-VAR ?0>)
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-54>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/property-path/path-ng-02.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
        ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Paths not fully implemented yet (INSTANS::PATH #<SPARQL-VAR ?1>
+       ?ERROR_MSG = "Paths not fully implemented yet (INSTANS::PATH #<SPARQL-VAR ?2>
                                  (INSTANS::ZERO-OR-MORE-PATH
                                   #<RDF-IRI http://www.example.org/p1>)
-                                 #<SPARQL-VAR ?2>)"
-file:///Users/enu/instans/tests/data-sparql11/property-path/path-ng-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Paths not fully implemented yet (INSTANS::PATH #<SPARQL-VAR ?1>
+                                 #<SPARQL-VAR ?0>)"
+file:///Users/enu/instans/tests/data-sparql11/property-path/path-ng-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,Paths not fully implemented yet (INSTANS::PATH #<SPARQL-VAR ?2>
                                  (INSTANS::ZERO-OR-MORE-PATH
                                   #<RDF-IRI http://www.example.org/p1>)
-                                 #<SPARQL-VAR ?2>)
+                                 #<SPARQL-VAR ?0>)
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-55>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/property-path/pp36.rq>,
@@ -5623,37 +4959,7 @@ file:///Users/enu/instans/tests/data-sparql11/property-path/pp37.rq,http://www.w
                                   (INSTANS::ZERO-OR-MORE-PATH
                                    #<RDF-IRI http://example.org/P>))
                                  #<SPARQL-VAR ?0>)
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-57>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-57>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/service/service01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -5703,17 +5009,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = NIL,
        ?ERROR_MSG = "9:1:SERVICE not implemented yet"
 file:///Users/enu/instans/tests/data-sparql11/service/service07.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,9:1:SERVICE not implemented yet
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-22>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-22>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/subquery/sq01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -5767,9 +5063,9 @@ Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-20>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/subquery/sq08.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "4:46:Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/subquery/sq08.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,4:46:Aggregation not implemented yet!
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/subquery/sq08.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-21>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/subquery/sq09.rq>,
@@ -5812,17 +5108,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/subquery/sq14.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-27>WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-27>Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-fed/syntax-service-01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
        ?PARSED_OK = NIL,
@@ -5841,16 +5127,6 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = NIL,
        ?ERROR_MSG = "0:0:SERVICE not implemented yet"
 file:///Users/enu/instans/tests/data-sparql11/syntax-fed/syntax-service-03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,NIL,0:0:SERVICE not implemented yet
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?3)
-                   (INSTANS::%-IRI%
-                    (INSTANS::%-STRBEFORE% (INSTANS::%-STR% INSTANS::?3) ".")))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5 INSTANS::?3)
-                   (INSTANS::%INSTANS-ADD_RULES% INSTANS::?5 INSTANS::?3))
-WARNING:
-   bind-lambda = (LAMBDA (INSTANS::?5)
-                   (INSTANS::%INSTANS-ERROR_MESSAGE% INSTANS::?5))
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-select-expr-01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
@@ -5861,9 +5137,9 @@ file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-select-expr-01
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-select-expr-02.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-select-expr-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Variable \"?X\" not in SELECT"
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-select-expr-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,NIL,Variable "?X" not in SELECT
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-select-expr-03.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
@@ -5873,380 +5149,365 @@ file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-select-expr-03
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-select-expr-04.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-select-expr-04.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Variable \"?Z\" not in SELECT"
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-select-expr-04.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,NIL,Variable "?Z" not in SELECT
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-select-expr-05.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-select-expr-05.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,NIL,Aggregation not implemented yet!
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-select-expr-05.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,NIL,Aggregation not implemented yet!
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-02.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-03.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,NIL,Aggregation not implemented yet!
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-04.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-04.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-05.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-05.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,NIL,Aggregation not implemented yet!
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-06.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-06.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,NIL,Aggregation not implemented yet!
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-07.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-07.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,NIL,Aggregation not implemented yet!
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-08.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-08.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,NIL,Aggregation not implemented yet!
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-09.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-09.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,NIL,Aggregation not implemented yet!
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-10.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-10.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,NIL,Aggregation not implemented yet!
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-11.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-11.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,NIL,Aggregation not implemented yet!
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-12.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-12.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,NIL,Aggregation not implemented yet!
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-13.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-13.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,NIL,Aggregation not implemented yet!
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-14.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-14.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,NIL,Aggregation not implemented yet!
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-15.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-15.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,NIL,Aggregation not implemented yet!
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-subquery-01.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-subquery-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-subquery-02.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-subquery-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-subquery-03.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-subquery-03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-not-exists-01.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-not-exists-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-not-exists-02.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-not-exists-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-not-exists-03.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-not-exists-03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-exists-01.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-exists-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-exists-02.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-exists-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-exists-03.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-exists-03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-minus-01.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-minus-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-oneof-01.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-oneof-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
-; in: LAMBDA (INSTANS::?0)
-;     (LET ((#:X881 INSTANS::?0))
-;       (AND))
-; 
-; caught STYLE-WARNING:
-;   The variable #:X881 is defined but never used.
-; 
-; compilation unit finished
-;   caught 1 STYLE-WARNING condition
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-oneof-02.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-oneof-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-oneof-03.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-oneof-03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
-WARNING: bind-lambda = (LAMBDA (INSTANS::?2) (INSTANS::%+% INSTANS::?2 1))
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-bindings-01.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-bindings-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-bindings-02a.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-bindings-02a.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-bindings-03a.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-bindings-03a.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-bindings-05a.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-bindings-05a.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
-WARNING: bind-lambda = (LAMBDA (INSTANS::?2) (INSTANS::%+% INSTANS::?2 1))
-WARNING: bind-lambda = (LAMBDA (INSTANS::?3) (INSTANS::%/% INSTANS::?3 2))
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-bind-02.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-bind-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-construct-where-01.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-construct-where-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-construct-where-02.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-construct-where-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-01.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,Aggregation not implemented yet!
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-02.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Aggregation not implemented yet!"
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,Aggregation not implemented yet!
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-03.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Variable #<SPARQL-VAR ?X> already bound"
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,Variable #<SPARQL-VAR ?X> already bound
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-04.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "0:0:Expecting AS-TERMINAL instead of )-TERMINAL ((INPUT-TOKEN 465 ) 14))"
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-04.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,0:0:Expecting AS-TERMINAL instead of )-TERMINAL ((INPUT-TOKEN 465 ) 14))
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-05.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "0:0:No legal action for nonterminal SELECTCLAUSE-11 and input symbol (COUNT-TERMINAL \"COUNT\"))"
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-05.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,0:0:No legal action for nonterminal SELECTCLAUSE-11 and input symbol (COUNT-TERMINAL "COUNT"))
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-06.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "0:0:Expecting )-TERMINAL instead of ,-TERMINAL ((INPUT-TOKEN 416 , 14))"
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-06.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,0:0:Expecting )-TERMINAL instead of ,-TERMINAL ((INPUT-TOKEN 416 , 14))
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-07.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "0:0:No legal action for nonterminal GROUPORUNIONGRAPHPATTERN-92 and input symbol (SELECT-TERMINAL \"SELECT\"))"
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-07.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,0:0:No legal action for nonterminal GROUPORUNIONGRAPHPATTERN-92 and input symbol (SELECT-TERMINAL "SELECT"))
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-08.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "0:0:No legal action for nonterminal OBJECTLISTPATH-120-121 and input symbol (UNION-TERMINAL \"UNION\"))"
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-08.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,0:0:No legal action for nonterminal OBJECTLISTPATH-120-121 and input symbol (UNION-TERMINAL "UNION"))
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-bindings-09.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "0:0:Lexer error Unrecognized keyword \"BINDINGS\""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-bindings-09.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,0:0:Lexer error Unrecognized keyword "BINDINGS"
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/qname-escape-01.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "2:7:Lexer error Unexpected escape char ':'"
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/qname-escape-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,NIL,2:7:Lexer error Unexpected escape char ':'
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/qname-escape-02.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/qname-escape-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/qname-escape-03.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/qname-escape-03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
-WARNING: bind-lambda = (LAMBDA (INSTANS::?0) (INSTANS::%+% 1 INSTANS::?0))
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope1.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope1.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
-WARNING: bind-lambda = (LAMBDA (INSTANS::?0) (INSTANS::%+% 1 INSTANS::?0))
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope2.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope2.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
-WARNING: bind-lambda = (LAMBDA (INSTANS::?0) (INSTANS::%+% 1 INSTANS::?0))
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope3.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope3.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
-WARNING: bind-lambda = (LAMBDA () 1)
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope4.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope4.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
-WARNING: bind-lambda = (LAMBDA () 1)
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope5.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = T,
-       ?ERROR_MSG = ""
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope5.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope6.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "6:2:Variable #<SPARQL-VAR ?O1> already defined in scope"
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope6.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,6:2:Variable #<SPARQL-VAR ?O1> already defined in scope
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope7.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "8:2:Variable #<SPARQL-VAR ?O1> already defined in scope"
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope7.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,8:2:Variable #<SPARQL-VAR ?O1> already defined in scope
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope8.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "9:2:Variable #<SPARQL-VAR ?Y> already defined in scope"
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope8.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,9:2:Variable #<SPARQL-VAR ?Y> already defined in scope
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
-       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-propertyPaths-01.rq>,
-       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Paths not fully implemented yet (INSTANS::PATH #<SPARQL-VAR ?0>
-                                 (INSTANS::ALT
-                                  #<RDF-IRI http://www.example.org/p>
-                                  #<RDF-IRI http://www.example.org/q>
-                                  #<RDF-IRI http://www.example.org/r>)
-                                 #<SPARQL-VAR ?1>)"
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-propertyPaths-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,NIL,Paths not fully implemented yet (INSTANS::PATH #<SPARQL-VAR ?0>
-                                 (INSTANS::ALT
-                                  #<RDF-IRI http://www.example.org/p>
-                                  #<RDF-IRI http://www.example.org/q>
-                                  #<RDF-IRI http://www.example.org/r>)
-                                 #<SPARQL-VAR ?1>)
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
 
 debugger invoked on a SIMPLE-ERROR in thread
-#<THREAD "main thread" RUNNING {100546D7E3}>:
-  When attempting to read the slot's value (slot-value), the slot
-  INSTANS::PROJECT is missing from the object #<SELECT-NODE 3>.
+#<THREAD "main thread" RUNNING {100547D7E3}>:
+  There is no applicable method for the generic function
+    #<STANDARD-GENERIC-FUNCTION INSTANS::SPARQL-OP-LISP-NAME (1)>
+  when called with arguments
+    (INSTANS::CREATE-CALL).
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-01.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "LOAD not implemented yet"
+queryfile,testtype,parsed_ok,error_msg
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-01.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,LOAD not implemented yet
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-02.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "LOAD not implemented yet"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-02.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,LOAD not implemented yet
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-03.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "0:0:LOAD not implemented yet"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-03.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,0:0:LOAD not implemented yet
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-04.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "LOAD not implemented yet"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-04.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,LOAD not implemented yet
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-05.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Cannot translate NIL within NIL"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-05.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,Cannot translate NIL within NIL
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-06.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Cannot translate NIL within NIL"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-06.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,Cannot translate NIL within NIL
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-07.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Cannot translate NIL within NIL"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-07.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,Cannot translate NIL within NIL
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-08.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Cannot translate NIL within NIL"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-08.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,Cannot translate NIL within NIL
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-09.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Cannot translate NIL within NIL"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-09.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,Cannot translate NIL within NIL
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-10.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Cannot translate NIL within NIL"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-10.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,Cannot translate NIL within NIL
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-11.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Cannot translate NIL within NIL"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-11.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,Cannot translate NIL within NIL
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-12.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Cannot translate NIL within NIL"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-12.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,Cannot translate NIL within NIL
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-13.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Cannot translate NIL within NIL"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-13.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,Cannot translate NIL within NIL
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-14.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Cannot translate NIL within NIL"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-14.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,Cannot translate NIL within NIL
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-15.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "CLEAR not implemented yet"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-15.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,CLEAR not implemented yet
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-16.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "CLEAR not implemented yet"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-16.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,CLEAR not implemented yet
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-17.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "CLEAR not implemented yet"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-17.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,CLEAR not implemented yet
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-18.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "CLEAR not implemented yet"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-18.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,CLEAR not implemented yet
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-19.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "CLEAR not implemented yet"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-19.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,CLEAR not implemented yet
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-20.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "CLEAR not implemented yet"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-20.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,CLEAR not implemented yet
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-21.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "CLEAR not implemented yet"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-21.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,CLEAR not implemented yet
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-22.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "CLEAR not implemented yet"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-22.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,CLEAR not implemented yet
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-23.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Cannot translate NIL within NIL"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-23.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,Cannot translate NIL within NIL
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-24.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Cannot translate NIL within NIL"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-24.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,Cannot translate NIL within NIL
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-25.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Cannot translate NIL within NIL"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-25.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,Cannot translate NIL within NIL
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-26.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Cannot translate NIL within NIL"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-26.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,Cannot translate NIL within NIL
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-27.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Cannot translate NIL within NIL"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-27.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,Cannot translate NIL within NIL
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-28.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Cannot translate NIL within NIL"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-28.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,Cannot translate NIL within NIL
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-29.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Cannot translate NIL within NIL"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-29.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,Cannot translate NIL within NIL
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-30.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Cannot translate NIL within NIL"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-30.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,Cannot translate NIL within NIL
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-31.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Cannot translate NIL within NIL"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-31.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,Cannot translate NIL within NIL
+
+graph = NIL
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-32.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-32.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,T,
+graph = NIL
+graph = NIL
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-33.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-33.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,T,
+graph = NIL
+graph = NIL
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-34.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-34.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-35.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Cannot translate NIL within NIL"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-35.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,Cannot translate NIL within NIL
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-36.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Cannot translate NIL within NIL"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-36.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,Cannot translate NIL within NIL
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-37.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "1:30:LOAD not implemented yet"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-37.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,1:30:LOAD not implemented yet
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-38.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-38.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-39.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-39.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-40.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-40.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-bad-01.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "1:6:No legal action for nonterminal _OPTSILENT and input symbol (;-TERMINAL \";\"))"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-bad-01.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeUpdateSyntaxTest11,NIL,1:6:No legal action for nonterminal _OPTSILENT and input symbol (;-TERMINAL ";"))
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-bad-02.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "1:7:Lexer error Unrecognized keyword \"DEAFULT\""
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-bad-02.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeUpdateSyntaxTest11,NIL,1:7:Lexer error Unrecognized keyword "DEAFULT"
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-bad-03.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Cannot translate NIL within NIL"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-bad-03.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeUpdateSyntaxTest11,NIL,Cannot translate NIL within NIL
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-bad-04.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Cannot translate NIL within NIL"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-bad-04.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeUpdateSyntaxTest11,NIL,Cannot translate NIL within NIL
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-bad-05.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "4:10:Expecting }-TERMINAL instead of GRAPH-TERMINAL ((INPUT-TOKEN 427 GRAPH 72))"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-bad-05.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeUpdateSyntaxTest11,NIL,4:10:Expecting }-TERMINAL instead of GRAPH-TERMINAL ((INPUT-TOKEN 427 GRAPH 72))
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-bad-06.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "1:13:No legal action for nonterminal QUADPATTERN and input symbol (WHERE-TERMINAL \"WHERE\"))"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-bad-06.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeUpdateSyntaxTest11,NIL,1:13:No legal action for nonterminal QUADPATTERN and input symbol (WHERE-TERMINAL "WHERE"))
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-bad-07.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "2:5:No legal action for nonterminal RULES-1-2-4 and input symbol (LOAD-TERMINAL \"LOAD\"))"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-bad-07.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeUpdateSyntaxTest11,NIL,2:5:No legal action for nonterminal RULES-1-2-4 and input symbol (LOAD-TERMINAL "LOAD"))
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-bad-08.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "2:2:No legal action for nonterminal RULES and input symbol (;-TERMINAL \";\"))"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-bad-08.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeUpdateSyntaxTest11,NIL,2:2:No legal action for nonterminal RULES and input symbol (;-TERMINAL ";"))
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-bad-09.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "3:1:LOAD not implemented yet"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-bad-09.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeUpdateSyntaxTest11,NIL,3:1:LOAD not implemented yet
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-bad-10.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "1:22:Blank node (!BLANK__:a) not allowed here"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-bad-10.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeUpdateSyntaxTest11,NIL,1:22:Blank node (!BLANK__:a) not allowed here
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-bad-11.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "1:21:Blank node not allowed here"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-bad-11.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeUpdateSyntaxTest11,NIL,1:21:Blank node not allowed here
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-bad-12.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Cannot translate NIL within NIL"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-bad-12.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeUpdateSyntaxTest11,NIL,Cannot translate NIL within NIL
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-53.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Cannot translate NIL within NIL"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-53.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,Cannot translate NIL within NIL
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-54.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Cannot translate NIL within NIL"
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-54.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeUpdateSyntaxTest11,NIL,Cannot translate NIL within NIL
+graph = NILRule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-2/large-request-01.ru>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Cannot translate NIL within NIL"
+queryfile,testtype,parsed_ok,error_msg
+file:///Users/enu/instans/tests/data-sparql11/syntax-update-2/large-request-01.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,Cannot translate NIL within NIL
+
+#<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/update-silent/manifest.ttl>:

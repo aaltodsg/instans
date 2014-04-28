@@ -531,18 +531,21 @@
 ;; string literal  CONCAT(string literal ltrl1 ... string literal ltrln)
 (define-sparql-function "concat" (:arguments (&rest literals) :returns literal)
   (:method (&rest literals)
+;    (inform "concat: ~S" literals)
     (loop with lang = :unset
 	  for lit in literals
+;	  do (inform "lit = ~S" lit)
 	  unless (typep lit 'literal-or-string)
 	  do (signal-sparql-error "CONCAT: Illegal parameter ~A" lit)
 	  when (typep lit 'rdf-literal) do (cond ((eq lang :unset) (setf lang (rdf-literal-lang lit)))
 						 ((not (and lang (string= lang (rdf-literal-lang lit)))) (setf lang nil)))
 	  else do (setf lang nil)
 	  collect (if (typep lit 'rdf-literal) (rdf-literal-string lit) lit) into strings
-	  finally (cond ((stringp lang)
-			 (create-rdf-literal-with-lang (concatenate 'string strings) lang))
-			(t
-			 (concatenate 'string strings))))))
+	  finally (return
+		    (cond ((stringp lang)
+			   (create-rdf-literal-with-lang (apply #'concatenate 'string strings) lang))
+			  (t
+			   (apply #'concatenate 'string strings)))))))
 
 ;; 17.4.3.13 langMatches !!! Missing !!!
 ;; ---------------------

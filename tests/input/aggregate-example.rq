@@ -1,0 +1,9 @@
+PREFIX : <http://www.example.org>
+
+SELECT ?person (max(?price) AS ?maxa)  (avg(?price) AS ?avga) (sum(?weight*?weight) AS ?sumw)
+WHERE {
+      ?person :owns ?item .
+      ?item :price ?price .
+      ?item :weight ?weight
+}       
+GROUP BY ?person

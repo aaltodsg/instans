@@ -1,0 +1,18 @@
+PREFIX : <http://example.org/>
+
+INSERT {
+       GRAPH <http://other.example.org> {
+       	     ?s ?p ?o       	     
+       }
+} WHERE {
+  ?s ?p ?o       	     
+}
+
+;
+       
+SELECT ?s ?p ?o ?g
+WHERE {
+      GRAPH ?g {
+        ?s ?p ?o       	     
+      }
+}

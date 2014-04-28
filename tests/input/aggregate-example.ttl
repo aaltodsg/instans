@@ -1,0 +1,18 @@
+PREFIX : <http://www.example.org>
+
+# # aggregate1: { history: (), ops: [ max, avg ] }
+# # aggregate2: { ops: [sum]}
+
+:p1 :owns :jewel1 .
+:jewel1 :price 1000 .
+:jewel1 :weight 10 .
+
+# # aggregate1: { history: (1000), ops: [ max: 1000, avg: 1000 ] }
+# # aggregate2: { ops: [sum: 10]}
+
+:p1 :owns :car1 .
+:car1 :price 20000 .
+:car1 :weight 1500000 .
+
+# # aggregate1: { history: (1000, 20000), ops: [ max: 20000, avg: 10500] }
+# # aggregate2: { ops: [sum: 1500010]}

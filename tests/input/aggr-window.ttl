@@ -1,0 +1,16 @@
+PREFIX : <http://www.example.org/>
+
+:e1 :time 0 .
+:e2 :time 3 .
+:e3 :time 12 .
+:e4 :time 21 .
+:e5 :time 21 .
+:e6 :time 22 .
+:e7 :time 30 .
+# :e1 a :event ; :time 0; :value 10 .
+# :e2 a :event ; :time 3; :value 18 .
+# :e3 a :event ; :time 12; :value 5 .
+# :e4 a :event ; :time 21; :value 200 .
+# :e5 a :event ; :time 21; :value 501 .
+# :e6 a :event ; :time 22; :value 201 .
+

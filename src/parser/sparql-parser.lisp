@@ -209,31 +209,6 @@
     (DELETE-WHERE (sparql-parse-error "DELETE not implemented yet"))
     (SERVICE (sparql-parse-error "SERVICE not implemented yet"))))
 
-;;; Old running version for aggregates
-
-(defun handle-aggregates (ggp clauses)
-  (labels ((level-has-aggregates-p (clauses)
-	     (let ((project (getf clauses :project))
-		   (having (getf clauses :having))
-		   (order-by (getf clauses :order-by)))
-	       (or (and (consp project)
-			(some #'(lambda (ve) (and (as-form-p ve) (contains-aggregates-p (third ve)))) project))
-		   (some #'contains-aggregates-p having)
-		   (some #'(lambda (oc) (contains-aggregates-p (second oc))) order-by))))
-	   (contains-aggregates-p (form)
-	     (cond ((not (consp form)) nil)
-		   ((member (first form) '(COUNT SUM MIN MAX AVG GROUP_CONCAT SAMPLE)) t)
-		   (t (some #'contains-aggregates-p (rest form))))))
-    (let* ((has-aggregates-p (level-has-aggregates-p clauses))
-	   (group-by (getf clauses :group-by))
-					;	 (dataset (getf clauses :dataset))
-					;	 (having (getf clauses :having))
-	   (group (cond ((not (null group-by)) (list 'GROUP group-by ggp))
-			(has-aggregates-p (list 'GROUP '(1) ggp)))))
-      (when group
-	(sparql-parse-error "Aggregation not implemented yet!"))
-      ggp)))
-
 (defun sparql-parse-error (fmt &rest args)
   (apply #'ll-parser-failure fmt args))
 
@@ -241,59 +216,6 @@
 ; (build-query-expression-old instans clauses)
   (build-query-expression-new instans clauses)
   )
-
-(defun build-query-expression-old (instans clauses)
-  (declare (ignorable instans))
-					;  (inform "build-query-expression clauses = ~S" clauses)
-  (let ((form (getf clauses :query-form))
-	(ggp (getf clauses :where)))
-    (remf clauses :query-form)
-    (remf clauses :where)
-					;    (inform "                       form = ~S, ggp = ~S" form ggp)
-    (flet ((get-project-vars ()
-	     (let ((scope-vars (getf (rest ggp) (if (eq (car ggp) 'SELECT) :project-vars :scope-vars))))
-					;	       (inform "                       scope-vars = ~S" scope-vars)
-	       (loop for item in (getf clauses :group-by)
-		  when (as-form-p item)
-		  do (let ((var (second item)))
-		       (cond ((find-sparql-var var scope-vars)
-			      (sparql-parse-error "Variable ~S already bound" var))
-			     (t
-			      (push-to-end var scope-vars)))))
-	       (cond ((eq (getf clauses :project) '*) scope-vars)
-		     (t
-		      (loop with project-vars = nil
-			 for item in (getf clauses :project)
-					;			    do (inform "get-project-vars: item = ~S" item)
-			 when (sparql-var-p item)
-			 do (push-to-end item project-vars)
-			 ;; do (cond ((not (find-sparql-var item scope-vars))
-			 ;; 	      (sparql-parse-error "Variable ~S not in SELECT" (uniquely-named-object-name item)))
-			 ;; 	     (t
-			 ;; 	      (push-to-end item project-vars)))
-			 else
-			 do (let ((var (second item)))
-					;				 (inform "AS expression ~S, var = ~S, scope-vars ~S" item var scope-vars)
-			      (cond ((find-sparql-var var scope-vars)
-				     (sparql-parse-error "Variable ~S already bound" var))
-				    (t
-				     (push-to-end var scope-vars)
-				     (push-to-end var project-vars))))
-			 finally (return project-vars)))))))
-      (case form
-	((SELECT ASK DESCRIBE CONSTRUCT DELETE-INSERT)
-	 (setf ggp (handle-aggregates ggp clauses))
-	 (append (list form :where ggp :project-vars (get-project-vars)) clauses))
-	(LOAD (sparql-parse-error "LOAD not implemented yet"))
-	(CLEAR (sparql-parse-error "CLEAR not implemented yet"))
-	(ADD (sparql-parse-error "ADD not implemented yet"))
-	(MOVE (sparql-parse-error "MOVE not implemented yet"))
-	(COPY (sparql-parse-error "COPY not implemented yet"))
-	(INSERT-DATA (sparql-parse-error "INSERT not implemented yet"))
-	(DELETE-DATA (sparql-parse-error "DELETE not implemented yet"))
-	(DELETE-WHERE (sparql-parse-error "DELETE not implemented yet"))
-	(SERVICE (sparql-parse-error "SERVICE not implemented yet"))
-	))))
 
 (defun make-sparql-parser (instans input-stream &key base subscribe)
   (when (null base) (setf base (parse-iri "http://")))
@@ -370,11 +292,11 @@
 			       (translate-path (list (third triple) (second path) (first triple))))
 			      ((eq (car path) 'SEQ)
 			       (let* ((preds (cdr path))
-				      (objs (nconc (loop repeat (1- (length preds)) collect (generate-var "!PATH")) (list (third triple)))))
+				      (objs (append (loop repeat (1- (length preds)) collect (generate-var "!PATH")) (list (third triple)))))
 				 (loop for pred in preds
 				    for subj = (first triple) then obj
 				    for obj in objs
-				    nconc (translate-path (list subj pred obj)))))
+				    append (translate-path (list subj pred obj)))))
 			      (t
 			       (list (cons 'PATH triple)))))
 		       ))
@@ -382,7 +304,7 @@
 		 v))
 	     (translate-paths (triple-list)
 	       (loop for triple in triple-list
-		  nconc (translate-path triple)))
+		  append (translate-path triple)))
 	     (zero-pattern-p (x) (equal x '(ZERO-PATTERN)))
 	     (simplify-joins (e)
 	       (case (first e)
@@ -404,13 +326,19 @@
 		  (cons (first e) (mapcar #'simplify-joins (rest e))))
 		 (t e)))
 	     (translate-group-graph-pattern (ggp)
+;	       (inform "enter translate-group-graph-pattern ~A" ggp)
 	       (let ((g '(ZERO-PATTERN))
 		     (vars nil))
 		 (flet ((ggp-scope-vars (ggp) (getf (rest ggp) :scope-vars))
-			(add-vars (vlist) (setf vars (nconc vars vlist)))
+			(add-vars (vlist)
+;			  (inform "add-vars ~A, vars before = ~A" vlist vars)
+			  (setf vars (append vars vlist))
+;			  (inform "add-vars ~A, vars after = ~A" vlist vars)
+			  )
 			(join (x) (setf g (list 'JOIN g x))))
 		   (loop with fs = nil
 		      for e in ggp
+;			do (inform "loop ~A" e)
 		      do (case (first e)
 			   (GGP
 			    (add-vars (ggp-scope-vars e))

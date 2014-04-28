@@ -764,7 +764,8 @@
 ;;;
 
 (defun trace-rete ()
-  (trace rete-add rete-remove add-token remove-token add-alpha-token add-beta-token match-quad
+  (trace rete-add rete-remove add-token remove-token add-alpha-token add-beta-token remove-alpha-token remove-beta-token match-quad
+	 join-beta-key join-alpha-key
 	 token-value make-token call-succ-nodes rete-add-rule-instance execute-rules rule-instance-queue-execute-instance
 	 store-put-token store-get-token store-remove-token store-tokens
 	 index-put-token index-get-tokens index-remove-token
