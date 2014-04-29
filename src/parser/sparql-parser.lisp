@@ -79,6 +79,7 @@
 	 (scope-vars (getf (rest ggp) (if (eq (car ggp) 'SELECT) :project-vars :scope-vars)))
 	 (project (if (eq (getf clauses :project) '*) scope-vars (getf clauses :project)))
 	 (project-vars nil)
+	 (aggregate-op (find-sparql-op "aggregate"))
 	 (aggregate-call-forms nil)
 	 (aggr-var-counter -1)
 	 (group-expr nil)
@@ -99,7 +100,7 @@
 		      ;; (let ((aggr-var (generate-sparql-var instans (format nil "!AGG~D" (incf aggr-var-counter)))))
 		      ;; 	(push (cons (apply #'create-sparql-aggregate-call expr) aggr-var) aggregate-aggr-var-list)
 		      ;; 	aggr-var)
-		      (let ((form (append (list 'AGGREGATE (first expr) group-var (incf aggr-var-counter)) (rest expr))))
+		      (let ((form (append (list aggregate-op (first expr) group-var (incf aggr-var-counter)) (rest expr))))
 			(push form aggregate-call-forms)
 			form))
 		     (t
@@ -182,13 +183,14 @@
 	      (pushnew (second item) vars)
 	      (push (cons (third item) (second item)) expr-var-list))
 	 else do (pushnew item vars))
+;      (inform "expr-var-list = ~S" expr-var-list)
       (loop for (expr . var) in expr-var-list
 ;	 do (inform "extend expr ~A AS var ~A" expr var)
-	 when (eq (first expr) 'AGGREGATE)
-	 do (setf ggp (list 'EXTEND ggp var (list (find-sparql-op "aggregate") (third expr) (fourth expr))))
+	 when (and (consp expr) (eq (first expr) aggregate-op))
+	 do (setf ggp (list 'EXTEND ggp var (list aggregate-op (third expr) (fourth expr))))
 	 else
 	 do (setf ggp (list 'EXTEND ggp var expr)))
-;      (inform "")
+;      (inform "haa")
       (let ((form (getf clauses :query-form)))
 	(remf clauses :query-form)
 	(setf (getf clauses :where) ggp)
@@ -667,7 +669,7 @@
 	 (ExistsFunc ::= (EXISTS-TERMINAL GroupGraphPattern :RESULT (list 'EXISTS $1)))
 	 (NotExistsFunc ::= (NOT-TERMINAL EXISTS-TERMINAL GroupGraphPattern :RESULT (list 'NOT-EXISTS $2)))
 	 (Aggregate ::= (:OR (COUNT-TERMINAL |(-TERMINAL| (:OPT DISTINCT-TERMINAL) (:OR (|*-TERMINAL| :RESULT '*) Expression) |)-TERMINAL|
-					     :RESULT (if (opt-yes-p $2) (list 'create-call :distinct t $3) (list 'COUNT $3)))
+					     :RESULT (if (opt-yes-p $2) (list 'COUNT :distinct t $3) (list 'COUNT $3)))
 			     (SUM-TERMINAL |(-TERMINAL| (:OPT DISTINCT-TERMINAL) Expression |)-TERMINAL| :RESULT (if (opt-yes-p $2) (list 'SUM :distinct t $3) (list 'SUM $3)))
 			     (MIN-TERMINAL |(-TERMINAL| (:OPT DISTINCT-TERMINAL) Expression |)-TERMINAL| :RESULT (if (opt-yes-p $2) (list 'MIN :distinct t $3) (list 'MIN $3)))
 			     (MAX-TERMINAL |(-TERMINAL| (:OPT DISTINCT-TERMINAL) Expression |)-TERMINAL| :RESULT (if (opt-yes-p $2) (list 'MAX :distinct t $3) (list 'MAX $3)))

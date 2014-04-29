@@ -2997,15 +2997,264 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/aggregates/agg07.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-34>
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-34>; in: LAMBDA (INSTANS::?2 INSTANS::?3 INSTANS::?4)
+;     (INSTANS::%-AGGREGATE% INSTANS::SAMPLE INSTANS::?2 0 INSTANS::?3)
+; 
+; caught STYLE-WARNING:
+;   The function was called with four arguments, but wants exactly two.
 
-debugger invoked on a SIMPLE-ERROR in thread
-#<THREAD "main thread" RUNNING {100547D7D3}>:
-  There is no applicable method for the generic function
-    #<STANDARD-GENERIC-FUNCTION INSTANS::SPARQL-OP-LISP-NAME (1)>
-  when called with arguments
-    (INSTANS::AGGREGATE).
+;     (INSTANS::%-AGGREGATE% INSTANS::SAMPLE INSTANS::?2 1 INSTANS::?4)
+; 
+; caught STYLE-WARNING:
+;   The function was called with four arguments, but wants exactly two.
+; in: LAMBDA (INSTANS::?2 INSTANS::?3 INSTANS::?4)
+;     (INSTANS::%-AGGREGATE% INSTANS::SAMPLE INSTANS::?2 0 INSTANS::?3)
+; 
+; caught WARNING:
+;   undefined variable: INSTANS::SAMPLE
+; 
+; compilation unit finished
+;   Undefined variable:
+;     INSTANS::SAMPLE
+;   caught 1 WARNING condition
+;   caught 2 STYLE-WARNING conditions
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg08.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/aggregates/agg08.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,T,
 
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg08b.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/aggregates/agg08b.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg09.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/aggregates/agg09.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg10.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/aggregates/agg10.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,T,
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-35>; in: LAMBDA (INSTANS::?2 INSTANS::?3 INSTANS::?4)
+;     (INSTANS::%-AGGREGATE% INSTANS::SAMPLE INSTANS::?2 0 INSTANS::?3)
+; 
+; caught STYLE-WARNING:
+;   The function was called with four arguments, but wants exactly two.
+
+;     (INSTANS::%-AGGREGATE% INSTANS::SAMPLE INSTANS::?2 1 INSTANS::?4)
+; 
+; caught STYLE-WARNING:
+;   The function was called with four arguments, but wants exactly two.
+; 
+; caught WARNING:
+;   undefined variable: INSTANS::SAMPLE
+; 
+; compilation unit finished
+;   Undefined variable:
+;     INSTANS::SAMPLE
+;   caught 1 WARNING condition
+;   caught 2 STYLE-WARNING conditions
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg11.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/aggregates/agg11.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg12.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/aggregates/agg12.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,T,
+
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-36>
+; in: LAMBDA (#:INSTANS913 #:GROUP912 INSTANS::?2)
+;     (SIXTH INSTANS::AGGR-EXPR)
+; --> NTH CAR 
+; ==>
+;   (NTHCDR 5 INSTANS::AGGR-EXPR)
+; 
+; caught WARNING:
+;   undefined variable: INSTANS::AGGR-EXPR
+; 
+; compilation unit finished
+;   Undefined variable:
+;     INSTANS::AGGR-EXPR
+;   caught 1 WARNING condition
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-groupconcat-1.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-groupconcat-1.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
+
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-37>
+; in: LAMBDA (#:INSTANS920 #:GROUP919 INSTANS::?5)
+;     (SIXTH INSTANS::AGGR-EXPR)
+; --> NTH CAR 
+; ==>
+;   (NTHCDR 5 INSTANS::AGGR-EXPR)
+; 
+; caught WARNING:
+;   undefined variable: INSTANS::AGGR-EXPR
+; 
+; compilation unit finished
+;   Undefined variable:
+;     INSTANS::AGGR-EXPR
+;   caught 1 WARNING condition
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-groupconcat-2.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-groupconcat-2.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
+
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-38>
+; in: LAMBDA (#:INSTANS947 #:GROUP946 INSTANS::?2)
+;     (SIXTH INSTANS::AGGR-EXPR)
+; --> NTH CAR 
+; ==>
+;   (NTHCDR 5 INSTANS::AGGR-EXPR)
+; 
+; caught WARNING:
+;   undefined variable: INSTANS::AGGR-EXPR
+; 
+; compilation unit finished
+;   Undefined variable:
+;     INSTANS::AGGR-EXPR
+;   caught 1 WARNING condition
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-groupconcat-3.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-groupconcat-3.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
+
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-avg-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-avg-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-39>
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-avg-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-avg-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-40>
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-min-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-min-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-41>
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-min-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-min-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-42>
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-max-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-max-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-43>
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-max-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-max-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-44>
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-sum-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-sum-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-45>
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-sum-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-sum-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-46>
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-sample-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-sample-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-47>
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-48>; in: LAMBDA (INSTANS::?3 INSTANS::?4)
+;     (INSTANS::%-AGGREGATE% MIN INSTANS::?3 1 INSTANS::?4)
+; 
+; caught STYLE-WARNING:
+;   The function was called with four arguments, but wants exactly two.
+
+;     (INSTANS::%-AGGREGATE% MAX INSTANS::?3 2 INSTANS::?4)
+; 
+; caught STYLE-WARNING:
+;   The function was called with four arguments, but wants exactly two.
+
+; in: LAMBDA (INSTANS::?3 INSTANS::?4)
+;     (INSTANS::%-AGGREGATE% MAX INSTANS::?3 2 INSTANS::?4)
+; 
+; caught WARNING:
+;   undefined variable: MAX
+
+;     (INSTANS::%-AGGREGATE% MIN INSTANS::?3 1 INSTANS::?4)
+; 
+; caught WARNING:
+;   undefined variable: MIN
+; 
+; compilation unit finished
+;   Undefined variables:
+;     MAX MIN
+;   caught 2 WARNING conditions
+;   caught 2 STYLE-WARNING conditions
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-err-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-err-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
+
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-err-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-err-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-49>
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-empty-group.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-empty-group.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-empty-group.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-empty-group.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-50>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-13>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-15>
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-19>
@@ -4501,12 +4750,62 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/negation/temporalProximity02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,NIL,
 Cannot read SPARQL from #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/negation/temporalProximity02.rq>
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/negation/subset-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/negation/subset-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-15>
-
-debugger invoked on a TYPE-ERROR in thread
-#<THREAD "main thread" RUNNING {100547D7C3}>:
-  The value #<SPARQL-VAR ?S2> is not of type LIST.
-
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/negation/subset-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/negation/subset-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-16>
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/negation/set-equals-1.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/negation/set-equals-1.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-17>
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/negation/subset-03.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/negation/subset-03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-18>
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/negation/exists-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/negation/exists-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-19>
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/negation/exists-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/negation/exists-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-20>
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/negation/full-minuend.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/negation/full-minuend.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-21>
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/negation/part-minuend.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/negation/part-minuend.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-22>
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/project-expression/projexp01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest>,
@@ -5171,7 +5470,13 @@ debugger invoked on a SIMPLE-ERROR in thread
     #<STANDARD-GENERIC-FUNCTION INSTANS::SPARQL-OP-LISP-NAME (1)>
   when called with arguments
     (INSTANS::CREATE-CALL).
-Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+fatal error encountered in SBCL pid 9372(tid 140735300190992):
+%PRIMITIVE HALT called; the party is over.
+
+
+Error opening /dev/tty: Device not configured
+Welcome to LDB, a low-level debugger for the Lisp runtime environment.
+ldb> Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-01.ru>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
        ?PARSED_OK = NIL,
@@ -5358,24 +5663,18 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = NIL,
        ?ERROR_MSG = "Cannot translate NIL within NIL"
 file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-31.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,NIL,Cannot translate NIL within NIL
-
-graph = NIL
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-32.ru>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-32.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,T,
-graph = NIL
-graph = NIL
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-33.ru>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-33.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11,T,
-graph = NIL
-graph = NIL
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-34.ru>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
@@ -5502,7 +5801,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = NIL,
        ?ERROR_MSG = "Cannot translate NIL within NIL"
 file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-54.ru,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeUpdateSyntaxTest11,NIL,Cannot translate NIL within NIL
-graph = NILRule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-2/large-request-01.ru>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
        ?PARSED_OK = NIL,
