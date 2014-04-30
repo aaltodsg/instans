@@ -235,8 +235,10 @@
 	 (blank-nodes-allowed-p t)
 	 (indent 0)
 	 (parser nil)
+	 (blanks nil)
 	 (bgp-blanks nil)
-	 (other-bgp-blanks nil))
+	 (other-bgp-blanks nil)
+	 )
     (labels ((set-prefix (prefix-binding expansion) (rebind-prefix lexer prefix-binding expansion))
 	     (set-base (b) (set-lexer-base lexer b) (values))
 	     (pname2iri (prefix-binding suffix-string)
@@ -263,25 +265,36 @@
 			subj))))
 	     (make-var (name) (make-sparql-var instans name))
 	     (generate-var (name) (make-sparql-var instans name))
-	     (blank-translation-settings (&key (allowed-p t) (translate-p t))
-	       (setf replace-blank-nodes-by-vars-p translate-p)
-	       (setf blank-nodes-allowed-p allowed-p))
-	     (reset-bgp-blanks () (setf bgp-blanks nil))
+	     (blank-translation-settings (&key (allowedp t) (replacep t))
+	       (setf replace-blank-nodes-by-vars-p replacep)
+	       (setf blank-nodes-allowed-p allowedp))
+	     ;; (reset-bgp-blanks () (setf bgp-blanks nil))
 	     (ban-blanks ()
 	       (setf other-bgp-blanks (append bgp-blanks other-bgp-blanks))
+	       ;; (inform "ban-blanks, blanks = ~S, other-bgp-blanks = ~S" blanks other-bgp-blanks)
 	       (setf bgp-blanks nil))
 	     (make-blank-node-or-var (name)
 	       (cond ((not blank-nodes-allowed-p)
 		      (sparql-parse-error "Blank node (~A) not allowed here" name))
 		     ((not replace-blank-nodes-by-vars-p) (make-rdf-blank-node instans name))
 		     (t
-		      (or (find-if #'(lambda (var) (string= (uniquely-named-object-name var) name)) bgp-blanks)
-			  (cond ((find-if #'(lambda (var) (string= (uniquely-named-object-name var) name)) other-bgp-blanks)
-				 (sparql-parse-error "Blank node ~S used in separate basic graph patterns" name))
-				(t
-				 (let ((var (make-var name)))
-				   (push var bgp-blanks)
-				   var)))))))
+		      (or (find-if #'(lambda (var) (string= (uniquely-named-object-name var) name)) blanks)
+			  (let ((var (make-var name)))
+			    ;; (inform "Created ~S" var)
+			    (push var blanks)
+			    var)))))
+	     ;; (make-blank-node-or-var (name)
+	     ;;   (cond ((not blank-nodes-allowed-p)
+	     ;; 	      (sparql-parse-error "Blank node (~A) not allowed here" name))
+	     ;; 	     ((not replace-blank-nodes-by-vars-p) (make-rdf-blank-node instans name))
+	     ;; 	     (t
+	     ;; 	      (or (find-if #'(lambda (var) (string= (uniquely-named-object-name var) name)) bgp-blanks)
+	     ;; 		  (cond ((find-if #'(lambda (var) (string= (uniquely-named-object-name var) name)) other-bgp-blanks)
+	     ;; 			 (sparql-parse-error "Blank node ~S used in separate basic graph patterns" name))
+	     ;; 			(t
+	     ;; 			 (let ((var (make-var name)))
+	     ;; 			   (push var bgp-blanks)
+	     ;; 			   var)))))))
 	     (generate-blank-node-or-var ()
 	       (cond ((not blank-nodes-allowed-p)
 		      (sparql-parse-error "Blank node not allowed here"))
@@ -335,7 +348,7 @@
 		  (cons (first e) (mapcar #'simplify-joins (rest e))))
 		 (t e)))
 	     (translate-group-graph-pattern (ggp)
-;	       (inform "enter translate-group-graph-pattern ~A" ggp)
+	       ;; (inform "enter translate-group-graph-pattern ~A" ggp)
 	       (let ((g '(ZERO-PATTERN))
 		     (vars nil))
 		 (flet ((ggp-scope-vars (ggp) (getf (rest ggp) :scope-vars))
@@ -345,6 +358,8 @@
 ;			  (inform "add-vars ~A, vars after = ~A" vlist vars)
 			  )
 			(join (x) (setf g (list 'JOIN g x))))
+		   ;;; Blanks must be distinct from those in other GGPs
+		   (ban-blanks)
 		   (loop with fs = nil
 		      for e in ggp
 ;			do (inform "loop ~A" e)
@@ -355,8 +370,17 @@
 			   (SELECT (add-vars (getf (rest e) :project-vars)) ; this is taken care of elsewhere
 				   (join e))
 			   (BGP
-			    (add-vars (collect-expression-variables (rest e)))
-			    (join e))
+			    (let ((bgp-vars (collect-expression-variables (rest e))))
+			      (unless (and (eq (first g) 'JOIN) (consp (third g)) (eq (first (third g)) 'BGP))
+		                 ;;; Blanks must be distinct from those in BGPs that are not immediately next to this, e.g.,
+				 ;;; only separated by FILTERs
+				(ban-blanks))
+			      (loop for var in bgp-vars
+				 when (and (member var blanks) (member var other-bgp-blanks))
+				 do (sparql-parse-error "Blank node ~S used in separate basic graph patterns" (uniquely-named-object-name var))
+				 else do (push var bgp-blanks))
+			      (add-vars bgp-vars)
+			      (join e)))
 			   (UNION
 			    (add-vars (ggp-scope-vars (second e)))
 			    (add-vars (ggp-scope-vars (third e)))
@@ -388,6 +412,7 @@
 			    (join e))
 			   (t (error* "Illegal form ~S" e)))
 		      finally (progn
+				(ban-blanks)
 				(setf g (simplify-joins g))
 				(when (not (null fs))
 				  (setf g (list 'FILTER fs g)))
@@ -475,18 +500,18 @@
 	 (Copy ::= (COPY-TERMINAL _OptSilent GraphOrDefault TO-TERMINAL GraphOrDefault :RESULT (append '(:query-form COPY) $1 (list :graph $2 :to $4))))
 	 (InsertData ::= (INSERT-DATA-TERMINAL QuadData :RESULT (list 'INSERT-DATA $1)))
 	 (DeleteData ::= (DELETE-DATA-TERMINAL QuadData :RESULT (list 'DELETE-DATA $1)))
-	 (DeleteWhere ::= ((DELETE-WHERE-TERMINAL :result (blank-translation-settings :allowed-p nil)) QuadPattern
-			   :RESULT (progn (blank-translation-settings :allowed-p t :translate-p t) (list 'DELETE-WHERE $1))))
+	 (DeleteWhere ::= ((DELETE-WHERE-TERMINAL :result (blank-translation-settings :allowedp nil)) QuadPattern
+			   :RESULT (progn (blank-translation-settings :allowedp t :replacep t) (list 'DELETE-WHERE $1))))
 	 (Modify ::= (((:OPT (WITH-TERMINAL iri :RESULT $1)) :RESULT (if (opt-yes-p $0) (list :with (opt-value $0))))
 		      (:OR (DeleteClause (:OPT InsertClause) :RESULT (append $0 (opt-value $1)))
 			   (InsertClause))
 		      ((:REP0 UsingClause) :RESULT (if $0 (list :using $0)))
 		      (WHERE-TERMINAL GroupGraphPattern :result (list :where $1))
 		      :RESULT (append '(:query-form DELETE-INSERT) $0 $1 $2 $3)))
-	 (DeleteClause ::= ((DELETE-TERMINAL :result (blank-translation-settings :allowed-p nil)) QuadPattern
-			    :RESULT (progn (blank-translation-settings :allowed-p t :translate-p t) (list :delete-clause $1))))
-	 (InsertClause ::= ((INSERT-TERMINAL :result (blank-translation-settings :allowed-p t :translate-p nil)) QuadPattern
-			    :RESULT (progn (blank-translation-settings :allowed-p t :translate-p t)
+	 (DeleteClause ::= ((DELETE-TERMINAL :result (blank-translation-settings :allowedp nil)) QuadPattern
+			    :RESULT (progn (blank-translation-settings :allowedp t :replacep t) (list :delete-clause $1))))
+	 (InsertClause ::= ((INSERT-TERMINAL :result (blank-translation-settings :allowedp t :replacep nil)) QuadPattern
+			    :RESULT (progn (blank-translation-settings :allowedp t :replacep t)
 					   (list :insert-clause $1))))
 	 (UsingClause ::= (USING-TERMINAL (:OR iri (NAMED-TERMINAL iri :RESULT $1))))
 	 (GraphOrDefault ::= (:OR (DEFAULT-TERMINAL :RESULT :default) ((:OPT GRAPH-TERMINAL) iri :RESULT $1)))
@@ -504,7 +529,9 @@
 											:RESULT (cons $0 (and (opt-yes-p $2) (list (opt-value $2))))))
 							 :RESULT (apply #'append $0))
 				    :RESULT (translate-group-graph-pattern (if (opt-yes-p $0) (cons (opt-value $0) $1) $1))))
-	 (TriplesBlock ::= ((:RESULT (reset-bgp-blanks)) TriplesBlockInner :RESULT (progn (ban-blanks) (cons 'BGP (get-triples)))))
+	 (TriplesBlock ::= (;(:RESULT (reset-bgp-blanks))
+			    TriplesBlockInner :RESULT (progn ;(ban-blanks)
+							(cons 'BGP (get-triples)))))
 	 (TriplesBlockInner ::= (TriplesSameSubjectPath (:OPT (|.-TERMINAL| (:OPT TriplesBlockInner)))))
 	 (GraphPatternNotTriples ::= (:OR GroupOrUnionGraphPattern OptionalGraphPattern MinusGraphPattern GraphGraphPattern ServiceGraphPattern Filter Bind InlineData))
 	 (OptionalGraphPattern ::= (OPTIONAL-TERMINAL GroupGraphPattern) :RESULT (list 'OPTIONAL $1))
