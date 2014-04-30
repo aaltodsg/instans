@@ -2209,27 +2209,27 @@ file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-form-describe02.rq
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-dataset-01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Variable \"?X\" not in SELECT"
-file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-dataset-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest,NIL,Variable "?X" not in SELECT
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-dataset-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest,T,
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-dataset-02.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Variable \"?X\" not in SELECT"
-file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-dataset-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest,NIL,Variable "?X" not in SELECT
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-dataset-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest,T,
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-dataset-03.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Variable \"?X\" not in SELECT"
-file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-dataset-03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest,NIL,Variable "?X" not in SELECT
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-dataset-03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest,T,
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-dataset-04.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Variable \"?X\" not in SELECT"
-file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-dataset-04.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest,NIL,Variable "?X" not in SELECT
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-dataset-04.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest,T,
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-r2/syntax-sparql2/syntax-graph-01.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest>,
@@ -2997,18 +2997,18 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/aggregates/agg07.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-34>; in: LAMBDA (INSTANS::?2 INSTANS::?3 INSTANS::?4)
-;     (INSTANS::%-AGGREGATE% INSTANS::SAMPLE INSTANS::?2 0 INSTANS::?3)
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-34>; in: LAMBDA (INSTANS::?5 INSTANS::?3 INSTANS::?4)
+;     (INSTANS::%-AGGREGATE% INSTANS::SAMPLE INSTANS::?5 0 INSTANS::?3)
 ; 
 ; caught STYLE-WARNING:
 ;   The function was called with four arguments, but wants exactly two.
 
-;     (INSTANS::%-AGGREGATE% INSTANS::SAMPLE INSTANS::?2 1 INSTANS::?4)
+;     (INSTANS::%-AGGREGATE% INSTANS::SAMPLE INSTANS::?5 1 INSTANS::?4)
 ; 
 ; caught STYLE-WARNING:
 ;   The function was called with four arguments, but wants exactly two.
-; in: LAMBDA (INSTANS::?2 INSTANS::?3 INSTANS::?4)
-;     (INSTANS::%-AGGREGATE% INSTANS::SAMPLE INSTANS::?2 0 INSTANS::?3)
+; in: LAMBDA (INSTANS::?5 INSTANS::?3 INSTANS::?4)
+;     (INSTANS::%-AGGREGATE% INSTANS::SAMPLE INSTANS::?5 0 INSTANS::?3)
 ; 
 ; caught WARNING:
 ;   undefined variable: INSTANS::SAMPLE
@@ -3043,13 +3043,13 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/aggregates/agg10.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,T,
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-35>; in: LAMBDA (INSTANS::?2 INSTANS::?3 INSTANS::?4)
-;     (INSTANS::%-AGGREGATE% INSTANS::SAMPLE INSTANS::?2 0 INSTANS::?3)
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-35>; in: LAMBDA (INSTANS::?5 INSTANS::?3 INSTANS::?4)
+;     (INSTANS::%-AGGREGATE% INSTANS::SAMPLE INSTANS::?5 0 INSTANS::?3)
 ; 
 ; caught STYLE-WARNING:
 ;   The function was called with four arguments, but wants exactly two.
 
-;     (INSTANS::%-AGGREGATE% INSTANS::SAMPLE INSTANS::?2 1 INSTANS::?4)
+;     (INSTANS::%-AGGREGATE% INSTANS::SAMPLE INSTANS::?5 1 INSTANS::?4)
 ; 
 ; caught STYLE-WARNING:
 ;   The function was called with four arguments, but wants exactly two.
@@ -3097,7 +3097,7 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
 file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-groupconcat-1.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
 
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-37>
-; in: LAMBDA (#:INSTANS920 #:GROUP919 INSTANS::?5)
+; in: LAMBDA (#:INSTANS920 #:GROUP919 INSTANS::?4)
 ;     (SIXTH INSTANS::AGGR-EXPR)
 ; --> NTH CAR 
 ; ==>
@@ -3201,24 +3201,24 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/aggregates/agg-sample-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#QueryEvaluationTest,T,
 Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-47>
-Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-48>; in: LAMBDA (INSTANS::?3 INSTANS::?4)
-;     (INSTANS::%-AGGREGATE% MIN INSTANS::?3 1 INSTANS::?4)
+Warning: str: Cannot apply to argument #<RDF-BLANK-NODE _:!-48>; in: LAMBDA (INSTANS::?4 INSTANS::?3)
+;     (INSTANS::%-AGGREGATE% MIN INSTANS::?4 1 INSTANS::?3)
 ; 
 ; caught STYLE-WARNING:
 ;   The function was called with four arguments, but wants exactly two.
 
-;     (INSTANS::%-AGGREGATE% MAX INSTANS::?3 2 INSTANS::?4)
+;     (INSTANS::%-AGGREGATE% MAX INSTANS::?4 2 INSTANS::?3)
 ; 
 ; caught STYLE-WARNING:
 ;   The function was called with four arguments, but wants exactly two.
 
-; in: LAMBDA (INSTANS::?3 INSTANS::?4)
-;     (INSTANS::%-AGGREGATE% MAX INSTANS::?3 2 INSTANS::?4)
+; in: LAMBDA (INSTANS::?4 INSTANS::?3)
+;     (INSTANS::%-AGGREGATE% MAX INSTANS::?4 2 INSTANS::?3)
 ; 
 ; caught WARNING:
 ;   undefined variable: MAX
 
-;     (INSTANS::%-AGGREGATE% MIN INSTANS::?3 1 INSTANS::?4)
+;     (INSTANS::%-AGGREGATE% MIN INSTANS::?4 1 INSTANS::?3)
 ; 
 ; caught WARNING:
 ;   undefined variable: MIN
@@ -5436,9 +5436,9 @@ file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-select-expr-01
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-select-expr-02.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Variable \"?X\" not in SELECT"
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-select-expr-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,NIL,Variable "?X" not in SELECT
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-select-expr-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-select-expr-03.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
@@ -5448,9 +5448,9 @@ file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-select-expr-03
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-select-expr-04.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
-       ?PARSED_OK = NIL,
-       ?ERROR_MSG = "Variable \"?Z\" not in SELECT"
-file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-select-expr-04.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,NIL,Variable "?Z" not in SELECT
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-select-expr-04.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
 Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-select-expr-05.rq>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
@@ -5463,20 +5463,613 @@ Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?PARSED_OK = T,
        ?ERROR_MSG = ""
 file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-03.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-04.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-04.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-05.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-05.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-06.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-06.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-07.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-07.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-08.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-08.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-09.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-09.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-10.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-10.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-11.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-11.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-12.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-12.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+; in: LAMBDA (#:INSTANS917 #:GROUP916 INSTANS::?2)
+;     (SIXTH INSTANS::AGGR-EXPR)
+; --> NTH CAR 
+; ==>
+;   (NTHCDR 5 INSTANS::AGGR-EXPR)
+; 
+; caught WARNING:
+;   undefined variable: INSTANS::AGGR-EXPR
+; 
+; compilation unit finished
+;   Undefined variable:
+;     INSTANS::AGGR-EXPR
+;   caught 1 WARNING condition
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-13.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-13.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
 
-debugger invoked on a SIMPLE-ERROR in thread
-#<THREAD "main thread" RUNNING {100547D7E3}>:
-  There is no applicable method for the generic function
-    #<STANDARD-GENERIC-FUNCTION INSTANS::SPARQL-OP-LISP-NAME (1)>
-  when called with arguments
-    (INSTANS::CREATE-CALL).
-fatal error encountered in SBCL pid 9372(tid 140735300190992):
-%PRIMITIVE HALT called; the party is over.
+; in: LAMBDA (#:INSTANS922 #:GROUP921)
+;     (SIXTH INSTANS::AGGR-EXPR)
+; --> NTH CAR 
+; ==>
+;   (NTHCDR 5 INSTANS::AGGR-EXPR)
+; 
+; caught WARNING:
+;   undefined variable: INSTANS::AGGR-EXPR
+; 
+; compilation unit finished
+;   Undefined variable:
+;     INSTANS::AGGR-EXPR
+;   caught 1 WARNING condition
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-14.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-14.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
 
-
-Error opening /dev/tty: Device not configured
-Welcome to LDB, a low-level debugger for the Lisp runtime environment.
-ldb> Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+; in: LAMBDA (#:INSTANS927 #:GROUP926 INSTANS::?2)
+;     (SIXTH INSTANS::AGGR-EXPR)
+; --> NTH CAR 
+; ==>
+;   (NTHCDR 5 INSTANS::AGGR-EXPR)
+; 
+; caught WARNING:
+;   undefined variable: INSTANS::AGGR-EXPR
+; 
+; compilation unit finished
+;   Undefined variable:
+;     INSTANS::AGGR-EXPR
+;   caught 1 WARNING condition
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-15.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-15.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-subquery-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-subquery-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-subquery-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-subquery-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-subquery-03.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-subquery-03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-not-exists-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-not-exists-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-not-exists-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-not-exists-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-not-exists-03.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-not-exists-03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-exists-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-exists-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-exists-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-exists-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-exists-03.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-exists-03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-minus-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-minus-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-oneof-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-oneof-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+; in: LAMBDA (INSTANS::?2)
+;     (LET ((#:X945 INSTANS::?2))
+;       (AND))
+; 
+; caught STYLE-WARNING:
+;   The variable #:X945 is defined but never used.
+; 
+; compilation unit finished
+;   caught 1 STYLE-WARNING condition
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-oneof-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-oneof-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-oneof-03.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-oneof-03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-bindings-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-bindings-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-bindings-02a.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-bindings-02a.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-bindings-03a.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-bindings-03a.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-bindings-05a.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-bindings-05a.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-bind-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-bind-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-construct-where-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-construct-where-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-construct-where-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-construct-where-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+; in: LAMBDA (#:INSTANS957 #:GROUP956)
+;     (LET ((#:AGGRS958 (OR (INSTANS::GROUP-AGGREGATES #:GROUP956) (SETF #))))
+;       )
+; 
+; caught STYLE-WARNING:
+;   The variable #:AGGRS958 is defined but never used.
+; 
+; compilation unit finished
+;   caught 1 STYLE-WARNING condition
+; in: LAMBDA (#:INSTANS957 #:GROUP956)
+;     (LET ((#:AGGRS958 (INSTANS::GROUP-AGGREGATES #:GROUP956)))
+;       )
+; 
+; caught STYLE-WARNING:
+;   The variable #:AGGRS958 is defined but never used.
+; 
+; compilation unit finished
+;   caught 1 STYLE-WARNING condition
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,T,
+; in: LAMBDA (#:INSTANS962 #:GROUP961)
+;     (LET ((#:AGGRS963 (OR (INSTANS::GROUP-AGGREGATES #:GROUP961) (SETF #))))
+;       )
+; 
+; caught STYLE-WARNING:
+;   The variable #:AGGRS963 is defined but never used.
+; 
+; compilation unit finished
+;   caught 1 STYLE-WARNING condition
+; in: LAMBDA (#:INSTANS962 #:GROUP961)
+;     (LET ((#:AGGRS963 (INSTANS::GROUP-AGGREGATES #:GROUP961)))
+;       )
+; 
+; caught STYLE-WARNING:
+;   The variable #:AGGRS963 is defined but never used.
+; 
+; compilation unit finished
+;   caught 1 STYLE-WARNING condition
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-03.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Variable #<SPARQL-VAR ?X> already bound"
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,Variable #<SPARQL-VAR ?X> already bound
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-04.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "0:0:Expecting AS-TERMINAL instead of )-TERMINAL ((INPUT-TOKEN 465 ) 14))"
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-04.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,0:0:Expecting AS-TERMINAL instead of )-TERMINAL ((INPUT-TOKEN 465 ) 14))
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-05.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "0:0:No legal action for nonterminal SELECTCLAUSE-11 and input symbol (COUNT-TERMINAL \"COUNT\"))"
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-05.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,0:0:No legal action for nonterminal SELECTCLAUSE-11 and input symbol (COUNT-TERMINAL "COUNT"))
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-06.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "0:0:Expecting )-TERMINAL instead of ,-TERMINAL ((INPUT-TOKEN 416 , 14))"
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-06.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,0:0:Expecting )-TERMINAL instead of ,-TERMINAL ((INPUT-TOKEN 416 , 14))
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-07.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "0:0:No legal action for nonterminal GROUPORUNIONGRAPHPATTERN-92 and input symbol (SELECT-TERMINAL \"SELECT\"))"
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-07.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,0:0:No legal action for nonterminal GROUPORUNIONGRAPHPATTERN-92 and input symbol (SELECT-TERMINAL "SELECT"))
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-08.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "0:0:No legal action for nonterminal OBJECTLISTPATH-120-121 and input symbol (UNION-TERMINAL \"UNION\"))"
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-08.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,0:0:No legal action for nonterminal OBJECTLISTPATH-120-121 and input symbol (UNION-TERMINAL "UNION"))
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-bindings-09.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "0:0:Lexer error Unrecognized keyword \"BINDINGS\""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-bindings-09.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,0:0:Lexer error Unrecognized keyword "BINDINGS"
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/qname-escape-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "2:7:Lexer error Unexpected escape char ':'"
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/qname-escape-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,NIL,2:7:Lexer error Unexpected escape char ':'
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/qname-escape-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/qname-escape-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/qname-escape-03.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/qname-escape-03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope1.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope1.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope2.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope2.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope3.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope3.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope4.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope4.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope5.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope5.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope6.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "6:2:Variable #<SPARQL-VAR ?O1> already defined in scope"
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope6.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,6:2:Variable #<SPARQL-VAR ?O1> already defined in scope
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope7.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "8:2:Variable #<SPARQL-VAR ?O1> already defined in scope"
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope7.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,8:2:Variable #<SPARQL-VAR ?O1> already defined in scope
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope8.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "9:2:Variable #<SPARQL-VAR ?Y> already defined in scope"
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-BINDscope8.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,9:2:Variable #<SPARQL-VAR ?Y> already defined in scope
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-propertyPaths-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Paths not fully implemented yet (INSTANS::PATH #<SPARQL-VAR ?1>
+                                 (INSTANS::ALT
+                                  #<RDF-IRI http://www.example.org/p>
+                                  #<RDF-IRI http://www.example.org/q>
+                                  #<RDF-IRI http://www.example.org/r>)
+                                 #<SPARQL-VAR ?0>)"
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-propertyPaths-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,NIL,Paths not fully implemented yet (INSTANS::PATH #<SPARQL-VAR ?1>
+                                 (INSTANS::ALT
+                                  #<RDF-IRI http://www.example.org/p>
+                                  #<RDF-IRI http://www.example.org/q>
+                                  #<RDF-IRI http://www.example.org/r>)
+                                 #<SPARQL-VAR ?0>)
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-SELECTscope1.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-SELECTscope1.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-SELECTscope2.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Variable #<SPARQL-VAR ?X> already bound"
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-SELECTscope2.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,Variable #<SPARQL-VAR ?X> already bound
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-SELECTscope3.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-SELECTscope3.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-pname-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-pname-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-pname-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-pname-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-pname-03.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-pname-03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-pname-04.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-pname-04.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-pname-05.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-pname-05.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-pname-06.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-pname-06.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-pname-07.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-pname-07.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-pname-08.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-pname-08.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-pname-09.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = T,
+       ?ERROR_MSG = ""
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-pname-09.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,T,
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-pname-01.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "1:14:Expecting PNAME_NS-TERMINAL instead of PNAME_LN-TERMINAL ((INPUT-TOKEN 316
+                                                           ((ex) ex:) 32))"
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-pname-01.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,1:14:Expecting PNAME_NS-TERMINAL instead of PNAME_LN-TERMINAL ((INPUT-TOKEN 316
+                                                           ((ex) ex:) 32))
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-pname-02.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "1:16:Expecting PNAME_NS-TERMINAL instead of PNAME_LN-TERMINAL ((INPUT-TOKEN 316
+                                                           ((ex) ex:ex) 34))"
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-pname-02.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,1:16:Expecting PNAME_NS-TERMINAL instead of PNAME_LN-TERMINAL ((INPUT-TOKEN 316
+                                                           ((ex) ex:ex) 34))
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-pname-03.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "1:10:Expecting PNAME_NS-TERMINAL instead of PNAME_LN-TERMINAL ((INPUT-TOKEN 316
+                                                           (() :) 27))"
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-pname-03.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,1:10:Expecting PNAME_NS-TERMINAL instead of PNAME_LN-TERMINAL ((INPUT-TOKEN 316
+                                                           (() :) 27))
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-pname-04.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "1:11:Expecting PNAME_NS-TERMINAL instead of PNAME_LN-TERMINAL ((INPUT-TOKEN 316
+                                                           (() a:) 28))"
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-pname-04.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,1:11:Expecting PNAME_NS-TERMINAL instead of PNAME_LN-TERMINAL ((INPUT-TOKEN 316
+                                                           (() a:) 28))
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-pname-05.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "0:0:Expecting PNAME_NS-TERMINAL instead of INTEGER-TERMINAL ((INPUT-TOKEN 448 1 8))"
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-pname-05.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,0:0:Expecting PNAME_NS-TERMINAL instead of INTEGER-TERMINAL ((INPUT-TOKEN 448 1 8))
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-pname-06.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "3:8:Lexer error Unexpected escape char ':'"
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-pname-06.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,3:8:Lexer error Unexpected escape char ':'
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-pname-07.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "0:0:Expecting PNAME_NS-TERMINAL instead of INTEGER-TERMINAL ((INPUT-TOKEN 448 1 8))"
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-pname-07.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,0:0:Expecting PNAME_NS-TERMINAL instead of INTEGER-TERMINAL ((INPUT-TOKEN 448 1 8))
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-pname-08.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "4:0:No legal action for nonterminal PROPERTYLISTPATHNOTEMPTY and input symbol (.-TERMINAL \".\"))"
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-pname-08.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,4:0:No legal action for nonterminal PROPERTYLISTPATHNOTEMPTY and input symbol (.-TERMINAL "."))
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-pname-09.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "4:0:No legal action for nonterminal PROPERTYLISTPATHNOTEMPTY and input symbol (.-TERMINAL \".\"))"
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-pname-09.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,4:0:No legal action for nonterminal PROPERTYLISTPATHNOTEMPTY and input symbol (.-TERMINAL "."))
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-pname-10.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "3:13:No legal action for nonterminal OBJECTLISTPATH-120-121 and input symbol (PNAME_LN-TERMINAL ((\"\"
+                                                                                             #<RDF-IRI http://example/>)
+                                                                                            \"c\")))"
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-pname-10.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,3:13:No legal action for nonterminal OBJECTLISTPATH-120-121 and input symbol (PNAME_LN-TERMINAL ((""
+                                                                                             #<RDF-IRI http://example/>)
+                                                                                            "c")))
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-pname-11.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "3:13:No legal action for nonterminal OBJECTLISTPATH-120-121 and input symbol (PNAME_LN-TERMINAL ((\"\"
+                                                                                             #<RDF-IRI http://example/>)
+                                                                                            \"c\")))"
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-pname-11.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,3:13:No legal action for nonterminal OBJECTLISTPATH-120-121 and input symbol (PNAME_LN-TERMINAL ((""
+                                                                                             #<RDF-IRI http://example/>)
+                                                                                            "c")))
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-pname-12.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "3:15:No legal action for nonterminal OBJECTLISTPATH-120-121 and input symbol (PNAME_LN-TERMINAL ((\"\")
+                                                                                            \"c\")))"
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-pname-12.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,3:15:No legal action for nonterminal OBJECTLISTPATH-120-121 and input symbol (PNAME_LN-TERMINAL (("")
+                                                                                            "c")))
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-pname-13.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "3:16:No legal action for nonterminal OBJECTLISTPATH-120-121 and input symbol (IRIREF-TERMINAL #<RDF-IRI http:///q>))"
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-bad-pname-13.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#NegativeSyntaxTest11,NIL,3:16:No legal action for nonterminal OBJECTLISTPATH-120-121 and input symbol (IRIREF-TERMINAL #<RDF-IRI http:///q>))
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+       ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-pp-in-collection.rq>,
+       ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11>,
+       ?PARSED_OK = NIL,
+       ?ERROR_MSG = "Paths not fully implemented yet (INSTANS::PATH #<SPARQL-VAR ?0>
+                                 (INSTANS::ZERO-OR-MORE-PATH
+                                  #<RDF-IRI http://example.org/p>)
+                                 #<SPARQL-VAR ?1>)"
+file:///Users/enu/instans/tests/data-sparql11/syntax-query/syn-pp-in-collection.rq,http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11,NIL,Paths not fully implemented yet (INSTANS::PATH #<SPARQL-VAR ?0>
+                                 (INSTANS::ZERO-OR-MORE-PATH
+                                  #<RDF-IRI http://example.org/p>)
+                                 #<SPARQL-VAR ?1>)
+Rule #<SELECT-NODE 29> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?QUERYFILE = #<RDF-IRI file:///Users/enu/instans/tests/data-sparql11/syntax-update-1/syntax-update-01.ru>,
        ?TESTTYPE = #<RDF-IRI http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveUpdateSyntaxTest11>,
        ?PARSED_OK = NIL,
