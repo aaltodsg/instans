@@ -4,7 +4,6 @@
 *.svg
 *.sa
 .DS_Store
-
 bin/instans-core.sbcl
 init/LISP-CONFIGURATION
 tests/data-r2
@@ -16,3 +15,4 @@ bin/instans.bin
 bin/sbcl-instans.core
 tests/log
 tests/syntax-test-results/index.html.prev
+tests/correct-output/fnb100*.out.*

@@ -1,0 +1,2 @@
+PREFIX ex:<http://example.org/#>
+ex:var ex:value 2 .
