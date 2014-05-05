@@ -1,0 +1,3 @@
+@prefix : <http://instans.org/> .
+
+:sub :pred :obj .

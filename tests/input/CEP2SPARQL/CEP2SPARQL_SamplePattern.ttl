@@ -3,10 +3,10 @@
 # CEP2SPARQL-SamplePattern.ru has the same content as a SPARQL Update rule
 # which INSERTs the data to the same graph.
 
-PREFIX :<http:example.org/default#>
-PREFIX geo:<http://www.w3.org/2003/01/geo/wgs84_pos#>
-PREFIX ssn:<http://purl.oclc.org/NET/ssnx/ssn#>
-PREFIX ep:<http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
+@prefix :<http:example.org/default#> .
+@prefix geo:<http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix ssn:<http://purl.oclc.org/NET/ssnx/ssn#> .
+@prefix ep:<http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#> .
 
   [] :index 1 ;
      :value "NW" .
