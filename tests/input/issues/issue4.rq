@@ -1,0 +1,6 @@
+PREFIX : <http://instans.org/>
+
+INSERT DATA { 
+    :sub :pred :obj
+}
+

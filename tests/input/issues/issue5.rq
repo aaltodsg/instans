@@ -1,0 +1,11 @@
+PREFIX : <http://instans.org/>
+
+SELECT *
+WHERE { ?s ?p ?o }
+
+;
+
+INSERT { :sub :pred :obj }
+WHERE { }
+
+
