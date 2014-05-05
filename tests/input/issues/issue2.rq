@@ -1,0 +1,9 @@
+PREFIX : <http://instans.org/>
+
+INSERT {
+ ?sub ?pred ?obj
+}
+WHERE {
+  BIND (:sub2 as ?sub)
+  OPTIONAL { ?sub ?pred ?obj }
+}
