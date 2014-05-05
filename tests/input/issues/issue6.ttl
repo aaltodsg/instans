@@ -1,0 +1,6 @@
+@prefix : <http://instans.org/> .
+:init :value 0 .
+:data :trigger :now .
+:data :trigger :now .
+:some :thing :else .
+:data :trigger :now .

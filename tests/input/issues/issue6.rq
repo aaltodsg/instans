@@ -1,0 +1,20 @@
+PREFIX : <http://instans.org/>
+PREFIX input: <http://instans.org/input/>
+PREFIX mem: <http://instans.org/memory/>
+
+INSERT { GRAPH mem: { :count :value ?value } }
+WHERE { :init :value ?value }
+;
+INSERT { GRAPH input: { :event :value 1 } }
+WHERE { :data :trigger :now }
+;
+DELETE { GRAPH mem: { :count :value ?count } }
+INSERT { GRAPH mem: { :count :value ?newcount } }
+WHERE {
+  GRAPH input: { :event :value ?val }
+  GRAPH mem: { :count :value ?count }
+  BIND ( ?count + ?val AS ?newcount )
+}
+;
+SELECT *
+WHERE { GRAPH mem: { ?s ?p ?o } }
