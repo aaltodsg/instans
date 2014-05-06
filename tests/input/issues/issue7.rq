@@ -1,0 +1,4 @@
+PREFIX : <http://instans.org/>
+
+SELECT ?value (avg(?value) AS ?avg)
+WHERE { :data :value ?value }  
