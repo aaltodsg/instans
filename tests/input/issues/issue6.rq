@@ -8,7 +8,8 @@ WHERE { :init :value ?value }
 INSERT { GRAPH input: { :event :value 1 } }
 WHERE { :data :trigger :now }
 ;
-DELETE { GRAPH mem: { :count :value ?count } }
+DELETE { GRAPH mem: { :count :value ?count }
+         GRAPH input: { :event :value ?val } }
 INSERT { GRAPH mem: { :count :value ?newcount } }
 WHERE {
   GRAPH input: { :event :value ?val }
