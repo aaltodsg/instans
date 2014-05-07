@@ -6,7 +6,8 @@
 (in-package #:instans)
 
 (define-class abstract-sparql-turtle-lexer (abstract-lexer)
-  ((base :accessor lexer-base :initarg :base :initform (parse-iri "http://"))
+  ((buffered-input-token :accessor lexer-buffered-input-token :initform nil)
+   (base :accessor lexer-base :initarg :base :initform (parse-iri "http://"))
    (prefix-table :accessor lexer-prefix-table :initarg :prefix-table :initform (make-binding-table))
    (string-table :accessor lexer-string-table :initarg :string-table :initform (make-binding-table :weakness :value))
    (keyword-table :accessor lexer-keyword-table :initarg :keyword-table :initform nil)
@@ -105,8 +106,7 @@
   (:method ((this abstract-sparql-turtle-lexer) buf &optional (start 0) (end (chbuf-index buf)))
     (find-binding (lexer-keyword-table this) (chbuf-contents buf) :start start :end end :case-sensitive-p nil :updatep nil :case-sensitive-p nil)))
 
-(define-class sparql-lexer (abstract-sparql-turtle-lexer)
-  ((buffered-input-token :accessor lexer-buffered-input-token :initform nil)))
+(define-class sparql-lexer (abstract-sparql-turtle-lexer) ())
 
 (define-class turtle-lexer (abstract-sparql-turtle-lexer) ())
 
@@ -257,7 +257,22 @@
     table));;; Use these to get an apropriate lexer
 
 (defmethod get-input-token ((lexer turtle-lexer))
-  (next-input-token lexer))
+  (let* ((input-token1 (if (lexer-buffered-input-token lexer)
+			   (prog1 (lexer-buffered-input-token lexer)
+			     (setf (lexer-buffered-input-token lexer) nil))
+			   (next-input-token lexer)))
+	 (type1 (input-token-type input-token1)))
+;    (inform "get-input-token i1=~S, t1=~S" input-token1 type1)
+    (cond ((member type1 '(|[-TERMINAL|))
+	   (let* ((input-token2 (next-input-token lexer))
+		  (type2 (input-token-type input-token2)))
+;	     (inform "get-input-token i2=~S, t2=~S" input-token2 type2)
+	     (cond ((and (eq type1 '|[-TERMINAL|) (eq type2 '|]-TERMINAL|))
+		    (make-input-token :type 'ANON-TERMINAL :value "ANON"))
+		   (t
+		    (setf (lexer-buffered-input-token lexer) input-token2)
+		    input-token1))))
+	  (t input-token1))))
 
 (defmethod get-input-token ((lexer sparql-lexer))
   (let* ((input-token1 (if (lexer-buffered-input-token lexer)
