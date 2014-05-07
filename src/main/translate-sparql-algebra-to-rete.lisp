@@ -201,7 +201,8 @@
 		   (CONSTRUCT (let ((ggp (getf args :where)))
 				(remf args :where)
 				(apply #'make-or-share-instance 'construct-node :prev (translate ggp prev dataset) args)))
-		   (DELETE-INSERT (let* ((where-clause (getf args :where))
+		   (DELETE-INSERT ;(inform "translating ~S" expr)
+				  (let* ((where-clause (getf args :where))
 					 (delete-clause (getf args :delete-clause))
 					 (delete-parameters (collect-expression-variables delete-clause))
 					 (instans-var (gensym "INSTANS"))
@@ -211,7 +212,6 @@
 					 (insert-parameters (collect-expression-variables insert-clause))
 					 (insert-lambda (if insert-clause `(lambda (,instans-var ,@(mapcar #'sparql-var-lisp-name insert-parameters))
 									     ,@(translate-template instans insert-clause 'rete-add instans-var t)))))
-;				    (inform "translating ~S" expr)
 				    (make-or-share-instance 'modify-node :prev (translate where-clause prev dataset) 
 							    :delete-template delete-clause
 							    :delete-parameters delete-parameters

@@ -5,6 +5,9 @@ PREFIX mem: <http://instans.org/memory/>
 INSERT { GRAPH mem: { :count :value ?value } }
 WHERE { :init :value ?value }
 ;
+# Added this line
+DELETE { :data :trigger :now }
+#
 INSERT { GRAPH input: { :event :value 1 } }
 WHERE { :data :trigger :now }
 ;

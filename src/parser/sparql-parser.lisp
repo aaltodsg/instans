@@ -519,7 +519,7 @@
 	 (GraphRefAll ::= (:OR GraphRef (DEFAULT-TERMINAL :RESULT :default) (NAMED-TERMINAL :RESULT :named) (ALL-TERMINAL :RESULT :all)) :RESULT (list :graph $0))
 	 (QuadPattern ::= (|{-TERMINAL| Quads |}-TERMINAL| :RESULT $1))
 	 (QuadData ::= (|{-TERMINAL| Quads |}-TERMINAL| :RESULT $1))
-	 (Quads ::= (((:OPT TriplesTemplate) :RESULT (if (opt-yes-p $0) (cons 'BGP (get-triples))))
+	 (Quads ::= (((:OPT TriplesTemplate) :RESULT (if (opt-yes-p $0) (list (cons 'BGP (get-triples)))))
 		     (:REP0 (QuadsNotTriples (:OPT |.-TERMINAL|) ((:OPT TriplesTemplate) :RESULT (if (opt-yes-p $0) (list (cons 'BGP (get-triples))))) :RESULT (append $0 $2)))
 		     :RESULT (apply #'append $0 $1)))
 	 (QuadsNotTriples ::= (GRAPH-TERMINAL VarOrIri |{-TERMINAL| (:OPT TriplesTemplate) |}-TERMINAL| :RESULT (list (list 'GRAPH $1 (cons 'BGP (get-triples))))))
