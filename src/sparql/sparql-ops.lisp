@@ -265,7 +265,8 @@
 							      ((rdf-literal-type l1)
 							       (and (rdf-literal-type l2) (rdf-iri= (rdf-literal-type l1) (rdf-literal-type l2))))
 							      (t (error* "A literal with neither a type nor a lang ~A" l1))))
-						   (signal-sparql-error "RDFterm-equal: Literals ~A and ~A are not the same term" l1 l2))))
+						   (signal-sparql-error "RDFterm-equal: Literals ~A and ~A are not the same term" l1 l2)))
+  (:method ((t1 rdf-term) (t2 rdf-term)) (declare (ignorable t1 t2)) nil))
 
 ;; 17.4.1.8 sameTerm
 ;; -----------------

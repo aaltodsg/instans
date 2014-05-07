@@ -1,6 +1,8 @@
 PREFIX : <http://instans.org/>
 
 INSERT DATA { 
-    :sub :pred :obj
+    :sub :pred :obj .
+    GRAPH :haa { :sub :pred :obj } .
+    :sub :pred ?x
 }
 

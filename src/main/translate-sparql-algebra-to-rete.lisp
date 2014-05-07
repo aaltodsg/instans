@@ -219,7 +219,9 @@
 							    :insert-template insert-clause
 							    :insert-parameters insert-parameters
 							    :insert-lambda insert-lambda)))
-		   ;; ((|INSERT DATA| |DELETE DATA| LOAD CLEAR)
+		   ((INSERT-DATA DELETE-DATA)
+		    (push-to-end expr (instans-initial-data-ops instans)))
+		   ;; ((|DELETE DATA| LOAD CLEAR)
 		   ;;  (assert* nil "Don't know how to translate ~S" expr))
 		   ;; (SERVICE
 		   ;;  (assert* nil "SERVICE not implemented properly yet ~S" expr)

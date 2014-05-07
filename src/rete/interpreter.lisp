@@ -230,6 +230,7 @@
       (initialize-constant-iris this)
       (initialize-stores-and-indices this)
       (initialize-data this)
+;      (run-initial-data-ops this)
       (loop while (rule-instance-queue-head queue)
 	   do (execute-rules this)))))
 
