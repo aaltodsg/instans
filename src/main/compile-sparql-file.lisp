@@ -152,7 +152,9 @@
 			))
 		     ((modify-node-p node)
 		      (when show-transform-p
-			(inform "compiling modify-insert-lambda ~S" (modify-insert-lambda node)))
+			(inform "compiling modify-delete-lambda ~S~%modify-delete-template = ~S" (modify-delete-lambda node) (modify-delete-template node))
+			(inform "compiling modify-insert-lambda ~S~%modify-insert-template = ~S" (modify-insert-lambda node) (modify-insert-template node))
+		      )
 		      (setf (modify-delete-func node) (and (modify-delete-template node) (compile nil (modify-delete-lambda node))))
 		      (setf (modify-insert-func node) (and (modify-insert-template node) (compile nil (modify-insert-lambda node)))))))
 
