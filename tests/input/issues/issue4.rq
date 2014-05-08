@@ -2,7 +2,9 @@ PREFIX : <http://instans.org/>
 
 INSERT DATA { 
     :sub :pred :obj .
-    GRAPH :haa { :sub :pred :obj } .
-    :sub :pred ?x
-}
+#    GRAPH :haa { :sub :pred :obj } .
+#     :sub :pred ?x
+#
+};
 
+SELECT * { ?s ?p ?p}

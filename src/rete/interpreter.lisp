@@ -230,9 +230,27 @@
       (initialize-constant-iris this)
       (initialize-stores-and-indices this)
       (initialize-data this)
-;      (run-initial-data-ops this)
+      (initial-data-ops this)
       (loop while (rule-instance-queue-head queue)
-	   do (execute-rules this)))))
+	   do (execute-rules this))
+;      (describe this)
+)))
+
+(defgeneric initial-data-ops (instans)
+  (:method ((this instans))
+    (flet ((doit (op data)
+	     (inform "doit ~A ~A" op data)
+	     (loop with func = (case op (INSERT-DATA #'rete-add) (DELETE-DATA #'rete-remove) (t (error* "Unknown init op ~A" op)))
+		for item in data
+		do (case (car item)
+		     (GRAPH (loop for triple in (rest (third item)) do (funcall func this (first triple) (second triple) (third triple) (second item))))
+		     (BGP (loop for triple in (rest item) do (funcall func this (first triple) (second triple) (third triple) nil)))
+		     (t (error* "Malformed item ~A in data op" item))))))
+      (loop for op in (instans-initial-data-ops this)
+	 do (inform "initial-op ~A" op)
+	 do (case (car op)
+	      ((INSERT-DATA DELETE-DATA)
+	       (doit (first op) (second op))))))))
 
 (defgeneric initialize-constant-iris (instans)
   (:method ((this instans))
@@ -767,7 +785,8 @@
 ;;;
 
 (defun trace-rete ()
-  (trace rete-add rete-remove add-token remove-token add-alpha-token add-beta-token remove-alpha-token remove-beta-token match-quad
+  (trace initialize-execution
+	 rete-add rete-remove add-token remove-token add-alpha-token add-beta-token remove-alpha-token remove-beta-token match-quad
 	 join-beta-key join-alpha-key
 	 token-value make-token call-succ-nodes rete-add-rule-instance execute-rules rule-instance-queue-execute-instance
 	 store-put-token store-get-token store-remove-token store-tokens
