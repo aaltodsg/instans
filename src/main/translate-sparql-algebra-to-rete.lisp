@@ -220,6 +220,7 @@
 							    :insert-parameters insert-parameters
 							    :insert-lambda insert-lambda)))
 		   ((INSERT-DATA DELETE-DATA)
+		    (inform "transform ~A" expr)
 		    (push-to-end expr (instans-initial-data-ops instans)))
 		   ;; ((|DELETE DATA| LOAD CLEAR)
 		   ;;  (assert* nil "Don't know how to translate ~S" expr))

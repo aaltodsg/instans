@@ -234,6 +234,7 @@
 					  :rete-html-page-dir rete-html-page-dir :base base :subscribe subscribe)
 		 (declare (ignorable compile-result))
 		 (cond ((not error)
+			(initialize-execution instans)
 			(values t nil))
 		       (t
 			(values nil error)))))))
@@ -358,7 +359,7 @@
 	(when (debugp subscribe :execute :parse-triples)
 	  (inform "~%Processing triples:~%"))
 	;; Is this OK?
-	(initialize-execution instans)
+;	(initialize-execution instans)
 	(parse triples-parser)
 	(unless (ll-parser-succeeded-p triples-parser)
 	  (inform "~A:~A" input (instans-error-message instans)))
