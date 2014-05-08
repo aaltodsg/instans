@@ -271,7 +271,7 @@
    (quad-store :accessor instans-quad-store :initarg :quad-store :initform nil)
    (use-quad-store-p :accessor instans-use-quad-store-p :initarg :use-quad-store-p :initform nil)
    (active-p :accessor instans-active-p :initform t :initarg :activep)
-   (initial-data-ops :accessor instans-initial-data-ops :initform nil)
+;   (initial-data-ops :accessor instans-initial-data-ops :initform nil)
    (rule-instance-queue :accessor instans-rule-instance-queue)
    (triple-processors :accessor instans-triple-processors :initarg :triple-processors :initform nil)
    (triple-input-policy :accessor instans-triple-input-policy :initarg :triple-input-policy :initform :single-triple)
