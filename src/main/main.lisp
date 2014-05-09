@@ -13,7 +13,6 @@
   (multiple-value-bind (instans instans-iri) (create-instans)
     (let* ((policies (copy-list (instans-policies instans)))
 	   (directory (parse-iri (format nil "file://~A" (expand-dirname "."))))
-	   (select-processor nil)
 	   (select-output-type :csv)
 	   (select-output-name nil)
 	   base graph expected debug reporting rete-html-page-dir)
@@ -22,8 +21,14 @@
 		 (or (funcall test value accepted-values)
 		     (error* "Value ~A not one of ~A" value accepted-values)))
 	       (set-policy (key value accepted-values &key (test #'equal))
-		 (if (valid-value-p value accepted-values :test test)
-		     (setf (getf policies key) value)))
+		 (when (valid-value-p value accepted-values :test test)
+		   (setf (getf policies key) value)
+		   (case key
+		     (:triple-input-policy (setf (instans-triple-input-policy instans) value))
+		     (:triple-processing-operations (setf (instans-triple-processing-operations instans) value))
+		     (:rule-instance-removal-policy (setf (instans-rule-instance-removal-policy instans) value))
+		     (:queue-execution-policy (setf (instans-queue-execution-policy instans) value))
+		     (t (error* "Unknown policy ~A" key)))))
 	       (parse-parameters (string &key colon-expand-fields)
 		 (loop for param in (parse-spec-string string)
 		       for (key value) = param
@@ -41,6 +46,8 @@
 			 (:graph (if (string= (string-downcase value) "default") nil (setf graph (parse-iri value))))
 			 (:execute (instans-run instans-iri))
 			 (:rules
+			  (when (null (instans-select-processor instans))
+			    (setf (instans-select-processor instans) (create-select-processor select-output-name select-output-type)))
 			  (unless (instans-add-rules instans-iri (expand-iri directory value)
 						     :create-instans-p nil
 						     :base base :rete-html-page-dir rete-html-page-dir
@@ -48,13 +55,11 @@
 			    (inform "~%~A:~A~%" value (instans-error-message instans))
 			    (return-from run-configuration nil)))
 			 (:triples
-			  (when (null select-processor)
-			    (setf select-processor (create-select-processor select-output-name select-output-type)))
+			  (when (null (instans-select-processor instans))
+			    (setf (instans-select-processor instans) (create-select-processor select-output-name select-output-type)))
 			  (instans-add-triples instans-iri (expand-iri directory value)
 					       :graph graph
 					       :base base
-					       :select-processor select-processor
-					       :reporting reporting
 					       :expected-results expected
 					       :subscribe debug))
 		     ;;; "base=http://example.org/friends/&graph=http://instans.org/events/&file=tests/input/fnb.ttl&input-policy=triples-block&operations:add:execute:remove:execute"
@@ -71,7 +76,6 @@
 							  (expand-iri directory (or (getf input-parameters :file) (getf input-parameters :iri)))
 							  :graph graph
 							  :base base
-							  :policies policies
 							  :subscribe debug)))
 			 (:select-output
 			  (setf select-output-name value)
@@ -82,7 +86,8 @@
 				    (setf expected spec)))
 			 (:reporting (setf reporting (parse-colon-separated-values value))
 				     (if (member :all reporting)
-					 (setf reporting '(:select :construct :modify :all))))
+					 (setf reporting '(:select :construct :modify :all)))
+				     (setf (rule-instance-queue-report-p (instans-rule-instance-queue instans)) reporting))
 			 (:debug (setf debug (parse-colon-separated-values value)))
 			 (:verbose (setf debug (parse-colon-separated-values value)))
 			 (:triple-input-policy (set-policy :triple-input-policy (intern value :keyword) (instans-available-triple-input-policies instans)))
@@ -94,7 +99,7 @@
 			 (:rete-html-page-dir (setf rete-html-page-dir value))))
 	       ;; (t (e) (inform "~A" e))
 	       ;; )
-	  (when select-processor (close-select-processor select-processor)))))))
+	  (when (instans-select-processor instans) (close-select-processor (instans-select-processor instans))))))))
 
 (defvar *test-argv*)
 

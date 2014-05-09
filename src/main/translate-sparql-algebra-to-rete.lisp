@@ -220,10 +220,9 @@
 							    :insert-parameters insert-parameters
 							    :insert-lambda insert-lambda)))
 		   ((INSERT-DATA DELETE-DATA)
-		    (inform "transform ~A" expr)
-		    (push-to-end expr (instans-initial-data-ops instans)))
-		   ;; ((|DELETE DATA| LOAD CLEAR)
-		   ;;  (assert* nil "Don't know how to translate ~S" expr))
+		    (error* "INSERT-DATA and DELETE-DATA should be handled as DELETE-INSERT: ~A" expr))
+		   ;; ((LOAD CLEAR)
+		   ;; (assert* nil "Don't know how to translate ~S" expr))
 		   ;; (SERVICE
 		   ;;  (assert* nil "SERVICE not implemented properly yet ~S" expr)
 		   ;;  nil)

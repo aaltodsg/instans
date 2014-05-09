@@ -278,7 +278,7 @@
    (available-triple-input-policies :accessor instans-available-triple-input-policies :allocation :class :initform '(:single-triple :triples-block :all))
    (triple-processing-operations :accessor instans-triple-processing-operations :initarg :triple-processing-operations :initform '(:add :execute))
    (available-triple-processing-operations :accessor instans-available-triple-processing-operations :allocation :class :initform '(:add :remove :execute))
-   (rule-instance-removal-policy :accessor instans-rule-instance-removal-policy :initarg :rule-instance-removal-policy :initform nil)
+   (rule-instance-removal-policy :accessor instans-rule-instance-removal-policy :initarg :rule-instance-removal-policy :initform :remove)
    (available-rule-instance-removal-policies :accessor instans-available-rule-instance-removal-policies :allocation :class :initform '(:remove :keep))
    (queue-execution-policy :accessor instans-queue-execution-policy :initarg :queue-execution-policy :initform :repeat-first)
    (available-queue-execution-policies :accessor instans-available-queue-execution-policies :allocation :class :initform '(:first :snapshot :repeat-first :repeat-snapshot))
