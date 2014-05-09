@@ -502,8 +502,10 @@
 	 (Add ::= (ADD-TERMINAL _OptSilent GraphOrDefault TO-TERMINAL GraphOrDefault :RESULT (append '(:query-form ADD) $1 (list :graph $2 :to $4))))
 	 (Move ::= (MOVE-TERMINAL _OptSilent GraphOrDefault TO-TERMINAL GraphOrDefault :RESULT (append '(:query-form MOVE) $1 (list :graph $2 :to $4))))
 	 (Copy ::= (COPY-TERMINAL _OptSilent GraphOrDefault TO-TERMINAL GraphOrDefault :RESULT (append '(:query-form COPY) $1 (list :graph $2 :to $4))))
-	 (InsertData ::= (INSERT-DATA-TERMINAL QuadData :RESULT (list :query-form 'INSERT-DATA $1)))
-	 (DeleteData ::= (DELETE-DATA-TERMINAL QuadData :RESULT (list :query-form  'DELETE-DATA $1)))
+;	 (InsertData ::= (INSERT-DATA-TERMINAL QuadData :RESULT (list :query-form 'INSERT-DATA $1)))
+;	 (DeleteData ::= (DELETE-DATA-TERMINAL QuadData :RESULT (list :query-form  'DELETE-DATA $1)))
+	 (InsertData ::= (INSERT-DATA-TERMINAL QuadData :RESULT (list :query-form 'DELETE-INSERT :insert-clause $1 :where (translate-group-graph-pattern nil))))
+	 (DeleteData ::= (DELETE-DATA-TERMINAL QuadData :RESULT (list :query-form 'DELETE-INSERT :delete-clause $1 :where (translate-group-graph-pattern nil))))
 	 (DeleteWhere ::= ((DELETE-WHERE-TERMINAL :result (blank-translation-settings :allowedp nil)) QuadPattern
 			   :RESULT (progn (blank-translation-settings :allowedp t :replacep t) (list :query-form 'DELETE-WHERE $1))))
 	 (Modify ::= (((:OPT (WITH-TERMINAL iri :RESULT $1)) :RESULT (if (opt-yes-p $0) (list :with (opt-value $0))))

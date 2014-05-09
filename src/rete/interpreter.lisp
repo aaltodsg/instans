@@ -230,12 +230,17 @@
       (initialize-constant-iris this)
       (initialize-stores-and-indices this)
       (initialize-data this)
+<<<<<<< HEAD
       (initial-data-ops this)
+=======
+;      (initial-data-ops this)
+>>>>>>> 15a6f16f6d79619e32bd2c5bda3a69488798e428
       (loop while (rule-instance-queue-head queue)
 	   do (execute-rules this))
 ;      (describe this)
 )))
 
+<<<<<<< HEAD
 (defgeneric initial-data-ops (instans)
   (:method ((this instans))
     (flet ((doit (op data)
@@ -251,6 +256,23 @@
 	 do (case (car op)
 	      ((INSERT-DATA DELETE-DATA)
 	       (doit (first op) (second op))))))))
+=======
+;; (defgeneric initial-data-ops (instans)
+;;   (:method ((this instans))
+;;     (flet ((doit (op data)
+;; 	     (inform "doit ~A ~A" op data)
+;; 	     (loop with func = (case op (INSERT-DATA #'rete-add) (DELETE-DATA #'rete-remove) (t (error* "Unknown init op ~A" op)))
+;; 		for item in data
+;; 		do (case (car item)
+;; 		     (GRAPH (loop for triple in (rest (third item)) do (funcall func this (first triple) (second triple) (third triple) (second item))))
+;; 		     (BGP (loop for triple in (rest item) do (funcall func this (first triple) (second triple) (third triple) nil)))
+;; 		     (t (error* "Malformed item ~A in data op" item))))))
+;;       (loop for op in (instans-initial-data-ops this)
+;; 	 do (inform "initial-op ~A" op)
+;; 	 do (case (car op)
+;; 	      ((INSERT-DATA DELETE-DATA)
+;; 	       (doit (first op) (second op))))))))
+>>>>>>> 15a6f16f6d79619e32bd2c5bda3a69488798e428
 
 (defgeneric initialize-constant-iris (instans)
   (:method ((this instans))
