@@ -333,14 +333,15 @@
 
 (defgeneric report-execution-status (instans &key stream)
   (:method ((this instans) &key (stream (instans-default-output this)))
-    (format stream "~&add-quad-count = ~S~%" (instans-add-quad-count this))
-    (format stream "remove-quad-count = ~S~%" (instans-remove-quad-count this))
     (let ((queue (instans-rule-instance-queue this)))
-      (format stream "queue-add-count = ~S~%" (rule-instance-queue-add-count queue))
-      (format stream "queue-remove-count = ~S~%" (rule-instance-queue-remove-count queue))
-      (format stream "queue-select-count = ~S~%" (rule-instance-queue-select-count queue))
-      (format stream "queue-construct-count = ~S~%" (rule-instance-queue-construct-count queue))
-      (format stream "queue-modify-count = ~S~%" (rule-instance-queue-modify-count queue)))))
+      (when (rule-instance-queue-report-p queue)
+	(format stream "~&add-quad-count = ~S~%" (instans-add-quad-count this))
+	(format stream "remove-quad-count = ~S~%" (instans-remove-quad-count this))
+	(format stream "queue-add-count = ~S~%" (rule-instance-queue-add-count queue))
+	(format stream "queue-remove-count = ~S~%" (rule-instance-queue-remove-count queue))
+	(format stream "queue-select-count = ~S~%" (rule-instance-queue-select-count queue))
+	(format stream "queue-construct-count = ~S~%" (rule-instance-queue-construct-count queue))
+	(format stream "queue-modify-count = ~S~%" (rule-instance-queue-modify-count queue))))))
 
 (defun call-succ-nodes (func node token stack)
   (cond ((null stack)
@@ -749,6 +750,7 @@
 (defgeneric execute-rule-node (node token)
   (:method ((this select-node) token)
     (let ((instans (node-instans this)))
+;      (inform "execute-rule-node ~A, ~A, processor = ~A" this token (instans-select-processor instans))
       (unless (null (instans-select-processor instans))
 	(write-select-output (instans-select-processor instans) this token))
       (unless (null (instans-select-compare-function instans))
@@ -787,7 +789,6 @@
   (trace initialize-execution
 	 rete-add rete-remove add-token remove-token add-alpha-token add-beta-token remove-alpha-token remove-beta-token match-quad
 	 join-beta-key join-alpha-key
-	 token-value make-token call-succ-nodes rete-add-rule-instance execute-rules rule-instance-queue-execute-instance
-	 store-put-token store-get-token store-remove-token store-tokens
-	 index-put-token index-get-tokens index-remove-token
+	 token-value make-token call-succ-nodes rete-add-rule-instance execute-rules rule-instance-queue-execute-instance execute-rule-node
+	 write-select-output store-put-token store-get-token store-remove-token store-tokens index-put-token index-get-tokens index-remove-token
 	 aggregate-get-value aggregate-add-value aggregate-remove-value))
