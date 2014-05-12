@@ -7,3 +7,7 @@ WHERE {
   BIND (:sub2 as ?sub)
   OPTIONAL { ?sub ?pred ?obj }
 }
+
+;
+
+SELECT * WHERE { ?s ?p ?o }
