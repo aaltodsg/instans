@@ -446,8 +446,9 @@
       (multiple-value-bind (group newp) (aggregate-join-get-group this token)
 	(unless newp
 	  (call-succ-nodes #'remove-token this (group-token group) stack))
+;	(describe (first (group-aggregates group)))
 	(let* ((aggr-args (loop for var in (aggregate-join-aggr-vars this) collect (token-value this token var))))
-;	  (inform "calling aggregate-join-aggr-add-func in ~A. Group = ~A,  aggr-vars = ~A, aggr-args = ~A" this group  (aggregate-join-aggr-vars this) aggr-args)
+;	  (inform "calling aggregate-join-aggr-add-func in ~A.~%Group = ~A,~%aggr-vars = ~A,~%aggr-args = ~A~%" this group  (aggregate-join-aggr-vars this) aggr-args)
 	  (apply (aggregate-join-aggr-add-func this) (node-instans this) group aggr-args))
 	(call-succ-nodes #'add-token this (group-token group) stack)))
   (:method ((this optional-start-node) token &optional stack)

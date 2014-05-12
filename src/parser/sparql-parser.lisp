@@ -114,6 +114,16 @@
 			(mapcar #'aggregatify expr))))
 	       (translate-aggregates ()
 		 (setf group-var (generate-sparql-var instans "!GROUP"))
+		 (loop with valid-project-vars = (loop for item in group-by when (sparql-var-p item) collect item else when (as-form-p item) collect (second item))
+		    for pr in project
+		    when (sparql-var-p pr) 
+		    do (when (not (member pr valid-project-vars :test #'uniquely-named-object-equal))
+			 (sparql-parse-error "Cannot project non-group key var ~A" pr))
+		    else when (not (let ((e (third pr)))
+				     (if (sparql-var-p e)
+					 (member e valid-project-vars :test #'uniquely-named-object-equal)
+					 (and (consp e) (aggregate-function-name-p (first e))))))
+		    do (sparql-parse-error "Cannot project ~A" pr))
 		 (loop for item in project
 		    when (as-form-p item)
 		    do (progn

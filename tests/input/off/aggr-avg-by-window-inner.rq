@@ -2,9 +2,6 @@ PREFIX : <http://www.example.org/>
 
 SELECT ?windowN (avg(?value) AS ?avg)
 WHERE {
-      ?event # a :event ;
-               :time ?time ;
-               :value ?value .      
+      ?event a :event ; :time ?time ; :value ?value .      
 }       
 GROUP BY (floor(?time / 10) AS ?windowN)
-
