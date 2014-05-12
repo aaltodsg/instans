@@ -388,34 +388,34 @@
 (defvar *instans-execute-system-previous-graph* nil)
 (defvar *instans-execute-system-previous-base* nil)
 
-;; (defun instans-execute-system (rules &key triples expected-results graph base (rete-html-page-dir nil) ; "/Users/enu/instans/tests/output") ; nil) ;
-;; 			       subscribe reporting (use-previous-args-p nil))
-;;   (cond ((not use-previous-args-p)
-;; 	 (setf *instans-execute-system-previous-rules* rules)
-;; 	 (setf *instans-execute-system-previous-triples* triples)
-;; 	 (setf *instans-execute-system-previous-expected-results* expected-results)
-;; 	 (setf *instans-execute-system-previous-graph* graph)
-;; 	 (setf *instans-execute-system-previous-base* base))
-;; 	(t
-;; 	 (setf rules *instans-execute-system-previous-rules*)
-;; 	 (setf triples *instans-execute-system-previous-triples*)
-;; 	 (setf expected-results *instans-execute-system-previous-expected-results*)
-;; 	 (setf graph *instans-execute-system-previous-graph*)
-;; 	 (setf base *instans-execute-system-previous-base*)))
-;;   (when (or (equalp graph "DEFAULT") (rdf-iri-equal graph *rdf-nil*)) (setf graph nil))
-;;   (when (rdf-iri-equal base *rdf-nil*) (setf base nil))
-;;   (when (rdf-iri-equal triples *rdf-nil*) (setf triples nil))
-;;   (when (rdf-iri-equal expected-results *rdf-nil*) (setf expected-results nil))
-;; 					;  (handler-case 
-;;   (multiple-value-bind (instans instans-iri) (create-instans)
-;;     (format (instans-default-output instans) "~%execute_system ~A ~A ~A ~A ~A~&" rules triples expected-results graph base)
-;;     (multiple-value-bind (add-rules-result error)
-;; 	(instans-add-rules instans-iri rules :rete-html-page-dir rete-html-page-dir :base base :subscribe subscribe)
-;;       (declare (ignore add-rules-result))
-;;       (when (not (null error))
-;; 	(return-from instans-execute-system (values nil error))))
-;;     (if triples
-;; 	(instans-add-triples instans-iri triples :graph graph :base base :subscribe subscribe :reporting reporting))))
+(defun instans-execute-system (rules &key triples expected-results graph base (rete-html-page-dir nil) ; "/Users/enu/instans/tests/output") ; nil) ;
+				       subscribe (use-previous-args-p nil))
+  (cond ((not use-previous-args-p)
+	 (setf *instans-execute-system-previous-rules* rules)
+	 (setf *instans-execute-system-previous-triples* triples)
+	 (setf *instans-execute-system-previous-expected-results* expected-results)
+	 (setf *instans-execute-system-previous-graph* graph)
+	 (setf *instans-execute-system-previous-base* base))
+	(t
+	 (setf rules *instans-execute-system-previous-rules*)
+	 (setf triples *instans-execute-system-previous-triples*)
+	 (setf expected-results *instans-execute-system-previous-expected-results*)
+	 (setf graph *instans-execute-system-previous-graph*)
+	 (setf base *instans-execute-system-previous-base*)))
+  (when (or (equalp graph "DEFAULT") (rdf-iri-equal graph *rdf-nil*)) (setf graph nil))
+  (when (rdf-iri-equal base *rdf-nil*) (setf base nil))
+  (when (rdf-iri-equal triples *rdf-nil*) (setf triples nil))
+  (when (rdf-iri-equal expected-results *rdf-nil*) (setf expected-results nil))
+					;  (handler-case 
+  (multiple-value-bind (instans instans-iri) (create-instans)
+    (format (instans-default-output instans) "~%execute_system ~A ~A ~A ~A ~A~&" rules triples expected-results graph base)
+    (multiple-value-bind (add-rules-result error)
+	(instans-add-rules instans-iri rules :rete-html-page-dir rete-html-page-dir :base base :subscribe subscribe)
+      (declare (ignore add-rules-result))
+      (when (not (null error))
+	(return-from instans-execute-system (values nil error))))
+    (if triples
+	(instans-add-triples instans-iri triples :graph graph :base base :subscribe subscribe))))
 
 (defun execute-prev ()
   (instans-execute-system nil :use-previous-args-p t))
@@ -468,7 +468,7 @@
 		   (t
 		    (format t "~&Running tests ~A~&" name)
 		    (instans-execute-system rules :triples (parse-iri manifest-iri-string) :base (parse-iri base-iri-string)
-					    :subscribe nil :reporting '(:all) :rete-html-page-dir output-dir))))))
+					    :subscribe nil :rete-html-page-dir output-dir))))))
 
 (defun run-data-r2-syntax-tests (&optional (test-sets '("syntax-sparql1" "syntax-sparql2" "syntax-sparql3" "syntax-sparql4" "syntax-sparql5")))
   (run-syntax-tests "../tests/input/syntax-test.rq" "../tests/data-r2" "http://www.w3.org/2001/sw/DataAccess/tests/data-r2" test-sets))
