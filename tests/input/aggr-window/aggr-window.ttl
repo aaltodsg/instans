@@ -14,4 +14,3 @@ PREFIX : <http://www.example.org/>
 :e5 a :event ; :time 21; :value 501 .
 :e6 a :event ; :time 22; :value 201 .
 :lastevent a :event; :time 30 .
-

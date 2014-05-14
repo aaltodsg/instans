@@ -167,7 +167,7 @@
 (define-class construct-node (query-node) 
   ((construct-template :accessor construct-template :initarg :construct-template)))
 
-(define-class ask-node (query-node) ())
+(define-class ask-node (query-node) ((satisfiedp :accessor ask-node-satisfied-p :initform nil)))
 
 (define-class describe-node (query-node)
   ((var-or-iri-list :accessor describe-node-var-or-iri-list :initarg :var-or-iri-list)))
@@ -230,6 +230,8 @@
    (add-count :accessor rule-instance-queue-add-count :initform 0)
    (remove-count :accessor rule-instance-queue-remove-count :initform 0)
    (select-count :accessor rule-instance-queue-select-count :initform 0)
+   (ask-count :accessor rule-instance-queue-ask-count :initform 0)
+   (describe-count :accessor rule-instance-queue-describe-count :initform 0)
    (modify-count :accessor rule-instance-queue-modify-count :initform 0)
    (construct-count :accessor rule-instance-queue-construct-count :initform 0)))
 
@@ -250,14 +252,14 @@
    (parser :accessor triple-processor-parser :initarg :parser)
    (subscribe :accessor triple-processor-subscribe :initarg :subscribe :initform nil)))
 
-;;; Select processor
-(define-class select-processor ()
-  ((output-name :accessor select-processor-output-name :initarg :output-name)
-   (output-stream :accessor select-processor-output-stream :initarg :output-stream)
-   (output-type :accessor select-processor-output-type :initarg :output-type)
-   (headers-written-p :accessor select-processor-headers-written-p :initform nil)))
+;;; Select/ask/describe/construct ... processors
+(define-class query-output-processor ()
+  ((output-name :accessor query-output-processor-output-name :initarg :output-name)
+   (output-stream :accessor query-output-processor-output-stream :initarg :output-stream)
+   (output-type :accessor query-output-processor-output-type :initarg :output-type)
+   (headers-written-p :accessor query-output-processor-headers-written-p :initform nil)))
 
-(define-class select-csv-processor (select-processor) ())
+(define-class query-output-csv-processor (query-output-processor) ())
 
 ;;; System
 (define-class instans ()
@@ -283,7 +285,7 @@
    (queue-execution-policy :accessor instans-queue-execution-policy :initarg :queue-execution-policy :initform :repeat-first)
    (available-queue-execution-policies :accessor instans-available-queue-execution-policies :allocation :class :initform '(:first :snapshot :repeat-first :repeat-snapshot))
 ;   (default-rete-input-op :accessor instans-default-rete-input-op :initarg :default-rete-input-op :initform :add)
-   (select-processor :accessor instans-select-processor :initarg :select-processor :initform nil)
+   (query-output-processor :accessor instans-query-output-processor :initarg :query-output-processor :initform nil)
    (select-compare-function :accessor instans-select-compare-function :initarg :select-compare-function :initform nil)
    ;; (select-function-arguments :accessor instans-select-function-arguments :initarg :select-function-arguments :initform nil)
    (modify-function :accessor instans-modify-function :initarg :modify-function :initform nil)

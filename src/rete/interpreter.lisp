@@ -225,6 +225,8 @@
       (setf (rule-instance-queue-add-count queue) 0)
       (setf (rule-instance-queue-remove-count queue) 0)
       (setf (rule-instance-queue-select-count queue) 0)
+      (setf (rule-instance-queue-ask-count queue) 0)
+      (setf (rule-instance-queue-describe-count queue) 0)
       (setf (rule-instance-queue-construct-count queue) 0)
       (setf (rule-instance-queue-modify-count queue) 0)
       (initialize-constant-iris this)
@@ -303,18 +305,20 @@
     (setf ops (or ops (instans-triple-processing-operations this)))
     (when (symbolp ops)
       (setf ops (list ops)))
-    (loop for op in ops 
+    (let ((*instans* this))
+      (declare (special *instans*))
+      (loop for op in ops 
 	 do (case op
 	      (:add
 	       (loop for (subj pred obj) in triples
-		     do (rete-add this subj pred obj graph)))
+		  do (rete-add this subj pred obj graph)))
 	      (:remove
 	       (loop for (subj pred obj) in triples 
-		     do (rete-remove this subj pred obj graph)))
+		  do (rete-remove this subj pred obj graph)))
 	      (:execute
 	       (execute-rules this))
 	      (t
-	       (error* "Illegal op ~S" op))))))
+	       (error* "Illegal op ~S" op)))))))
 
 (defgeneric execute-rules (instans)
   (:method ((this instans))
@@ -340,6 +344,8 @@
 	(format stream "queue-add-count = ~S~%" (rule-instance-queue-add-count queue))
 	(format stream "queue-remove-count = ~S~%" (rule-instance-queue-remove-count queue))
 	(format stream "queue-select-count = ~S~%" (rule-instance-queue-select-count queue))
+	(format stream "queue-ask-count = ~S~%" (rule-instance-queue-ask-count queue))
+	(format stream "queue-describe-count = ~S~%" (rule-instance-queue-describe-count queue))
 	(format stream "queue-construct-count = ~S~%" (rule-instance-queue-construct-count queue))
 	(format stream "queue-modify-count = ~S~%" (rule-instance-queue-modify-count queue))))))
 
@@ -384,6 +390,7 @@
 ;      (inform "~%in add-token ~S (calling ~S ~{~A~^ ~})~%" this (filter-test-func this) arguments)
       (when (eval-sparql-filter (filter-test-func this) arguments)
 	(call-succ-nodes #'add-token this token stack))))
+  ;;; (add-token filter-memory)
   (:method ((this filter-memory) token &optional stack)
     (let ((new-value (eval-sparql-filter (filter-test-func this) (loop for var in (node-use this) collect (token-value this token var))))
 	  (prev-value-var (filter-memory-prev-value-var this))
@@ -405,12 +412,14 @@
   ;;; Currently not handling order and slice
   (:method ((this datablock-node) token &optional stack)
     (call-succ-nodes #'add-token this token stack))
+  ;;; (add-token exists-start-node)
   (:method ((this exists-start-node) token &optional stack)
     (unless (store-get-token this token)
       (let* ((active-p-var (existence-active-p-var this))
 	     (counter-var (existence-counter-var this))
 	     (new-token (make-token this token (list active-p-var counter-var) (list t 0)))) ;;; Node is active; zero hits
 	(store-put-token this new-token)
+	;; (inform "add-token ~A calls store-put-token, token=~%~A~%new-token=~%~A" this token new-token)
 	(let ((next (car (node-succ this))))
 	  (cond ((typep next 'join-node)
 		 (add-beta-token next new-token stack))
@@ -560,8 +569,11 @@
   ;;; Currently not handling order and slice
   (:method ((this datablock-node) token &optional stack)
     (call-succ-nodes #'remove-token this token stack))
+  ;;; (remove-token exists-start-node)
   (:method ((this exists-start-node) token &optional stack)
+    ;; (inform "remove-token ~A ~A" this token)
     (let ((stored-token (store-get-token this token)))
+      ;; (inform "remove-token ~A calls store-remove-token, token=~%~A~%stored-token=~%~A" this token stored-token)
       (store-remove-token this stored-token)
       (setf (token-value this stored-token (existence-active-p-var this)) t) ; Activate this node
       (let ((next (car (node-succ this))))
@@ -613,7 +625,7 @@
       (call-succ-nodes #'remove-token this token stack)))
   (:method ((this construct-node) token &optional stack)
     (declare (ignorable this token stack))
-    (error* "Not implemented yet"))
+    (signal-sparql-error "(add-token ~A) not implemented yet" this))
   (:method ((this union-start-node) token &optional stack)
     (call-succ-nodes #'remove-token this token stack))
   (:method ((this union-end-node) token &optional stack)
@@ -697,6 +709,12 @@
     (cond ((typep node 'select-node)
 	   (if (member :select rule-types) (report-rule-execution node token))
 	   (incf (rule-instance-queue-select-count queue)))
+	  ((typep node 'ask-node)
+	   (if (member :ask rule-types) (report-rule-execution node token))
+	   (incf (rule-instance-queue-ask-count queue)))
+	  ((typep node 'describe-node)
+	   (if (member :describe rule-types) (report-rule-execution node token))
+	   (incf (rule-instance-queue-describe-count queue)))
 	  ((typep node 'modify-node)
 	   (if (member :modify rule-types) (report-rule-execution node token))
 	   (incf (rule-instance-queue-modify-count queue)))
@@ -732,7 +750,11 @@
 	 t)))
 
 (defun rule-instance-queue-execute-count (queue)
-  (+ (rule-instance-queue-select-count queue) (rule-instance-queue-construct-count queue) (rule-instance-queue-modify-count queue)))
+  (+ (rule-instance-queue-select-count queue)
+     (rule-instance-queue-ask-count queue)
+     (rule-instance-queue-describe-count queue)
+     (rule-instance-queue-construct-count queue)
+     (rule-instance-queue-modify-count queue)))
 
 (defun report-rule-execution (node token &key (variables :project) (stream (instans-default-output (node-instans node))))
   (unless (typep node 'query-node)
@@ -751,11 +773,17 @@
 (defgeneric execute-rule-node (node token)
   (:method ((this select-node) token)
     (let ((instans (node-instans this)))
-;      (inform "execute-rule-node ~A, ~A, processor = ~A" this token (instans-select-processor instans))
-      (unless (null (instans-select-processor instans))
-	(write-select-output (instans-select-processor instans) this token))
-      (unless (null (instans-select-compare-function instans))
-	(funcall (instans-select-compare-function instans) this token))))
+;      (inform "execute-rule-node ~A, ~A, processor = ~A" this token (instans-query-output-processor instans))
+      (unless (null (instans-query-output-processor instans))
+	(write-query-output (instans-query-output-processor instans) this token))))
+  (:method ((this ask-node) token)
+    (let ((instans (node-instans this)))
+      (unless (null (instans-query-output-processor instans))
+	(write-query-output (instans-query-output-processor instans) this token))))
+  (:method ((this describe-node) token)
+    (let ((instans (node-instans this)))
+      (unless (null (instans-query-output-processor instans))
+	(write-query-output (instans-query-output-processor instans) this token))))
   (:method ((this modify-node) token)
     (let* ((instans (node-instans this))
 	   (modify-function (instans-modify-function instans)))
@@ -766,8 +794,8 @@
     (when (modify-insert-func this)
       (apply (modify-insert-func this) (node-instans this) (loop for var in (modify-insert-parameters this) collect (token-value this token var)))))
   (:method ((this construct-node) token)
-    (declare (ignore this token))
-    (error* "Not implemented yet")))
+    (declare (ignorable this token))
+    (signal-sparql-error "(remove-token ~A) not implemented yet" this)))
 
 ;;; Group partition
 
@@ -791,5 +819,5 @@
 	 rete-add rete-remove add-token remove-token add-alpha-token add-beta-token remove-alpha-token remove-beta-token match-quad
 	 join-beta-key join-alpha-key
 	 token-value make-token call-succ-nodes rete-add-rule-instance execute-rules rule-instance-queue-execute-instance execute-rule-node
-	 write-select-output store-put-token store-get-token store-remove-token store-tokens index-put-token index-get-tokens index-remove-token
+	 write-query-output store-put-token store-get-token store-remove-token store-tokens index-put-token index-get-tokens index-remove-token
 	 aggregate-get-value aggregate-add-value aggregate-remove-value))

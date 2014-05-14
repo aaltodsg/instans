@@ -23,14 +23,14 @@
     (instans-error-message (get-instans instans-iri))))
 
 (define-sparql-function "instans:add_triples" (:arguments ((instans-iri rdf-iri) (triples iri-or-string)
-							   &optional (expected-results iri-or-string) (graph-iri rdf-iri) (base rdf-iri))
+							   &optional (graph-iri rdf-iri) (base rdf-iri))
 							  :returns xsd-boolean)
-  (:method ((instans-iri rdf-iri) (triples iri-or-string) &optional (expected-results iri-or-string) (graph-iri rdf-iri) (base rdf-iri))
-    (instans-add-triples instans-iri triples :expected-results expected-results :graph graph-iri :base base)))
+  (:method ((instans-iri rdf-iri) (triples iri-or-string) &optional (graph-iri rdf-iri) (base rdf-iri))
+    (instans-add-triples instans-iri triples :graph graph-iri :base base)))
 
 (define-sparql-function "instans:execute_system" (:arguments ((rules iri-or-string) &optional (triples iri-or-string) (expected-results iri-or-string) (graph-iri rdf-iri) (base rdf-iri)) :returns xsd-boolean)
   (:method ((rules iri-or-string) &optional (triples iri-or-string) (expected-results iri-or-string) (graph-iri rdf-iri) (base rdf-iri))
-    (instans-execute-system rules :triples triples :expected-results expected-results :graph graph-iri :base base)))
+    (error-safe (instans-execute-system rules :triples triples :expected-results expected-results :graph graph-iri :base base))))
 
 (define-sparql-function "instans:dynamic_call" (:arguments ((func rdf-iri) &rest args) :returns t)
   (:method ((func rdf-iri) &rest args)
@@ -39,3 +39,12 @@
 	     (signal-sparql-error "~A does not name a Sparql function or form" (rdf-iri-string func)))
 	    (t
 	     (apply (sparql-op-lisp-name sparql-op) args))))))
+
+;; outer-arg-spec ((instans-iri rdf-iri) (triples iri-or-string) &optional (graph-iri rdf-iri) base &rest args)
+;; outer-lambda (instans-iri triples &optional graph-iri base &rest args)
+;; outer-ignorable (instans-iri triples graph-iri base args)
+;; inner-arg-spec ((instans-iri1 rdf-iri) (triples1 iri-or-string) &optional (graph-iri1 rdf-iri) base1 &rest args)
+;; inner-test-lambda (instans-iri1 triples1 &optional (graph-iri1 nil graph-iri1-present-p))
+;; inner-body-lambda (instans-iri1 triples1 &optional graph-iri1 base1 &rest args)
+
+

@@ -13,8 +13,8 @@
   (multiple-value-bind (instans instans-iri) (create-instans)
     (let* ((policies (copy-list (instans-policies instans)))
 	   (directory (parse-iri (format nil "file://~A" (expand-dirname "."))))
-	   (select-output-type :csv)
-	   (select-output-name nil)
+	   (query-output-type :csv)
+	   (query-output-name nil)
 	   base graph expected debug reporting rete-html-page-dir)
       (setf *instanssi* instans)
       (labels ((valid-value-p (value accepted-values &key test)
@@ -46,8 +46,8 @@
 			 (:graph (if (string= (string-downcase value) "default") nil (setf graph (parse-iri value))))
 			 (:execute (instans-run instans-iri))
 			 (:rules
-			  (when (null (instans-select-processor instans))
-			    (setf (instans-select-processor instans) (create-select-processor select-output-name select-output-type)))
+			  (when (null (instans-query-output-processor instans))
+			    (setf (instans-query-output-processor instans) (create-query-output-processor query-output-name query-output-type)))
 			  (unless (instans-add-rules instans-iri (expand-iri directory value)
 						     :create-instans-p nil
 						     :base base :rete-html-page-dir rete-html-page-dir
@@ -55,12 +55,11 @@
 			    (inform "~%~A:~A~%" value (instans-error-message instans))
 			    (return-from run-configuration nil)))
 			 (:triples
-			  (when (null (instans-select-processor instans))
-			    (setf (instans-select-processor instans) (create-select-processor select-output-name select-output-type)))
+			  (when (null (instans-query-output-processor instans))
+			    (setf (instans-query-output-processor instans) (create-query-output-processor query-output-name query-output-type)))
 			  (instans-add-triples instans-iri (expand-iri directory value)
 					       :graph graph
 					       :base base
-					       :expected-results expected
 					       :subscribe debug))
 		     ;;; "base=http://example.org/friends/&graph=http://instans.org/events/&file=tests/input/fnb.ttl&input-policy=triples-block&operations:add:execute:remove:execute"
 			 (:input
@@ -77,10 +76,10 @@
 							  :graph graph
 							  :base base
 							  :subscribe debug)))
-			 (:select-output
-			  (setf select-output-name value)
-;			  (inform "select-output-name = ~S" select-output-name)
-			  (setf select-output-type (intern (string-upcase (pathname-type (parse-namestring value))) :keyword)))
+			 (:query-output
+			  (setf query-output-name value)
+;			  (inform "query-output-name = ~S" query-output-name)
+			  (setf query-output-type (intern (string-upcase (pathname-type (parse-namestring value))) :keyword)))
 			 (:expect (let ((spec (parse-spec-string value)))
 				    (inform "expect spec = ~S" spec)
 				    (setf expected spec)))
@@ -99,7 +98,7 @@
 			 (:rete-html-page-dir (setf rete-html-page-dir value))))
 	       ;; (t (e) (inform "~A" e))
 	       ;; )
-	  (when (instans-select-processor instans) (close-select-processor (instans-select-processor instans))))))))
+	  (when (instans-query-output-processor instans) (close-query-output-processor (instans-query-output-processor instans))))))))
 
 (defvar *test-argv*)
 
@@ -169,7 +168,7 @@
 				  (:triples       (("-t" "<input>") ("--triples" "<input>")) "Same as -i.")
 				  (:output        (("-o" "<output>") ("--output" "<output>")) "Redirect output to <output>.")
 				  (:expect        (("-e" "<expect>") ("--expect" "<expect>")) "Compare the results to <expect>." :hiddenp t)
-				  (:select-output (("--select-output" "<file>")) "Output selects to <file>.")
+				  (:query-output (("--query-output" "<file>")) "Output querys to <file>.")
 				  (:file          (("-f" "<commands>") ("--file" "<commands>")) "Read options from <commands>."
 						  :operation ,#'(lambda (arg value) (declare (ignore arg)) (setf args (append (read-args-from-file value) args))))
 				  (:reporting        (("--report" "<rules>")) "The kinds of rules you want to get reported; a ':'~%~

@@ -71,6 +71,6 @@
 	     for (var2 value2) in t2
 	     unless (and (or (and (null var1) (null var2))
 			     (sparql-var-equal var1 var2))
-			 (sparql-call "=" value1 value2))
+			 (or (eq value1 value2) (sparql-call "=" value1 value2)))
 	     do (return nil)
 	     finally (return t))))

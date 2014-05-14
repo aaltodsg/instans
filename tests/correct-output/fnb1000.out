@@ -8351,3 +8351,12 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.874587060568057d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode1996>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T14:10:18">
+add-quad-count = 9046
+remove-quad-count = 5972
+queue-add-count = 1033
+queue-remove-count = 0
+queue-select-count = 18
+queue-ask-count = 0
+queue-describe-count = 0
+queue-construct-count = 0
+queue-modify-count = 1015
