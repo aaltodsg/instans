@@ -727,7 +727,7 @@
 			     (SAMPLE-TERMINAL |(-TERMINAL| (:OPT DISTINCT-TERMINAL) Expression |)-TERMINAL| :RESULT (if (opt-yes-p $2) (list 'SAMPLE :distinct t $3) (list 'SAMPLE $3)))
 			     (GROUP_CONCAT-TERMINAL |(-TERMINAL| (:OPT DISTINCT-TERMINAL) Expression
 						    (:OPT (|;-TERMINAL| SEPARATOR-TERMINAL |=-TERMINAL| String :RESULT $3)) |)-TERMINAL|
-						    :RESULT (if (opt-yes-p $2) (list 'GROUP_CONCAT :distinct t $3 (opt-value $4)) (list 'GROUP_CONCAT $3 (opt-value $4))))))
+						    :RESULT (if (opt-yes-p $2) (list 'GROUP_CONCAT :distinct t $3 :separator (opt-value $4)) (list 'GROUP_CONCAT $3 :separator (opt-value $4))))))
 	 (iriOrFunction ::= (iri (:OPT ArgList) :RESULT (if (opt-no-p $1) $0 (create-call-through-iri $0 (opt-value $1)))))
 	 (RDFLiteral		  ::= (String (:OPT (:OR (LANGTAG-TERMINAL :RESULT #'(lambda (s) (create-rdf-literal-with-lang s (subseq $0 1))))
 							 (^^-TERMINAL iri :RESULT #'(lambda (s) (nth-value 0 (create-rdf-literal-with-type s $1))))))

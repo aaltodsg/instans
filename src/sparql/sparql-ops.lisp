@@ -739,9 +739,13 @@
 ;; IRI		Y	N	N	N	N	N	N
 ;; ltrl		Y	M	M	M	M	M	M
 (define-sparql-function "xsd:string" (:arguments ((arg term-or-value)) :returns xsd-string-value)
-  (:method ((arg term-or-value))
-    (declare (ignorable arg))
-    (error "Not implemented yet!")))
+  (:method ((arg xsd-string-value)) arg)
+  (:method ((arg xsd-number-value)) (prin1-to-string arg))
+  (:method ((arg xsd-datetime-value)) (datetime-canonic-string arg))
+  (:method ((arg xsd-boolean-value)) (if arg "true" "false"))
+  (:method ((arg rdf-iri)) (rdf-iri-string arg))
+  (:method ((arg rdf-literal)) (rdf-literal-to-string arg))
+  (:method ((arg term-or-value)) (format nil "~A" arg)))
 
 (define-sparql-function "xsd:float" (:arguments ((arg term-or-value)) :returns xsd-float-value)
   (:method ((arg term-or-value))

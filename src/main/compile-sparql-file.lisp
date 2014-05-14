@@ -124,7 +124,13 @@
 												       ((eq (second aggr-expr) 'MAX)
 													`(make-instance 'aggregate-max))
 												       ((eq (second aggr-expr) 'GROUP_CONCAT)
-													`(make-instance 'aggregate-group-concat :separator ,(sparql-expr-to-lisp (sixth aggr-expr)))))))))))
+													(let* ((properties (nthcdr 5 aggr-expr))
+													       (distinctp (getf properties :distinct))
+													       (separator (getf properties :separator)))
+													  (inform "dist=~A,sep = ~A" distinctp separator)
+													  `(make-instance 'aggregate-group-concat
+															  :distinctp ,distinctp
+															  :separator ,separator))))))))))
 						   ,@(loop for aggr-expr in (aggregate-join-aggr-exprs node)
 							collect `(let ((,aggr-temp (pop ,aggrs-temp)))
 ;								   (inform "add-value ~A to ~A" ',(sparql-expr-to-lisp (fifth aggr-expr)) ,aggr-temp)

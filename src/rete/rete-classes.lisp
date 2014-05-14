@@ -144,7 +144,8 @@
 (define-class aggregate-sample (aggregate-with-history) ())
 
 (define-class aggregate-group-concat (aggregate-with-history)
-  ((separator :accessor aggregate-group-concat-separator :initarg :separator)))
+  ((separator :accessor aggregate-group-concat-separator :initarg :separator)
+   (distinctp :accessor aggregate-group-concat-distinct-p :initarg :distinctp)))
 
 (define-class solution-modifiers-mixin (node)
   ((order-by :accessor solution-modifiers-order-by :initarg :order-by :initform nil)

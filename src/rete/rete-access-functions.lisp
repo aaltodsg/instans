@@ -350,12 +350,14 @@
 	  (t
 	   (first (aggregate-history this)))))
   (:method ((this aggregate-group-concat))
+    (inform "here ~S" (aggregate-group-concat-separator this))
     (loop with separator = (coerce (aggregate-group-concat-separator this) 'list)
-       for firstp = t then nil
-       for elem in (aggregate-history this)
-       when firstp nconc (coerce (sparql-call "xsd:string" elem) 'list) into chars
-       else nconc (append separator (coerce (sparql-call "xsd:string" elem) 'list)) into chars
-       finally (return (coerce chars 'string)))))
+	  for firstp = t then nil
+	  for elem in (aggregate-history this)
+	  do (inform "~A" elem)
+	  when firstp nconc (coerce (sparql-call "xsd:string" elem) 'list) into chars
+	  else nconc (append separator (coerce (sparql-call "xsd:string" elem) 'list)) into chars
+	  finally (return (coerce chars 'string)))))
 
 (defgeneric aggregate-add-value (aggregate new-value)
   (:method ((this aggregate-count) new-value) (incf (aggregate-count this)))

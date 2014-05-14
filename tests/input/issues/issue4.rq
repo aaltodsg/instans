@@ -3,7 +3,9 @@ PREFIX : <http://instans.org/>
 INSERT DATA { 
     :sub :pred :obj .
     GRAPH :haa { :sub :pred :obj } .
-    :sub :pred ?x
+#    :sub :pred ?x . # This is not allowed here
+    :sub :pred :obj .
+    :sub2 :pred2 :obj2 .
 };
 
 SELECT * { GRAPH ?g { ?s ?p ?o }}

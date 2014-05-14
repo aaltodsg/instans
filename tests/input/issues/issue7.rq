@@ -2,3 +2,6 @@ PREFIX : <http://instans.org/>
 
 SELECT ?value (avg(?value) AS ?avg)
 WHERE { :data :value ?value }  
+GROUP BY ?value
+# Without GROUP BY this is an error
+ 
