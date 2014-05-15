@@ -111,8 +111,7 @@
 
 (defgeneric dot-node-color (node)
   (:method ((this node))
-    (declare (special *node-color-alist*))
-    (or (cdr (assoc this *node-color-alist*)) "Black")))
+    (or (cdr (assoc this (instans-node-color-alist (node-instans node)))) "Black")))
 
 (defun var-orig-names (node canonic-vars)
   (let ((alist (node-bindings node)))
@@ -191,4 +190,35 @@
 
 (defun print-dot-file (net file &key (html-labels-p t))
   (with-open-file (stream file :direction :output :if-exists :supersede) (print-dot net :stream stream :show-vars-p t :html-labels-p html-labels-p)))
+
+(defun output-rete-html-page (instans input-name rete-html-page-dir &key (make-rete-html-page-script (find-make-rete-html-script)))
+  (unless (null rete-html-page-dir)
+    (let* ((name-part (pathname-name input-name))
+	   (truedirname (pathname-directory (truename rete-html-page-dir)))
+	   (dot-output-file (make-pathname :directory truedirname :name name-part :type "dot"))
+	   (bnd-output-file (make-pathname :directory truedirname :name name-part :type "bnd"))
+	   (sa-output-file (make-pathname :directory truedirname :name name-part :type "sa")))
+      (with-open-file (out sa-output-file :direction :output :if-exists :supersede)
+	(loop for expr in algebra-expr-list
+					;	        do (inform "algebra-expr:~%~A" expr)
+	      do (let* ((*print-circle* nil)
+			(*print-pretty* t)
+			(*print-right-margin* 110))
+		   (let ((string (with-output-to-string (str)
+				   (print expr str))))
+		     (setf string (cl-ppcre:regex-replace-all ">" (cl-ppcre:regex-replace-all "<"  string "&lt;") "&gt;"))
+		     (format out "~A" string)))))
+      (with-open-file (out bnd-output-file :direction :output :if-exists :supersede)
+	(let ((string (with-output-to-string (str)
+			(format str "Bindings:")
+			(loop for (from . to) in (instans-bindings instans)
+			      do (format str "~%  ~A -> ~A" (uniquely-named-object-name from) (uniquely-named-object-name to))))))
+	  (setf string (cl-ppcre:regex-replace-all ">" (cl-ppcre:regex-replace-all "<"  string "&lt;") "&gt;"))
+	  (format out "~A" string)))
+      (print-dot-file instans dot-output-file :html-labels-p nil)
+      (when (pathnamep make-rete-html-page-script) (setf make-rete-html-page-script (namestring make-rete-html-page-script)))
+      (assert (probe-file make-rete-html-page-script))
+      (when subscribe
+	(inform "Running ~S on ~S" make-rete-html-page-script input-name))
+      (shell-script make-rete-html-page-script input-name rete-html-page-dir))))
 

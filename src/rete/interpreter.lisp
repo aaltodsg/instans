@@ -41,10 +41,6 @@
 ;;; Rule add/remove
 ;;; ---------------
 
-(defgeneric add-rules-from-file (instans rules-file &key output-directory)
-  (:method ((this instans) rules-file &key output-directory)
-    (compile-sparql-file rules-file :instans this :rete-html-page-dir output-directory)))
-
 (defgeneric rete-add-rule-instance (instans node token)
   (:method ((this instans) (node node) token)
     (rule-instance-queue-add (instans-rule-instance-queue this) node token)))

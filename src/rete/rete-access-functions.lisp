@@ -427,3 +427,36 @@
   (:method ((this aggregate-with-history) value)
     (setf (aggregate-history this)
 	  (remove value (aggregate-history this) :test #'(lambda (a b) (sparql-call "=" a b))))))
+
+(defgeneric instans-add-status (instans status-type &optional messages)
+  (:method ((this instans) (status-type instans-status) messages)
+    (push (make-instance status-type :messages messages) (instans-status instans))))
+
+(defgeneric instans-find-status (instans status-type)
+  (:method ((this instans) (status-type instans-status))
+    (find-if #'(lambda (x) (typep x status-type)) (instans-status instans))))
+
+(defgeneric instans-next-color (instans)
+  (:method ((this instans))
+    (when (null (instans-colors instans))
+      (setf (instans-colors instans) (list "Black" "Red" "Blue" "Green" "Orange")))
+    (pop (instans-colors instans))))
+
+(defgeneric instans-debug-subscribe (instans topics)
+  (:method ((this instans) &rest topics)
+    (setf (instans-debug-topics instans) (union (instans-debug-topics instans) topics))))
+
+(defgeneric instans-debug-unsubscribe (instans topics)
+  (:method ((this instans) &rest topics)
+    (setf (instans-debug-topics instans) (if (eq topics t) nil (set-difference (instans-debug-topics instans) topics)))))
+
+(defgeneric instans-debug-p (instans &rest topics)
+  (:method ((this instans) &rest topics)
+    (intersection (instans-debug-topics) topics)))
+
+(defgeneric instans-debug-message (instans topic-or-topics fmt &rest args)
+  (:method ((this instans) topic-or-topics fmt &rest args)
+    (when (apply #'instans-debug-p instans (if (listp topic-or-topics) topics (list topic-or-topics)))
+      (apply #'inform fmt args))))
+
+
