@@ -1,4 +1,4 @@
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e1>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode1>,
@@ -6,7 +6,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.87610729902513d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode2>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:32:28">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e2>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode3>,
@@ -14,7 +14,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.857417412169575d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode4>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:32:28">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e3>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode5>,
@@ -22,7 +22,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.876247290882866d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode6>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:32:36">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e4>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode7>,
@@ -30,7 +30,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.857391909612712d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode8>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:32:36">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e5>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode9>,
@@ -38,7 +38,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.876435822110494d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode10>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:32:44">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e6>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode11>,
@@ -46,7 +46,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.857366407209696d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode12>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:32:44">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e7>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode13>,
@@ -54,7 +54,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.87663128732738d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode14>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:32:52">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e8>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode15>,
@@ -62,7 +62,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.85734971925526d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode16>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:32:52">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e10>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode19>,
@@ -70,7 +70,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.85733303140199d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode20>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:33:00">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e9>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode17>,
@@ -78,7 +78,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.87682675227178d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode18>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:33:00">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e11>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode21>,
@@ -86,7 +86,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.857322112314982d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode22>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:33:08">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e12>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode23>,
@@ -94,7 +94,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.876820072293462d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode24>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:33:09">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e13>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode25>,
@@ -102,7 +102,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.857313116176833d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode26>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:33:16">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e14>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode27>,
@@ -110,7 +110,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.87678895940316d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode28>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:33:17">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e15>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode29>,
@@ -118,7 +118,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.857322949480434d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode30>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:33:24">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e16>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode31>,
@@ -126,7 +126,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.876755011938307d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode32>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:33:25">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e17>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode33>,
@@ -134,7 +134,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.857360574816475d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode34>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:33:32">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e18>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode35>,
@@ -142,7 +142,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.87671936382493d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode36>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:33:33">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e19>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode37>,
@@ -150,7 +150,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.85740110579411d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode38>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:33:40">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e20>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode39>,
@@ -158,7 +158,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.876683527388586d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode40>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:33:41">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e21>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode41>,
@@ -166,7 +166,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.857441636530293d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode42>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:33:48">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e22>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode43>,
@@ -174,7 +174,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.87664758429575d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode44>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:33:49">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e23>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode45>,
@@ -182,7 +182,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.85748238830992d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode46>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:33:56">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e24>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode47>,
@@ -190,7 +190,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.876611628529556d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode48>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:33:57">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e25>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode49>,
@@ -198,7 +198,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.85752333848567d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode50>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:34:04">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e26>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode51>,
@@ -206,7 +206,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.876575663995347d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode52>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:34:05">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e27>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode53>,
@@ -214,7 +214,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.857564288417596d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode54>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:34:12">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e28>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode55>,
@@ -222,7 +222,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.87665434858533d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode56>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:34:14">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e29>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode57>,
@@ -230,7 +230,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.857605238105684d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode58>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:34:20">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e30>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode59>,
@@ -238,7 +238,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.876764458444597d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode60>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:34:23">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e31>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode61>,
@@ -246,7 +246,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.857646187549943d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode62>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:34:28">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e32>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode63>,
@@ -254,7 +254,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.876940068007983d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode64>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:34:31">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e33>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode65>,
@@ -262,7 +262,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.857686600226238d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode66>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:34:36">
-Rule #<MODIFY-NODE 93> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 93> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?PERSON1 = #<RDF-IRI file:///#p4>,
        ?PERSON2 = #<RDF-IRI file:///#p1>,
        ?EVENT1 = #<RDF-IRI file:///#e36>,
@@ -278,7 +278,7 @@ Rule #<MODIFY-NODE 93> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?TIME2 = #<RDF-BLANK-NODE _:bnode68>,
        ?DTTM2 = #<INSTANS::DATETIME "2012-03-05T13:34:40">,
        !PREVVAL-4 = T
-Rule #<MODIFY-NODE 93> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 93> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?PERSON1 = #<RDF-IRI file:///#p1>,
        ?PERSON2 = #<RDF-IRI file:///#p4>,
        ?EVENT1 = #<RDF-IRI file:///#e34>,
@@ -294,16 +294,16 @@ Rule #<MODIFY-NODE 93> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?TIME2 = #<RDF-BLANK-NODE _:bnode72>,
        ?DTTM2 = #<INSTANS::DATETIME "2012-03-05T13:34:47">,
        !PREVVAL-4 = T
-Rule #<SELECT-NODE 95> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<SELECT-NODE 95> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?PERSON1 = #<RDF-IRI file:///#p4>,
        ?PERSON2 = #<RDF-IRI file:///#p1>
 person1,person2
 file:///#p4,file:///#p1
-Rule #<SELECT-NODE 95> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<SELECT-NODE 95> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?PERSON1 = #<RDF-IRI file:///#p1>,
        ?PERSON2 = #<RDF-IRI file:///#p4>
 file:///#p1,file:///#p4
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e34>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode67>,
@@ -311,7 +311,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.877000991245488d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode68>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:34:40">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e35>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode69>,
@@ -319,7 +319,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.857727012661748d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode70>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:34:44">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e36>,
        ?PERSON = #<RDF-IRI file:///#p4>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode71>,
@@ -327,7 +327,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.87969277974118d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode72>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:34:47">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e37>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode73>,
@@ -335,7 +335,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.877172168847057d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode74>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:34:48">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e38>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode75>,
@@ -343,7 +343,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.857767424856487d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode76>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:34:52">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e39>,
        ?PERSON = #<RDF-IRI file:///#p4>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode77>,
@@ -351,7 +351,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.87982856443174d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode78>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:34:55">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e40>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode79>,
@@ -359,7 +359,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.87736873924885d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode80>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:34:56">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e41>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode81>,
@@ -367,7 +367,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.85780783681046d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode82>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:35:00">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e42>,
        ?PERSON = #<RDF-IRI file:///#p4>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode83>,
@@ -375,7 +375,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.879964349730383d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode84>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:35:03">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e43>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode85>,
@@ -383,7 +383,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.87756530940639d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode86>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:35:04">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e44>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode87>,
@@ -391,7 +391,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.857848248523677d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode88>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:35:08">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e45>,
        ?PERSON = #<RDF-IRI file:///#p4>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode89>,
@@ -399,7 +399,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.880100135637104d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode90>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:35:11">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e46>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode91>,
@@ -407,7 +407,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.877761879319678d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode92>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:35:12">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e47>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode93>,
@@ -415,7 +415,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.857889804516685d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode94>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:35:16">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e48>,
        ?PERSON = #<RDF-IRI file:///#p4>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode95>,
@@ -423,7 +423,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.880235922151876d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode96>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:35:19">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e49>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode97>,
@@ -431,7 +431,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.877958448988707d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode98>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:35:20">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e50>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode99>,
@@ -439,7 +439,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.857931687643948d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode100>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:35:24">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e51>,
        ?PERSON = #<RDF-IRI file:///#p4>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode101>,
@@ -447,7 +447,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.880371625130262d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode102>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:35:27">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e52>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode103>,
@@ -455,7 +455,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.878155018413484d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode104>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:35:28">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e53>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode105>,
@@ -463,7 +463,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.857973632109818d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode106>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:35:32">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e54>,
        ?PERSON = #<RDF-IRI file:///#p4>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode107>,
@@ -471,7 +471,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.880506910081447d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode108>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:35:35">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e55>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode109>,
@@ -479,7 +479,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.878351587593986d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode110>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:35:36">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e56>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode111>,
@@ -487,7 +487,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.858015587928755d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode112>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:35:40">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e57>,
        ?PERSON = #<RDF-IRI file:///#p4>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode113>,
@@ -495,7 +495,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.880642140239704d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode114>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:35:43">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e58>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode115>,
@@ -503,7 +503,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.878548156530222d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode116>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:35:44">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e59>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode117>,
@@ -511,7 +511,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.858057543498155d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode118>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:35:48">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e60>,
        ?PERSON = #<RDF-IRI file:///#p4>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode119>,
@@ -519,7 +519,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.880777371005646d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode120>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:35:51">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e61>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode121>,
@@ -527,7 +527,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.878744725222187d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode122>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:35:52">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e62>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode123>,
@@ -535,7 +535,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.858099512766824d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode124>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:35:56">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e63>,
        ?PERSON = #<RDF-IRI file:///#p4>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode125>,
@@ -543,7 +543,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.88091260237926d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode126>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:35:59">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e64>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode127>,
@@ -551,7 +551,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.878941320910343d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode128>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:36:00">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e65>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode129>,
@@ -559,7 +559,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.85814148643545d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode130>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:36:04">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e66>,
        ?PERSON = #<RDF-IRI file:///#p4>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode131>,
@@ -567,7 +567,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.881047834360558d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode132>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:36:07">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e67>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode133>,
@@ -575,7 +575,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.879040353109257d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode134>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:36:09">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e68>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode135>,
@@ -583,7 +583,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.858182916691355d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode136>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:36:12">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e69>,
        ?PERSON = #<RDF-IRI file:///#p4>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode137>,
@@ -591,7 +591,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.88118306694955d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode138>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:36:15">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e70>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode139>,
@@ -599,7 +599,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.87909730844222d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode140>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:36:17">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e71>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode141>,
@@ -607,7 +607,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.85822402080377d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode142>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:36:20">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e72>,
        ?PERSON = #<RDF-IRI file:///#p4>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode143>,
@@ -615,7 +615,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.88131830014623d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode144>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:36:23">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e73>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode145>,
@@ -623,7 +623,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.879205162959362d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode146>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:36:27">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e74>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode147>,
@@ -631,7 +631,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.858265124671487d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode148>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:36:28">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e75>,
        ?PERSON = #<RDF-IRI file:///#p4>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode149>,
@@ -639,7 +639,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.881450600306966d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode150>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:36:31">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e76>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode151>,
@@ -647,7 +647,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.87925387527264d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode152>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:36:35">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e77>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode153>,
@@ -655,7 +655,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.858306673862153d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode154>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:36:36">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e78>,
        ?PERSON = #<RDF-IRI file:///#p4>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode155>,
@@ -663,7 +663,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.88158612042964d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode156>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:36:39">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e79>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode157>,
@@ -671,7 +671,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.879302587873244d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode158>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:36:43">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e80>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode159>,
@@ -679,7 +679,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.85834649622947d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode160>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:36:44">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e81>,
        ?PERSON = #<RDF-IRI file:///#p4>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode161>,
@@ -687,7 +687,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.88172335834523d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode162>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:36:47">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e82>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode163>,
@@ -695,7 +695,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.879351300761176d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode164>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:36:51">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e83>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode165>,
@@ -703,7 +703,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.858384703183848d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode166>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:36:52">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e84>,
        ?PERSON = #<RDF-IRI file:///#p4>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode167>,
@@ -711,7 +711,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.881860596869842d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode168>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:36:55">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e85>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode169>,
@@ -719,7 +719,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.879400013936433d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode170>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:36:59">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e86>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode171>,
@@ -727,7 +727,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.858422909910107d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode172>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:37:00">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e87>,
        ?PERSON = #<RDF-IRI file:///#p4>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode173>,
@@ -735,7 +735,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.881997836003492d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode174>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:37:03">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e88>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode175>,
@@ -743,7 +743,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.879447143699057d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode176>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:37:07">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e89>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode177>,
@@ -751,7 +751,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.858461116408247d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode178>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:37:08">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e90>,
        ?PERSON = #<RDF-IRI file:///#p4>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode179>,
@@ -759,7 +759,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.88213507574617d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode180>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:37:11">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e91>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode181>,
@@ -767,7 +767,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.879493323517604d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode182>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:37:15">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e92>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode183>,
@@ -775,7 +775,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.858502781662384d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode184>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:37:16">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e93>,
        ?PERSON = #<RDF-IRI file:///#p4>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode185>,
@@ -783,7 +783,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.882272316097882d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode186>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:37:19">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e94>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode187>,
@@ -791,7 +791,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.879539503609383d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode188>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:37:23">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e95>,
        ?PERSON = #<RDF-IRI file:///#p2>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode189>,
@@ -799,7 +799,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.858543923895443d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode190>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:37:24">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e96>,
        ?PERSON = #<RDF-IRI file:///#p4>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode191>,
@@ -807,7 +807,7 @@ Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
        ?LONG = 24.882409557058633d0,
        ?TIME = #<RDF-BLANK-NODE _:bnode192>,
        ?DTTM = #<INSTANS::DATETIME "2012-03-05T13:37:27">
-Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS824
+Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e97>,
        ?PERSON = #<RDF-IRI file:///#p1>,
        ?PLACE = #<RDF-BLANK-NODE _:bnode193>,

@@ -34,7 +34,7 @@
 		       for (key value) = param
 		       collect (if (member key colon-expand-fields) (list key (parse-colon-separated-values value)) param))))
 	(unwind-protect
-					;	     (handler-case
+;	     (handler-case
 	     (loop for (key value) in configuration
 					;		    do (inform "key = ~S, value = ~S~%" key value)
 		   do (case key
@@ -51,7 +51,10 @@
 			 (instans-add-rules instans-iri (expand-iri directory value) :create-instans-p nil :base base)
 			 (unless (instans-find-status instans 'instans-rule-translation-succeeded)
 			   (let ((status (first (instans-status instans))))
-			     (inform "~%~A:~A~{~%~A~}~%" value (type-of status) (instans-status-messages status)))
+			     (cond ((null status)
+				    (inform "Something wrong!"))
+				   (t
+				    (inform "~%~A:~A~{~%~A~}~%" value (type-of status) (instans-status-messages status)))))
 			   (return-from run-configuration nil)))
 			(:triples
 			 (when (null (instans-query-output-processor instans))
@@ -95,8 +98,8 @@
 			(:rule-instance-removal-policy (set-policy :rule-instance-removal-policy (intern value :keyword) (instans-available-rule-instance-removal-policies instans)))
 			(:queue-execution-policy (set-policy :queue-execution-policy (intern value :keyword) (instans-available-queue-execution-policies instans)))
 			(:rete-html-page-dir (setf rete-html-page-dir value))))
-	  ;; (t (e) (inform "~A" e))
-	  ;; )
+;	       (t (e) (inform "~A" e))
+;	  )
 	  (when (instans-query-output-processor instans) (close-query-output-processor (instans-query-output-processor instans))))))))
 
 (defvar *test-argv*)

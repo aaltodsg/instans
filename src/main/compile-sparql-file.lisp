@@ -187,9 +187,9 @@
 	;; Is this OK?;	(initialize-execution instans)
 	(parse triples-parser)
 	(cond ((ll-parser-succeeded-p triples-parser)
-	       (instans-add-status instans 'instans-triples-parse-succeeded))
+	       (instans-add-status instans 'instans-triples-parsing-succeeded))
 	      (t
-	       (instans-add-status instans 'instans-triples-parse-failed (ll-parser-error-messages triples-parser))
+	       (instans-add-status instans 'instans-triples-parsing-failed (ll-parser-error-messages triples-parser))
 	       (inform "~A:~A" input (ll-parser-error-messages triples-parser))))
 	(report-execution-status instans)))
     instans))

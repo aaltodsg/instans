@@ -16,12 +16,24 @@
 
 (define-sparql-function "instans:add_rules" (:arguments ((instans-iri rdf-iri) (rules iri-or-string)) :returns rdf-iri)
   (:method ((instans-iri rdf-iri) (rules rdf-iri))
-    (instans-add-rules instans-iri rules)))
+    (let ((instans (instans-add-rules instans-iri rules)))
+      (and instans (instans-find-status instans 'instans-rule-translation-succeeded) t))))
+
+(define-sparql-function "instans:status" (:arguments ((instans-iri rdf-iri)) :returns xsd-string)
+  (:method ((instans-iri rdf-iri))
+    (let ((status (first (instans-status (get-instans instans-iri)))))
+      (if status (string-downcase (string (type-of status))) ""))))
 
 (define-sparql-function "instans:error_message" (:arguments ((instans-iri rdf-iri)) :returns xsd-string)
   (:method ((instans-iri rdf-iri))
     (let ((status (first (instans-status (get-instans instans-iri)))))
       (if status (format nil "~{~A~^~%~}" (instans-status-messages status)) ""))))
+
+(define-sparql-function "instans:has_status" (:arguments ((instans-iri rdf-iri) (status xsd-string-value)) :returns xsd-string)
+  (:method ((instans-iri rdf-iri) (status xsd-string-value))
+    (let* ((key (intern (string-upcase status) 'instans)) ;;; Note: always us package when interning something in run-time
+	   (instans (get-instans instans-iri)))
+      (and instans (instans-has-status instans key)))))
 
 (define-sparql-function "instans:add_triples" (:arguments ((instans-iri rdf-iri) (triples iri-or-string)
 							   &optional (graph-iri rdf-iri) (base rdf-iri))

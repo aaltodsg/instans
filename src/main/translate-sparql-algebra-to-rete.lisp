@@ -19,7 +19,7 @@
     (labels ((translate-failure (fmt &rest args)
 	       (let ((msg (apply #'format nil fmt args)))
 ;		 (inform "(translate-failure ~S ~S) -> ~S" fmt args msg)
-		 (instans-add-status 'instans-rule-translation-failed (list msg))
+		 (instans-add-status instans 'instans-rule-translation-failed (list msg))
 		 (return-from translate-sparql-algebra-to-rete nil)))
 	     (replace-exists-by-vars (e)
 	       (let ((exists-list nil)

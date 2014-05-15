@@ -429,12 +429,17 @@
 	  (remove value (aggregate-history this) :test #'(lambda (a b) (sparql-call "=" a b))))))
 
 (defgeneric instans-add-status (instans status-type &optional messages)
-  (:method ((this instans) (status-type instans-status) &optional messages)
+  (:method ((this instans) status-type &optional messages)
     (push (make-instance status-type :messages messages) (instans-status this))))
 
 (defgeneric instans-find-status (instans status-type)
-  (:method ((this instans) (status-type instans-status))
+  (:method ((this instans) status-type)
     (find-if #'(lambda (x) (typep x status-type)) (instans-status this))))
+
+;;; This is strange: using typep produces a strange internal error in SBCL
+(defgeneric instans-has-status (instans status-type)
+  (:method ((this instans) status-type)
+    (some #'(lambda (x) (typep x status-type)) (instans-status this))))
 
 (defgeneric instans-next-color (instans)
   (:method ((this instans))
@@ -458,5 +463,3 @@
   (:method ((this instans) topic-or-topics fmt &rest args)
     (when (apply #'instans-debug-p this (if (listp topic-or-topics) topic-or-topics (list topic-or-topics)))
       (apply #'inform fmt args))))
-
-

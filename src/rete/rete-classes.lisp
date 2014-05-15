@@ -306,7 +306,7 @@
    (colors :accessor instans-colors :initform nil)))
 
 (define-class instans-status ()
-  ((messages :accessor instans-status-messages :initform nil)))
+  ((messages :accessor instans-status-messages :initarg :messages)))
 
 (define-class instans-rule-parsing-failed (instans-status) ())
 (define-class instans-rule-parsing-succeeded (instans-status) ())
