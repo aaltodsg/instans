@@ -231,7 +231,7 @@
       (loop while (rule-instance-queue-head queue)
 	   do (execute-rules this))
 ;      (describe this)
-)))
+      (instans-add-status this 'instans-initialization-succeeded))))
 
 ;; (defgeneric initial-data-ops (instans)
 ;;   (:method ((this instans))

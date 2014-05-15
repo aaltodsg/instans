@@ -7,28 +7,28 @@
 
 (defun compile-sparql-file (file &key instans instans-name rete-html-page-dir base)
   (with-open-file (input-stream file)
-    (setf instans (compile-sparql-stream input-stream :input-name file :instans instans :instans-name instans-name :base base))
-    (when (and instans rete-html-page-dir) (output-rete-html-page instans input-name rete-html-page-dir))
+    (setf instans (compile-sparql-stream input-stream :instans instans :instans-name instans-name :base base))
+    (when (and instans rete-html-page-dir) (output-rete-html-page instans file rete-html-page-dir))
     instans))
 
-(defun compile-sparql-stream (stream &key input-name instans instans-name base)
+(defun compile-sparql-stream (stream &key instans instans-name base)
   (when (null instans)
     (setf instans (make-instance 'instans :name instans-name)))
-  (let* ((ll-parser (sparql-parse-stream instans stream :base base))
-	 (algebra-expr-list nil))
+  (setf (instans-algebra-expr-list instans) nil)
+  (let* ((ll-parser (sparql-parse-stream instans stream :base base)))
     (cond ((not (ll-parser-succeeded-p ll-parser))
 	   (instans-add-status instans 'instans-rule-parsing-failed (ll-parser-error-messages ll-parser))
 	   (return-from compile-sparql-stream nil))
 	  (t
 	   (instans-add-status instans 'instans-rule-parsing-succeeded)
 	   (instans-debug-message instans :sparql-parsing "Parsed ~S" (first (ll-parser-result-stack ll-parser)))
-	   (setf algebra-expr-list (filter-not #'(lambda (x) (member (car x) '(PREFIX BASE))) (first (ll-parser-result-stack ll-parser))))))
-    (loop for algebra-expr in algebra-expr-list
+	   (setf (instans-algebra-expr-list instans) (filter-not #'(lambda (x) (member (car x) '(PREFIX BASE))) (first (ll-parser-result-stack ll-parser))))))
+    (loop for algebra-expr in (instans-algebra-expr-list instans)
 	  for canonic = (canonize-sparql-algebra-variables instans algebra-expr)
 	  for new-nodes = (translate-sparql-algebra-to-rete instans canonic)
 	  when (instans-find-status instans 'instans-rule-translation-failed)
 	  do (return-from compile-sparql-stream nil)
-	  else do (lisp-compile-nodes instans new-nodes))
+	  else do (lisp-compile-nodes new-nodes))
     (instans-add-status instans 'instans-rule-translation-succeeded)
     instans))
 
@@ -72,15 +72,15 @@
 
 (defvar *instanssi*)
 
-(defun instans-add-rules (instans-iri rules &key (create-instans-p t))
-  (instans-debug-message instans :parse-rules "instans-add-rules ~S ~S :base ~S" instans-iri rules base)
+(defun instans-add-rules (instans-iri rules &key (create-instans-p t) base)
   (let ((instans (if create-instans-p (create-instans instans-iri) (get-instans instans-iri))))
+    (instans-debug-message instans :parse-rules "instans-add-rules ~S ~S :base ~S" instans-iri rules base)
     (cond ((sparql-error-p instans) nil)
 	  ((file-or-uri-exists-p rules)
 	   (let ((string (read-from-url-or-file rules)))
 	     (instans-debug-message instans :parse-rules "~S" string)
 	     (with-input-from-string (stream string)
-	       (compile-sparql-stream stream :instans instans :input-name (if (stringp rules) rules (rdf-iri-string rules)) :base base)
+	       (compile-sparql-stream stream :instans instans :base base)
 	       (cond ((instans-find-status instans 'instans-rule-translation-succeeded)
 		      (initialize-execution instans)
 		      instans)
@@ -173,9 +173,9 @@
 ;;   (run-triple-processors instans)))
 
 (defun instans-add-triples (instans-iri input &key graph base)
-  (instans-debug-message instans '(:parse-triples :execute) "instans-add-triples ~S ~S :graph ~S :base ~S" instans-iri input graph base))
   (let* ((instans (get-instans instans-iri))
 	 (string (stream-contents-to-string (create-input-stream input))))
+    (instans-debug-message instans '(:parse-triples :execute) "instans-add-triples ~S ~S :graph ~S :base ~S" instans-iri input graph base)
     (with-input-from-string (triples-stream string)
       (let ((triples-parser (make-turtle-parser instans triples-stream
 						:base base
@@ -186,8 +186,11 @@
 	(instans-debug-message instans '(:execute :parse-triples) "~%Processing triples:~%")
 	;; Is this OK?;	(initialize-execution instans)
 	(parse triples-parser)
-	(unless (ll-parser-succeeded-p triples-parser)
-	  (inform "~A:~A" input (instans-error-message instans)))
+	(cond ((ll-parser-succeeded-p triples-parser)
+	       (instans-add-status instans 'instans-triples-parse-succeeded))
+	      (t
+	       (instans-add-status instans 'instans-triples-parse-failed (ll-parser-error-messages triples-parser))
+	       (inform "~A:~A" input (ll-parser-error-messages triples-parser))))
 	(report-execution-status instans)))
     instans))
 
@@ -248,46 +251,3 @@
 	  (t
 	   (error* "~A does not name a file or uri" name)))))
 
-(defun run-syntax-tests (rules test-root-directory test-root-uri test-sets)
-  (setf rules (concatenate 'string "file://" (namestring (probe-file rules))))
-  (let* ((root-iri-string (let ((path (probe-file test-root-directory)))
-			    (cond ((and path (null (pathname-name path)))
-				   (when (member test-sets '(t :all))
-				     (setf test-sets (test-root-subdir-names test-root-directory)))
-				   (concatenate 'string "file://" (namestring path)))
-				  (t
-				   (format t "~&NOTE! Sparql test data directory not found in ~A" test-root-directory)
-				   (format t "~&      If you want the tests run faster, download file")
-				   (format t "~&      ~A.tar.gz" test-root-uri)
-				   (format t "~&      and extract directory test-suite-archive/data-r2/ into ~A" test-root-uri)
-				   (format t "~&      Using ~A instead" test-root-uri)
-				   test-root-uri))))
-	 (output-dir (or (let ((path (probe-file "../tests/output")))
-			   (and path (string= (namestring path) (directory-namestring path)) (namestring path)))
-			 (progn
-			   (format t "~&NOTE! The output directory ../tests/output does not exist.")
-			   (format t "~&      Create it if you want to have an HTML page showing the RETE network")
-			   nil))))
-    (loop for name in test-sets
-	  for base-iri-string = (format nil "~A~A/" root-iri-string name)
-	  for manifest-iri-string = (format nil "~A/manifest.ttl" base-iri-string)
-	  do (cond ((not (file-or-uri-exists-p manifest-iri-string))
-		    (format t "~&Manifest file ~A not found~&" manifest-iri-string))
-		   (t
-		    (format t "~&Running tests ~A~&" name)
-		    (instans-execute-system rules :triples (parse-iri manifest-iri-string) :base (parse-iri base-iri-string)))))))
-
-(defun run-data-r2-syntax-tests (&optional (test-sets '("syntax-sparql1" "syntax-sparql2" "syntax-sparql3" "syntax-sparql4" "syntax-sparql5")))
-  (run-syntax-tests "../tests/input/syntax-test.rq" "../tests/data-r2" "http://www.w3.org/2001/sw/DataAccess/tests/data-r2" test-sets))
-
-(defun run-data-sparql11-syntax-tests (&optional (test-sets '("syntax-query" "syntax-update-1" "syntax-update-2")))
-  (run-syntax-tests "../tests/input/syntax-test.rq" "../tests/data-sparql11" "http://www.w3.org/2009/sparql/docs/tests/data-sparql11" test-sets))
-
-(defun run-all-syntax-tests ()
-  (run-syntax-tests "../tests/input/syntax-test.rq" "../tests/data-r2" "http://www.w3.org/2001/sw/DataAccess/tests/data-r2" t)
-  (run-syntax-tests "../tests/input/syntax-test.rq" "../tests/data-sparql11" "http://www.w3.org/2009/sparql/docs/tests/data-sparql11" t))
-
-;; (defun run-all-syntax-tests ()
-;;   (sparql-call "instans:execute_system" "/Users/enu/instans/tests/input/syntax-test-runner.rq" )
-
-					;(progn (untrace) (trace rete-add token-value make-token add-token remove-token add-alpha-token remove-alpha-token add-beta-token remove-beta-token))

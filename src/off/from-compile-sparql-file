@@ -1,0 +1,43 @@
+(defun run-syntax-tests (rules test-root-directory test-root-uri test-sets)
+  (setf rules (concatenate 'string "file://" (namestring (probe-file rules))))
+  (let* ((root-iri-string (let ((path (probe-file test-root-directory)))
+			    (cond ((and path (null (pathname-name path)))
+				   (when (member test-sets '(t :all))
+				     (setf test-sets (test-root-subdir-names test-root-directory)))
+				   (concatenate 'string "file://" (namestring path)))
+				  (t
+				   (format t "~&NOTE! Sparql test data directory not found in ~A" test-root-directory)
+				   (format t "~&      If you want the tests run faster, download file")
+				   (format t "~&      ~A.tar.gz" test-root-uri)
+				   (format t "~&      and extract directory test-suite-archive/data-r2/ into ~A" test-root-uri)
+				   (format t "~&      Using ~A instead" test-root-uri)
+				   test-root-uri))))
+	 (output-dir (or (let ((path (probe-file "../tests/output")))
+			   (and path (string= (namestring path) (directory-namestring path)) (namestring path)))
+			 (progn
+			   (format t "~&NOTE! The output directory ../tests/output does not exist.")
+			   (format t "~&      Create it if you want to have an HTML page showing the RETE network")
+			   nil))))
+    (loop for name in test-sets
+	  for base-iri-string = (format nil "~A~A/" root-iri-string name)
+	  for manifest-iri-string = (format nil "~A/manifest.ttl" base-iri-string)
+	  do (cond ((not (file-or-uri-exists-p manifest-iri-string))
+		    (format t "~&Manifest file ~A not found~&" manifest-iri-string))
+		   (t
+		    (format t "~&Running tests ~A~&" name)
+		    (instans-execute-system rules :triples (parse-iri manifest-iri-string) :base (parse-iri base-iri-string)))))))
+
+(defun run-data-r2-syntax-tests (&optional (test-sets '("syntax-sparql1" "syntax-sparql2" "syntax-sparql3" "syntax-sparql4" "syntax-sparql5")))
+  (run-syntax-tests "../tests/input/syntax-test.rq" "../tests/data-r2" "http://www.w3.org/2001/sw/DataAccess/tests/data-r2" test-sets))
+
+(defun run-data-sparql11-syntax-tests (&optional (test-sets '("syntax-query" "syntax-update-1" "syntax-update-2")))
+  (run-syntax-tests "../tests/input/syntax-test.rq" "../tests/data-sparql11" "http://www.w3.org/2009/sparql/docs/tests/data-sparql11" test-sets))
+
+(defun run-all-syntax-tests ()
+  (run-syntax-tests "../tests/input/syntax-test.rq" "../tests/data-r2" "http://www.w3.org/2001/sw/DataAccess/tests/data-r2" t)
+  (run-syntax-tests "../tests/input/syntax-test.rq" "../tests/data-sparql11" "http://www.w3.org/2009/sparql/docs/tests/data-sparql11" t))
+
+;; (defun run-all-syntax-tests ()
+;;   (sparql-call "instans:execute_system" "/Users/enu/instans/tests/input/syntax-test-runner.rq" )
+
+					;(progn (untrace) (trace rete-add token-value make-token add-token remove-token add-alpha-token remove-alpha-token add-beta-token remove-beta-token))

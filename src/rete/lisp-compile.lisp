@@ -17,7 +17,7 @@
 	 (intern (string (uniquely-named-object-name expr)) :instans))
 	(t expr)))
 
-(defun lisp-compile-nodes (instans new-nodes)
+(defun lisp-compile-nodes (new-nodes)
   ;;; Take this in use at some point
   ;(inform "compiling ~S~%" algebra-expr)
   (loop for node in new-nodes

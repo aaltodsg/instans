@@ -111,7 +111,7 @@
 
 (defgeneric dot-node-color (node)
   (:method ((this node))
-    (or (cdr (assoc this (instans-node-color-alist (node-instans node)))) "Black")))
+    (or (cdr (assoc this (instans-node-color-alist (node-instans this)))) "Black")))
 
 (defun var-orig-names (node canonic-vars)
   (let ((alist (node-bindings node)))
@@ -199,7 +199,7 @@
 	   (bnd-output-file (make-pathname :directory truedirname :name name-part :type "bnd"))
 	   (sa-output-file (make-pathname :directory truedirname :name name-part :type "sa")))
       (with-open-file (out sa-output-file :direction :output :if-exists :supersede)
-	(loop for expr in algebra-expr-list
+	(loop for expr in (instans-algebra-expr-list instans)
 					;	        do (inform "algebra-expr:~%~A" expr)
 	      do (let* ((*print-circle* nil)
 			(*print-pretty* t)
@@ -218,7 +218,4 @@
       (print-dot-file instans dot-output-file :html-labels-p nil)
       (when (pathnamep make-rete-html-page-script) (setf make-rete-html-page-script (namestring make-rete-html-page-script)))
       (assert (probe-file make-rete-html-page-script))
-      (when subscribe
-	(inform "Running ~S on ~S" make-rete-html-page-script input-name))
       (shell-script make-rete-html-page-script input-name rete-html-page-dir))))
-

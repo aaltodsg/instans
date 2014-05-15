@@ -302,15 +302,18 @@
    (default-output :accessor instans-default-output :initarg :default-output :initform t)
    (status :accessor instans-status :initform nil)
    (debug-topics :accessor instans-debug-topics :initform nil)
-   (color :accessor instans-color :initform nil)))
+   (algebra-expr-list :accessor instans-algebra-expr-list :initform nil)
+   (colors :accessor instans-colors :initform nil)))
 
 (define-class instans-status ()
   ((messages :accessor instans-status-messages :initform nil)))
 
-(define-class instans-rule-parsing-failedo (instans-status) ())
+(define-class instans-rule-parsing-failed (instans-status) ())
 (define-class instans-rule-parsing-succeeded (instans-status) ())
 (define-class instans-rule-translation-failed (instans-status) ())
 (define-class instans-rule-translation-succeeded (instans-status) ())
 (define-class instans-initialization-failed (instans-status) ())
 (define-class instans-initialization-succeeded (instans-status) ())
+(define-class instans-triples-parsing-failed (instans-status) ())
+(define-class instans-triples-parsing-succeeded (instans-status) ())
 

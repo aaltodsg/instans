@@ -48,19 +48,19 @@
 			(:rules
 			 (when (null (instans-query-output-processor instans))
 			   (setf (instans-query-output-processor instans) (create-query-output-processor query-output-name query-output-type)))
-			 (unless (instans-add-rules instans-iri (expand-iri directory value)
-						    :create-instans-p nil
-						    :base base :rete-html-page-dir rete-html-page-dir
-						    :subscribe debug)
-			   (inform "~%~A:~A~%" value (instans-error-message instans))
+			 (instans-add-rules instans-iri (expand-iri directory value) :create-instans-p nil :base base)
+			 (unless (instans-find-status instans 'instans-rule-translation-succeeded)
+			   (let ((status (first (instans-status instans))))
+			     (inform "~%~A:~A~{~%~A~}~%" value (type-of status) (instans-status-messages status)))
 			   (return-from run-configuration nil)))
 			(:triples
 			 (when (null (instans-query-output-processor instans))
 			   (setf (instans-query-output-processor instans) (create-query-output-processor query-output-name query-output-type)))
-			 (instans-add-triples instans-iri (expand-iri directory value)
-					      :graph graph
-					      :base base
-					      :subscribe debug))
+			 (instans-add-triples instans-iri (expand-iri directory value) :graph graph :base base)
+			 (unless (instans-find-status instans 'instans-triples-parsing-succeeded)
+			   (let ((status (first (instans-status instans))))
+			     (inform "~%~A:~A~{~%~A~}~%" value (type-of status) (instans-status-messages status)))
+			   (return-from run-configuration nil)))
 		     ;;; "base=http://example.org/friends/&graph=http://instans.org/events/&file=tests/input/fnb.ttl&input-policy=triples-block&operations:add:execute:remove:execute"
 			(:input
 			 (let ((input-parameters (parse-parameters value :colon-expand-fields '(:triple-processing-operations))))
@@ -74,8 +74,7 @@
 			   (instans-add-triple-processor instans-iri 
 							 (expand-iri directory (or (getf input-parameters :file) (getf input-parameters :iri)))
 							 :graph graph
-							 :base base
-							 :subscribe debug)))
+							 :base base)))
 			(:query-output
 			 (setf query-output-name value)
 					;			  (inform "query-output-name = ~S" query-output-name)

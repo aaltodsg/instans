@@ -66,7 +66,7 @@
 				      (find-if #'(lambda (n) (node-matches-constructor-args-p n type args)) (if prev (node-succ prev) (instans-nodes instans))))))
 		     (when (null result)
 		       (setf result (apply #'make-instance type :instans instans args))
-		       (push-to-end (cons result-node color) (instans-node-color-alist instans))
+		       (push-to-end (cons result color) (instans-node-color-alist instans))
 		       (push-to-end result new-nodes)
 		       (when prev (push-to-end-new result (node-succ prev))))
 		     result))))
@@ -241,7 +241,7 @@
 		    nil)))))
       (translate sae nil nil)
       (compute-node-vars new-nodes)
-      (instans-add-status 'instans-rule-translation-succeeded)
+      (instans-add-status instans 'instans-rule-translation-succeeded)
       new-nodes)))
 
 (defun collect-blanks (expr)
