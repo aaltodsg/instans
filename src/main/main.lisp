@@ -34,70 +34,70 @@
 		       for (key value) = param
 		       collect (if (member key colon-expand-fields) (list key (parse-colon-separated-values value)) param))))
 	(unwind-protect
-;	     (handler-case
-		 (loop for (key value) in configuration
-;		    do (inform "key = ~S, value = ~S~%" key value)
-		    do (case key
-			 (:name (setf (instans-name instans) value))
-			 (:directory (setf directory (parse-iri (if (http-or-file-iri-string-p value)
-								    value
-								    (format nil "file://~A" (expand-dirname value))))))
-			 (:base (setf base (parse-iri value)))
-			 (:graph (if (string= (string-downcase value) "default") nil (setf graph (parse-iri value))))
-			 (:execute (instans-run instans-iri))
-			 (:rules
-			  (when (null (instans-query-output-processor instans))
-			    (setf (instans-query-output-processor instans) (create-query-output-processor query-output-name query-output-type)))
-			  (unless (instans-add-rules instans-iri (expand-iri directory value)
-						     :create-instans-p nil
-						     :base base :rete-html-page-dir rete-html-page-dir
-						     :subscribe debug)
-			    (inform "~%~A:~A~%" value (instans-error-message instans))
-			    (return-from run-configuration nil)))
-			 (:triples
-			  (when (null (instans-query-output-processor instans))
-			    (setf (instans-query-output-processor instans) (create-query-output-processor query-output-name query-output-type)))
-			  (instans-add-triples instans-iri (expand-iri directory value)
-					       :graph graph
-					       :base base
-					       :subscribe debug))
+					;	     (handler-case
+	     (loop for (key value) in configuration
+					;		    do (inform "key = ~S, value = ~S~%" key value)
+		   do (case key
+			(:name (setf (instans-name instans) value))
+			(:directory (setf directory (parse-iri (if (http-or-file-iri-string-p value)
+								   value
+								   (format nil "file://~A" (expand-dirname value))))))
+			(:base (setf base (parse-iri value)))
+			(:graph (if (string= (string-downcase value) "default") nil (setf graph (parse-iri value))))
+			(:execute (instans-run instans-iri))
+			(:rules
+			 (when (null (instans-query-output-processor instans))
+			   (setf (instans-query-output-processor instans) (create-query-output-processor query-output-name query-output-type)))
+			 (unless (instans-add-rules instans-iri (expand-iri directory value)
+						    :create-instans-p nil
+						    :base base :rete-html-page-dir rete-html-page-dir
+						    :subscribe debug)
+			   (inform "~%~A:~A~%" value (instans-error-message instans))
+			   (return-from run-configuration nil)))
+			(:triples
+			 (when (null (instans-query-output-processor instans))
+			   (setf (instans-query-output-processor instans) (create-query-output-processor query-output-name query-output-type)))
+			 (instans-add-triples instans-iri (expand-iri directory value)
+					      :graph graph
+					      :base base
+					      :subscribe debug))
 		     ;;; "base=http://example.org/friends/&graph=http://instans.org/events/&file=tests/input/fnb.ttl&input-policy=triples-block&operations:add:execute:remove:execute"
-			 (:input
-			  (let ((input-parameters (parse-parameters value :colon-expand-fields '(:triple-processing-operations))))
-			    (inform "~S" input-parameters)
-			    (loop for (key . value) in input-parameters
-			       do (case key
-				    (:base (setf base value))
-				    (:graph (setf graph value))
-				    (:triple-input-policy (setf (getf policies :triple-input-policy) value))
-				    (:triple-processing-operations (setf (getf policies :triple-processing-operations) value))))
-			    (instans-add-triple-processor instans-iri 
-							  (expand-iri directory (or (getf input-parameters :file) (getf input-parameters :iri)))
-							  :graph graph
-							  :base base
-							  :subscribe debug)))
-			 (:query-output
-			  (setf query-output-name value)
-;			  (inform "query-output-name = ~S" query-output-name)
-			  (setf query-output-type (intern (string-upcase (pathname-type (parse-namestring value))) :keyword)))
-			 (:expect (let ((spec (parse-spec-string value)))
-				    (inform "expect spec = ~S" spec)
-				    (setf expected spec)))
-			 (:reporting (setf reporting (parse-colon-separated-values value))
-				     (if (member :all reporting)
-					 (setf reporting '(:select :construct :modify :all)))
-				     (setf (rule-instance-queue-report-p (instans-rule-instance-queue instans)) reporting))
-			 (:debug (setf debug (parse-colon-separated-values value)))
-			 (:verbose (setf debug (parse-colon-separated-values value)))
-			 (:triple-input-policy (set-policy :triple-input-policy (intern value :keyword) (instans-available-triple-input-policies instans)))
-			 (:triple-processing-operations (set-policy :triple-processing-operations (parse-colon-separated-values value)
-								    (instans-available-triple-processing-operations instans)
-								    :test #'(lambda (values accepted) (every #'(lambda (v) (member v accepted :test #'equal)) values))))
-			 (:rule-instance-removal-policy (set-policy :rule-instance-removal-policy (intern value :keyword) (instans-available-rule-instance-removal-policies instans)))
-			 (:queue-execution-policy (set-policy :queue-execution-policy (intern value :keyword) (instans-available-queue-execution-policies instans)))
-			 (:rete-html-page-dir (setf rete-html-page-dir value))))
-	       ;; (t (e) (inform "~A" e))
-	       ;; )
+			(:input
+			 (let ((input-parameters (parse-parameters value :colon-expand-fields '(:triple-processing-operations))))
+			   (inform "~S" input-parameters)
+			   (loop for (key . value) in input-parameters
+				 do (case key
+				      (:base (setf base value))
+				      (:graph (setf graph value))
+				      (:triple-input-policy (setf (getf policies :triple-input-policy) value))
+				      (:triple-processing-operations (setf (getf policies :triple-processing-operations) value))))
+			   (instans-add-triple-processor instans-iri 
+							 (expand-iri directory (or (getf input-parameters :file) (getf input-parameters :iri)))
+							 :graph graph
+							 :base base
+							 :subscribe debug)))
+			(:query-output
+			 (setf query-output-name value)
+					;			  (inform "query-output-name = ~S" query-output-name)
+			 (setf query-output-type (intern (string-upcase (pathname-type (parse-namestring value))) :keyword)))
+			(:expect (let ((spec (parse-spec-string value)))
+				   (inform "expect spec = ~S" spec)
+				   (setf expected spec)))
+			(:reporting (setf reporting (parse-colon-separated-values value))
+				    (if (member :all reporting)
+					(setf reporting '(:select :construct :modify :all)))
+				    (setf (rule-instance-queue-report-p (instans-rule-instance-queue instans)) reporting))
+			(:debug (setf debug (parse-colon-separated-values value)))
+			(:verbose (setf debug (parse-colon-separated-values value)))
+			(:triple-input-policy (set-policy :triple-input-policy (intern value :keyword) (instans-available-triple-input-policies instans)))
+			(:triple-processing-operations (set-policy :triple-processing-operations (parse-colon-separated-values value)
+								   (instans-available-triple-processing-operations instans)
+								   :test #'(lambda (values accepted) (every #'(lambda (v) (member v accepted :test #'equal)) values))))
+			(:rule-instance-removal-policy (set-policy :rule-instance-removal-policy (intern value :keyword) (instans-available-rule-instance-removal-policies instans)))
+			(:queue-execution-policy (set-policy :queue-execution-policy (intern value :keyword) (instans-available-queue-execution-policies instans)))
+			(:rete-html-page-dir (setf rete-html-page-dir value))))
+	  ;; (t (e) (inform "~A" e))
+	  ;; )
 	  (when (instans-query-output-processor instans) (close-query-output-processor (instans-query-output-processor instans))))))))
 
 (defvar *test-argv*)

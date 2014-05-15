@@ -59,51 +59,51 @@
       (setf default-body (cdr (car (last specs))))
       (setf specs (butlast specs)))
     (list `(cond ,@(loop for (method-sym inner-args-spec . body) in specs
-		      for inner-lambda-list = (make-sparql-function-lambda-list inner-args-spec)
-		      unless (eq method-sym :method)
-		      do (error* "Malformed method spec ~A" specs)
-		      unless (sparql-function-inner-and-outer-args-spec-compatible-p inner-args-spec outer-args-spec)
-		      do (error* "~A: Incompatible lambda lists ~A and ~A" name outer-args-spec inner-args-spec)
-		      collect (loop with test-lambda-list = nil
-				 with test-forms = nil
-				 with test-actuals = nil
-				 with body-lambda-list = nil
-				 for optional-seen-p = nil then (or optional-seen-p (eq inner-item '&optional))
-				 for rest-seen-p = nil then (or rest-seen-p (eq inner-item '&rest))
-				 for inner-item in inner-args-spec
-				 for outer-item in outer-args-spec
-				 do (cond ((member inner-item '(&optional))
-					   (push-to-end inner-item test-lambda-list)
-					   (push-to-end inner-item body-lambda-list))
-					  ((symbolp inner-item)
-					   (push-to-end inner-item body-lambda-list))
-					  ((and optional-seen-p (not rest-seen-p))
-					   (push-to-end (first inner-item) test-lambda-list)
-					   (push-to-end `(or (not ,(first inner-item)) (typep ,(first inner-item) ',(second inner-item))) test-forms)
-					   (push-to-end (first inner-item) body-lambda-list)
-					   (push-to-end (first outer-item) test-actuals))
-					  (t
-					   (push-to-end (first inner-item) test-lambda-list)
-					   (push-to-end `(typep ,(first inner-item) ',(second inner-item)) test-forms)
-					   (push-to-end (first inner-item) body-lambda-list)
-					   (push-to-end (first outer-item) test-actuals)))
-				 finally (progn
-					   (when (null test-forms)
-					     (cond ((not (null default-body-present-p))
-						    (error* "~A: cannot have a :default definition and a null test in the same op" name))
-						   ((not true-condition-found-p)
-						    (setf true-condition-found-p t))
-						   (t
-						    (error* "~A: Two methods yield an empty argument type test (T)!" name))))
-					   (let ((op-lambda-call `(,@(if rest-seen-p '(apply))
-								     (lambda (,@body-lambda-list) ,@body) ,@outer-arg-names)))
-					     (return (if (null test-forms)
-							 `(t ,op-lambda-call)
-							 `((,@(if rest-seen-p '(apply))
-							      (lambda (,@test-lambda-list)
-								(and ,@test-forms))
-							      ,@test-actuals)
-							   ,op-lambda-call)))))))
+			 for inner-lambda-list = (make-sparql-function-lambda-list inner-args-spec)
+			 unless (eq method-sym :method)
+			 do (error* "Malformed method spec ~A" specs)
+			 unless (sparql-function-inner-and-outer-args-spec-compatible-p inner-args-spec outer-args-spec)
+			 do (error* "~A: Incompatible lambda lists ~A and ~A" name outer-args-spec inner-args-spec)
+			 collect (loop with test-lambda-list = nil
+				       with test-forms = nil
+				       with test-actuals = nil
+				       with body-lambda-list = nil
+				       for optional-seen-p = nil then (or optional-seen-p (eq inner-item '&optional))
+				       for rest-seen-p = nil then (or rest-seen-p (eq inner-item '&rest))
+				       for inner-item in inner-args-spec
+				       for outer-item in outer-args-spec
+				       do (cond ((member inner-item '(&optional))
+						 (push-to-end inner-item test-lambda-list)
+						 (push-to-end inner-item body-lambda-list))
+						((symbolp inner-item)
+						 (push-to-end inner-item body-lambda-list))
+						((and optional-seen-p (not rest-seen-p))
+						 (push-to-end (first inner-item) test-lambda-list)
+						 (push-to-end `(or (not ,(first inner-item)) (typep ,(first inner-item) ',(second inner-item))) test-forms)
+						 (push-to-end (first inner-item) body-lambda-list)
+						 (push-to-end (first outer-item) test-actuals))
+						(t
+						 (push-to-end (first inner-item) test-lambda-list)
+						 (push-to-end `(typep ,(first inner-item) ',(second inner-item)) test-forms)
+						 (push-to-end (first inner-item) body-lambda-list)
+						 (push-to-end (first outer-item) test-actuals)))
+				       finally (progn
+						 (when (null test-forms)
+						   (cond ((not (null default-body-present-p))
+							  (error* "~A: cannot have a :default definition and a null test in the same op" name))
+							 ((not true-condition-found-p)
+							  (setf true-condition-found-p t))
+							 (t
+							  (error* "~A: Two methods yield an empty argument type test (T)!" name))))
+						 (let ((op-lambda-call `(,@(if rest-seen-p '(apply))
+									   (lambda (,@body-lambda-list) ,@body) ,@outer-arg-names)))
+						   (return (if (null test-forms)
+							       `(t ,op-lambda-call)
+							       `((,@(if rest-seen-p '(apply))
+								    (lambda (,@test-lambda-list)
+								      (and ,@test-forms))
+								    ,@test-actuals)
+								 ,op-lambda-call)))))))
 		 ,@(cond ((not (null default-body-present-p))
 			  (list `(t ,@default-body)))
 			 ((not true-condition-found-p)
@@ -154,7 +154,7 @@
 
 (defmacro define-sparql-function (prefixed-name-string (&key arguments returns hiddenp) &body methods)
   `(define-sparql-op sparql-function ,prefixed-name-string (:arguments ,arguments :returns ,returns :hiddenp ,hiddenp)
-;     (inform "(~S ~{~A~^ ~})" ,prefixed-name-string (list ,@(loop for arg in arguments when (consp arg) collect (first arg) else when (not (member arg '(&rest &optional))) collect arg)))
+					;     (inform "(~S ~{~A~^ ~})" ,prefixed-name-string (list ,@(loop for arg in arguments when (consp arg) collect (first arg) else when (not (member arg '(&rest &optional))) collect arg)))
      ;; (inform "~A ~A" ,prefixed-name-string (list ,@(loop for arg in arguments when (and (symbolp arg) (not (member arg '(&optional &rest)))) collect arg
      ;; 							else when (not (symbolp arg)) collect (first arg))))
      ,@(make-sparql-function-body prefixed-name-string arguments methods)))
