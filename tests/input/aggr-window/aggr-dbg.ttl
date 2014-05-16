@@ -1,0 +1,9 @@
+PREFIX : <http://www.example.org/>
+
+:e1 :time 0 .
+#:e2 :time 3 .
+:e3 :time 12 .
+:e4 :time 21 .
+# :e5 :time 21 .
+# :e6 :time 22 .
+# :lastevent :time 30 .

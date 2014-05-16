@@ -1,0 +1,27 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix : <http://www.w3.org/2009/sparql/docs/tests/data-sparql11/exists/manifest#> .
+@prefix rdfs:	<http://www.w3.org/2000/01/rdf-schema#> .
+@prefix mf:     <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#> .
+@prefix qt:     <http://www.w3.org/2001/sw/DataAccess/tests/test-query#> .
+@prefix dawgt:   <http://www.w3.org/2001/sw/DataAccess/tests/test-dawg#> .
+@prefix sparql:  <http://www.w3.org/ns/sparql#> .
+@prefix gi:  <https://github.com/aaltodsg/instans/issues/>
+
+<>  rdf:type mf:Manifest ;
+    rdfs:label "GitHub Issues" ;
+    mf:entries
+    ( 
+    gi:2
+  ).
+
+
+gi:2 rdf:type mf:UpdateEvaluationTest ;
+    mf:name "Inserting unbound variables triggers a warning" ;
+    dawgt:approval dawgt:Approved;
+    dawgt:approvedBy <http://www.w3.org/2009/sparql/meeting/2012-02-07#resolution_2> ;
+    mf:action
+         [ qt:query  <issue2.rq> ;
+           qt:data   <issue2.ttl> ] ;
+    mf:result  <issue2.csv> ;
+    :status "Closed"
+    .

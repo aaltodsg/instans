@@ -1,0 +1,32 @@
+PREFIX : <http://www.example.org/>
+
+INSERT {
+          ?iri :avg ?avg ; :window ?windowN
+}
+WHERE {
+      {
+      SELECT ?windowN (avg(?time) AS ?avg)
+      WHERE {
+         ?event :time ?time . 
+      }       
+      GROUP BY (floor(?time / 10) AS ?windowN)
+      }
+      ?newestEvent :time ?newestTime .
+      FILTER(floor(?newestTime / 10) = ?windowN + 1)
+      BIND(iri(concat("avg",str(?windowN))) AS ?iri)
+      FILTER NOT EXISTS { ?iri :avg ?avg }
+}       
+;
+DELETE {
+          ?event :time ?time .      
+}
+WHERE {
+      ?iri :window ?windowN .
+      ?event :time ?time .      
+      FILTER(floor(?time / 10) = ?windowN)
+}
+;
+SELECT ?iri ?windowN ?avg
+WHERE {
+          ?iri :avg ?avg ; :window ?windowN
+}
