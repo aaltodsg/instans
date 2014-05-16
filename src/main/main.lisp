@@ -49,13 +49,15 @@
 			 (when (null (instans-query-output-processor instans))
 			   (setf (instans-query-output-processor instans) (create-query-output-processor query-output-name query-output-type)))
 			 (instans-add-rules instans-iri (expand-iri directory value) :create-instans-p nil :base base)
-			 (unless (instans-find-status instans 'instans-rule-translation-succeeded)
-			   (let ((status (first (instans-status instans))))
-			     (cond ((null status)
-				    (inform "Something wrong!"))
-				   (t
-				    (inform "~%~A:~A~{~%~A~}~%" value (type-of status) (instans-status-messages status)))))
-			   (return-from run-configuration nil)))
+			 (cond ((instans-find-status instans 'instans-rule-translation-succeeded)
+				(if rete-html-page-dir (output-rete-html-page instans value rete-html-page-dir)))
+			       (t
+				(let ((status (first (instans-status instans))))
+				  (cond ((null status)
+					 (inform "Something wrong!"))
+					(t
+					 (inform "~%~A:~A~{~%~A~}~%" value (type-of status) (instans-status-messages status)))))
+				(return-from run-configuration nil))))
 			(:triples
 			 (when (null (instans-query-output-processor instans))
 			   (setf (instans-query-output-processor instans) (create-query-output-processor query-output-name query-output-type)))
