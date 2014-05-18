@@ -219,12 +219,9 @@
   (when (rdf-iri-equal expected-results *rdf-nil*) (setf expected-results nil))
 					;  (handler-case 
   (multiple-value-bind (instans instans-iri) (create-instans)
-    (format (instans-default-output instans) "~%execute_system ~A ~A ~A ~A ~A~&" rules triples expected-results graph base)
-    (multiple-value-bind (add-rules-result error)
-	(instans-add-rules instans-iri rules :base base)
-      (declare (ignore add-rules-result))
-      (when (not (null error))
-	(return-from instans-execute-system (values nil error))))
+    (format (instans-default-output instans) "~%execute_system rules=~A, triples=~A, expected_results=~A, graph=~A,base=~A~&" rules triples expected-results graph base)
+    (or (instans-add-rules instans-iri rules :base base)
+	(return-from instans-execute-system nil))
     (if triples
 	(instans-add-triples instans-iri triples :graph graph :base base))))
 

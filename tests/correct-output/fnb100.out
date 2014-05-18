@@ -298,11 +298,11 @@ Rule #<SELECT-NODE 95> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?PERSON1 = #<RDF-IRI file:///#p4>,
        ?PERSON2 = #<RDF-IRI file:///#p1>
 person1,person2
-file:///#p4,file:///#p1
+"file:///#p4","file:///#p1"
 Rule #<SELECT-NODE 95> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?PERSON1 = #<RDF-IRI file:///#p1>,
        ?PERSON2 = #<RDF-IRI file:///#p4>
-file:///#p1,file:///#p4
+"file:///#p1","file:///#p4"
 Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e34>,
        ?PERSON = #<RDF-IRI file:///#p1>,

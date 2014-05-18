@@ -13,9 +13,10 @@ if test ! -d $RESULTSDIR; then
   mkdir $RESULTSDIR
   echo
 fi
-if test -f $REPORT_HTML ; then
-    cp -f $REPORT_HTML ${REPORT_HTML}.prev
-fi
+SAVEDIR=${RESULTSDIR}/save/`date "+%Y-%m-%dT%H:%M:%S"`
+mkdir -p ${SAVEDIR}
+cp -f ${TEST_OUTPUT} ${SAVEDIR}/
+cp -f ${REPORT_HTML} ${SAVEDIR}/
 if test $# -eq 0 ; then
     pwd
     echo > $TEST_OUTPUT
@@ -80,21 +81,21 @@ td.test_passed { }
 EOF
 AWK=$$-syntax-test-filter.awk
 touch $AWK
-MALFORMED_TESTS=malformed-sparql-tests
-#echo "MALFORMED_TESTS" = `pwd`/$MALFORMED_TESTS
-if test -f $MALFORMED_TESTS; then
-cat >> $AWK <<EOF
-function is_malformed_test(name) {
-  return (system(sprintf("grep --silent %s $MALFORMED_TESTS", name)) == 0);
-}
-EOF
-else
-cat >> $AWK <<EOF
-function is_malformed_test(name) {
-  return 0;
-}
-EOF
-fi
+# MALFORMED_TESTS=malformed-sparql-tests
+# #echo "MALFORMED_TESTS" = `pwd`/$MALFORMED_TESTS
+# if test -f $MALFORMED_TESTS; then
+# cat >> $AWK <<EOF
+# function is_malformed_test(name) {
+#   return (system(sprintf("grep --silent %s $MALFORMED_TESTS", name)) == 0);
+# }
+# EOF
+# else
+# cat >> $AWK <<EOF
+# function is_malformed_test(name) {
+#   return 0;
+# }
+# EOF
+# fi
 cat >> $AWK <<EOF
 function output() {
     if (queryfile) {
@@ -102,8 +103,8 @@ function output() {
         split(queryfile, parts, "/");
         long_name = sprintf("%s/%s/%s", parts[1], parts[2], parts[3]);
         is_negative = (index(type, "Negative") == 1);
-        if (is_malformed_test(long_name)) { status = -1; test_outcome = "test_malformed" ; test_malformed_count++;}
-        else if (!is_negative && has_error) { status = 0; test_outcome="test_positive_failed"; test_positive_failed_count++}
+        # if (is_malformed_test(long_name)) { status = -1; test_outcome = "test_malformed" ; test_malformed_count++;}
+        if (!is_negative && has_error) { status = 0; test_outcome="test_positive_failed"; test_positive_failed_count++}
         else if (is_negative && !has_error) { status = 0; test_outcome = "test_negative_succeeded"; test_negative_succeeded_count++}
         else { status = 1; test_outcome = "test_ok"; test_ok_count++}
 	printf "<TR class=\"%s\"><TD class=\"test_entry_number\">%d</TD><TD class=\"test_status\">%s</TD><TD class=\"test_collection\">%s</TD><TD class=\"test_set\">%s</TD><TD class=\"test_type\">%s</TD><TD class=\"test_name\"><a href=\"%s\" type=\"text/plain\">%s</a></TD><TD class=\"test_error\">%s</TD>",
@@ -162,13 +163,13 @@ if test -f ${REPORT_HTML}.prev; then
    PREVOK=`cat ${REPORT_HTML}.prev|sed -n '/^[^0-9]*\([0-9]*\) tests OK.*$/s//\1/p'`
    PREVPOSFAIL=`cat ${REPORT_HTML}.prev|sed -n '/^[^0-9]*\([0-9]*\) positive tests failed.*$/s//\1/p'`
    PREVNEGSUCC=`cat ${REPORT_HTML}.prev|sed -n '/^[^0-9]*\([0-9]*\) negative tests succeeded.*$/s//\1/p'`
-   PREVIGNORED=`cat ${REPORT_HTML}.prev|sed -n '/^[^0-9]*\([0-9]*\) malformed tests ignored.*$/s//\1/p'`
+   # PREVIGNORED=`cat ${REPORT_HTML}.prev|sed -n '/^[^0-9]*\([0-9]*\) malformed tests ignored.*$/s//\1/p'`
 cat >> $AWK <<EOF
   printf "<p>Total %d tests (previously $PREVTOTAL)\n", test_ok_count + test_positive_failed_count + test_negative_succeeded_count;
   printf "<ul><li>%d tests OK (previously $PREVOK)</li>\n", test_ok_count;
   printf "<li>%d positive tests failed (previously $PREVPOSFAIL)</li>\n", test_positive_failed_count;
   printf "<li>%d negative tests succeeded (previously $PREVNEGSUCC)</li>\n", test_negative_succeeded_count;
-  printf "<li>%d malformed tests ignored (previously $PREVIGNORED)</li></ul>\n", test_malformed_count;
+  # printf "<li>%d malformed tests ignored (previously $PREVIGNORED)</li></ul>\n", test_malformed_count;
 EOF
 else
     cat >> $AWK <<EOF
@@ -176,7 +177,7 @@ else
   printf "<ul><li>%d tests OK</li>\n", test_ok_count;
   printf "<li>%d positive tests failed</li>\n", test_positive_failed_count;
   printf "<li>%d negative tests succeeded</li>\n", test_negative_succeeded_count;
-  printf "<li>%d malformed tests ignored</li></ul>\n", test_malformed_count;
+  # printf "<li>%d malformed tests ignored</li></ul>\n", test_malformed_count;
 EOF
 fi
 cat >> $AWK <<EOF

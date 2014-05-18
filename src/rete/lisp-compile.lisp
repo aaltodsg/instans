@@ -68,7 +68,7 @@
 												       (let* ((properties (nthcdr 5 aggr-expr))
 													      (distinctp (getf properties :distinct))
 													      (separator (getf properties :separator)))
-													 (inform "dist=~A,sep = ~A" distinctp separator)
+;													 (inform "dist=~A,sep = ~A" distinctp separator)
 													 `(make-instance 'aggregate-group-concat
 															 :distinctp ,distinctp
 															 :separator ,separator))))))))))

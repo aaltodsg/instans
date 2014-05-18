@@ -1,4 +1,4 @@
-PREFIX scripts: <file://../tests/input/>
+PREFIX scripts: <file:///Users/enu/instans/tests/input/>
 PREFIX instans: <http://instans.org/extensions/instans#> 
 PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX :       <http://www.w3.org/2009/sparql/docs/tests/data-sparql11/bind/manifest#>
@@ -10,8 +10,8 @@ PREFIX dawgt:  <http://www.w3.org/2001/sw/DataAccess/tests/test-dawg#>
 SELECT *
 WHERE {
       { ?subj rdf:first ?manifest
-        FILTER(strends(str(?manifest), "manifest.ttl"))
+        FILTER(strends(instans:printing("?manifest=",str(?manifest)), "manifest.ttl"))
       }
-      BIND(strbefore(str(?manifest),"manifest.ttl") AS ?path)
-      BIND(instans:execute_system(scripts:syntax-test.rq, ?manifest, rdf:nil, rdf:nil, iri(?path)) AS ?ok)
+      BIND(instans:printing("?path = ", strbefore(str(?manifest),"manifest.ttl")) AS ?path)
+      BIND(instans:printing("?ok=", instans:execute_system(scripts:syntax-test.rq, ?manifest, rdf:nil, rdf:nil, iri(?path))) AS ?ok)
 }

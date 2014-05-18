@@ -24,7 +24,7 @@
 (defun signal-sparql-error (fmt &rest args)
   (let ((result (make-instance 'sparql-error :format fmt :arguments args)))
     (case *sparql-error-op*
-      (:inform-and-throw (inform "Warning: ~A" (apply #'format nil fmt args))
+      (:inform-and-throw (inform "; Warning: ~S~%" (apply #'format nil fmt args))
 			 (throw :sparql-error result))
       (:throw (throw :sparql-error result))
       (:error (error* "~S" result)))

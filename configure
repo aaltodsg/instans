@@ -28,9 +28,13 @@ if test "$CLEAN" = "true"; then
     rm -rf $HOME/quicklisp
     rm -rf ${TESTS}/data-r2 ${TESTS}/data-sparql11
     rm -rf $DATATABLES $DATATABLES-*
+else
+    newersources=`find src/ -name '*.lisp' -newer bin/instans.bin|wc -l`
+    if test $newersources -eq 0; then
+	echo "No need to configure"
+	exit
+    fi
 fi
-
-echo "Detecting your Lisp configuration"
 
 echo sbcl --noinform --load init/output-configuration.lisp --eval "(output-configuration \"$LISP_CONFIGURATION\")" --quit
 sbcl --noinform --load init/output-configuration.lisp --eval "(output-configuration \"$LISP_CONFIGURATION\")" --quit
