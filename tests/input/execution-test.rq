@@ -6,18 +6,21 @@ PREFIX mf:     <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#>
 PREFIX qt:     <http://www.w3.org/2001/sw/DataAccess/tests/test-query#>
 PREFIX dawgt:  <http://www.w3.org/2001/sw/DataAccess/tests/test-dawg#>
 
-SELECT ?queryfile ?testtype ?parsed_ok ?add_rules_ok ?add_triples_ok ?error_msg ?status WHERE {
-       ?test a ?testtype; mf:name ?name .
-       {
+SELECT * WHERE {
+  {
+    SELECT * WHERE {
+      ?test a ?testtype; mf:name ?name .
+      {
          { ?test mf:action [ qt:query ?queryfile ] } UNION { ?test mf:action ?queryfile }
-	 FILTER(!isblank(?queryfile) && (strends(str(?queryfile), ".rq") || strends(str(?queryfile), ".ru")))
+	   FILTER(!isblank(?queryfile) && (strends(str(?queryfile), ".rq") || strends(str(?queryfile), ".ru")))
        }
        ?x rdf:first ?test .
-       BIND(iri(strbefore(str(?queryfile),".")) AS ?instans)
-       BIND(instans:add_rules(?instans, ?queryfile) AS ?add_rules_ok) 
-       BIND(instans:has_status(?instans, "instans-rule-parsing-succeeded") AS ?parsed_ok) 
-       BIND(instans:status(?instans) AS ?status) 
-       BIND(instans:error_message(?instans) AS ?error_msg)
        OPTIONAL { ?test mf:action [ qt:data ?datafile ] }
-       BIND(if(BOUND(?datafile), instans:add_triples(?instans, ?datafile), false) AS ?add_triples_ok)
+       OPTIONAL { ?test mf:result ?resultfile }
+    }
+  }
+  BIND(instans:execute_system(instans:printing("?queryfile=", ?queryfile),
+       if(bound(?datafile), instans:printing("?datafile=",?datafile), ""),
+       if(bound(?resultfile), instans:printing("?resultfile=", ?resultfile), ""))
+       AS ?execute_ok)
 }
