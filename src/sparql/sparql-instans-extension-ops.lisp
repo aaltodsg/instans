@@ -39,7 +39,8 @@
 							   &optional (graph-iri rdf-iri) (base rdf-iri))
 							  :returns xsd-boolean)
   (:method ((instans-iri rdf-iri) (triples iri-or-string) &optional (graph-iri rdf-iri) (base rdf-iri))
-    (instans-add-triples instans-iri triples :graph graph-iri :base base)))
+    (let ((instans (instans-add-triples instans-iri triples :graph graph-iri :base base)))
+      (and instans (instans-find-status instans 'instans-execution-succeeded)))))
 
 (define-sparql-function "instans:execute_system" (:arguments ((rules iri-or-string) &optional (triples iri-or-string) (expected-results iri-or-string) (graph-iri rdf-iri) (base rdf-iri)) :returns xsd-boolean)
   (:method ((rules iri-or-string) &optional (triples iri-or-string) (expected-results iri-or-string) (graph-iri rdf-iri) (base rdf-iri))
