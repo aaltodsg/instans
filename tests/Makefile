@@ -1,5 +1,5 @@
 SCRIPTS=../scripts
-SYNTAX_TESTS=$(SCRIPTS)/run-sparql-syntax-tests.sh
+SYNTAX_TESTS=$(SCRIPTS)/run-sparql-syntax-tests-csv.sh
 FNB-TEST=$(SCRIPTS)/fnb-test.sh
 INSTANS=../bin/instans
 

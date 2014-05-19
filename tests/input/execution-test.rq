@@ -1,0 +1,26 @@
+PREFIX instans: <http://instans.org/extensions/instans#>
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX :       <http://www.w3.org/2009/sparql/docs/tests/data-sparql11/bind/manifest#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX mf:     <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#>
+PREFIX qt:     <http://www.w3.org/2001/sw/DataAccess/tests/test-query#>
+PREFIX dawgt:  <http://www.w3.org/2001/sw/DataAccess/tests/test-dawg#>
+
+SELECT * WHERE {
+  {
+    SELECT * WHERE {
+      ?test a ?testtype; mf:name ?name .
+      {
+         { ?test mf:action [ qt:query ?queryfile ] } UNION { ?test mf:action ?queryfile }
+	   FILTER(!isblank(?queryfile) && (strends(str(?queryfile), ".rq") || strends(str(?queryfile), ".ru")))
+       }
+       ?x rdf:first ?test .
+       OPTIONAL { ?test mf:action [ qt:data ?datafile ] }
+       OPTIONAL { ?test mf:result ?resultfile }
+    }
+  }
+  BIND(instans:execute_system(instans:printing("?queryfile=", ?queryfile),
+       if(bound(?datafile), instans:printing("?datafile=",?datafile), ""),
+       if(bound(?resultfile), instans:printing("?resultfile=", ?resultfile), ""))
+       AS ?execute_ok)
+}

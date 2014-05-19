@@ -298,11 +298,11 @@ Rule #<SELECT-NODE 95> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?PERSON1 = #<RDF-IRI file:///#p4>,
        ?PERSON2 = #<RDF-IRI file:///#p1>
 person1,person2
-file:///#p4,file:///#p1
+"file:///#p4","file:///#p1"
 Rule #<SELECT-NODE 95> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?PERSON1 = #<RDF-IRI file:///#p1>,
        ?PERSON2 = #<RDF-IRI file:///#p4>
-file:///#p1,file:///#p4
+"file:///#p1","file:///#p4"
 Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e34>,
        ?PERSON = #<RDF-IRI file:///#p1>,
@@ -1242,11 +1242,11 @@ Rule #<MODIFY-NODE 93> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
 Rule #<SELECT-NODE 95> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?PERSON1 = #<RDF-IRI file:///#p5>,
        ?PERSON2 = #<RDF-IRI file:///#p4>
-file:///#p5,file:///#p4
+"file:///#p5","file:///#p4"
 Rule #<SELECT-NODE 95> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?PERSON1 = #<RDF-IRI file:///#p4>,
        ?PERSON2 = #<RDF-IRI file:///#p5>
-file:///#p4,file:///#p5
+"file:///#p4","file:///#p5"
 Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e147>,
        ?PERSON = #<RDF-IRI file:///#p4>,
@@ -1690,19 +1690,19 @@ Rule #<MODIFY-NODE 93> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
 Rule #<SELECT-NODE 95> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?PERSON1 = #<RDF-IRI file:///#p3>,
        ?PERSON2 = #<RDF-IRI file:///#p5>
-file:///#p3,file:///#p5
+"file:///#p3","file:///#p5"
 Rule #<SELECT-NODE 95> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?PERSON1 = #<RDF-IRI file:///#p3>,
        ?PERSON2 = #<RDF-IRI file:///#p4>
-file:///#p3,file:///#p4
+"file:///#p3","file:///#p4"
 Rule #<SELECT-NODE 95> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?PERSON1 = #<RDF-IRI file:///#p4>,
        ?PERSON2 = #<RDF-IRI file:///#p3>
-file:///#p4,file:///#p3
+"file:///#p4","file:///#p3"
 Rule #<SELECT-NODE 95> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?PERSON1 = #<RDF-IRI file:///#p5>,
        ?PERSON2 = #<RDF-IRI file:///#p3>
-file:///#p5,file:///#p3
+"file:///#p5","file:///#p3"
 Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e194>,
        ?PERSON = #<RDF-IRI file:///#p5>,
@@ -2450,11 +2450,11 @@ Rule #<MODIFY-NODE 93> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
 Rule #<SELECT-NODE 95> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?PERSON1 = #<RDF-IRI file:///#p5>,
        ?PERSON2 = #<RDF-IRI file:///#p1>
-file:///#p5,file:///#p1
+"file:///#p5","file:///#p1"
 Rule #<SELECT-NODE 95> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?PERSON1 = #<RDF-IRI file:///#p1>,
        ?PERSON2 = #<RDF-IRI file:///#p5>
-file:///#p1,file:///#p5
+"file:///#p1","file:///#p5"
 Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e283>,
        ?PERSON = #<RDF-IRI file:///#p4>,
@@ -3162,11 +3162,11 @@ Rule #<MODIFY-NODE 93> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
 Rule #<SELECT-NODE 95> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?PERSON1 = #<RDF-IRI file:///#p2>,
        ?PERSON2 = #<RDF-IRI file:///#p5>
-file:///#p2,file:///#p5
+"file:///#p2","file:///#p5"
 Rule #<SELECT-NODE 95> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?PERSON1 = #<RDF-IRI file:///#p5>,
        ?PERSON2 = #<RDF-IRI file:///#p2>
-file:///#p5,file:///#p2
+"file:///#p5","file:///#p2"
 Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e367>,
        ?PERSON = #<RDF-IRI file:///#p5>,
@@ -3282,11 +3282,11 @@ Rule #<MODIFY-NODE 93> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
 Rule #<SELECT-NODE 95> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?PERSON1 = #<RDF-IRI file:///#p2>,
        ?PERSON2 = #<RDF-IRI file:///#p3>
-file:///#p2,file:///#p3
+"file:///#p2","file:///#p3"
 Rule #<SELECT-NODE 95> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?PERSON1 = #<RDF-IRI file:///#p3>,
        ?PERSON2 = #<RDF-IRI file:///#p2>
-file:///#p3,file:///#p2
+"file:///#p3","file:///#p2"
 Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e377>,
        ?PERSON = #<RDF-IRI file:///#p5>,
@@ -5562,11 +5562,11 @@ Rule #<MODIFY-NODE 93> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
 Rule #<SELECT-NODE 95> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?PERSON1 = #<RDF-IRI file:///#p2>,
        ?PERSON2 = #<RDF-IRI file:///#p1>
-file:///#p2,file:///#p1
+"file:///#p2","file:///#p1"
 Rule #<SELECT-NODE 95> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?PERSON1 = #<RDF-IRI file:///#p1>,
        ?PERSON2 = #<RDF-IRI file:///#p2>
-file:///#p1,file:///#p2
+"file:///#p1","file:///#p2"
 Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e658>,
        ?PERSON = #<RDF-IRI file:///#p5>,
@@ -6338,11 +6338,11 @@ Rule #<MODIFY-NODE 93> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
 Rule #<SELECT-NODE 95> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?PERSON1 = #<RDF-IRI file:///#p2>,
        ?PERSON2 = #<RDF-IRI file:///#p4>
-file:///#p2,file:///#p4
+"file:///#p2","file:///#p4"
 Rule #<SELECT-NODE 95> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?PERSON1 = #<RDF-IRI file:///#p4>,
        ?PERSON2 = #<RDF-IRI file:///#p2>
-file:///#p4,file:///#p2
+"file:///#p4","file:///#p2"
 Rule #<MODIFY-NODE 39> in http://www.cse.aalto.fi/instans/instanses/INSTANS828
        ?EVENT = #<RDF-IRI file:///#e746>,
        ?PERSON = #<RDF-IRI file:///#p5>,

@@ -91,7 +91,7 @@
 	   (group-expr nil)
 	   (group-var nil)
 	   (expr-var-list nil))
-      (when (eq project '*) (setf project scope-vars))
+      (when (eq project '*) (setf project (filter #'(lambda (x) (char= (char (uniquely-named-object-name x) 0) #\?)) scope-vars)))
       (labels ((contains-aggregates-p (form) (and (consp form) (or (aggregate-function-name-p (first form)) (some #'contains-aggregates-p (rest form)))))
 	       (samplify (expr)
 					;	       (inform "samplify ~S" expr)

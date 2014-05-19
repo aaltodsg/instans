@@ -318,9 +318,17 @@
       (unless (query-output-processor-headers-written-p this)
 	(setf (query-output-processor-headers-written-p this) t)
 	(format (query-output-processor-output-stream this) "~{~A~^,~}~%" (mapcar #'(lambda (var) (format nil "~(~A~)" (subseq (uniquely-named-object-name (reverse-resolve-binding instans var)) 1))) vars)))
-      (format (query-output-processor-output-stream this) "~{~A~^,~}~%" (mapcar #'(lambda (var) (let ((value (token-value this token var)))
-											    (cond ((rdf-term-p value) (rdf-term-as-string value))
-												  (t value)))) vars)))))
+      (format (query-output-processor-output-stream this) "~{~S~^,~}~%"
+	      (mapcar #'(lambda (var)
+			  (let ((value (token-value this token var)))
+			    (cond ((rdf-term-p value) (rdf-term-as-string value))
+				  ((typep value 'xsd-string-value) (html-entities:encode-entities value))
+				  ((typep value 'xsd-number-value) (format nil "~A" value))
+				  ((typep value 'xsd-boolean-value) (if value "true" "false"))
+				  ((typep value 'xsd-datetime-value) (datetime-canonic-string value))
+				  (t (html-entities:encode-entities (format nil "~A" value))))))
+		      vars)))))
+
 (defgeneric close-query-output-processor (query-output-processor)
   (:method ((this query-output-csv-processor))
     (when (and (query-output-processor-output-name this) (query-output-processor-output-stream this))
@@ -350,7 +358,7 @@
 	  (t
 	   (first (aggregate-history this)))))
   (:method ((this aggregate-group-concat))
-    (inform "here ~S" (aggregate-group-concat-separator this))
+;    (inform "here ~S" (aggregate-group-concat-separator this))
     (loop with separator = (coerce (aggregate-group-concat-separator this) 'list)
 	  for firstp = t then nil
 	  for elem in (aggregate-history this)

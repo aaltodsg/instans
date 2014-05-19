@@ -39,11 +39,16 @@
 							   &optional (graph-iri rdf-iri) (base rdf-iri))
 							  :returns xsd-boolean)
   (:method ((instans-iri rdf-iri) (triples iri-or-string) &optional (graph-iri rdf-iri) (base rdf-iri))
-    (instans-add-triples instans-iri triples :graph graph-iri :base base)))
+    (let ((instans (instans-add-triples instans-iri triples :graph graph-iri :base base)))
+      (and instans (instans-find-status instans 'instans-execution-succeeded)))))
 
-(define-sparql-function "instans:execute_system" (:arguments ((rules iri-or-string) &optional (triples iri-or-string) (expected-results iri-or-string) (graph-iri rdf-iri) (base rdf-iri)) :returns xsd-boolean)
+(define-sparql-function "instans:execute_system" (:arguments ((rules iri-or-string) &optional (triples iri-or-string) (expected-results iri-or-string) (graph-iri iri-or-string) (base iri-or-string)) :returns xsd-boolean)
   (:method ((rules iri-or-string) &optional (triples iri-or-string) (expected-results iri-or-string) (graph-iri rdf-iri) (base rdf-iri))
-    (error-safe (instans-execute-system rules :triples triples :expected-results expected-results :graph graph-iri :base base))))
+;    (error-safe
+    (let ((instans (instans-execute-system rules :triples triples :expected-results expected-results :graph graph-iri :base base)))
+      (if instans (parse-iri (instans-name instans)) (signal-sparql-error "Execution failed"))
+;)
+)))
 
 (define-sparql-function "instans:dynamic_call" (:arguments ((func rdf-iri) &rest args) :returns t)
   (:method ((func rdf-iri) &rest args)
@@ -52,6 +57,12 @@
 	     (signal-sparql-error "~A does not name a Sparql function or form" (rdf-iri-string func)))
 	    (t
 	     (apply (sparql-op-lisp-name sparql-op) args))))))
+
+(define-sparql-function "instans:printing" (:arguments ((msg xsd-string-value) (x t)) :returns t)
+  (:method ((msg xsd-string-value) (x t))
+    (inform "~A~S" msg x)
+    x))
+
 
 ;; outer-arg-spec ((instans-iri rdf-iri) (triples iri-or-string) &optional (graph-iri rdf-iri) base &rest args)
 ;; outer-lambda (instans-iri triples &optional graph-iri base &rest args)
