@@ -1,0 +1,9 @@
+PREFIX : <http://instans.org/>
+SELECT *
+WHERE {
+  ?winspec a :windowSpecification .
+  # Only show the result if this triple does not exist
+  GRAPH <http://window_memory> {
+     FILTER NOT EXISTS { ?winspec a :zeroTime }
+  }
+}
