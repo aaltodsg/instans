@@ -1,0 +1,308 @@
+# Aggregate Calculation Library
+
+# This query collection is a trial in creating a generic SPARQL query "library"
+# for computing aggregate values over RDF streams using the INSTANS platform
+# Window definitions are given in an accompanying Turtle document.
+
+# By Mikko Rinne 16.5.2014
+# History:
+# 16.5.2014 First version created
+# 20.5.2014 Fixed support for multiple windows, added selection of timeType.
+
+PREFIX ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
+PREFIX dul: <http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX : <http://instans.org/>
+
+# Q1: Record time of first event as zero-point
+INSERT {
+  GRAPH <http://window_memory> {
+    ?winspec a :zeroTime ;
+             :hasZeroTime ?zeroTime .
+  }
+}
+WHERE {
+  # Match window specification
+  ?winspec a :windowSpecification ;
+           :timePredicate ?timePredicate .
+
+  # Only activate in case the zero-point has not been created yet
+  FILTER NOT EXISTS { GRAPH <http://window_memory> { ?winspec a :zeroTime } }
+  ?event ?timePredicate ?zeroTime .
+}
+
+;
+
+# Q2a: Pre-process input events if timeType xsd:dateTime
+INSERT {
+  GRAPH ?winspec {
+    ?event a ep:EventObject ;
+           :hasWindowTime ?windowTime ;
+           dul:hasRegionDataValue ?currentValue .
+  }
+}
+WHERE {
+  # Match window specification
+  ?winspec a :windowSpecification ;
+           :timePredicate ?timePredicate ;
+           :timeType xsd:dateTime ; 
+           :valuePredicate ?valuePredicate .
+
+  # Only proceed after zeroTime has been defined
+  GRAPH <http://window_memory> {
+    ?winspec :hasZeroTime ?zeroTime
+  }
+  # Match incoming event
+  ?event ?timePredicate ?currentTime ;
+         ?valuePredicate ?currentValue .
+
+  # Convert incoming dateTime to seconds starting from first event
+  BIND (year(?currentTime)-year(?zeroTime) AS ?yearDiff)
+  BIND (month(?currentTime)-month(?zeroTime) AS ?monthDiff)
+  BIND (day(?currentTime)-day(?zeroTime) AS ?dayDiff)
+  BIND (hours(?currentTime)-hours(?zeroTime) AS ?hoursDiff)
+  BIND (minutes(?currentTime)-minutes(?zeroTime) AS ?minutesDiff)
+  BIND (seconds(?currentTime)-seconds(?zeroTime) AS ?secondsDiff)
+
+  BIND (?secondsDiff + (?minutesDiff + (?hoursDiff + ( ?dayDiff + ( ?monthDiff + ?yearDiff * 12 ) * 31) * 24 ) * 60 ) * 60 AS ?windowTime)
+}
+
+;
+
+# Q2b: Pre-process input events if timeType is xsd:integer
+INSERT {
+  GRAPH ?winspec {
+    ?event a ep:EventObject ;
+           :hasWindowTime ?windowTime ;
+           dul:hasRegionDataValue ?currentValue .
+  }
+}
+WHERE {
+  # Match window specification
+  ?winspec a :windowSpecification ;
+           :timePredicate ?timePredicate ;
+           :timeType xsd:integer ; 
+           :valuePredicate ?valuePredicate .
+
+  # Only proceed after zeroTime has been defined
+  GRAPH <http://window_memory> {
+    ?winspec :hasZeroTime ?zeroTime
+  }
+  # Match incoming event
+  ?event ?timePredicate ?currentTime ;
+         ?valuePredicate ?currentValue .
+
+  # Convert to zero-origin
+  BIND (?currentTime-?zeroTime AS ?windowTime)
+}
+
+;
+
+# Q3: Initialize window
+# Windowing time starts from the first qualifying entry
+
+# Delete the input entry starting the window
+# Note: This is currently needed, because otherwise this event will
+# be counted again in the following entries. Other ways to avoid??
+DELETE {
+  GRAPH ?winspec {
+    ?event a ep:EventObject ;
+           :hasWindowTime ?windowTime ;
+           dul:hasRegionDataValue ?value .
+  }
+}
+# Insert first record for window calculation
+INSERT {
+  GRAPH <http://window_memory> {
+    ?winspec a :windowEntry ;
+             :windowStartTime ?windowTime ;
+             :windowSum ?value ;
+             :windowN 1 ;
+             :windowCounter 1 .
+  }
+}
+WHERE {
+  # Match window specification
+  ?winspec a :windowSpecification .
+
+  # Only activate in case there is no window yet
+  FILTER NOT EXISTS { GRAPH <http://window_memory> { ?winspec a :windowEntry } }
+
+  GRAPH ?winspec {
+    ?event a ep:EventObject ;
+           :hasWindowTime ?windowTime ;
+           dul:hasRegionDataValue ?value .
+  }
+}
+
+;
+
+# Q4: Insert new entry to window memory
+
+DELETE {
+  # Remove previous values
+  GRAPH <http://window_memory> {
+     ?winspec :windowSum ?lastSum ;
+              :windowN ?lastCount
+  }
+  # Remove also the event to prevent multiple triggers
+  GRAPH ?winspec {
+    ?event a ep:EventObject ;
+           :hasWindowTime ?windowTime ;
+           dul:hasRegionDataValue ?value .
+  }
+}
+# Insert new values
+INSERT {
+  GRAPH <http://window_memory> {
+     ?winspec :windowSum ?newSum ;
+              :windowN ?newCount
+  }
+}
+WHERE {
+  # Match window specification
+  ?winspec a :windowSpecification ;
+           :windowLength ?windowLength .
+
+  GRAPH ?winspec {
+    ?event a ep:EventObject ;
+           :hasWindowTime ?windowTime ;
+           dul:hasRegionDataValue ?value .
+  }
+
+  GRAPH <http://window_memory> {
+     ?winspec a :windowEntry ;
+              :windowStartTime ?startTime ;
+              :windowSum ?lastSum ;
+              :windowN ?lastCount .
+  }
+
+  FILTER ( ?windowTime < ?startTime+?windowLength )
+  BIND (?lastCount + 1 AS ?newCount)
+  BIND (?lastSum + ?value AS ?newSum)
+}
+
+;
+
+# Q5: Terminate window, collect statistics
+
+# Remove previous window & counter
+DELETE {
+  GRAPH <http://window_memory> {
+     ?winspec a :windowEntry ;
+              :windowStartTime ?startTime ;
+              :windowSum ?lastSum ;
+              :windowN ?lastCount ;
+              :windowCounter ?windowCount .
+  }
+}
+# Publish results in output graph
+INSERT {
+  GRAPH <http://result_output> {
+    ?winID a :resultWindow ;
+           :windowStartTime ?startTime ;
+           :windowSum ?lastSum ;
+           :windowAverage ?average ;
+           :windowN ?lastCount .
+  }
+
+# Start a new window & increase window counter
+  GRAPH <http://window_memory> {
+     ?winspec a :windowEntry ;
+              :windowStartTime ?newStart ;
+              :windowSum 0 ;
+              :windowN 0 ;
+              :windowCounter ?newWindowCount .
+  }
+}
+WHERE {
+  # Match window specification
+  ?winspec a :windowSpecification ;
+           :windowLength ?windowLength .
+
+  GRAPH ?winspec {
+    ?event a ep:EventObject ;
+           :hasWindowTime ?windowTime ;
+           dul:hasRegionDataValue ?value
+  }
+  
+  GRAPH <http://window_memory> {
+     ?winspec a :windowEntry ;
+              :windowStartTime ?startTime ;
+              :windowSum ?lastSum ;
+              :windowN ?lastCount ;
+              :windowCounter ?windowCount .
+  }
+
+  # Test for an out-of-window-bounds time
+  FILTER ( ?windowTime >= ?startTime+?windowLength )
+  # Generate a new subject to label the window
+  BIND (iri(concat(str(?winspec),"_",str(?windowCount))) as ?winID)
+  # Test for empty window, avoid division by zero
+  BIND ( IF (?lastCount > 0, ?lastSum/?lastCount, 0) AS ?average)
+  # Starting time of next window will be current + window length
+  BIND (?startTime+?windowLength AS ?newStart)
+  # Increase window counter by one
+  BIND (?windowCount+1 AS ?newWindowCount)
+}
+
+;
+
+# Q6: Produce final window
+
+# Remove final window & counter
+DELETE {
+  GRAPH <http://window_memory> {
+     ?winspec a :windowEntry ;
+              :windowStartTime ?startTime ;
+              :windowSum ?lastSum ;
+              :windowN ?lastCount ;
+              :windowCounter ?windowCount .
+  }
+}
+# Publish results in output graph
+INSERT {
+  GRAPH <http://result_output> {
+    ?winID a :resultWindow ;
+           :windowStartTime ?startTime ;
+           :windowSum ?lastSum ;
+           :windowAverage ?average ;
+           :windowN ?lastCount .
+  }
+}
+WHERE {
+  # Match window specification
+  ?winspec a :windowSpecification .
+
+  # Match final triple
+  :this :is :last .
+  
+  GRAPH <http://window_memory> {
+     ?winspec a :windowEntry ;
+              :windowStartTime ?startTime ;
+              :windowSum ?lastSum ;
+              :windowN ?lastCount ;
+              :windowCounter ?windowCount .
+  }
+
+  # Generate a new subject to label the window
+  BIND (iri(concat(str(?winspec),"_",str(?windowCount))) as ?winID)
+  # Test for empty window, avoid division by zero
+  BIND ( IF (?lastCount > 0, ?lastSum/?lastCount, 0) AS ?average)
+}
+
+;
+
+# Q7: Display results
+
+SELECT *
+WHERE {
+  GRAPH <http://result_output> {
+    ?win a :resultWindow ;
+         :windowStartTime ?startTime ;
+         :windowSum ?sum ;
+         :windowAverage ?average ;
+         :windowN ?entries .
+  }
+}
+
