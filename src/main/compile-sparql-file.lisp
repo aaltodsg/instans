@@ -163,7 +163,7 @@
 ;; 				    :base base
 ;; 				    :lexer (make-instance 'turtle-lexer :instans instans :input-stream input-stream :base base)
 ;;     (setf (triple-processor-parser processor)
-;; 	    (make-turtle-parser :triples-block-callback #'(lambda (triples) (process-triples processor triples) (ll-parser-yields nil))))
+;; 	    (make-turtle-parser :triples-callback #'(lambda (triples) (process-triples processor triples) (ll-parser-yields nil))))
 ;;     (add-triple-processor instans processor))))
 
 (defun instans-run (instans-iri)
@@ -179,8 +179,8 @@
     (with-input-from-string (triples-stream string)
       (let ((triples-parser (make-turtle-parser instans triples-stream
 						:base base
-						:triples-block-callback #'(lambda (triples)
-									    (instans-debug-message instans :execute "~%Event callback: ~D triples~%~{ ~S~%~}"
+						:triples-callback #'(lambda (triples)
+								      (instans-debug-message instans :execute "~%Event callback: ~D triples~%~{ ~S~%~}"
 												   (length triples) triples)
 									    (process-triple-input instans triples :ops '(:add :execute) :graph (if (and graph (rdf-iri-equal graph *rdf-nil*)) nil graph))))))
 	(instans-debug-message instans '(:execute :parse-triples) "~%Processing triples:~%")
