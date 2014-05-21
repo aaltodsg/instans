@@ -20,7 +20,7 @@
 	sum (term-size x)))
 
 
-(defun make-turtle-parser (instans input-stream &key base subscribe triple-callback triples-callback)
+(defun make-turtle-parser-old (instans input-stream &key base subscribe triple-callback triples-callback)
   (when (null base) (setf base (parse-iri "http://")))
   (let* ((lexer (make-instance 'turtle-lexer :input-stream input-stream :instans instans :base base :show-parses-p subscribe))
 	 (triples (list nil))
@@ -104,9 +104,34 @@
 		(parser (make-turtle-parser instans stream :base base :subscribe subscribe :triples-callback triples-callback :triple-callback triple-callback))
 		(lexer (ll-parser-lexer parser))
 		(result (parse parser)))
-	   (inform "result = ~S" result)
-	   (inform "~%triple-count = ~D, triple-sizes = ~D~%strings: ~D elems, prefixes: ~D elems, keywords: ~D elems"
-		   *triple-count* *triple-sizes* (hash-table-count (lexer-string-table lexer)) (hash-table-count (lexer-prefix-table lexer)) (hash-table-count (lexer-keyword-table lexer))))))))
+	   (cond ((ll-parser-succeeded-p result)
+		  (inform "~%triple-count = ~D, triple-sizes = ~D~%strings: ~D elems, prefixes: ~D elems, keywords: ~D elems"
+			  *triple-count* *triple-sizes* (hash-table-count (lexer-string-table lexer))
+			  (hash-table-count (lexer-prefix-table lexer)) (hash-table-count (lexer-keyword-table lexer))))
+		 (t
+		  (inform "Parsing failed")))
+	   result)))))
+
+(defun parse-triple-file (file &key subscribe base triple-callback triples-callback)
+  (let* ((*triple-count* 0)
+	 (*triple-sizes* 0)
+	 (file-type (pathname-type (parse-namestring file)))
+	 (make-parser (cond ((string-equal file-type "ttl") #'make-turtle-parser)
+			    ((string-equal file-type "trig") #'make-trig-parser)
+			    (t (error* "Cannot parse files of type ~S" file-type)))))
+    (time
+     (with-open-file (stream file)
+       (let* ((instans (make-instance 'instans :name file))
+	      (parser (funcall make-parser instans stream :base base :subscribe subscribe :triples-callback triples-callback :triple-callback triple-callback))
+	      (lexer (ll-parser-lexer parser))
+	      (result (parse parser)))
+	 (cond ((ll-parser-succeeded-p result)
+		(inform "~%triple-count = ~D, triple-sizes = ~D~%strings: ~D elems, prefixes: ~D elems, keywords: ~D elems"
+			*triple-count* *triple-sizes* (hash-table-count (lexer-string-table lexer))
+			(hash-table-count (lexer-prefix-table lexer)) (hash-table-count (lexer-keyword-table lexer))))
+	       (t
+		(inform "Parsing failed")))
+	 result)))))
 
 (defun parse-turtle-file-single-triple (file &key subscribe base)
   (time

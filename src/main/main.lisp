@@ -67,19 +67,19 @@
 			     (inform "~%~A:~A~{~%~A~}~%" value (type-of status) (instans-status-messages status)))
 			   (return-from run-configuration nil)))
 		     ;;; "base=http://example.org/friends/&graph=http://instans.org/events/&file=tests/input/fnb.ttl&input-policy=triples-block&operations:add:execute:remove:execute"
-			(:input
-			 (let ((input-parameters (parse-parameters value :colon-expand-fields '(:triple-processing-operations))))
-			   (inform "~S" input-parameters)
-			   (loop for (key . value) in input-parameters
-				 do (case key
-				      (:base (setf base value))
-				      (:graph (setf graph value))
-				      (:triple-input-policy (setf (getf policies :triple-input-policy) value))
-				      (:triple-processing-operations (setf (getf policies :triple-processing-operations) value))))
-			   (instans-add-triple-processor instans-iri 
-							 (expand-iri directory (or (getf input-parameters :file) (getf input-parameters :iri)))
-							 :graph graph
-							 :base base)))
+			;; (:input
+			;;  (let ((input-parameters (parse-parameters value :colon-expand-fields '(:triple-processing-operations))))
+			;;    (inform "~S" input-parameters)
+			;;    (loop for (key . value) in input-parameters
+			;; 	 do (case key
+			;; 	      (:base (setf base value))
+			;; 	      (:graph (setf graph value))
+			;; 	      (:triple-input-policy (setf (getf policies :triple-input-policy) value))
+			;; 	      (:triple-processing-operations (setf (getf policies :triple-processing-operations) value))))
+			;;    (instans-add-triple-processor instans-iri 
+			;; 				 (expand-iri directory (or (getf input-parameters :file) (getf input-parameters :iri)))
+			;; 				 :graph graph
+			;; 				 :base base)))
 			(:query-output
 			 (setf query-output-name value)
 					;			  (inform "query-output-name = ~S" query-output-name)
@@ -168,8 +168,10 @@
                                                                                             ~40Tinputs to the default graph. If it is <url>~%~
                                                                                             ~40Tadd them to the graph named by <url>")
 				  (:rules         (("-r" "<rules>") ("--rules" "<rules>")) "Use rules in <rules>.")
-				  (:input         (("-i" "<input>")  ("--input" "<input>")) "Read input based on <input>.")
-				  (:triples       (("-t" "<input>") ("--triples" "<input>")) "Same as -i.")
+				  ;; (:input         (("-i" "<input>")  ("--input" "<input>")) "Read input based on <input>.")
+				  (:triples       (("-t" "<input>") ("--triples" "<input>")) "Read input triples")
+				  (:trig          (("--trig" "<input>")) "Read trig input")
+				  (:turtle        (("--turtle" "<input>")) "Read input turtle input")
 				  (:output        (("-o" "<output>") ("--output" "<output>")) "Redirect output to <output>.")
 				  (:expect        (("-e" "<expect>") ("--expect" "<expect>")) "Compare the results to <expect>." :hiddenp t)
 				  (:query-output (("--query-output" "<file>")) "Output querys to <file>.")
