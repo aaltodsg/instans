@@ -632,7 +632,7 @@
 (defun opt-value (x)
   (second x))
 
-(defun generate-ll1-grammar (name class rules-or-file &rest keys &key (error-on-non-ll1-grammar-p t) warn-about-transformations-p (warn-stream *error-output*) &allow-other-keys)
+(defun generate-ll1-grammar (name class rules-or-file &rest keys &key default-result (error-on-non-ll1-grammar-p t) warn-about-transformations-p (warn-stream *error-output*) &allow-other-keys)
   "Generate an LL(1) grammar from a set of rules (or a file)"
   (remf keys :warn-about-transformations-p)
   (remf keys :warn-stream)

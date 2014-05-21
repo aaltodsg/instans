@@ -58,7 +58,7 @@
 			(emit subj *rdf-first* (car col))
 			subj)))))
       (setf parser
-            (generate-ll1-parser turtle2
+            (generate-ll1-parser turtle2 ()
               (turtleDoc	     ::= ((:REP0 statement) :RESULT (values)))
               (statement	     ::= (:OR directive (triples .-TERMINAL :RESULT (values))))
               (directive	     ::= (:OR prefixID base sparqlPrefix sparqlBase) :RESULT (values))

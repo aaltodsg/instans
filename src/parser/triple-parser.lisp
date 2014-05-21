@@ -59,7 +59,7 @@
 		;; 	   subj))))
 		)
 	 (setf parser
-	       (generate-ll1-parser triple
+	       (generate-ll1-parser triple ()
 		 ,@(if (eq input-type :trig)
 		       '((trigDoc	     ::= ((:REP0 (:OR directive block)) :RESULT (values)))
 			 (block		     ::= ((:OR triplesOrGraph
