@@ -724,13 +724,13 @@
 "file:///Users/enu/instans/tests/data-sparql11/syntax-fed/syntax-service-01.rq","http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11","true","false","Cannot translate (INSTANS::SERVICE&#xA;                  (:ENDPOINT #&lt;RDF-IRI http:///g&gt; :PATTERN&#xA;                   (INSTANS::GGP :FORM&#xA;                    (INSTANS::BGP&#xA;                     (#&lt;SPARQL-VAR ?0&gt; #&lt;SPARQL-VAR ?1&gt; #&lt;SPARQL-VAR ?2&gt;))&#xA;                    :SCOPE-VARS&#xA;                    (#&lt;SPARQL-VAR ?0&gt; #&lt;SPARQL-VAR ?1&gt; #&lt;SPARQL-VAR ?2&gt;)))&#xA;                  NIL NIL) within (INSTANS::SELECT :PROJECT-VARS NIL)","instans-rule-translation-failed"
 "file:///Users/enu/instans/tests/data-sparql11/syntax-fed/syntax-service-02.rq","http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11","true","false","Cannot translate (INSTANS::SERVICE&#xA;                  (:ENDPOINT #&lt;RDF-IRI http:///g&gt; :PATTERN&#xA;                   (INSTANS::GGP :FORM&#xA;                    (INSTANS::BGP&#xA;                     (#&lt;SPARQL-VAR ?0&gt; #&lt;SPARQL-VAR ?1&gt; #&lt;SPARQL-VAR ?2&gt;))&#xA;                    :SCOPE-VARS&#xA;                    (#&lt;SPARQL-VAR ?0&gt; #&lt;SPARQL-VAR ?1&gt; #&lt;SPARQL-VAR ?2&gt;)))&#xA;                  NIL NIL) within (INSTANS::SELECT :PROJECT-VARS&#xA;                                   (#&lt;SPARQL-VAR ?0&gt; #&lt;SPARQL-VAR ?1&gt;&#xA;                                    #&lt;SPARQL-VAR ?2&gt;))","instans-rule-translation-failed"
 "file:///Users/enu/instans/tests/data-sparql11/syntax-fed/syntax-service-03.rq","http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11","true","false","Cannot translate (INSTANS::SERVICE&#xA;                  (:SILENT T :ENDPOINT #&lt;RDF-IRI http:///g&gt; :PATTERN&#xA;                   (INSTANS::GGP :FORM&#xA;                    (INSTANS::BGP&#xA;                     (#&lt;SPARQL-VAR ?0&gt; #&lt;SPARQL-VAR ?1&gt; #&lt;SPARQL-VAR ?2&gt;))&#xA;                    :SCOPE-VARS&#xA;                    (#&lt;SPARQL-VAR ?0&gt; #&lt;SPARQL-VAR ?1&gt; #&lt;SPARQL-VAR ?2&gt;)))&#xA;                  NIL NIL) within (INSTANS::SELECT :PROJECT-VARS&#xA;                                   (#&lt;SPARQL-VAR ?0&gt; #&lt;SPARQL-VAR ?1&gt;&#xA;                                    #&lt;SPARQL-VAR ?2&gt;))","instans-rule-translation-failed"
-                                                               {1000A05BA3}>)"
+                                                               {1000976EE3}>)"
 "file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-select-expr-01.rq","http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11","true","true","","instans-initialization-succeeded"
-                                                               {1000A05BA3}>)"
+                                                               {1000976EE3}>)"
 "file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-select-expr-02.rq","http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11","true","true","","instans-initialization-succeeded"
-                                                               {1000A05BA3}>)"
+                                                               {1000976EE3}>)"
 "file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-select-expr-03.rq","http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11","true","true","","instans-initialization-succeeded"
-                                                               {1000A05BA3}>)"
+                                                               {1000976EE3}>)"
 "file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-select-expr-04.rq","http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11","true","true","","instans-initialization-succeeded"
 "file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-select-expr-05.rq","http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11","true","true","","instans-initialization-succeeded"
 "file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-01.rq","http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11","true","true","","instans-initialization-succeeded"
@@ -746,7 +746,7 @@
 "file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-11.rq","http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11","true","true","","instans-initialization-succeeded"
 "file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-12.rq","http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11","true","true","","instans-initialization-succeeded"
 "file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-13.rq","http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11","true","true","","instans-initialization-succeeded"
-#<SPARQL-UNBOUND {1000A05BA3}>
+#<SPARQL-UNBOUND {1000976EE3}>
 DISTINCT
 "file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-14.rq","http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11","true","true","","instans-initialization-succeeded"
 "file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-aggregate-15.rq","http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11","true","true","","instans-initialization-succeeded"
@@ -761,7 +761,7 @@ DISTINCT
 "file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-exists-03.rq","http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11","true","true","","instans-initialization-succeeded"
 "file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-minus-01.rq","http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11","true","true","","instans-initialization-succeeded"
 "file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-oneof-01.rq","http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11","true","true","","instans-initialization-succeeded"
-#<SPARQL-UNBOUND {1000A05BA3}>; in: LAMBDA (INSTANS::?2)
+#<SPARQL-UNBOUND {1000976EE3}>; in: LAMBDA (INSTANS::?2)
 "file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-oneof-02.rq","http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11","true","true","","instans-initialization-succeeded"
 "file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-oneof-03.rq","http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11","true","true","","instans-initialization-succeeded"
 "file:///Users/enu/instans/tests/data-sparql11/syntax-query/syntax-bindings-01.rq","http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#PositiveSyntaxTest11","true","true","","instans-initialization-succeeded"

@@ -20,7 +20,7 @@
 	sum (term-size x)))
 
 
-(defun make-turtle-parser (instans input-stream &key base subscribe triple-callback triples-block-callback)
+(defun make-turtle-parser (instans input-stream &key base subscribe triple-callback triples-callback)
   (when (null base) (setf base (parse-iri "http://")))
   (let* ((lexer (make-instance 'turtle-lexer :input-stream input-stream :instans instans :base base :show-parses-p subscribe))
 	 (triples (list nil))
@@ -68,7 +68,7 @@
               (sparqlPrefix	     ::= (PREFIX-TERMINAL PNAME_NS-TERMINAL IRIREF-TERMINAL :RESULT (set-prefix $1 $2)))
               (triples		     ::= (:OR (subject predicateObjectList :RESULT (emit-subj-pred-obj-list $0 $1))
 					      (blankNodePropertyList (:OPT predicateObjectList) :RESULT (emit-subj-pred-obj-list $0 (opt-value $1))))
-				     :RESULT (progn (when triples-block-callback (funcall triples-block-callback (get-triples))) (values)))
+				     :RESULT (progn (when triples-callback (funcall triples-callback (get-triples))) (values)))
               (predicateObjectList   ::= ((verb objectList :RESULT (cons $0 $1))
 					  (:REP0 (|;-TERMINAL| (:OPT (verb objectList :RESULT (list (cons $0 $1)))) :RESULT (opt-value $1))))
 				     :RESULT (cons $0 (apply #'append $1)))
@@ -95,13 +95,13 @@
       (setf (ll-parser-subscribe parser) subscribe)
       parser)))
 
-(defun parse-turtle-file (file &key subscribe base triple-callback triples-block-callback)
+(defun parse-turtle-file (file &key subscribe base triple-callback triples-callback)
   (let ((*triple-count* 0)
 	(*triple-sizes* 0))
     (time
        (with-open-file (stream file)
 	 (let* ((instans (make-instance 'instans :name file))
-		(parser (make-turtle-parser instans stream :base base :subscribe subscribe :triples-block-callback triples-block-callback :triple-callback triple-callback))
+		(parser (make-turtle-parser instans stream :base base :subscribe subscribe :triples-callback triples-callback :triple-callback triple-callback))
 		(lexer (ll-parser-lexer parser))
 		(result (parse parser)))
 	   (inform "result = ~S" result)
@@ -131,10 +131,10 @@
    (with-open-file (stream file)
      (let* ((instans (make-instance 'instans :name file))
 	    (parser (make-turtle-parser instans stream :base base :subscribe subscribe
-					:triples-block-callback #'(lambda (triples)
-								    (inform "Triples block callback got triples:")
-								    (loop for triple in triples do (inform "~{~A~^ ~}" triple))
-								    (ll-parser-yields triples)))))
+					:triples-callback #'(lambda (triples)
+							      (inform "Triples block callback got triples:")
+							      (loop for triple in triples do (inform "~{~A~^ ~}" triple))
+							      (ll-parser-yields triples)))))
        (loop while (not (ll-parser-finished-p parser))
 	     do (progn
 		  (multiple-value-bind (p triples) (parse parser)
@@ -153,10 +153,10 @@
 					:triple-callback #'(lambda (s p o)
 							     (inform "Triple callback got triple ~A ~A ~A" s p o)
 							     (ll-parser-yields (list s p o)))
-					:triples-block-callback #'(lambda (triples)
-								    (inform "Triples block callback got triples:")
-								    (loop for triple in triples do (inform "~{~A~^ ~}" triple))
-								    (ll-parser-yields triples)))))
+					:triples-callback #'(lambda (triples)
+							      (inform "Triples block callback got triples:")
+							      (loop for triple in triples do (inform "~{~A~^ ~}" triple))
+							      (ll-parser-yields triples)))))
        (loop while (not (ll-parser-finished-p parser))
 	     do (progn
 		  (multiple-value-bind (p value) (parse parser)
