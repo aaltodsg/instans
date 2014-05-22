@@ -1,29 +1,51 @@
 # Window definition example
+# To be used in connection with aggr-lib.rq
 
 # By Mikko Rinne
 
 # Version history:
-# 16.5.2014 First version created
-# 20.5.2014 Fixed support for multiple windows, added selection of timeType.
+# 16.5.2014 MJR First version created
+# 20.5.2014 MJR Fixed support for multiple windows, added selection of timeType
+# 21.5.2014 MJR Added support for a separate stepsize
+# 22.5.2014 MJR Added the parameter for selecting, whether incoming events should be deleted
 
-# To be used in connection with aggr-lib.rq
+# When processing finite-length input such as a file, the last triple should be ":this :is :last"
+# to trigger processing of the final windows.
 
 # General prefixes
+
 @prefix : <http://instans.org/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 # Insert prefixes for predicates used to identify time and value fields in your events.
+
 @prefix ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#> .
 @prefix dul: <http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#> .
 
+# General operating parameters
+
+:deleteInputAfterProcessing :value TRUE . # Comment out, if input events are cleaned by other means.
+
+# Parameters specific to individual series of windows
+
 :my10secs a :windowSpecification ;
+
+          # The predicate of the triple specifying time
           :timePredicate ep:hasEventObjectTime ;
           :timeType xsd:dateTime ; # timeType supports two values: xsd:dateTime and xsd:integer
+
+          # The predicate of the triple specifying the number, from which aggregates should be computed
           :valuePredicate dul:hasRegionDataValue ;
-          :windowLength 10 . # windowLength in seconds (if xsd:dateTime) or in integer numbers (if xsd:integer)
+
+          :windowLength 10 ; # windowLength in seconds (if xsd:dateTime) or in integer numbers (if xsd:integer)
+          :windowStep 10 . # In seconds (if xsd:dateTime) or in integer numbers (if xsd:integer)
+          # Windowing starts from the timestamp of the first qualifying event
+          # NOTE: windowStep should be equal or less than windowLength!
 
 :my1min a :windowSpecification ;
-        :timePredicate ep:hasEventObjectTime ;
-        :timeType xsd:dateTime ;
-        :valuePredicate dul:hasRegionDataValue ;
-        :windowLength 60 .
+          :timePredicate ep:hasEventObjectTime ;
+          :timeType xsd:dateTime ;
+          :valuePredicate dul:hasRegionDataValue ;
+          :windowLength 60 ;
+          :windowStep 30 .
+

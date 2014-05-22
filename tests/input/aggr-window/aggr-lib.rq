@@ -4,41 +4,74 @@
 # for computing aggregate values over RDF streams using the INSTANS platform
 # Window definitions are given in an accompanying Turtle document.
 
-# By Mikko Rinne 16.5.2014
+# Time 0 is specific to a series of windows and set by the first qualifying event
+# Windows: [ 0, windowLength ), [ windowLength, 2*windowLength ), ...
+
+# Note: Multiple overlapping windows may be terminated by one incoming event.
+# In this case the result windows are not ordered by default.
+
+# When processing finite-length input such as a file, the last triple should be ":this :is :last"
+# to trigger processing of the final windows.
+
+# By Mikko Rinne 22.5.2014
+
 # History:
-# 16.5.2014 First version created
-# 20.5.2014 Fixed support for multiple windows, added selection of timeType.
+# 16.5.2014 MJR First version created
+# 20.5.2014 MJR Fixed support for multiple windows, added selection of timeType.
+# 21.5.2014 MJR Added support for independent window step sizes (also non-tumbling windows)
+# 22.5.2014 MJR Added min & max, support for deletion of incoming events, optimizations
 
 PREFIX ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
 PREFIX dul: <http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX : <http://instans.org/>
 
-# Q1: Record time of first event as zero-point
+# Q1: Record time of first event as zero-point, initialize window series
 INSERT {
   GRAPH <http://window_memory> {
-    ?winspec a :zeroTime ;
-             :hasZeroTime ?zeroTime .
+    ?winName a :windowEntry ;
+             :windowSpec ?winspec ;
+             :windowNumber 1 ;
+             :windowStartTime 0 ;
+             :windowSum 0 ;
+             :windowN 0 ;
+             :windowMin 0 ;
+             :windowMax 0 ;
+             :status :open .
+    ?winspec a :windowSeriesData ;
+             :hasZeroTime ?zeroTime ;
+             :windowCounter 1 ;
+             :latestStart 0 .
   }
 }
 WHERE {
-  # Match window specification
+  # Match window specifications and time predicates
   ?winspec a :windowSpecification ;
            :timePredicate ?timePredicate .
-
-  # Only activate in case the zero-point has not been created yet
-  FILTER NOT EXISTS { GRAPH <http://window_memory> { ?winspec a :zeroTime } }
   ?event ?timePredicate ?zeroTime .
+  # Initialize winName for first window of the series
+  BIND (iri(concat(str(?winspec),"_1")) as ?winName)
+  # Only activate in case the window series data has not been setup yet
+  FILTER NOT EXISTS { GRAPH <http://window_memory> { ?winspec a :windowSeriesData } }
 }
 
 ;
 
-# Q2a: Pre-process input events if timeType xsd:dateTime
+# Q2a: Pre-process input events if timeType is xsd:dateTime
+
+DELETE {
+  GRAPH <http://window_memory> {
+    ?winName :status :closed .
+  }
+}
 INSERT {
-  GRAPH ?winspec {
+  GRAPH <http://processed_input> {
     ?event a ep:EventObject ;
            :hasWindowTime ?windowTime ;
            dul:hasRegionDataValue ?currentValue .
+  }
+  GRAPH <http://window_memory> {
+    ?winName :status :open .
   }
 }
 WHERE {
@@ -50,7 +83,10 @@ WHERE {
 
   # Only proceed after zeroTime has been defined
   GRAPH <http://window_memory> {
-    ?winspec :hasZeroTime ?zeroTime
+    ?winspec :hasZeroTime ?zeroTime .
+    # Find active windows associated with this spec
+    ?winName a :windowEntry ;
+             :windowSpec ?winspec .
   }
   # Match incoming event
   ?event ?timePredicate ?currentTime ;
@@ -70,11 +106,20 @@ WHERE {
 ;
 
 # Q2b: Pre-process input events if timeType is xsd:integer
+
+DELETE {
+  GRAPH <http://window_memory> {
+    ?winName :status :closed .
+  }
+}
 INSERT {
-  GRAPH ?winspec {
+  GRAPH <http://processed_input> {
     ?event a ep:EventObject ;
            :hasWindowTime ?windowTime ;
            dul:hasRegionDataValue ?currentValue .
+  }
+  GRAPH <http://window_memory> {
+    ?winName :status :open .
   }
 }
 WHERE {
@@ -86,7 +131,10 @@ WHERE {
 
   # Only proceed after zeroTime has been defined
   GRAPH <http://window_memory> {
-    ?winspec :hasZeroTime ?zeroTime
+    ?winspec :hasZeroTime ?zeroTime .
+    # Find active windows associated with this spec
+    ?winName a :windowEntry ;
+             :windowSpec ?winspec .
   }
   # Match incoming event
   ?event ?timePredicate ?currentTime ;
@@ -98,65 +146,58 @@ WHERE {
 
 ;
 
-# Q3: Initialize window
-# Windowing time starts from the first qualifying entry
+# Q3: Remove incoming events after they no longer belong to a new window
 
-# Delete the input entry starting the window
-# Note: This is currently needed, because otherwise this event will
-# be counted again in the following entries. Other ways to avoid??
+# Note: This rule removes everything from incoming events after there is a newer event.
+
+# Remove incoming event
 DELETE {
-  GRAPH ?winspec {
-    ?event a ep:EventObject ;
-           :hasWindowTime ?windowTime ;
-           dul:hasRegionDataValue ?value .
-  }
-}
-# Insert first record for window calculation
-INSERT {
-  GRAPH <http://window_memory> {
-    ?winspec a :windowEntry ;
-             :windowStartTime ?windowTime ;
-             :windowSum ?value ;
-             :windowN 1 ;
-             :windowCounter 1 .
-  }
+  ?event1 ?pred ?obj
 }
 WHERE {
+  # Proceed only if the corresponding parameter is set
+  :deleteInputAfterProcessing :value TRUE .
+
   # Match window specification
-  ?winspec a :windowSpecification .
+  ?winspec a :windowSpecification ;
+           :timePredicate ?timePredicate ;
+           :valuePredicate ?valuePredicate .
 
-  # Only activate in case there is no window yet
-  FILTER NOT EXISTS { GRAPH <http://window_memory> { ?winspec a :windowEntry } }
+  # Match incoming event
+  ?event1 ?timePredicate ?time1 ;
+         ?pred ?obj .
 
-  GRAPH ?winspec {
-    ?event a ep:EventObject ;
-           :hasWindowTime ?windowTime ;
-           dul:hasRegionDataValue ?value .
-  }
+  # Select events happened before current latest starting time
+  FILTER EXISTS {
+    ?event2 ?timePredicate ?time2 .
+    FILTER (?time1 < ?time2)
+  } 
 }
 
 ;
 
 # Q4: Insert new entry to window memory
 
+# Note: Status :open / :closed toggle is used, because otherwise the addition is stuck in an eternal loop
+
 DELETE {
   # Remove previous values
   GRAPH <http://window_memory> {
-     ?winspec :windowSum ?lastSum ;
-              :windowN ?lastCount
-  }
-  # Remove also the event to prevent multiple triggers
-  GRAPH ?winspec {
-    ?event a ep:EventObject ;
-           :hasWindowTime ?windowTime ;
-           dul:hasRegionDataValue ?value .
+     ?winName :windowSum ?lastSum ;
+              :windowN ?lastN ;
+              :windowMin ?lastMin ;
+              :windowMax ?lastMax ;
+              :status :open .
   }
 }
 # Insert new values
 INSERT {
   GRAPH <http://window_memory> {
-     ?winspec :windowSum ?newSum ;
-              :windowN ?newCount
+     ?winName :windowSum ?newSum ;
+              :windowN ?newN ;
+              :windowMin ?newMin ;
+              :windowMax ?newMax ;
+              :status :closed .
   }
 }
 WHERE {
@@ -164,145 +205,232 @@ WHERE {
   ?winspec a :windowSpecification ;
            :windowLength ?windowLength .
 
-  GRAPH ?winspec {
+  # Match data for this window
+  GRAPH <http://window_memory> {
+     ?winName a :windowEntry ;
+              :windowSpec ?winspec ;
+              :windowStartTime ?startTime ;
+              :windowSum ?lastSum ;
+              :windowN ?lastN ;
+              :windowMin ?lastMin ;
+              :windowMax ?lastMax ;
+              :status :open .
+  }
+
+  GRAPH <http://processed_input> {
     ?event a ep:EventObject ;
            :hasWindowTime ?windowTime ;
            dul:hasRegionDataValue ?value .
   }
 
-  GRAPH <http://window_memory> {
-     ?winspec a :windowEntry ;
-              :windowStartTime ?startTime ;
-              :windowSum ?lastSum ;
-              :windowN ?lastCount .
-  }
-
-  FILTER ( ?windowTime < ?startTime+?windowLength )
-  BIND (?lastCount + 1 AS ?newCount)
+  FILTER (?windowTime < ?startTime+?windowLength)
+#  FILTER ((?windowTime < ?startTime+?windowLength) && (?windowTime >= ?startTime))
+  BIND (?lastN + 1 AS ?newN)
   BIND (?lastSum + ?value AS ?newSum)
+  BIND ( IF ( ?lastN=0 , ?value , IF ( ?value < ?lastMin , ?value , ?lastMin ) ) AS ?newMin )
+  BIND ( IF ( ?lastN=0 , ?value , IF ( ?value > ?lastMax , ?value , ?lastMax ) ) AS ?newMax )
 }
 
 ;
 
-# Q5: Terminate window, collect statistics
+# Q5: Initiate new window after :windowStep has been passed.
 
-# Remove previous window & counter
 DELETE {
+  # Remove old window counter
   GRAPH <http://window_memory> {
-     ?winspec a :windowEntry ;
-              :windowStartTime ?startTime ;
-              :windowSum ?lastSum ;
-              :windowN ?lastCount ;
-              :windowCounter ?windowCount .
+     ?winspec :windowCounter ?windowCount ;
+              :latestStart ?latestStart .
   }
 }
-# Publish results in output graph
 INSERT {
-  GRAPH <http://result_output> {
-    ?winID a :resultWindow ;
-           :windowStartTime ?startTime ;
-           :windowSum ?lastSum ;
-           :windowAverage ?average ;
-           :windowN ?lastCount .
-  }
-
-# Start a new window & increase window counter
+# Start a new window & increase window counter & latestStart
   GRAPH <http://window_memory> {
-     ?winspec a :windowEntry ;
-              :windowStartTime ?newStart ;
-              :windowSum 0 ;
-              :windowN 0 ;
-              :windowCounter ?newWindowCount .
+     ?winNew a :windowEntry ;
+             :windowSpec ?winspec ;
+             :windowNumber ?newWindowCount ;
+             :windowStartTime ?newLatestStart ;
+             :windowSum 0 ;
+             :windowN 0 ;
+             :windowMin 0 ;
+             :windowMax 0 .
+     ?winspec :windowCounter ?newWindowCount ;
+              :latestStart ?newLatestStart .
   }
 }
 WHERE {
   # Match window specification
   ?winspec a :windowSpecification ;
-           :windowLength ?windowLength .
+           :windowStep ?windowStep .
 
-  GRAPH ?winspec {
+  GRAPH <http://processed_input> {
     ?event a ep:EventObject ;
            :hasWindowTime ?windowTime ;
            dul:hasRegionDataValue ?value
   }
   
   GRAPH <http://window_memory> {
-     ?winspec a :windowEntry ;
-              :windowStartTime ?startTime ;
-              :windowSum ?lastSum ;
-              :windowN ?lastCount ;
-              :windowCounter ?windowCount .
+     ?winspec :windowCounter ?windowCount ;
+              :latestStart ?latestStart .
   }
 
-  # Test for an out-of-window-bounds time
-  FILTER ( ?windowTime >= ?startTime+?windowLength )
-  # Generate a new subject to label the window
-  BIND (iri(concat(str(?winspec),"_",str(?windowCount))) as ?winID)
-  # Test for empty window, avoid division by zero
-  BIND ( IF (?lastCount > 0, ?lastSum/?lastCount, 0) AS ?average)
-  # Starting time of next window will be current + window length
-  BIND (?startTime+?windowLength AS ?newStart)
+  # Test for time to belong to the next window
+  FILTER ( ?windowTime >= ?latestStart+?windowStep )
+  # Starting time of next window will be current + windowStep
+  BIND (?latestStart+?windowStep AS ?newLatestStart)
   # Increase window counter by one
   BIND (?windowCount+1 AS ?newWindowCount)
+  # Generate a new subject to label the window
+  BIND (iri(concat(str(?winspec),"_",str(?newWindowCount))) as ?winNew)
 }
 
 ;
 
-# Q6: Produce final window
+# Q6: Detect out-of-bounds event, terminate window, collect statistics
 
-# Remove final window & counter
 DELETE {
+# Remove window record
   GRAPH <http://window_memory> {
-     ?winspec a :windowEntry ;
+     ?winName a :windowEntry ;
+              :windowSpec ?winspec ;
+              :windowNumber ?windowNumber ;
               :windowStartTime ?startTime ;
               :windowSum ?lastSum ;
-              :windowN ?lastCount ;
-              :windowCounter ?windowCount .
+              :windowN ?lastN ;
+              :windowMin ?lastMin ;
+              :windowMax ?lastMax .
   }
 }
 # Publish results in output graph
 INSERT {
   GRAPH <http://result_output> {
-    ?winID a :resultWindow ;
-           :windowStartTime ?startTime ;
-           :windowSum ?lastSum ;
-           :windowAverage ?average ;
-           :windowN ?lastCount .
+    ?winName a :resultWindow ;
+             :windowNumber ?windowNumber ;
+             :windowStartTime ?startTime ;
+             :windowSum ?lastSum ;
+             :windowAverage ?average ;
+             :windowN ?lastN ;
+             :windowMin ?lastMin ;
+             :windowMax ?lastMax .
   }
 }
 WHERE {
   # Match window specification
-  ?winspec a :windowSpecification .
+  ?winspec a :windowSpecification ;
+           :windowLength ?windowLength .
 
-  # Match final triple
-  :this :is :last .
+  GRAPH <http://processed_input> {
+    ?event a ep:EventObject ;
+           :hasWindowTime ?windowTime ;
+           dul:hasRegionDataValue ?value
+  }
   
   GRAPH <http://window_memory> {
-     ?winspec a :windowEntry ;
+     ?winName a :windowEntry ;
+              :windowSpec ?winspec ;
+              :windowNumber ?windowNumber ;
               :windowStartTime ?startTime ;
               :windowSum ?lastSum ;
-              :windowN ?lastCount ;
-              :windowCounter ?windowCount .
+              :windowN ?lastN ;
+              :windowMin ?lastMin ;
+              :windowMax ?lastMax .
   }
 
-  # Generate a new subject to label the window
-  BIND (iri(concat(str(?winspec),"_",str(?windowCount))) as ?winID)
+  # Test for an out-of-window-bounds time
+  FILTER ( ?windowTime >= ?startTime+?windowLength )
   # Test for empty window, avoid division by zero
-  BIND ( IF (?lastCount > 0, ?lastSum/?lastCount, 0) AS ?average)
+  BIND ( IF (?lastN > 0, ?lastSum/?lastN, 0) AS ?average)
 }
 
 ;
 
-# Q7: Display results
+# Q7: Delete processed event, when a newer event is available
+
+DELETE {
+  GRAPH <http://processed_input> {
+    ?event1 a ep:EventObject ;
+            :hasWindowTime ?windowTime1 ;
+            dul:hasRegionDataValue ?value1
+  }
+}
+WHERE {
+  GRAPH <http://processed_input> {
+    ?event1 a ep:EventObject ;
+            :hasWindowTime ?windowTime1 ;
+            dul:hasRegionDataValue ?value1
+  }
+  FILTER EXISTS { GRAPH <http://processed_input> {
+      ?event2 a ep:EventObject ;
+              :hasWindowTime ?windowTime2 .
+      FILTER (?windowTime1 < ?windowTime2)
+  }  }
+}
+
+;
+
+# Q8: Produce final window
+
+# Remove final windows
+DELETE {
+  GRAPH <http://window_memory> {
+     ?winName a :windowEntry ;
+              :windowSpec ?winspec ;
+              :windowNumber ?windowNumber ;
+              :windowStartTime ?startTime ;
+              :windowSum ?lastSum ;
+              :windowN ?lastN ;
+              :windowMin ?lastMin ;
+              :windowMax ?lastMax .
+  }
+}
+# Publish results in output graph
+INSERT {
+  GRAPH <http://result_output> {
+    ?winName a :resultWindow ;
+             :windowNumber ?windowNumber ;
+             :windowStartTime ?startTime ;
+             :windowSum ?lastSum ;
+             :windowAverage ?average ;
+             :windowN ?lastN ;
+             :windowMin ?lastMin ;
+             :windowMax ?lastMax .
+  }
+}
+WHERE {
+  # Match final triple
+  :this :is :last .
+  
+  GRAPH <http://window_memory> {
+     ?winName a :windowEntry ;
+              :windowSpec ?winspec ;
+              :windowNumber ?windowNumber ;
+              :windowStartTime ?startTime ;
+              :windowSum ?lastSum ;
+              :windowN ?lastN ;
+              :windowMin ?lastMin ;
+              :windowMax ?lastMax .
+  }
+
+  # Test for empty window, avoid division by zero
+  BIND ( IF (?lastN > 0, ?lastSum/?lastN, 0) AS ?average)
+}
+
+;
+
+# Q9: Display results
 
 SELECT *
 WHERE {
   GRAPH <http://result_output> {
-    ?win a :resultWindow ;
-         :windowStartTime ?startTime ;
-         :windowSum ?sum ;
-         :windowAverage ?average ;
-         :windowN ?entries .
+    ?Window a :resultWindow ;
+             :windowNumber ?Number ;
+             :windowStartTime ?StartTime ;
+             :windowSum ?Sum ;
+             :windowAverage ?Average ;
+             :windowN ?Entries ;
+             :windowMin ?Min ;
+             :windowMax ?Max .
+# Uncomment the following line to skip windows with no content
+#    FILTER (?Entries > 0)
   }
 }
 
