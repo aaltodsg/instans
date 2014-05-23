@@ -8,18 +8,19 @@
 # Windows: [ 0, windowLength ), [ windowLength, 2*windowLength ), ...
 
 # Note: Multiple overlapping windows may be terminated by one incoming event.
-# In this case the result windows are not ordered by default.
+# In this case the result window ordering is random.
 
 # When processing finite-length input such as a file, the last triple should be ":this :is :last"
 # to trigger processing of the final windows.
 
-# By Mikko Rinne 22.5.2014
+# By Mikko Rinne 23.5.2014
 
 # History:
 # 16.5.2014 MJR First version created
 # 20.5.2014 MJR Fixed support for multiple windows, added selection of timeType.
 # 21.5.2014 MJR Added support for independent window step sizes (also non-tumbling windows)
 # 22.5.2014 MJR Added min & max, support for deletion of incoming events, optimizations
+# 23.5.2014 MJR Added some more documentation in comments
 
 PREFIX ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
 PREFIX dul: <http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#>
@@ -29,6 +30,7 @@ PREFIX : <http://instans.org/>
 # Q1: Record time of first event as zero-point, initialize window series
 INSERT {
   GRAPH <http://window_memory> {
+    # Data specific for a single window
     ?winName a :windowEntry ;
              :windowSpec ?winspec ;
              :windowNumber 1 ;
@@ -38,6 +40,7 @@ INSERT {
              :windowMin 0 ;
              :windowMax 0 ;
              :status :open .
+    # Data specific for one series of windows
     ?winspec a :windowSeriesData ;
              :hasZeroTime ?zeroTime ;
              :windowCounter 1 ;
@@ -60,6 +63,7 @@ WHERE {
 # Q2a: Pre-process input events if timeType is xsd:dateTime
 
 DELETE {
+  # Clean up any closed toggles for the matching window
   GRAPH <http://window_memory> {
     ?winName :status :closed .
   }
@@ -70,6 +74,7 @@ INSERT {
            :hasWindowTime ?windowTime ;
            dul:hasRegionDataValue ?currentValue .
   }
+  # Open :status (new data available) for the matching window
   GRAPH <http://window_memory> {
     ?winName :status :open .
   }
@@ -92,6 +97,10 @@ WHERE {
   ?event ?timePredicate ?currentTime ;
          ?valuePredicate ?currentValue .
 
+  # Note: The conversion here doesn't take into account any months shorter than 31 days and will therefore
+  #       cause problems at the end of shorter months. There are, however, plans to implement the proper
+  #       conversion as a single-function extension. For now, this is kept as a simple example.
+
   # Convert incoming dateTime to seconds starting from first event
   BIND (year(?currentTime)-year(?zeroTime) AS ?yearDiff)
   BIND (month(?currentTime)-month(?zeroTime) AS ?monthDiff)
@@ -108,6 +117,7 @@ WHERE {
 # Q2b: Pre-process input events if timeType is xsd:integer
 
 DELETE {
+  # Clean up any closed toggles for the matching window
   GRAPH <http://window_memory> {
     ?winName :status :closed .
   }
@@ -118,6 +128,7 @@ INSERT {
            :hasWindowTime ?windowTime ;
            dul:hasRegionDataValue ?currentValue .
   }
+  # Open :status (new data available) for the matching window
   GRAPH <http://window_memory> {
     ?winName :status :open .
   }
@@ -155,7 +166,7 @@ DELETE {
   ?event1 ?pred ?obj
 }
 WHERE {
-  # Proceed only if the corresponding parameter is set
+  # Proceed only if the removal parameter is set
   :deleteInputAfterProcessing :value TRUE .
 
   # Match window specification
@@ -179,6 +190,7 @@ WHERE {
 # Q4: Insert new entry to window memory
 
 # Note: Status :open / :closed toggle is used, because otherwise the addition is stuck in an eternal loop
+#       If the event would be removed here instead, other associated queries would not receive it
 
 DELETE {
   # Remove previous values
@@ -224,7 +236,6 @@ WHERE {
   }
 
   FILTER (?windowTime < ?startTime+?windowLength)
-#  FILTER ((?windowTime < ?startTime+?windowLength) && (?windowTime >= ?startTime))
   BIND (?lastN + 1 AS ?newN)
   BIND (?lastSum + ?value AS ?newSum)
   BIND ( IF ( ?lastN=0 , ?value , IF ( ?value < ?lastMin , ?value , ?lastMin ) ) AS ?newMin )
@@ -318,12 +329,14 @@ WHERE {
   ?winspec a :windowSpecification ;
            :windowLength ?windowLength .
 
+  # Match processed event
   GRAPH <http://processed_input> {
     ?event a ep:EventObject ;
            :hasWindowTime ?windowTime ;
            dul:hasRegionDataValue ?value
   }
-  
+
+  # Match current windows  
   GRAPH <http://window_memory> {
      ?winName a :windowEntry ;
               :windowSpec ?winspec ;
@@ -337,7 +350,7 @@ WHERE {
 
   # Test for an out-of-window-bounds time
   FILTER ( ?windowTime >= ?startTime+?windowLength )
-  # Test for empty window, avoid division by zero
+  # Avoid division by zero in case of an empty window
   BIND ( IF (?lastN > 0, ?lastSum/?lastN, 0) AS ?average)
 }
 
@@ -367,7 +380,7 @@ WHERE {
 
 ;
 
-# Q8: Produce final window
+# Q8: Output final window when an end marker (:this :is :last) is found
 
 # Remove final windows
 DELETE {
