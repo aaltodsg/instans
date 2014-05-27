@@ -8,7 +8,7 @@ PREFIX ff: <http://factforge.net/>
 
 # Stateless filter (EPA 1): Only events generated during business hours
 
-INSERT { GRAPH <http://example.org/poststateless> {  # Forward outgoing events
+INSERT { GRAPH <http://example.org/poststateless/> {  # Forward outgoing events
       ?event ?p1 ?o1 .
       ?h2 ?p2 ?o2 } }
 WHERE { GRAPH <http://example.org/source/> {
@@ -34,7 +34,8 @@ DELETE { GRAPH <http://example.org/memory/> { # Clear memory
     ?mem :prevHour ?prevhour } }
 INSERT { GRAPH <http://example.org/poststateful/> { # Forward outgoing events
       ?event ?p1 ?o1 .
-      ?h2 ?p2 ?o2 }
+      ?h2 ?p2 ?o2
+    }
  GRAPH <http://example.org/memory/> { # Write new value to memory
      [] :prevHour ?hour }  
 }
@@ -47,9 +48,10 @@ WHERE { GRAPH <http://example.org/poststateless/> {
     }
    GRAPH <http://example.org/memory/> { # Retrieve value from memory, if available
     OPTIONAL  { ?mem :prevHour ?prevhour }
-  }
+   }
   BIND ( HOURS(?time) as ?hour)
-  FILTER ( ?hour != COALESCE(?prevhour,-1) ) # Compare current with memory
+#  This filter gets stuck:
+#  FILTER ( ?hour != COALESCE(?prevhour,-1) ) # Compare current with memory
 }
 
 ;
@@ -71,10 +73,11 @@ WHERE { GRAPH <http://example.org/poststateful/> {
            ssn:Sensor ?sensor ;
            geo:Point [ geo:lat ?lat ; geo:long ?long ; ] ;
            ep:hasEventObjectSamplingTime ?time .
+     BIND ( "Espoo" as ?label ) # Temporary replacement until SERVICE implemented
 #    SERVICE <http://factforge.net/sparql> { # Retrieve location label
-     BIND ( "Espoo" as ?label ) { # Temporary replacement until SERVICE implemented
-       ?location omgeo:nearby(?lat ?long "1km"); 
-                 ff:preferredLabel ?label } } }
+#       ?location omgeo:nearby(?lat ?long "1km"); 
+#                 ff:preferredLabel ?label }
+} }
 
 ; 
 

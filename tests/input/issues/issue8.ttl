@@ -1,2 +1,5 @@
-@prefix : <http://instans.org/> .
-:myWin1 a :windowSpecification .
+@prefix ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#> .
+@prefix geo:  <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+
+[] a ep:EventObject ;
+     geo:Point [ geo:lat 60.158776 ; geo:long 24.881490 ; ] .

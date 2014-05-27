@@ -3,11 +3,10 @@ PREFIX geo:  <http://www.w3.org/2003/01/geo/wgs84_pos#>
 
 INSERT { GRAPH <http://next> {
   ?event a ep:EventObject ;
-         geo:Point [ geo:lat ?lat ; geo:long ?long ; ] . }
-}
+         ?p ?o .
+  ?o ?p2 ?o2 } }
 WHERE {
   ?event a ep:EventObject ;
-         geo:Point [ geo:lat ?lat ; geo:long ?long ; ] .
-}
-;
+         ?p ?o .
+  ?o ?p2 ?o2 } ;
 SELECT * WHERE { GRAPH <http://next> { ?s ?p ?o } }

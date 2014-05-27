@@ -1,0 +1,6 @@
+PREFIX ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
+PREFIX geo:  <http://www.w3.org/2003/01/geo/wgs84_pos#>
+
+SELECT * WHERE {
+  ?event a ep:EventObject ;
+         geo:Point [ geo:lat ?lat ; geo:long ?long ; ] }

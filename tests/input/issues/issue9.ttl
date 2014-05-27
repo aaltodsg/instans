@@ -1,0 +1,5 @@
+@prefix : <http://instans.org/> .
+
+:my :first :fact ;
+    :second :fact2 .
+:fact2 :relates :fact3 .

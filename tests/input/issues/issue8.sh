@@ -1,1 +1,1 @@
-../../../bin/instans --rete-html-page-dir /tmp -r issue8.rq -t issue8.ttl
+../../../bin/instans -r issue8.rq -t issue8.ttl

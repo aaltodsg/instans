@@ -1,0 +1,8 @@
+PREFIX : <http://instans.org/>
+INSERT { GRAPH <http://next> {
+  ?s ?p ?o } }
+WHERE {
+  ?s :first :fact ;
+     ?p ?o } ;
+
+SELECT * WHERE { GRAPH <http://next> { ?s ?p ?o } }
