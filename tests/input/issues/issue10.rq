@@ -1,0 +1,2 @@
+SELECT ?result WHERE {
+BIND ( COALESCE (?foo,"bar") AS ?result ) }
