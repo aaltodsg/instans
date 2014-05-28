@@ -18,6 +18,8 @@ mkdir -p ${SAVEDIR}
 cp -f ${TEST_OUTPUT} ${SAVEDIR}/
 cp -f ${REPORT_HTML} ${SAVEDIR}/
 cp -f ${REPORT_HTML} ${REPORT_HTML}.prev
+ALL=${RESULTSDIR}/all
+touch ${ALL}
 if test $# -eq 0 ; then
     pwd
     echo > $TEST_OUTPUT
@@ -28,6 +30,7 @@ if test $# -eq 0 ; then
 	echo ${BIN}/instans -b "file://`dirname $MANIFEST`/" -r ${TESTS}/input/syntax-test.rq -t $MANIFEST
 	${BIN}/instans -b "file://`dirname $MANIFEST`/"  -r ${TESTS}/input/syntax-test.rq -t $MANIFEST > ${TMPOUT} 2>&1
 	cat ${TMPOUT} | egrep -v '(^[ \t]*;|^[ \t]*$|^queryfile,testtype,parsed_ok,translate_ok,error_msg,status$)' >> ${TEST_OUTPUT} 2>&1
+	cat ${TMPOUT} >> ${ALL}
 	rm ${TMPOUT}
     done
     echo "File \"$TEST_OUTPUT\" contains the test output."
