@@ -116,7 +116,7 @@
 							     b))
 						  predicateObjectList
 						  ]-TERMINAL
-						  :RESULT (restore-state)))
+						  :RESULT (progn (restore-state) $1)))
 		 (collection	             ::= (|(-TERMINAL|
 						  (:OR (:RESULT *rdf-nil*)
 						       ((:RESULT (let ((b (generate-blank)))
