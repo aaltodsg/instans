@@ -61,7 +61,6 @@
 				     (:file "char-ops")
 	       			     (:file "prefixed-names")
 	       			     (:file "lexer" :depends-on ("chbuf" "prefixed-names"))
-	       			     (:file "turtle-parser" :depends-on ("lexer"))
 	       			     (:file "triple-parser" :depends-on ("lexer"))
 	       			     (:file "sparql-parser" :depends-on ("lexer"))))
 	       (:module "rete" :depends-on ("util" "sparql" "parser")

@@ -13,8 +13,9 @@
   (multiple-value-bind (instans instans-iri) (create-instans)
     (let* ((policies (copy-list (instans-policies instans)))
 	   (directory (parse-iri (format nil "file://~A" (expand-dirname "."))))
-	   (query-output-type :csv)
+	   (query-input-type nil)
 	   (query-output-name nil)
+	   (query-output-type :csv)
 	   base graph expected debug reporting rete-html-page-dir)
       (setf *instanssi* instans)
       (labels ((valid-value-p (value accepted-values &key test)
@@ -24,11 +25,12 @@
 		 (when (valid-value-p value accepted-values :test test)
 		   (setf (getf policies key) value)
 		   (case key
-		     (:triple-input-policy (setf (instans-triple-input-policy instans) value))
-		     (:triple-processing-operations (setf (instans-triple-processing-operations instans) value))
+		     (:query-input-policy (setf (instans-query-input-policy instans) value))
+		     (:query-processing-operations (setf (instans-query-processing-operations instans) value))
 		     (:rule-instance-removal-policy (setf (instans-rule-instance-removal-policy instans) value))
 		     (:queue-execution-policy (setf (instans-queue-execution-policy instans) value))
 		     (t (error* "Unknown policy ~A" key)))))
+;	       (expand-iri-or-file-path (base iri-or-file-path input-type)
 	       (parse-parameters (string &key colon-expand-fields)
 		 (loop for param in (parse-spec-string string)
 		       for (key value) = param
@@ -36,7 +38,7 @@
 	(unwind-protect
 ;	     (handler-case
 	     (loop for (key value) in configuration
-					;		    do (inform "key = ~S, value = ~S~%" key value)
+;		   do (inform "key = ~S, value = ~S~%" key value)
 		   do (case key
 			(:name (setf (instans-name instans) value))
 			(:directory (setf directory (parse-iri (if (http-or-file-iri-string-p value)
@@ -58,6 +60,8 @@
 					(t
 					 (inform "~%~A:~A~{~%~A~}~%" value (type-of status) (instans-status-messages status)))))
 				(return-from run-configuration nil))))
+			(:input-type (setf query-input-type (intern (string-upcase value) :keyword)))
+			(:output-type (setf query-output-type (intern (string-upcase value) :keyword)))
 			(:triples
 			 (when (null (instans-query-output-processor instans))
 			   (setf (instans-query-output-processor instans) (create-query-output-processor query-output-name query-output-type)))
@@ -67,19 +71,17 @@
 			     (inform "~%~A:~A~{~%~A~}~%" value (type-of status) (instans-status-messages status)))
 			   (return-from run-configuration nil)))
 		     ;;; "base=http://example.org/friends/&graph=http://instans.org/events/&file=tests/input/fnb.ttl&input-policy=triples-block&operations:add:execute:remove:execute"
-			;; (:input
-			;;  (let ((input-parameters (parse-parameters value :colon-expand-fields '(:triple-processing-operations))))
-			;;    (inform "~S" input-parameters)
-			;;    (loop for (key . value) in input-parameters
-			;; 	 do (case key
-			;; 	      (:base (setf base value))
-			;; 	      (:graph (setf graph value))
-			;; 	      (:triple-input-policy (setf (getf policies :triple-input-policy) value))
-			;; 	      (:triple-processing-operations (setf (getf policies :triple-processing-operations) value))))
-			;;    (instans-add-triple-processor instans-iri 
-			;; 				 (expand-iri directory (or (getf input-parameters :file) (getf input-parameters :iri)))
-			;; 				 :graph graph
-			;; 				 :base base)))
+			((:turtle :trig :input)
+			 (let ((input-iri (expand-iri directory value)))
+			   (instans-add-query-input-processor instans-iri input-iri :graph graph :base base
+							      :input-type (case key
+									    (:turtle :ttl)
+									    (:trig :trig)
+									    (:input 
+									     (let* ((iri-path (rdf-iri-path input-iri))
+										    (type-string (and (stringp iri-path) (pathname-type (pathname iri-path))))
+										    (type (and type-string (intern (string-upcase type-string) :keyword))))
+									       (if (member type '(:trig :ttl)) type query-input-type)))))))
 			(:query-output
 			 (setf query-output-name value)
 					;			  (inform "query-output-name = ~S" query-output-name)
@@ -93,16 +95,18 @@
 				    (setf (rule-instance-queue-report-p (instans-rule-instance-queue instans)) reporting))
 			(:debug (setf debug (parse-colon-separated-values value)))
 			(:verbose (setf debug (parse-colon-separated-values value)))
-			(:triple-input-policy (set-policy :triple-input-policy (intern value :keyword) (instans-available-triple-input-policies instans)))
-			(:triple-processing-operations (set-policy :triple-processing-operations (parse-colon-separated-values value)
-								   (instans-available-triple-processing-operations instans)
+			(:query-input-policy (set-policy :query-input-policy (intern value :keyword) (instans-available-query-input-policies instans)))
+			(:query-processing-operations (set-policy :query-processing-operations (parse-colon-separated-values value)
+								   (instans-available-query-processing-operations instans)
 								   :test #'(lambda (values accepted) (every #'(lambda (v) (member v accepted :test #'equal)) values))))
 			(:rule-instance-removal-policy (set-policy :rule-instance-removal-policy (intern value :keyword) (instans-available-rule-instance-removal-policies instans)))
 			(:queue-execution-policy (set-policy :queue-execution-policy (intern value :keyword) (instans-available-queue-execution-policies instans)))
 			(:rete-html-page-dir (setf rete-html-page-dir value))))
+	  (unless (find :execute configuration :key #'first)
+	    (instans-run instans-iri))
 ;	       (t (e) (inform "~A" e))
 ;	  )
-	  (when (instans-query-output-processor instans) (close-query-output-processor (instans-query-output-processor instans))))))))
+	  (instans-close-open-streams instans))))))
 
 (defvar *test-argv*)
 
@@ -180,8 +184,8 @@
 				  (:reporting        (("--report" "<rules>")) "The kinds of rules you want to get reported; a ':'~%~
                                                                            ~40Tseparated list of (select|construct|modify|all)." :hiddenp t)
 				  (:rete-html-page-dir           (("--rete-html-page-dir" "<dir>")) "Create an HTML page about the Rete network.")
-				  (:triple-input-policy          (("--triple-input-policy" "<policy>")) "The triple input policy.")
-				  (:triple-processing-operations     (("--triple-processing-operations" "<policy>")) "See the documentation.")
+				  (:query-input-policy          (("--query-input-policy" "<policy>")) "The triple input policy.")
+				  (:query-processing-operations     (("--query-processing-operations" "<policy>")) "See the documentation.")
 				  (:rule-instance-removal-policy (("--rule-instance-removal-policy" "<policy>")) "See the documentation.")
 				  (:queue-execution-policy        (("--queue-execution-policy" "<policy>")) "See the documentation.")
 				  (:execute       (("-e") ("--execute")) "Execute the system. This is done by default at the end of processing all arguments.")

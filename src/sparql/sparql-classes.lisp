@@ -39,7 +39,8 @@
    (path :accessor rdf-iri-path :initarg :path :initform nil)
    (query :accessor rdf-iri-query :initarg :query :initform nil)
    (fragment :accessor rdf-iri-fragment :initarg :fragment :initform nil)
-   (had-dot-segments-p :accessor rdf-iri-had-dot-segments-p :initarg :had-dot-segments-p :initform nil)))
+;   (had-dot-segments-p :accessor rdf-iri-had-dot-segments-p :initarg :had-dot-segments-p :initform nil)
+))
 
 (define-class rdf-literal (rdf-term)
   ((string :accessor rdf-literal-string :initarg :string :initform nil)
@@ -85,7 +86,9 @@
 
 (define-class sparql-function (sparql-op) ())
 
-(define-class sparql-form (sparql-op) ())
+;; (define-class sparql-form (sparql-op) ())
+
+(define-class sparql-macro (sparql-op) ())
 
 (define-class sparql-op-library ()
   ((prefix :accessor sparql-op-library-prefix :initarg :prefix)

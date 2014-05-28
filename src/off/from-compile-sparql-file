@@ -97,3 +97,36 @@
 		  (t
 		   (sparql-results-compare expected-query-results observed-query-results :verbosep t :result-label1 "expected" :result-label2 "observed")))
 	  (values similarp same-order-p instans))))))
+
+(defun create-triple-input-stream (spec)
+  (cond ((listp spec)
+	 (let* ((file (getf spec :file))
+		(iri (getf spec :iri))
+		(type (getf spec :type))
+		(input-policy (getf spec :triple-input-policy)))
+	   (multiple-value-bind (stream name-type error-message) (create-input-stream (or file iri))
+	     (cond ((not error-message)
+		    (values stream (or type name-type) input-policy))
+		   (t
+		    (values nil nil nil error-message))))))
+	(t
+	 (multiple-value-bind (stream type error-message) (create-input-stream spec)
+	   (cond ((not error-message)
+		  (values stream type))
+		 (t
+		  (values nil nil nil error-message)))))))
+
+;; (let* ((instans (get-instans instans-iri))
+;; 	 input-stream input-type error-message)
+;;   (multiple-value-setq (input-stream input-type error-message) (create-input-stream input))
+;;   (when error-message (error* error-message))
+;;   (let ((processor (make-instance 'query-input-processor
+;; 				    :instans instans
+;; 				    :input-policy (getf policies :triple-input-policy)
+;; 				    :operations (getf policies :triple-processing-operations)
+;; 				    :graph graph
+;; 				    :base base
+;; 				    :lexer (make-instance 'turtle-lexer :instans instans :input-stream input-stream :base base)
+;;     (setf (query-input-processor-parser processor)
+;; 	    (make-turtle-parser :triples-callback #'(lambda (triples) (process-triples processor triples) (ll-parser-yields nil))))
+;;     (add-query-input-processor instans processor))))

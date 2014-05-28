@@ -634,12 +634,13 @@
 
 (defun generate-ll1-grammar (name class rules-or-file &rest keys &key default-result (error-on-non-ll1-grammar-p t) warn-about-transformations-p (warn-stream *error-output*) &allow-other-keys)
   "Generate an LL(1) grammar from a set of rules (or a file)"
+  (declare (ignorable default-result))
   (remf keys :warn-about-transformations-p)
   (remf keys :warn-stream)
   (let* ((rules (cond ((consp rules-or-file) rules-or-file)
-		     (t
-		      (with-open-file (input-stream rules-or-file)
-			(read input-stream)))))
+		      (t
+		       (with-open-file (input-stream rules-or-file)
+			 (read input-stream)))))
 	 (g1 (apply #'create-grammar name class rules keys))
 	 (g2 (remove-immediate-left-recursion g1))
 	 (g3 (left-factoring g2)))
@@ -658,8 +659,8 @@
     (nonterminal-firsts g3)
     (followers g3)
     (generate-ll1-table g3)
-;    (describe g3)
-;    (print-grammar g3)
+					;    (describe g3)
+					;    (print-grammar g3)
     g3))
 
 (defun generate-parser-ll1-grammar (parser rules-or-file)
