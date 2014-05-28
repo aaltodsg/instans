@@ -452,7 +452,7 @@
 			(cons sparql-op arglist))))))
       (setf
        parser
-       (generate-ll1-parser sparql-parser
+       (generate-ll1-parser sparql-parser ()
 	 (Rules ::= (Prologue (:OPT ((:OR Query1 Update1) ((:OPT (|;-TERMINAL| Rules :RESULT $1)) :RESULT (opt-value $0)) :RESULT (cons $0 $1)))
 			      :RESULT (append $0 (opt-value $1))))
 	 (Query1 ::= ((:OR SelectQuery ConstructQuery DescribeQuery AskQuery) ValuesClause :RESULT (build-query-expression instans (append $0 (opt-value $1)))))

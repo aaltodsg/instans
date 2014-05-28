@@ -297,14 +297,14 @@
 
 (defgeneric instans-policies (instans)
   (:method ((this instans))
-    (list :triple-input-policy (instans-triple-input-policy this)
-	  :triple-processing-operations (instans-triple-processing-operations this)
+    (list :query-input-policy (instans-query-input-policy this)
+	  :query-processing-operations (instans-query-processing-operations this)
 	  :rule-instance-removal-policy (instans-rule-instance-removal-policy this)
 	  :queue-execution-policy (instans-queue-execution-policy this))))
 
-(defgeneric add-triple-processor (instans processor)
+(defgeneric add-query-input-processor (instans processor)
   (:method ((this instans) processor)
-    (push-to-end processor (instans-triple-processors this))))
+    (push-to-end processor (instans-query-input-processors this))))
 
 (defun create-query-output-processor (output-name output-type)
   (case output-type

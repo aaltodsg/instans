@@ -130,47 +130,33 @@
 	 (values (open input) (file-type input)))
 	(t (values nil nil (format nil "Cannot create an input stream based on ~S" input)))))
 
-(defun create-triple-input-stream (spec)
-  (cond ((listp spec)
-	 (let* ((file (getf spec :file))
-		(iri (getf spec :iri))
-		(type (getf spec :type))
-		(input-policy (getf spec :triple-input-policy)))
-	   (multiple-value-bind (stream name-type error-message) (create-input-stream (or file iri))
-	     (cond ((not error-message)
-		    (values stream (or type name-type) input-policy))
-		   (t
-		    (values nil nil nil error-message))))))
-	(t
-	 (multiple-value-bind (stream type error-message) (create-input-stream spec)
-	   (cond ((not error-message)
-		  (values stream type))
-		 (t
-		  (values nil nil nil error-message)))))))
-
-(defun instans-add-triple-processor (instans-iri input &key graph base output policies)
-  (declare (ignorable instans-iri input graph base output policies))
-  nil)
-;; (let* ((instans (get-instans instans-iri))
-;; 	 input-stream input-type error-message)
-;;   (multiple-value-setq (input-stream input-type error-message) (create-input-stream input))
-;;   (when error-message (error* error-message))
-;;   (let ((processor (make-instance 'triple-processor
-;; 				    :instans instans
-;; 				    :input-policy (getf policies :triple-input-policy)
-;; 				    :operations (getf policies :triple-processing-operations)
-;; 				    :graph graph
-;; 				    :base base
-;; 				    :lexer (make-instance 'turtle-lexer :instans instans :input-stream input-stream :base base)
-;;     (setf (triple-processor-parser processor)
-;; 	    (make-turtle-parser :triples-callback #'(lambda (triples) (process-triples processor triples) (ll-parser-yields nil))))
-;;     (add-triple-processor instans processor))))
+(defun instans-add-query-input-processor (instans-iri input-iri &key graph base input-type)
+  (let* ((instans (get-instans instans-iri)))
+    (instans-debug-message instans '(:parse-triples :execute) "instans-add-query-input-processor ~S ~S :input-type ~S :graph ~S :base ~S"
+			   instans-iri input-iri input-type graph base)
+    (let* ((input-policy (instans-query-input-policy instans))
+	   (processor (make-instance 'query-input-processor
+				     :instans instans
+				     :input-policy input-policy
+				     :operations (instans-query-processing-operations instans)
+				     :base base
+				     :graph graph))
+	   (input-stream (create-input-stream input-iri))
+	   (parser-creator (case input-type (:trig #'make-trig-parser) (:ttl #'make-turtle-parser) (t (error* "Unknown input type ~S" input-type))))
+	   (callback (case input-policy
+		       (:single (list :triple-callback #'(lambda (&rest input) (process-query-input processor (list input)))))
+		       (:block (list :block-callback #'(lambda (inputs) (process-query-input processor inputs))))
+		       (:document (list :document-callback #'(lambda (inputs) (process-query-input processor inputs))))))
+	   (parser (apply parser-creator :instans instans :input-stream input-stream :base base (list callback))))
+      (setf (query-input-processor-parser processor) parser)
+      (push-to-end processor (instans-query-input-processors instans)))
+    instans))
 
 (defun instans-run (instans-iri)
   (declare (ignorable instans-iri))
   nil)
 ;; (let ((instans (get-instans instans-iri)))
-;;   (run-triple-processors instans)))
+;;   (run-query-input-processors instans)))
 
 (defun instans-add-triples (instans-iri input &key graph base)
   (let* ((instans (get-instans instans-iri))
@@ -179,10 +165,10 @@
     (with-input-from-string (triples-stream string)
       (let ((triples-parser (make-turtle-parser instans triples-stream
 						:base base
-						:triples-callback #'(lambda (triples)
-								      (instans-debug-message instans :execute "~%Event callback: ~D triples~%~{ ~S~%~}"
-												   (length triples) triples)
-									    (process-triple-input instans triples :ops '(:add :execute) :graph (if (and graph (rdf-iri-equal graph *rdf-nil*)) nil graph))))))
+						:block-callback #'(lambda (triples)
+								    (instans-debug-message instans :execute "~%Event callback: ~D triples~%~{ ~S~%~}"
+											   (length triples) triples)
+								    (process-query-input instans triples :ops '(:add :execute) :graph (if (and graph (rdf-iri-equal graph *rdf-nil*)) nil graph))))))
 	(instans-debug-message instans '(:execute :parse-triples) "~%Processing triples:~%")
 	;; Is this OK?;	(initialize-execution instans)
 	(parse triples-parser)

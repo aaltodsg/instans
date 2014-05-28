@@ -6,17 +6,16 @@
 (in-package #:instans)
 
 (defmacro error-safe (form)
-  `(handler-case ,form
-     (t (e) (signal-sparql-error "~S" e))))
+  `(handler-case
+       (catch :sparql-error ,form)
+     (t (e) (make-instance 'sparql-error :format "~S" :arguments (list e)))))
 
 (defmacro error-safe-ebv (v)
-  (let ((v-var (gensym "V")))
-    `(let ((,v-var (error-safe ,v)))
-       (sparql-call "ebv" ,v-var))))
+  `(error-safe (sparql-call "ebv" ,v)))
 
 (defmacro eval-sparql-filter (filter args)
   (let ((v (gensym)))
-    `(let ((,v (catch :sparql-error (error-safe-ebv (apply ,filter ,args)))))
+    `(let ((,v (error-safe-ebv (apply ,filter ,args))))
        (and ,v (not (sparql-error-p ,v))))))
 
 (defun make-sparql-op-name (library-name op-name)
@@ -159,8 +158,17 @@
      ;; 							else when (not (symbolp arg)) collect (first arg))))
      ,@(make-sparql-function-body prefixed-name-string arguments methods)))
 
-(defmacro define-sparql-form (prefixed-name-string (&key arguments returns hiddenp) &body body)
-  `(define-sparql-op sparql-form ,prefixed-name-string (:arguments ,arguments :returns ,returns :hiddenp ,hiddenp) ,@body))
+;; (defmacro define-sparql-form (prefixed-name-string (&key arguments returns hiddenp) &body body)
+;;   `(define-sparql-op sparql-form ,prefixed-name-string (:arguments ,arguments :returns ,returns :hiddenp ,hiddenp) ,@body))
+
+(defmacro define-sparql-macro (prefixed-name-string (&rest lambda-list) &body body)
+  (multiple-value-bind (library-name op-name)
+      (split-sparql-op-prefixed-name prefixed-name-string)
+    (let* ((lisp-name (make-sparql-op-name library-name op-name)))
+      `(progn
+	 (defmacro ,lisp-name (,@lambda-list)
+	   ,@body)
+	 (add-sparql-op :kind 'sparql-macro :prefixed-name-string ,prefixed-name-string :lisp-name ',lisp-name :arguments ',lambda-list :body ',body :hiddenp nil)))))
 
 (defmacro define-sparql-two-string-function (op-name return-type string-operation)
   (let ((prefixed-name-string (format nil "~(~A~)" op-name)))

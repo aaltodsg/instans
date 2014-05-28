@@ -5,6 +5,9 @@
 
 (in-package :instans)
 
+;;; From http://tools.ietf.org/html/rfc3987.html#section-2
+
+
 ;;; ^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?
 ;;;  12            3  4          5       6  7        8 9
 ;;; scheme    = $2
@@ -17,38 +20,44 @@
   (let ((chars (coerce string 'list))
 	(result (make-instance 'rdf-iri :string string)))
     (flet ((result-component (x) (coerce x 'string)))
-      (loop for rest on chars
-	    for char = (car rest)
-	    while (not (char-in-set-p* char ":/?#")) collect char into scheme
-	    finally (when (char=* char #\:)
-		      (setf (rdf-iri-scheme result) (result-component scheme))
-		      (setf chars (cdr rest))))
-      (when (and (char=* (first chars) #\/) (char=* (second chars) #\/))
-	(loop for rest on (cddr chars)
+      (unless (null chars)
+	(when (alpha-char-p (first chars))
+	  (loop for rest on (rest chars)
+		for char = (first rest)
+		while (or (alpha-char-p char) (digit-char-p char) (char= char #\+) (char= char #\-) (char= char #\.))
+		collect char into scheme
+		finally (when (char=* char #\:)
+			  (setf (rdf-iri-scheme result) (result-component (cons (first chars) scheme)))
+			  (setf chars (cdr rest)))))
+	(when (and (char=* (first chars) #\/) (char=* (second chars) #\/))
+	  (loop for rest on (cddr chars)
+		for char = (car rest)
+		while (not (char-in-set-p* char "/?#")) collect char into authority
+		finally (progn
+			  (setf (rdf-iri-authority result) (result-component authority))
+			  (setf chars rest))))
+	(loop for rest on chars
 	      for char = (car rest)
-	      while (not (char-in-set-p* char "/?#")) collect char into authority
-	      finally (progn
-			(setf (rdf-iri-authority result) (result-component authority))
-			(setf chars rest))))
-      (loop for rest on chars
-	    for char = (car rest)
-	    while (not (char-in-set-p* char "?#")) collect char into path
-	    finally (multiple-value-bind (cleaned dotsp) (remove-dot-segments path)
-		      (setf (rdf-iri-path result) (result-component cleaned))
-		      (setf (rdf-iri-had-dot-segments-p result) dotsp)
-		      (setf chars rest)))
-      (when (char=* (first chars) #\?)
-	(loop for rest on (cdr chars)
-	      for char = (car rest)
-	      while (not (char-in-set-p* char "#")) collect char into query
-	      finally (progn
-			(setf (rdf-iri-query result) (result-component query))
-			(setf chars rest))))
-      (when (char=* (first chars) #\#)
-	(setf (rdf-iri-fragment result) (result-component (cdr chars))))
-      (when (rdf-iri-had-dot-segments-p result)
-	(recompose-iri result))
-      result)))
+	      while (not (char-in-set-p* char "?#")) collect char into path
+	      finally (setf (rdf-iri-path result) (result-component path)
+			    chars rest))
+	;; finally (multiple-value-bind (cleaned dotsp) (remove-dot-segments path)
+	;; 	      (setf (rdf-iri-path result) (result-component cleaned))
+	;; 	      (setf (rdf-iri-had-dot-segments-p result) dotsp)
+	;; 	      (setf chars rest)))
+	(when (char=* (first chars) #\?)
+	  (loop for rest on (cdr chars)
+		for char = (car rest)
+		while (not (char-in-set-p* char "#")) collect char into query
+		finally (progn
+			  (setf (rdf-iri-query result) (result-component query))
+			  (setf chars rest))))
+	(when (char=* (first chars) #\#)
+	  (setf (rdf-iri-fragment result) (result-component (cdr chars))))
+	;; (when (rdf-iri-had-dot-segments-p result)
+	;; 	(recompose-iri result))
+	)
+	result)))
 
 (defun remove-dot-segments (list)
   (flet ((prefixp (prefix list)
@@ -92,8 +101,8 @@
 
 (defun recompose-iri (iri)
   (let ((parts nil))
-;    (inform "enter recompose-iri")
-;    (describe iri)
+    ;; (inform "enter recompose-iri")
+    ;; (describe iri)
     (when (rdf-iri-fragment iri)
       (push (rdf-iri-fragment iri) parts)
       (push "#" parts))
@@ -109,6 +118,6 @@
       (push (rdf-iri-scheme iri) parts))
     (setf (rdf-iri-string iri) (apply #'concatenate 'string parts))
     (setf (hashkeyed-hashkey iri) nil)
-;    (describe iri)
-;    (inform "recompose-iri (parts ~S) -> ~S" parts iri)
+    ;; (describe iri)
+    ;; (inform "recompose-iri (parts ~S) -> ~S" parts iri)
     iri))
