@@ -1,0 +1,8 @@
+PREFIX : <http://instans.org/>
+
+INSERT DATA { 
+    :sub :pred :obj .
+    GRAPH :haa { :sub :pred :obj } .
+};
+
+SELECT * { GRAPH ?g { ?s ?p ?o }}
