@@ -27,8 +27,6 @@
 				  :input-stream input-stream :instans instans :base base :show-parses-p subscribe))
 	    (current-subject nil)
 	    (current-predicate nil)
-	    (saved-subject nil)
-	    (saved-predicate nil)
 	    ,@(if (eq input-type :trig)
 		  '((current-graph nil)))
 	    (block-triples (list nil))
@@ -58,8 +56,6 @@
 		  (when document-callback
 		    (prog1 (cdr document-triples)
 		      (clear-document-triples))))
-		(save-state () (setf saved-subject current-subject saved-predicate current-predicate))
-		(restore-state () (setf current-subject saved-subject current-predicate saved-predicate))
 		(set-subject (s) (setf current-subject s))
 		(set-predicate (p) (setf current-predicate p))
 		,@(if (eq input-type :trig) '((set-graph (g) (setf current-graph g))))
@@ -111,19 +107,16 @@
 		 (literal		     ::= (:OR RDFLiteral NumericLiteral BooleanLiteral))
 		 (blankNodePropertyList      ::= ([-TERMINAL
 						  (:RESULT (let ((b (generate-blank)))
-							     (save-state)
-							     (set-subject b)
-							     b))
+							     (list current-subject current-predicate (set-subject b))))
 						  predicateObjectList
 						  ]-TERMINAL
-						  :RESULT (progn (restore-state) $1)))
+						  :RESULT (progn (set-subject (first $1)) (set-predicate (second $1)) (third $1))))
 		 (collection	             ::= (|(-TERMINAL|
 						  (:OR (:RESULT *rdf-nil*)
 						       ((:RESULT (let ((b (generate-blank)))
-								   (save-state)
-								   (set-subject b)
-								   (set-predicate *rdf-first*)
-								   b))
+								   (prog1 (list current-subject current-predicate b)
+								     (set-subject b)
+								     (set-predicate *rdf-first*))))
 							object
 							(:REP0 ((:RESULT (let ((b (generate-blank)))
 									   (set-predicate *rdf-rest*)
@@ -131,7 +124,9 @@
 									   (set-subject b)
 									   (set-predicate *rdf-first*)))
 								object))
-							:RESULT (progn (set-predicate *rdf-rest*) (emit-current *rdf-nil*) (restore-state) $0)))
+							:RESULT (progn (set-predicate *rdf-rest*) (emit-current *rdf-nil*)
+								       (set-subject (first $0)) (set-predicate (second $0))
+								       (third $0))))
 						  |)-TERMINAL| :RESULT $1))
 		 (NumericLiteral	     ::= (:OR INTEGER-TERMINAL DECIMAL-TERMINAL DOUBLE-TERMINAL))
 		 (RDFLiteral	             ::= (String (:OPT (:OR (LANGTAG-TERMINAL :RESULT #'(lambda (s) (create-rdf-literal-with-lang s (subseq $0 1))))

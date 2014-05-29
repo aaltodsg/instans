@@ -261,6 +261,11 @@
 
 (define-class query-output-csv-processor (query-output-processor) ())
 
+(define-class query-output-solution-set-processor (query-output-processor)
+  ((variables :accessor query-output-solution-set-processor-variables :initarg :variables :initform nil)
+   (bindings :accessor query-output-solution-set-processor-bindings :initform nil)
+   (end :accessor query-output-solution-set-processor-end)))
+
 ;;; System
 (define-class instans ()
   ((name :accessor instans-name :initarg :name)

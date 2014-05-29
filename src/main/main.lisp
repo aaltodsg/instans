@@ -37,73 +37,75 @@
 		       collect (if (member key colon-expand-fields) (list key (parse-colon-separated-values value)) param))))
 	(unwind-protect
 ;	     (handler-case
-	     (loop for (key value) in configuration
-;		   do (inform "key = ~S, value = ~S~%" key value)
-		   do (case key
-			(:name (setf (instans-name instans) value))
-			(:directory (setf directory (parse-iri (if (http-or-file-iri-string-p value)
-								   value
-								   (format nil "file://~A" (expand-dirname value))))))
-			(:base (setf base (parse-iri value)))
-			(:graph (if (string= (string-downcase value) "default") nil (setf graph (parse-iri value))))
-			(:execute (instans-run instans-iri))
-			(:rules
-			 (when (null (instans-query-output-processor instans))
-			   (setf (instans-query-output-processor instans) (create-query-output-processor query-output-name query-output-type)))
-			 (instans-add-rules instans-iri (expand-iri directory value) :create-instans-p nil :base base)
-			 (cond ((instans-find-status instans 'instans-rule-translation-succeeded)
-				(if rete-html-page-dir (output-rete-html-page instans value rete-html-page-dir)))
-			       (t
-				(let ((status (first (instans-status instans))))
-				  (cond ((null status)
-					 (inform "Something wrong!"))
-					(t
-					 (inform "~%~A:~A~{~%~A~}~%" value (type-of status) (instans-status-messages status)))))
-				(return-from run-configuration nil))))
-			(:input-type (setf query-input-type (intern (string-upcase value) :keyword)))
-			(:output-type (setf query-output-type (intern (string-upcase value) :keyword)))
-			(:triples
-			 (when (null (instans-query-output-processor instans))
-			   (setf (instans-query-output-processor instans) (create-query-output-processor query-output-name query-output-type)))
-			 (instans-add-triples instans-iri (expand-iri directory value) :graph graph :base base)
-			 (unless (instans-find-status instans 'instans-triples-parsing-succeeded)
-			   (let ((status (first (instans-status instans))))
-			     (inform "~%~A:~A~{~%~A~}~%" value (type-of status) (instans-status-messages status)))
-			   (return-from run-configuration nil)))
+	     (progn
+	       (loop for (key value) in configuration
+;		  do (inform "key = ~S, value = ~S~%" key value)
+		  do (case key
+		       (:name (setf (instans-name instans) value))
+		       (:directory (setf directory (parse-iri (if (http-or-file-iri-string-p value)
+								  value
+								  (format nil "file://~A" (expand-dirname value))))))
+		       (:base (setf base (parse-iri value)))
+		       (:graph (if (string= (string-downcase value) "default") nil (setf graph (parse-iri value))))
+		       (:execute (instans-run instans-iri))
+		       (:rules
+			(when (and query-output-type (null (instans-query-output-processor instans)))
+			  (setf (instans-query-output-processor instans) (create-query-output-processor query-output-name query-output-type)))
+			(instans-add-rules instans-iri (expand-iri directory value) :create-instans-p nil :base base)
+			(cond ((instans-find-status instans 'instans-rule-translation-succeeded)
+			       (if rete-html-page-dir (output-rete-html-page instans value rete-html-page-dir)))
+			      (t
+			       (let ((status (first (instans-status instans))))
+				 (cond ((null status)
+					(inform "Something wrong!"))
+				       (t
+					(inform "~%~A:~A~{~%~A~}~%" value (type-of status) (instans-status-messages status)))))
+			       (return-from run-configuration nil))))
+		       (:input-type (setf query-input-type (intern (string-upcase value) :keyword)))
+		       (:output-type (setf query-output-type (let ((x (intern (string-upcase value) :keyword))) (unless (eq x :none) x))))
+		       (:triples
+			(when (null (instans-query-output-processor instans))
+			  (setf (instans-query-output-processor instans) (create-query-output-processor query-output-name query-output-type)))
+			(instans-add-triples instans-iri (expand-iri directory value) :graph graph :base base)
+			(unless (instans-find-status instans 'instans-triples-parsing-succeeded)
+			  (let ((status (first (instans-status instans))))
+			    (inform "~%~A:~A~{~%~A~}~%" value (type-of status) (instans-status-messages status)))
+			  (return-from run-configuration nil)))
 		     ;;; "base=http://example.org/friends/&graph=http://instans.org/events/&file=tests/input/fnb.ttl&input-policy=triples-block&operations:add:execute:remove:execute"
-			((:turtle :trig :input)
-			 (let ((input-iri (expand-iri directory value)))
-			   (instans-add-query-input-processor instans-iri input-iri :graph graph :base base
-							      :input-type (case key
-									    (:turtle :ttl)
-									    (:trig :trig)
-									    (:input 
-									     (let* ((iri-path (rdf-iri-path input-iri))
-										    (type-string (and (stringp iri-path) (pathname-type (pathname iri-path))))
-										    (type (and type-string (intern (string-upcase type-string) :keyword))))
-									       (if (member type '(:trig :ttl)) type query-input-type)))))))
-			(:query-output
-			 (setf query-output-name value)
+		       ((:turtle :trig :input)
+			(let ((input-iri (expand-iri directory value)))
+			  (instans-add-query-input-processor instans-iri input-iri :graph graph :base base
+							     :input-type (case key
+									   (:turtle :ttl)
+									   (:trig :trig)
+									   (:input 
+									    (let* ((iri-path (rdf-iri-path input-iri))
+										   (type-string (and (stringp iri-path) (pathname-type (pathname iri-path))))
+										   (type (and type-string (intern (string-upcase type-string) :keyword))))
+									      (if (member type '(:trig :ttl)) type query-input-type)))))))
+		       (:query-output
+			(setf query-output-name value)
 					;			  (inform "query-output-name = ~S" query-output-name)
-			 (setf query-output-type (intern (string-upcase (pathname-type (parse-namestring value))) :keyword)))
-			(:expect (let ((spec (parse-spec-string value)))
-				   (inform "expect spec = ~S" spec)
-				   (setf expected spec)))
-			(:reporting (setf reporting (parse-colon-separated-values value))
-				    (if (member :all reporting)
-					(setf reporting '(:select :construct :modify :all)))
-				    (setf (rule-instance-queue-report-p (instans-rule-instance-queue instans)) reporting))
-			(:debug (setf debug (parse-colon-separated-values value)))
-			(:verbose (setf debug (parse-colon-separated-values value)))
-			(:query-input-policy (set-policy :query-input-policy (intern value :keyword) (instans-available-query-input-policies instans)))
-			(:query-processing-operations (set-policy :query-processing-operations (parse-colon-separated-values value)
-								   (instans-available-query-processing-operations instans)
-								   :test #'(lambda (values accepted) (every #'(lambda (v) (member v accepted :test #'equal)) values))))
-			(:rule-instance-removal-policy (set-policy :rule-instance-removal-policy (intern value :keyword) (instans-available-rule-instance-removal-policies instans)))
-			(:queue-execution-policy (set-policy :queue-execution-policy (intern value :keyword) (instans-available-queue-execution-policies instans)))
-			(:rete-html-page-dir (setf rete-html-page-dir value))))
-	  (unless (find :execute configuration :key #'first)
-	    (instans-run instans-iri))
+			(setf query-output-type (intern (string-upcase (pathname-type (parse-namestring value))) :keyword)))
+		       (:expect (let ((spec (parse-spec-string value)))
+				  (inform "expect spec = ~S" spec)
+				  (setf expected spec)))
+		       (:reporting (setf reporting (parse-colon-separated-values value))
+				   (if (member :all reporting)
+				       (setf reporting '(:select :construct :modify :all)))
+				   (setf (rule-instance-queue-report-p (instans-rule-instance-queue instans)) reporting))
+		       (:debug (setf debug (parse-colon-separated-values value)))
+		       (:verbose (setf debug (parse-colon-separated-values value)))
+		       (:query-input-policy (set-policy :query-input-policy (intern value :keyword) (instans-available-query-input-policies instans)))
+		       (:query-processing-operations (set-policy :query-processing-operations (parse-colon-separated-values value)
+								 (instans-available-query-processing-operations instans)
+								 :test #'(lambda (values accepted) (every #'(lambda (v) (member v accepted :test #'equal)) values))))
+		       (:rule-instance-removal-policy (set-policy :rule-instance-removal-policy (intern value :keyword) (instans-available-rule-instance-removal-policies instans)))
+		       (:queue-execution-policy (set-policy :queue-execution-policy (intern value :keyword) (instans-available-queue-execution-policies instans)))
+		       (:rete-html-page-dir (setf rete-html-page-dir value))))
+	       (unless (find :execute configuration :key #'first)
+		 (instans-run instans-iri))
+	       instans)
 ;	       (t (e) (inform "~A" e))
 ;	  )
 	  (instans-close-open-streams instans))))))
@@ -178,7 +180,8 @@
 				  (:turtle        (("--turtle" "<input>")) "Read input turtle input")
 				  (:output        (("-o" "<output>") ("--output" "<output>")) "Redirect output to <output>.")
 				  (:expect        (("-e" "<expect>") ("--expect" "<expect>")) "Compare the results to <expect>." :hiddenp t)
-				  (:query-output (("--query-output" "<file>")) "Output querys to <file>.")
+				  (:query-output (("--query-output" "<file>")) "Output queries to <file>.")
+				  (:output-type (("--output-type" "<csv|solution-set|none>")) "Use the given query output type")
 				  (:file          (("-f" "<commands>") ("--file" "<commands>")) "Read options from <commands>."
 						  :operation ,#'(lambda (arg value) (declare (ignore arg)) (setf args (append (read-args-from-file value) args))))
 				  (:reporting        (("--report" "<rules>")) "The kinds of rules you want to get reported; a ':'~%~
