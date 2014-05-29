@@ -219,7 +219,7 @@
 (define-sparql-macro "if" (test then else)
   `(if (sparql-call "ebv" ,test) ,then ,else))
 
-;; 17.4.1.3 COALESCE !!! Missing !!!
+;; 17.4.1.3 COALESCE
 ;; -----------------
 ;; rdfTerm  COALESCE(expression, ....)
 ;;(%-coalesce% ?x 10)
@@ -411,13 +411,19 @@
 (define-sparql-function "strlang" (:arguments ((string xsd-string-value) (lang xsd-string-value)) :returns literal)
   (:method ((string xsd-string-value) (lang xsd-string-value)) (create-rdf-literal-with-lang string lang)))
 
-;; 17.4.2.12 UUID !!! Missing !!!
+;; 17.4.2.12 UUID
 ;; --------------
 ;; iri  UUID()
+(define-sparql-function "uuid" (:arguments () :returns rdf-iri)
+  (:method ()
+    (parse-iri (with-output-to-string (str) (uuid:format-as-urn str (uuid:make-v4-uuid))))))
 
-;; 17.4.2.13 STRUUID !!! Missing !!!
+;; 17.4.2.13 STRUUID
 ;; -----------------
 ;; simple literal  STRUUID()
+(define-sparql-function "struuid" (:arguments () :returns xsd-string-value)
+  (:method ()
+    (subseq (with-output-to-string (str) (uuid:format-as-urn str (uuid:make-v4-uuid))) 9)))
 
 ;; 17.4.3 Functions on Strings
 ;; ===========================
@@ -533,6 +539,11 @@
 ;; 17.4.3.11 ENCODE_FOR_URI !!! Missing !!!
 ;; ------------------------
 ;; simple literal  ENCODE_FOR_URI(string literal ltrl)
+(define-sparql-function "encode_for_uri" (:arguments ((lit literal-or-string)) :returns xsd-string-value)
+  (:method ((lit xsd-string-value))
+    (percent:encode lit))
+  (:method ((lit rdf-literal))
+    (percent:encode (rdf-literal-string lit))))
 
 ;; 17.4.3.12 CONCAT
 ;; ----------------

@@ -10,6 +10,8 @@
 (ql:quickload "drakma")
 (ql:quickload "xmls")
 (ql:quickload "yason")
+(ql:quickload "uuid")
+(ql:quickload "percent-encoding")
 ;(ql:quickload "lisp-unit")
 ;(ql:quickload "cl-json")
 ;; (load "lisp-unit/lisp-unit")
