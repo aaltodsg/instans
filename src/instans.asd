@@ -81,6 +81,7 @@
 	       		:components ((:file "translate-sparql-algebra-to-rete")
 	       			     (:file "compile-sparql-file")
 				     (:file "main")
+				     (:file "test")
 				     ))))
 
 (progn (setf *print-circle* nil) (setf *print-right-margin* 250))
