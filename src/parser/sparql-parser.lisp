@@ -150,25 +150,22 @@
 		       (sparql-parse-error "Variable ~S already bound" var))
 		      (t
 		       (push-to-end var scope-vars)))))
-	(cond ((eq project '*)
-	       (setf project-vars scope-vars))
-	      (t
-	       (loop for item in project
-		  when (sparql-var-p item)
-		  ;; do (cond ((not (find-sparql-var item scope-vars))
-		  ;; 	    (sparql-parse-error "Variable ~S not in SELECT" (uniquely-named-object-name item)))
-		  ;; 	   (t
-		  ;; 	    (push-to-end item project-vars)))
-		  ;; Note! Variables not declared inside SELECT are OK!
-		  do (push-to-end item project-vars)
-		  else
-		  do (let ((var (second item)))
-					;		     (inform "AS expression ~S, var = ~S, scope-vars ~S" item var scope-vars)
-		       (cond ((find-sparql-var var scope-vars)
-			      (sparql-parse-error "Variable ~S already bound" var))
-			     (t
-			      (push-to-end var scope-vars)
-			      (push-to-end var project-vars)))))))
+	(loop for item in project
+	   when (sparql-var-p item)
+	   ;; do (cond ((not (find-sparql-var item scope-vars))
+	   ;; 	    (sparql-parse-error "Variable ~S not in SELECT" (uniquely-named-object-name item)))
+	   ;; 	   (t
+	   ;; 	    (push-to-end item project-vars)))
+	   ;; Note! Variables not declared inside SELECT are OK!
+	   do (push-to-end-new item project-vars)
+	   else
+	   do (let ((var (second item)))
+;		(inform "AS expression ~S, var = ~S, scope-vars ~S" item var scope-vars)
+		(cond ((find-sparql-var var project-vars)
+		       (sparql-parse-error "Variable ~S already bound" var))
+		      (t
+		       (push-to-end var scope-vars)
+		       (push-to-end var project-vars)))))
 					;      (inform "h3")
 	(cond ((not (null group-by))
 	       (loop for condition in group-by
@@ -367,7 +364,7 @@
 		  (cons (first e) (mapcar #'simplify-joins (rest e))))
 		 (t e)))
 	     (translate-group-graph-pattern (ggp)
-	       ;; (inform "enter translate-group-graph-pattern ~A" ggp)
+;	       (inform "enter translate-group-graph-pattern ~A" ggp)
 	       (let ((g '(ZERO-PATTERN))
 		     (vars nil))
 		 (flet ((ggp-scope-vars (ggp) (getf (rest ggp) :scope-vars))
@@ -381,7 +378,7 @@
 		   (ban-blanks)
 		   (loop with fs = nil
 		      for e in ggp
-;			do (inform "loop ~A" e)
+;		      do (inform "loop ~A" e)
 		      do (case (first e)
 			   (GGP
 			    (add-vars (ggp-scope-vars e))
@@ -549,7 +546,8 @@
 	 (Quads ::= (((:OPT TriplesTemplate) :RESULT (if (opt-yes-p $0) (list (cons 'BGP (get-triples)))))
 		     (:REP0 (QuadsNotTriples (:OPT |.-TERMINAL|) ((:OPT TriplesTemplate) :RESULT (if (opt-yes-p $0) (list (cons 'BGP (get-triples))))) :RESULT (append $0 $2)))
 		     :RESULT (apply #'append $0 $1)))
-	 (QuadsNotTriples ::= (GRAPH-TERMINAL VarOrIri |{-TERMINAL| (:OPT TriplesTemplate) |}-TERMINAL| :RESULT (list (list 'GRAPH $1 (cons 'BGP (get-triples))))))
+	 (QuadsNotTriples ::= (GRAPH-TERMINAL VarOrIri |{-TERMINAL| (:OPT TriplesTemplate) |}-TERMINAL|
+					      :RESULT (list (list 'GRAPH $1 (list (cons 'BGP (get-triples)))))))
 	 (TriplesTemplate ::= (TriplesSameSubject (:OPT (|.-TERMINAL| (:OPT TriplesTemplate)))))
 	 (GroupGraphPattern ::= (|{-TERMINAL| (:OR SubSelect GroupGraphPatternSub) |}-TERMINAL| :RESULT $1))
 	 (GroupGraphPatternSub ::= ((:OPT TriplesBlock) ((:REP0 (GraphPatternNotTriples (:OPT |.-TERMINAL|) (:OPT TriplesBlock)

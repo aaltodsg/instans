@@ -258,6 +258,7 @@
 	 (literal-vars nil)
 	 (triple-op-forms nil))
     (loop for item in template
+;       do (inform "item = ~S" item)
        do (multiple-value-bind (graph triple-patterns)
 	      (cond ((eq (car item) 'GRAPH)
 		     (values (second item) (rest (third item))))
