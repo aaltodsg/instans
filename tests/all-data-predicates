@@ -1,0 +1,37 @@
+# PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+# PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+# PREFIX mf:     <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#>
+# PREFIX qt:     <http://www.w3.org/2001/sw/DataAccess/tests/test-query#>
+# PREFIX ut:     <http://www.w3.org/2009/sparql/tests/test-update#>
+# PREFIX dawgt:  <http://www.w3.org/2001/sw/DataAccess/tests/test-dawg#>
+# PREFIX sd:      <http://www.w3.org/ns/sparql-service-description#>
+rdf:first
+rdf:rest
+rdf:type
+rdfs:comment
+rdfs:label
+rdfs:seeAlso
+dawgt:approval
+dawgt:approvedBy
+mf:action
+mf:description
+mf:entries
+mf:feature
+mf:name
+mf:notable
+mf:requires
+mf:result
+mf:resultCardinality
+qt:data
+qt:endpoint
+qt:graphData
+qt:query
+qt:queryForm
+qt:serviceData
+ut:data
+ut:graph
+ut:graphData
+ut:request
+ut:result
+sd:EntailmentProfile
+sd:entailmentRegime

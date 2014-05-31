@@ -241,26 +241,34 @@
   ((node :accessor rule-instance-node :initarg :node)
    (token :accessor rule-instance-token :initarg :token)))
 
-;;; Triple processor
+;;; Query input processor
 
-(define-class triple-processor ()
-  ((instans :accessor triple-processor-instans :initarg :instans)
-   (input-policy :accessor triple-processor-input-policy :initarg :input-policy)
-   (operations :accessor triple-processor-operations :initarg :operations)
-   (base :accessor triple-processor-base :initarg :graph)
-   (graph :accessor triple-processor-graph :initarg :graph)
-   (lexer :accessor triple-processor-lexer :initarg :lexer)
-   (parser :accessor triple-processor-parser :initarg :parser)
-   (subscribe :accessor triple-processor-subscribe :initarg :subscribe :initform nil)))
+(define-class query-input-processor ()
+  ((instans :accessor query-input-processor-instans :initarg :instans)
+   (input-policy :accessor query-input-processor-input-policy :initarg :input-policy)
+   (operations :accessor query-input-processor-operations :initarg :operations)
+   (base :accessor query-input-processor-base :initarg :graph)
+   (graph :accessor query-input-processor-graph :initarg :graph)
+   (parser :accessor query-input-processor-parser :initarg :parser)
+   (subscribe :accessor query-input-processor-subscribe :initarg :subscribe :initform nil)))
+
+(define-class csv-output-stream ()
+  ((stream :accessor csv-output-stream-stream :initarg :stream)
+   (separator :accessor csv-output-stream-separator :initarg :separator :initform (format nil "~C" #\linefeed))
+   (headers :accessor csv-output-stream-headers)
+   (require-headers-p :accessor csv-output-stream-require-headers-p :initarg :require-headers-p :initform t)))
 
 ;;; Select/ask/describe/construct ... processors
-(define-class query-output-processor ()
-  ((output-name :accessor query-output-processor-output-name :initarg :output-name)
-   (output-stream :accessor query-output-processor-output-stream :initarg :output-stream)
-   (output-type :accessor query-output-processor-output-type :initarg :output-type)
-   (headers-written-p :accessor query-output-processor-headers-written-p :initform nil)))
+(define-class query-output-processor () 
+  ((output-name :accessor query-output-processor-output-name :initarg :output-name)))
 
-(define-class query-output-csv-processor (query-output-processor) ())
+(define-class csv-query-output-processor (query-output-processor)
+  ((output-stream :accessor csv-query-output-processor-output-stream)))
+
+(define-class solution-set-query-output-processor (query-output-processor)
+  ((variables :accessor solution-set-query-output-processor-variables)
+   (bindings :accessor solution-set-query-output-processor-bindings)
+   (end :accessor solution-set-query-output-processor-end)))
 
 ;;; System
 (define-class instans ()
@@ -276,11 +284,11 @@
    (use-quad-store-p :accessor instans-use-quad-store-p :initarg :use-quad-store-p :initform nil)
 ;   (initial-data-ops :accessor instans-initial-data-ops :initform nil)
    (rule-instance-queue :accessor instans-rule-instance-queue)
-   (triple-processors :accessor instans-triple-processors :initarg :triple-processors :initform nil)
-   (triple-input-policy :accessor instans-triple-input-policy :initarg :triple-input-policy :initform :single-triple)
-   (available-triple-input-policies :accessor instans-available-triple-input-policies :allocation :class :initform '(:single-triple :triples-block :all))
-   (triple-processing-operations :accessor instans-triple-processing-operations :initarg :triple-processing-operations :initform '(:add :execute))
-   (available-triple-processing-operations :accessor instans-available-triple-processing-operations :allocation :class :initform '(:add :remove :execute))
+   (query-input-processors :accessor instans-query-input-processors :initarg :query-input-processors :initform nil)
+   (query-input-policy :accessor instans-query-input-policy :initarg :query-input-policy :initform :single)
+   (available-query-input-policies :accessor instans-available-query-input-policies :allocation :class :initform '(:single :block :document))
+   (query-processing-operations :accessor instans-query-processing-operations :initarg :query-processing-operations :initform '(:add :execute))
+   (available-query-processing-operations :accessor instans-available-query-processing-operations :allocation :class :initform '(:add :remove :execute))
    (rule-instance-removal-policy :accessor instans-rule-instance-removal-policy :initarg :rule-instance-removal-policy :initform :remove)
    (available-rule-instance-removal-policies :accessor instans-available-rule-instance-removal-policies :allocation :class :initform '(:remove :keep))
    (queue-execution-policy :accessor instans-queue-execution-policy :initarg :queue-execution-policy :initform :repeat-first)

@@ -76,26 +76,28 @@
 ;; Logical Connectives
 ;; ===================
 ;; A || B	xsd:boolean (EBV), xsd:boolean (EBV) -> xsd:boolean  =>  logical-or(A, B)
-(define-sparql-form "logical-or" (:arguments ((a ebv) (b ebv)) :returns xsd-boolean-value :hiddenp t)
+;; (define-sparql-form "logical-or" (:arguments ((a ebv) (b ebv)) :returns xsd-boolean-value :hiddenp t))
+(define-sparql-macro "logical-or" (a b)
   (let ((avar (gensym "A"))
 	(bvar (gensym "B")))
-    `(let ((,avar (sparql-call "ebv" ,a)))
+    `(let ((,avar (error-safe-ebv ,a)))
        (cond ((eq ,avar t) t)
 	     ((null ,avar) (sparql-call "ebv" ,b))
 	     (t
-	      (let ((,bvar (sparql-call "ebv" ,b)))
-		(cond ((null ,bvar) ,avar)
-		      (t ,bvar))))))))
+	      (let ((,bvar (error-safe-ebv ,b)))
+		(cond ((eq ,bvar t) t)
+		      (t ,avar))))))))
 
 ;; A && B	xsd:boolean (EBV), xsd:boolean (EBV) -> xsd:boolean  =>  logical-and(A, B)
-(define-sparql-form "logical-and" (:arguments ((a ebv) (b ebv)) :returns xsd-boolean-value :hiddenp t)
+;; (define-sparql-form "logical-and" (:arguments ((a ebv) (b ebv)) :returns xsd-boolean-value :hiddenp t))
+(define-sparql-macro "logical-and" (a b)
   (let ((avar (gensym "A"))
 	(bvar (gensym "B")))
-    `(let ((,avar (sparql-call "ebv" ,a)))
+    `(let ((,avar (error-safe-ebv ,a)))
        (cond ((null ,avar) nil)
 	     ((eq ,avar t) (sparql-call "ebv" ,b))
 	     (t
-	      (let ((,bvar (sparql-call "ebv" ,b)))
+	      (let ((,bvar (error-safe-ebv ,b)))
 		(cond ((null ,bvar) nil)
 		      (t ,avar))))))))
 
@@ -213,22 +215,25 @@
 ;; 17.4.1.2 IF
 ;; -----------
 ;; rdfTerm  IF (expression1, expression2, expression3)
-(define-sparql-form "if" (:arguments ((test ebv) (then term-or-value) (else term-or-value)) :returns term-or-value :hiddenp nil)
+;; (define-sparql-form "if" (:arguments ((test ebv) (then term-or-value) (else term-or-value)) :returns term-or-value :hiddenp nil))
+(define-sparql-macro "if" (test then else)
   `(if (sparql-call "ebv" ,test) ,then ,else))
 
-;; 17.4.1.3 COALESCE !!! Missing !!!
+;; 17.4.1.3 COALESCE
 ;; -----------------
 ;; rdfTerm  COALESCE(expression, ....)
-(define-sparql-form "coalesce" (:arguments (&rest expressions) :returns term-or-value :hiddenp nil)
+;;(%-coalesce% ?x 10)
+;; (define-sparql-form "coalesce" (:arguments (&rest expressions) :returns term-or-value :hiddenp nil)
+(define-sparql-macro "coalesce" (&rest expressions)
   (let ((result-var (gensym "RESULT")))
     (labels ((rdf-term-or-else (expressions)
 	       (cond ((null expressions)
 		      `(signal-sparql-error "None of the arguments of COALESCE evaluated to a legal RDF term"))
 		     (t
-		      `(let ((,result-var ,(car expressions)))
-			 (if (not (sparql-error-p ,result-var))
-			     ,result-var
-			     ,(rdf-term-or-else (cdr expressions))))))))
+		      `(let ((,result-var (error-safe ,(car expressions))))
+			 (if (or (sparql-unbound-p ,result-var) (sparql-error-p ,result-var))
+			     ,(rdf-term-or-else (cdr expressions))
+			     ,result-var))))))
       (rdf-term-or-else expressions))))
 
 ;; 17.4.1.4 NOT EXISTS and EXISTS (Implemented at RETE level)
@@ -288,7 +293,8 @@
 ;; -----------
 ;; xsd:boolean rdfTerm IN(expression, ...)
 ;;    The IN operator is equivalent to the SPARQL expression: (lhs = expression1) || (lhs = expression2) || ...
-(define-sparql-form "in" (:arguments (x &rest expressions) :returns xsd-boolean-value :hiddenp nil)
+;; (define-sparql-form "in" (:arguments (x &rest expressions) :returns xsd-boolean-value :hiddenp nil)
+(define-sparql-macro "in" (x &rest expressions)
   (let ((xvar (gensym "X")))
     `(let ((,xvar ,x))
        (or ,@(loop for expr in expressions collect `(sparql-call "=" ,xvar ,expr))))))
@@ -298,7 +304,8 @@
 ;; xsd:boolean rdfTerm NOT IN(expression, ...)
 ;;    Equivalent to (lhs != expression1) && (lhs != expression2) && ... and !(IN (expression1, expression2, ...))
 ;;
-(define-sparql-form "not in" (:arguments (x &rest expressions) :returns xsd-boolean-value :hiddenp nil)
+;; (define-sparql-form "not in" (:arguments (x &rest expressions) :returns xsd-boolean-value :hiddenp nil)
+(define-sparql-macro "not in" (x &rest expressions)
   (let ((xvar (gensym "X")))
     `(let ((,xvar ,x))
        (and ,@(loop for expr in expressions collect `(not (sparql-call "=" ,xvar ,expr)))))))
@@ -404,13 +411,19 @@
 (define-sparql-function "strlang" (:arguments ((string xsd-string-value) (lang xsd-string-value)) :returns literal)
   (:method ((string xsd-string-value) (lang xsd-string-value)) (create-rdf-literal-with-lang string lang)))
 
-;; 17.4.2.12 UUID !!! Missing !!!
+;; 17.4.2.12 UUID
 ;; --------------
 ;; iri  UUID()
+(define-sparql-function "uuid" (:arguments () :returns rdf-iri)
+  (:method ()
+    (parse-iri (with-output-to-string (str) (uuid:format-as-urn str (uuid:make-v4-uuid))))))
 
-;; 17.4.2.13 STRUUID !!! Missing !!!
+;; 17.4.2.13 STRUUID
 ;; -----------------
 ;; simple literal  STRUUID()
+(define-sparql-function "struuid" (:arguments () :returns xsd-string-value)
+  (:method ()
+    (subseq (with-output-to-string (str) (uuid:format-as-urn str (uuid:make-v4-uuid))) 9)))
 
 ;; 17.4.3 Functions on Strings
 ;; ===========================
@@ -526,6 +539,11 @@
 ;; 17.4.3.11 ENCODE_FOR_URI !!! Missing !!!
 ;; ------------------------
 ;; simple literal  ENCODE_FOR_URI(string literal ltrl)
+(define-sparql-function "encode_for_uri" (:arguments ((lit literal-or-string)) :returns xsd-string-value)
+  (:method ((lit xsd-string-value))
+    (percent:encode lit))
+  (:method ((lit rdf-literal))
+    (percent:encode (rdf-literal-string lit))))
 
 ;; 17.4.3.12 CONCAT
 ;; ----------------

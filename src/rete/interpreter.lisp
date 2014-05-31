@@ -277,28 +277,34 @@
 ;;; Execution
 ;;; ---------
 
-;; (defgeneric run-triple-processors (instans)
-;;   (:method ((this instans))
-;;     (loop with continuep = t
-;; 	  while continuep
-;; 	  do (setf continuep nil)
-;; 	  do (loop for processor in (instans-triple-processors instans)
-;; 		   for ll-parser = (run-triple-processor processor)
-;; 		   unless (ll-parser-done ll-parser)
-;; 		   do (setf continuep t)))))
+(defgeneric run-query-input-processors (instans)
+  (:method ((this instans))
+    (loop with continuep = t
+	  while continuep
+	  do (setf continuep nil)
+	  do (loop for processor in (instans-query-input-processors this)
+		   for ll-parser = (run-query-input-processor processor)
+		   unless (ll-parser-finished-p ll-parser)
+		   do (setf continuep t)))))
 
+(defgeneric run-query-input-processor (query-input-processor)
+  (:method ((this query-input-processor))
+    (parse (query-input-processor-parser this))))
 
-;; (defgeneric run-triple-processor (triple-processor)
-;;   (:method ((this triple-processor))
-;;     (funcall (triple-processor-parser this) (triple-processor-lexer this) (triple-processor-subscribe this))))
+(defgeneric instans-close-open-streams (instans)
+  (:method ((this instans))
+    (loop for ip in (instans-query-input-processors this)
+	  do (close (lexer-input-stream (ll-parser-lexer (query-input-processor-parser ip)))))
+    (when (instans-query-output-processor this)
+      (close-query-output-processor (instans-query-output-processor this)))))
 
-(defgeneric process-triples (triple-processor triples)
-  (:method ((this triple-processor) triples)
-    (process-triple-input (triple-processor-instans this) triples :graph (triple-processor-graph this) :ops (triple-processor-operations this))))
+(defgeneric process-triples (query-input-processor triples)
+  (:method ((this query-input-processor) triples)
+    (process-query-input (query-input-processor-instans this) triples :graph (query-input-processor-graph this) :ops (query-input-processor-operations this))))
 
-(defgeneric process-triple-input (instans triples &key graph ops)
+(defgeneric process-query-input (instans triples &key graph ops)
   (:method ((this instans) triples &key graph ops)
-    (setf ops (or ops (instans-triple-processing-operations this)))
+    (setf ops (or ops (instans-query-processing-operations this)))
     (when (symbolp ops)
       (setf ops (list ops)))
     (let ((*instans* this))
@@ -358,11 +364,12 @@
     (assert (null stack))
     (let ((dataset (triple-pattern-node-dataset this))
 	  (graph (first values)))
-      (cond ((sparql-var-p dataset)
-	     (add-token (car (node-succ this)) (make-token this nil (cons dataset (alpha-node-variables this)) values)))
-	    ((rdf-iri-p dataset)
+      (cond ((rdf-iri-p dataset)
 	     (when (and (rdf-iri-p graph) (rdf-iri= dataset graph))
-	       (add-token (car (node-succ this)) (make-token this nil (alpha-node-variables this) (cdr values))))) ; Drop graph
+	       (add-token (car (node-succ this)) (make-token this nil (alpha-node-variables this) (cdr values)))))
+	    ((sparql-var-p dataset)
+	     (when (rdf-iri-p graph)
+	       (add-token (car (node-succ this)) (make-token this nil (cons dataset (alpha-node-variables this)) values)))) ; Drop graph
 	    ((null graph)
 	     (add-token (car (node-succ this)) (make-token this nil (alpha-node-variables this) (cdr values))))))) ; Drop graph
   (:method ((this alpha-node) values &optional stack)
@@ -526,11 +533,12 @@
     (assert (null stack))
     (let ((dataset (triple-pattern-node-dataset this))
 	  (graph (first values)))
-      (cond ((sparql-var-p dataset)
-	     (remove-token (car (node-succ this)) (make-token this nil (cons dataset (alpha-node-variables this)) values)))
-	    ((rdf-iri-p dataset)
+      (cond ((rdf-iri-p dataset)
 	     (when (and (rdf-iri-p graph) (rdf-iri= dataset graph))
-	       (remove-token (car (node-succ this)) (make-token this nil (alpha-node-variables this) (cdr values))))) ; Drop graph
+	       (remove-token (car (node-succ this)) (make-token this nil (alpha-node-variables this) (cdr values)))))
+	    ((sparql-var-p dataset)
+	     (when (rdf-iri-p graph)
+	       (remove-token (car (node-succ this)) (make-token this nil (cons dataset (alpha-node-variables this)) values)))) ; Drop graph
 	    ((null graph)
 	     (remove-token (car (node-succ this)) (make-token this nil (alpha-node-variables this) (cdr values))))))) ; Drop graph
   (:method ((this alpha-node) values &optional stack)

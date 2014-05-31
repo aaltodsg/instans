@@ -29,8 +29,12 @@ if test $# -eq 0 ; then
         MANIFEST=`pwd`/$i
 	echo ${BIN}/instans -b "file://`dirname $MANIFEST`/" -r ${TESTS}/input/syntax-test.rq -t $MANIFEST
 	${BIN}/instans -b "file://`dirname $MANIFEST`/"  -r ${TESTS}/input/syntax-test.rq -t $MANIFEST > ${TMPOUT} 2>&1
+<<<<<<< HEAD
 	cat ${TMPOUT} | egrep -v '(^[ \t]*;|^[ \t]*$|^queryfile,testtype,parsed_ok,translate_ok,error_msg,status$)' >> ${TEST_OUTPUT} 2>&1
 	cat ${TMPOUT} >> ${ALL}
+=======
+	cat ${TMPOUT} | egrep -v '(^[ \t]*;|^[ \t]*$|^queryfile,testtype,parsed_ok,translated_ok,error_msg,status$)' >> ${TEST_OUTPUT} 2>&1
+>>>>>>> merging-triples-parser
 	rm ${TMPOUT}
     done
     echo "File \"$TEST_OUTPUT\" contains the test output."
@@ -71,7 +75,7 @@ td.test_passed { }
 <script type="text/javascript">
 //<![CDATA[
 	\$(document).ready( function () {
-				\$('#TestResults').dataTable( { "bPaginate": false, "sDom": 'W<"clear">lfrtip', "oColumnFilterWidgets": { "aiExclude": [ 0, 5, 8 ] } } );
+				\$('#TestResults').dataTable( { "bPaginate": false, "sDom": 'W<"clear">lfrtip', "oColumnFilterWidgets": { "aiExclude": [ 0, 4, 8 ] } } );
 			} );
 // \$(document).ready(function() {
 //        \$('#TestResults').dataTable();
@@ -95,42 +99,49 @@ function output() {
         split(queryfile, parts, "/");
         long_name = sprintf("%s/%s/%s", parts[1], parts[2], parts[3]);
         is_negative = (index(type, "Negative") == 1);
-        parsed= (index(parse_result, "true") == 2);
-        translated= (index(translate_result, "true") == 2);
+        parsed= (index(parse_result, "true") == 1);
+        translated= (index(translate_result, "true") == 1);
+	printf "parsed=%d, translated=%d, is_negative=%d, long_name=%s\n",parsed,translated,is_negative,long_name>>"log"
         if (!is_negative && !parsed) { status = 0; test_outcome="test_positive_failed"; test_positive_failed_count++}
         else if (is_negative && parsed) { status = 0; test_outcome = "test_negative_succeeded"; test_negative_succeeded_count++}
         else { status = 1; test_outcome = "test_ok"; test_ok_count++}
-	printf "<TR class=\"%s\"><TD class=\"test_entry_number\">%d</TD><TD class=\"test_status\">%s</TD><TD class=\"test_collection\">%s</TD><TD class=\"test_set\">%s</TD><TD class=\"test_type\">%s</TD><TD class=\"test_name\"><a href=\"%s\" type=\"text/plain\">%s</a></TD><TD class=\"test_parsing\">%s</TD><TD class=\"test_translating\">%s</TD>",
-          test_outcome, entry_number, (status == 1 ? "Yes" : (status == 0 ? "No" : "Skipped")), parts[1], parts[2], type, linkuri, parts[3], (parsed ? "OK" : "Error"), (translated ? "OK" : (!parsed ? "---" : "Error"));
-	if (error_msg && length(error_msg) > 2) printf "<TD class=\"test_error_message\">%s</TD></TR>\n", error_msg;
+	printf "<TR class=\"%s\">", test_outcome;
+	printf "<TD class=\"test_entry_number\">%d</TD>", entry_number;
+	printf "<TD class=\"test_type\">%s</TD>", type;
+	printf "<TD class=\"test_collection\">%s</TD>", parts[1];
+	printf "<TD class=\"test_set\">%s</TD>", parts[2];
+	printf "<TD class=\"test_name\"><a href=\"%s\" type=\"text/plain\">%s</a></TD>", linkuri, parts[3];
+	printf "<TD class=\"test_status\">%s</TD>", (status == 1 ? "Yes" : (status == 0 ? "No" : "Skipped"));
+	printf "<TD class=\"test_parsing\">%s</TD>", (parsed ? "OK" : "Error");
+	printf "<TD class=\"test_translating\">%s</TD>", (translated ? "OK" : (!parsed ? "---" : "Error"));
+	if (error_msg) printf "<TD class=\"test_error_message\">%s</TD></TR>\n", error_msg;
 	else printf "<TD class=\"error_test_error_message\">&nbsp;</TD></TR>\n";
-	error_msg = "";
+	# printf "<TR class=\"%s\"><TD class=\"test_entry_number\">%d</TD><TD class=\"test_type\">%s</TD><TD class=\"test_status\">%s</TD><TD class=\"test_collection\">%s</TD><TD class=\"test_set\">%s</TD><TD class=\"test_name\"><a href=\"%s\" type=\"text/plain\">%s</a></TD><TD class=\"test_parsing\">%s</TD><TD class=\"test_translating\">%s</TD>",
+        #   test_outcome, entry_number, type, (status == 1 ? "Yes" : (status == 0 ? "No" : "Skipped")), parts[1], parts[2], linkuri, parts[3], (parsed ? "OK" : "Error"), (translated ? "OK" : (!parsed ? "---" : "Error"));
+	# if (error_msg && length(error_msg) > 2) printf "<TD class=\"test_error_message\">%s</TD></TR>\n", error_msg;
+	# else printf "<TD class=\"error_test_error_message\">&nbsp;</TD></TR>\n";
+	# error_msg = "";
     }
 }
 BEGIN {
   printf "  <table id=\"TestResults\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"display\" width=\"100%%\">\n";
   printf "  <thead>\n";
-  printf "    <tr><th>Test#</th><th>Passed</th><th>Collection</th><th>Set</th><th>Type</th><th>Name</th><th>Parsing</th><th>Translating</th><th>Error message</th></tr>\n";
+  printf "    <tr><th>Test#</th><th>Type</th><th>Collection</th><th>Set</th><th>Name</th><th>Passed</th><th>Parsing</th><th>Translating</th><th>Error message</th></tr>\n";
   printf "  </thead>\n";
   printf "  <tbody>\n";
 }
-#queryfile,testtype,parsed_ok,translate_ok,error_msg,status
-/"[^"]*","[^"]*","[^"]*","[^"]*","[^"]*","[^"]*"/ {
+/parsed_ok,translated_ok,testtype,queryfile_short,error_msg/ {
+  next;
+}
+/[^,]*,[^,]*,[^,]*,[^,]*,[^,]*/ {
     split(\$0, fields, ",");
-    split(fields[1], n, ">");
-    queryfile = n[1];
-    pos = index(queryfile, "/tests/data-");
-    if (pos)
-       queryfile = substr(queryfile, pos + 7, length(queryfile) - pos - 6);
-    sub("//", "/", queryfile);
-    linkuri=sprintf("../../tests/%s", queryfile);
-    split(fields[2], a, "#");
-    split(a[2], t, ">");
-    type = t[1];
-    parse_result = fields[3];
-    translate_result=fields[4];
+    parse_result = fields[1];
+    translate_result=fields[2];
+    type = fields[3];
+    queryfile = fields[4];
+    linkuri=sprintf("../../tests/data-%s", queryfile);
     error_msg = fields[5];        
-    printf "queryfile=%s\nlinkuri=%s\ntype=%s\nparse_result=%s\ntranslate_result=%s\nerror_msg=%s\n", queryfile,linkuri,type,parse_result,translate_result,error_msg>>"log"
+    printf "parse_result=%s\ntranslate_result=%s\ntype=%s\nqueryfile=%s\nlinkuri=%s\nerror_msg=%s\n", parse_result,translate_result,type,queryfile,linkuri,error_msg>>"log"
     output();
 }
 END {

@@ -1,0 +1,8 @@
+SELECT ?a ?b ?c ?d ?e WHERE {
+       BIND(2 AS ?x)
+       BIND(COALESCE(?x, 1/0) as ?a)
+       BIND(COALESCE(1/0, ?x) as ?b)
+       BIND(COALESCE(5, ?x) as ?c)
+       BIND(COALESCE(?y, 3) as ?d)
+       BIND(COALESCE(?y) as ?e)
+}

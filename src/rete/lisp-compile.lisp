@@ -9,10 +9,8 @@
   (cond ((consp expr)
 	 (let ((sparql-op (first expr))
 	       (args-in-lisp (mapcar #'sparql-expr-to-lisp (rest expr))))
-	   (cond ((sparql-form-p sparql-op)
-		  (apply (sparql-op-lisp-name sparql-op) args-in-lisp))
-		 (t
-		  (cons (sparql-op-lisp-name sparql-op) args-in-lisp)))))
+	   ;; (cond ((sparql-form-p sparql-op) (apply (sparql-op-lisp-name sparql-op) args-in-lisp)))
+	   (cons (sparql-op-lisp-name sparql-op) args-in-lisp)))
 	((sparql-var-p expr)
 	 (intern (string (uniquely-named-object-name expr)) :instans))
 	(t expr)))
