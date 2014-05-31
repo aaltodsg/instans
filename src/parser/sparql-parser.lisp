@@ -227,7 +227,8 @@
 	       do (let ((graph (second item)))
 		    (when (sparql-var-p graph)
 		      (sparql-parse-error "Variables not allowed in ~A: ~A" query-form graph))
-		    (loop for triple in (rest (third item)) do (check-triple triple)))
+		    (assert* (and (eq 'GGP (first (third item))) (eq :FORM (second (third item)))) "Malformed expr ~A" item)
+		    (loop for triple in (rest (third (third item))) do (check-triple triple)))
 	       else do (loop for triple in (rest item) do (check-triple triple)))
 	 (setf (getf clauses :query-form) 'DELETE-INSERT)
 	 (translate-algebra instans clauses)))
@@ -547,7 +548,7 @@
 		     (:REP0 (QuadsNotTriples (:OPT |.-TERMINAL|) ((:OPT TriplesTemplate) :RESULT (if (opt-yes-p $0) (list (cons 'BGP (get-triples))))) :RESULT (append $0 $2)))
 		     :RESULT (apply #'append $0 $1)))
 	 (QuadsNotTriples ::= (GRAPH-TERMINAL VarOrIri |{-TERMINAL| (:OPT TriplesTemplate) |}-TERMINAL|
-					      :RESULT (list (list 'GRAPH $1 (get-triples)))))
+					      :RESULT (list (list 'GRAPH $1 (translate-group-graph-pattern (list (cons 'BGP (get-triples))))))))
 	 (TriplesTemplate ::= (TriplesSameSubject (:OPT (|.-TERMINAL| (:OPT TriplesTemplate)))))
 	 (GroupGraphPattern ::= (|{-TERMINAL| (:OR SubSelect GroupGraphPatternSub) |}-TERMINAL| :RESULT $1))
 	 (GroupGraphPatternSub ::= ((:OPT TriplesBlock) ((:REP0 (GraphPatternNotTriples (:OPT |.-TERMINAL|) (:OPT TriplesBlock)

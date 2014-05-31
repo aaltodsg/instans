@@ -1,6 +1,6 @@
 s,p,o
-<http://instans.org/count>,<http://instans.org/value>,0
-<http://instans.org/count>,<http://instans.org/value>,1
-<http://instans.org/count>,<http://instans.org/value>,2
-<http://instans.org/count>,<http://instans.org/value>,3
-<http://instans.org/count>,<http://instans.org/value>,10
+http://instans.org/count,http://instans.org/value,0
+http://instans.org/count,http://instans.org/value,1
+http://instans.org/count,http://instans.org/value,2
+http://instans.org/count,http://instans.org/value,3
+http://instans.org/count,http://instans.org/value,10

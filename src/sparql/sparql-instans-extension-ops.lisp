@@ -27,7 +27,7 @@
 (define-sparql-function "instans:error_message" (:arguments ((instans-iri rdf-iri)) :returns xsd-string)
   (:method ((instans-iri rdf-iri))
     (let ((status (first (instans-status (get-instans instans-iri)))))
-      (if status (format nil "~{~A~^~%~}" (instans-status-messages status)) ""))))
+      (if status (substitute "," "&comma;" (html-entities:encode-entities (format nil "~{~A~^~%~}" (instans-status-messages status)))) ""))))
 
 (define-sparql-function "instans:has_status" (:arguments ((instans-iri rdf-iri) (status xsd-string-value)) :returns xsd-string)
   (:method ((instans-iri rdf-iri) (status xsd-string-value))

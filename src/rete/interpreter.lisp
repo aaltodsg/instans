@@ -364,11 +364,12 @@
     (assert (null stack))
     (let ((dataset (triple-pattern-node-dataset this))
 	  (graph (first values)))
-      (cond ((sparql-var-p dataset)
-	     (add-token (car (node-succ this)) (make-token this nil (cons dataset (alpha-node-variables this)) values)))
-	    ((rdf-iri-p dataset)
+      (cond ((rdf-iri-p dataset)
 	     (when (and (rdf-iri-p graph) (rdf-iri= dataset graph))
-	       (add-token (car (node-succ this)) (make-token this nil (alpha-node-variables this) (cdr values))))) ; Drop graph
+	       (add-token (car (node-succ this)) (make-token this nil (alpha-node-variables this) (cdr values)))))
+	    ((sparql-var-p dataset)
+	     (when (rdf-iri-p graph)
+	       (add-token (car (node-succ this)) (make-token this nil (cons dataset (alpha-node-variables this)) values)))) ; Drop graph
 	    ((null graph)
 	     (add-token (car (node-succ this)) (make-token this nil (alpha-node-variables this) (cdr values))))))) ; Drop graph
   (:method ((this alpha-node) values &optional stack)
@@ -532,11 +533,12 @@
     (assert (null stack))
     (let ((dataset (triple-pattern-node-dataset this))
 	  (graph (first values)))
-      (cond ((sparql-var-p dataset)
-	     (remove-token (car (node-succ this)) (make-token this nil (cons dataset (alpha-node-variables this)) values)))
-	    ((rdf-iri-p dataset)
+      (cond ((rdf-iri-p dataset)
 	     (when (and (rdf-iri-p graph) (rdf-iri= dataset graph))
-	       (remove-token (car (node-succ this)) (make-token this nil (alpha-node-variables this) (cdr values))))) ; Drop graph
+	       (remove-token (car (node-succ this)) (make-token this nil (alpha-node-variables this) (cdr values)))))
+	    ((sparql-var-p dataset)
+	     (when (rdf-iri-p graph)
+	       (remove-token (car (node-succ this)) (make-token this nil (cons dataset (alpha-node-variables this)) values)))) ; Drop graph
 	    ((null graph)
 	     (remove-token (car (node-succ this)) (make-token this nil (alpha-node-variables this) (cdr values))))))) ; Drop graph
   (:method ((this alpha-node) values &optional stack)

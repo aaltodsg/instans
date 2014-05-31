@@ -13,7 +13,7 @@ for i in issue?.sh issue??.sh; do
     test -f ${CORRECT} || CORRECT="/dev/null"
     if (sh $i 2>&1 | sed -e '/^"/s///' -e '/",/s//,/g' -e '/,"/s//,/g' -e '/"$/s///' > ${OUTPUT}); then
 	if cmp -s ${CORRECT} ${OUTPUT}; then
-#	    rm -f ${OUTPUT}
+	    rm -f ${OUTPUT}
 	    echo "OK $i"
 	else
 	    echo "Unexpected results from $i"

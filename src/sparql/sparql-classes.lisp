@@ -218,7 +218,7 @@
   (:method ((this rdf-term)) nil))
 
 (defgeneric rdf-term-as-string (term)
-  (:method ((this rdf-iri)) (format nil "<~A>" (rdf-iri-string this)))
+  (:method ((this rdf-iri)) (format nil "~A" (rdf-iri-string this)))
   (:method ((this rdf-literal)) (rdf-literal-to-string this))
   (:method ((this rdf-blank-node)) (uniquely-named-object-name this))
   (:method ((this sparql-unbound)) "UNBOUND")

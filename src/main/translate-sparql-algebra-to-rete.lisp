@@ -261,7 +261,7 @@
 ;       do (inform "item = ~S" item)
        do (multiple-value-bind (graph triple-patterns)
 	      (cond ((eq (car item) 'GRAPH)
-		     (values (second item) (third item)))
+		     (values (second item) (rest (third (third item)))))
 		    ((eq (car item) 'BGP)
 		     (values nil (rest item)))
 		    (t (error* "Malformed template pattern ~S" item)))

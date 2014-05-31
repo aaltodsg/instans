@@ -7,8 +7,8 @@ PREFIX ut:     <http://www.w3.org/2009/sparql/tests/test-update#>
 PREFIX dawgt:  <http://www.w3.org/2001/sw/DataAccess/tests/test-dawg#>
 
 #SELECT ?queryfile ?test { # ?testtype ?parsed_ok ?translate_ok ?error_msg ?status WHERE {
-SELECT ?parsed_ok ?translated_ok ?testtype ?queryfile_short ?error_msg WHERE {
-       ?test a ?testtype_long; mf:name ?name . 
+CONSTRUCT ?queryfile ?testtype ?parsed_ok ?translated_ok ?error_msg ?status WHERE {
+       ?test a ?testtype; mf:name ?name . 
        {
        #works
          { { ?test mf:action [ qt:query ?queryfile ] } UNION { ?test mf:action [ ut:request ?queryfile ] } }
@@ -16,8 +16,6 @@ SELECT ?parsed_ok ?translated_ok ?testtype ?queryfile_short ?error_msg WHERE {
        }
        ?x rdf:first ?test .
        BIND(iri(strbefore(str(?queryfile),".")) AS ?instans)
-       BIND(strafter(str(?queryfile), "instans/tests/data-") AS ?queryfile_short)
-       BIND(strafter(str(?testtype_long),"#") AS ?testtype)
        BIND(instans:add_rules(?instans, ?queryfile) AS ?add)
        BIND(instans:has_status(?instans, "instans-rule-parsing-succeeded") AS ?parsed_ok) 
        BIND(instans:has_status(?instans, "instans-rule-translation-succeeded") AS ?translated_ok) 

@@ -1,4 +1,4 @@
 s,p,o
-<http://instans.org/sub>,<http://instans.org/pred>,<http://instans.org/obj>
-<http://instans.org/data>,<http://instans.org/value>,1
-<http://instans.org/data>,<http://instans.org/value>,2
+http://instans.org/sub,http://instans.org/pred,http://instans.org/obj
+http://instans.org/data,http://instans.org/value,1
+http://instans.org/data,http://instans.org/value,2

@@ -252,19 +252,23 @@
    (parser :accessor query-input-processor-parser :initarg :parser)
    (subscribe :accessor query-input-processor-subscribe :initarg :subscribe :initform nil)))
 
+(define-class csv-output-stream ()
+  ((stream :accessor csv-output-stream-stream :initarg :stream)
+   (separator :accessor csv-output-stream-separator :initarg :separator :initform (format nil "~C" #\linefeed))
+   (headers :accessor csv-output-stream-headers)
+   (require-headers-p :accessor csv-output-stream-require-headers-p :initarg :require-headers-p :initform t)))
+
 ;;; Select/ask/describe/construct ... processors
-(define-class query-output-processor ()
-  ((output-name :accessor query-output-processor-output-name :initarg :output-name)
-   (output-stream :accessor query-output-processor-output-stream :initarg :output-stream)
-   (output-type :accessor query-output-processor-output-type :initarg :output-type)
-   (headers-written-p :accessor query-output-processor-headers-written-p :initform nil)))
+(define-class query-output-processor () 
+  ((output-name :accessor query-output-processor-output-name :initarg :output-name)))
 
-(define-class query-output-csv-processor (query-output-processor) ())
+(define-class csv-query-output-processor (query-output-processor)
+  ((output-stream :accessor csv-query-output-processor-output-stream)))
 
-(define-class query-output-solution-set-processor (query-output-processor)
-  ((variables :accessor query-output-solution-set-processor-variables :initarg :variables :initform nil)
-   (bindings :accessor query-output-solution-set-processor-bindings :initform nil)
-   (end :accessor query-output-solution-set-processor-end)))
+(define-class solution-set-query-output-processor (query-output-processor)
+  ((variables :accessor solution-set-query-output-processor-variables)
+   (bindings :accessor solution-set-query-output-processor-bindings)
+   (end :accessor solution-set-query-output-processor-end)))
 
 ;;; System
 (define-class instans ()
