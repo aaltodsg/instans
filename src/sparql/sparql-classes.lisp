@@ -207,18 +207,6 @@
 	(t
 	 (sxhash x))))
 
-(defgeneric rdf-iri-to-string (iri)
-  (:method ((this rdf-iri))
-    (cond ((slot-boundp this 'string) (rdf-iri-string this))
-	  (t
-	   (setf (rdf-iri-string this)
-		 (apply #'concatenate 'string
-			(and (rdf-iri-scheme this) (list (rdf-iri-scheme this) ":"))
-			(and (rdf-iri-authority this) (list "//" (rdf-iri-authority this)))
-			(list (rdf-iri-path this))
-			(and (rdf-iri-query this) (list "?" (rdf-iri-query this)))
-			(and (rdf-iri-fragment this) (list "#" (rdf-iri-fragment this)))))))))
-
 (defgeneric rdf-plain-literal-p (term)
   (:method ((this rdf-literal))
     (not (slot-boundp this 'type)))
@@ -230,7 +218,7 @@
   (:method ((this rdf-term)) nil))
 
 (defgeneric rdf-term-as-string (term)
-  (:method ((this rdf-iri)) (rdf-iri-string this))
+  (:method ((this rdf-iri)) (format nil "<~A>" (rdf-iri-string this)))
   (:method ((this rdf-literal)) (rdf-literal-to-string this))
   (:method ((this rdf-blank-node)) (uniquely-named-object-name this))
   (:method ((this sparql-unbound)) "UNBOUND")

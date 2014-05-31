@@ -332,7 +332,7 @@
 	(setf (query-output-processor-headers-written-p this) t)
 	(format (query-output-processor-output-stream this) "~{~A~^,~}~%"
 		(mapcar #'(lambda (var) (format nil "~(~A~)" (subseq (uniquely-named-object-name (reverse-resolve-binding (node-instans node) var)) 1))) vars)))
-      (format (query-output-processor-output-stream this) "~{~S~^,~}~%" values)))
+      (format (query-output-processor-output-stream this) "~{~A~^,~}~%" values)))
   (:method ((this query-output-solution-set-processor) node token)
     (multiple-value-bind (vars values) (solution-bindings node token)
       (unless (query-output-processor-headers-written-p this)

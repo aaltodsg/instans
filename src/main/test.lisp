@@ -61,3 +61,17 @@
 	      sum nvals into count finally (inform "~4D tests" count))))
     (testlist "DATA-R2" *r2-manifests*)
     (testlist "DATA-SPARQL11" *sparql11-manifests*)))
+
+(defun issue-test (n htmlp)
+  (let* ((rootdir (namestring (find-instans-root-directory)))
+	 (dir (format nil "~A/tests/input/issues" rootdir))
+	 (file-base (format nil "~A/issue~D" dir n))
+	 (sh-file (format nil "~A.sh" file-base))
+	 (sh-string (with-open-file (str sh-file) (read-line str)))
+	 (args (format nil "~A-d file://~A/ ~A"
+		       (if htmlp (format nil "--rete-html-page-dir ~A/tests/output " rootdir) "")
+		       dir (subseq sh-string (+ (search "instans " sh-string) 8)))))
+    (inform "Running issue test ~D with args ~A" n args)
+    (main-test args)))
+
+    
