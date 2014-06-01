@@ -2,11 +2,10 @@ PREFIX ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
 PREFIX geo:  <http://www.w3.org/2003/01/geo/wgs84_pos#>
 
 INSERT { GRAPH <http://next> {
-  ?event a ep:EventObject ;
-         ?p ?o .
+  ?event ?p ?o .
   ?o ?p2 ?o2 } }
 WHERE {
   ?event a ep:EventObject ;
          ?p ?o .
-  ?o ?p2 ?o2 } ;
+  OPTIONAL { ?o ?p2 ?o2 } } ;
 SELECT * WHERE { GRAPH <http://next> { ?s ?p ?o } }
