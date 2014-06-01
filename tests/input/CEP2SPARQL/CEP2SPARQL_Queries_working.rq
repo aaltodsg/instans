@@ -121,13 +121,14 @@ INSERT { GRAPH <http://example.org/eventcounts/> {
       :hour ?hour ;
       :count ?nrevent } }
 WHERE {
+  {
   SELECT ?hour (COUNT(?event) as ?nrevent) # Count the number of events
   WHERE { GRAPH <http://example.org/source/> {
       ?event a ep:EventObject ;
              ep:hasEventObjectSamplingTime ?time .
       BIND ( HOURS(?time) as ?hour ) } }
   GROUP BY ?hour } # Group results based on hour
-
+}
 ;
 
 # Compose (EPA 7): Combine two event streams into one
