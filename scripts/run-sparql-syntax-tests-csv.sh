@@ -172,6 +172,6 @@ cat >> $AWK <<EOF
 EOF
 rm -f log; touch log
 awk -f $AWK < $TEST_OUTPUT >> $REPORT_HTML
-rm -rf $AWK
+#rm -rf $AWK
 echo
 echo "File \"$REPORT_HTML\" contains the test results in HTML form."

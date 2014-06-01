@@ -489,7 +489,7 @@
 		   (t (lexer-error lexer "Expected a hex digit")))))
 	  (t (lexer-error lexer "Expected a hex digit")))))
 
-(defun get-codepoint-uhex (lexer)
+(defun get-uhex (lexer)
   ;;; Assuming we have seed \u
   (flet ((get-if-looking-at-hex-digit () (if (digit-char-p (peekch lexer) 16) (get-char lexer))))
     (let (ch1 ch2 ch3 ch4)
@@ -529,12 +529,32 @@
 		      (t
 		       (return-input-token lexer 'LANGTAG-TERMINAL (chbuf-string buf))))))
 
-(defun eat-iri (lexer) ; we saw '<'
+(defun eat-iri-old (lexer) ; we saw '<'
   (loop with buf = ;(if (trig-lexer-p lexer) 
        (empty-chbuf)
 	for ch = (peekch lexer)
 	while (and ch (iri-char-p ch))
 	do (chbuf-put-char buf (get-char lexer))
+	finally (cond ((char=* ch #\>)
+		       (get-char lexer)
+		       (return-input-token lexer 'IRIREF-TERMINAL (lexer-expand-iri lexer (chbuf-string buf))))
+		      (t ; we assume, that the original '<' was actually the operator less-than.
+		       (loop for i from (1- (chbuf-index buf)) downto 0
+			     do (unget-char lexer (elt (chbuf-contents buf) i)))
+		       (return-input-token lexer '<-TERMINAL "<")))))
+
+(defun eat-iri (lexer) ; we saw '<'
+  (loop with buf = ;(if (trig-lexer-p lexer) 
+       (empty-chbuf)
+	for ch = (peekch lexer)
+	while ch
+        do (cond ((iri-char-p ch)
+		  (chbuf-put-char buf (get-char lexer)))
+		 ((get-char-if-looking-at lexer #\\)
+		  (cond ((or (get-char-if-looking-at lexer #\u) (get-char-if-looking-at lexer #\U))
+			 (chbuf-put-char buf (get-uhex lexer)))
+			(t
+			 (lexer-error lexer "Unexpected escape char '~C'" (get-char lexer))))))
 	finally (cond ((char=* ch #\>)
 		       (get-char lexer)
 		       (return-input-token lexer 'IRIREF-TERMINAL (lexer-expand-iri lexer (chbuf-string buf))))
