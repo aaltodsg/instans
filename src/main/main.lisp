@@ -67,7 +67,7 @@
 			(when (null (instans-query-output-processor instans))
 			  (setf (instans-query-output-processor instans) (create-query-output-processor query-output-name query-output-type)))
 			(instans-add-triples instans-iri (expand-iri directory value) :graph graph :base base)
-			(unless (instans-find-status instans 'instans-triples-parsing-succeeded)
+			(unless (instans-find-status instans 'instans-rdf-parsing-succeeded)
 			  (let ((status (first (instans-status instans))))
 			    (inform "~%~A:~A~{~%~A~}~%" value (type-of status) (instans-status-messages status)))
 			  (return-from run-configuration nil)))

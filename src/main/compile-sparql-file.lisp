@@ -157,25 +157,24 @@
 ;; (let ((instans (get-instans instans-iri)))
 ;;   (run-query-input-processors instans)))
 
-;; (defun instans-parse-rdf-file (instans-iri input-iri)
-;;   (instans-debug-message instans '(:parse-rdf :execute) "instans-parse-rdf-file ~S ~S" instans-iri input-iri)
-;;   (let ((instans (get-instans instans-iri))
-;; 	input-stream file-type error-msg)
-;;     (unwind-protect
-;; 	 (progn
-;; 	   (multiple-value-setq (input-stream file-type error-msg) (create-input-stream input-iri))
-;; 	   (unless input-stream (error* error-msg))
-;; 	   (let ((rdf-parser (make-rdf-parser instans input-stream file-type :document-callback #'identity)))
-;; 	     (instans-debug-message instans '(:execute :parse-rdf) "~%Reading RDF:~%")
-;; 	     (parse rdf-parser)
-;; 	     (cond ((ll-parser-succeeded-p rdf-parser)
-;; 		    (instans-add-status instans 'instans-triples-parsing-succeeded))
-;; 		   (t
-;; 		    (instans-add-status instans 'instans-triples-parsing-failed (ll-parser-error-messages rdf-parser))
-;; 		    (inform "~A:~A" input (ll-parser-error-messages rdf-parser))))
-
-;;       (when input-stream (close input-stream)))
-;;     instans))
+(defun instans-parse-rdf-file (instans-iri input-iri)
+  (let ((instans (get-instans instans-iri))
+	input-stream file-type error-msg)
+    (instans-debug-message instans '(:parse-rdf :execute) "instans-parse-rdf-file ~S ~S" instans-iri input-iri)
+    (unwind-protect
+	 (progn
+	   (multiple-value-setq (input-stream file-type error-msg) (create-input-stream input-iri))
+	   (unless input-stream (error* error-msg))
+	   (let ((rdf-parser (make-rdf-parser instans input-stream file-type :document-callback #'identity)))
+	     (instans-debug-message instans '(:execute :parse-rdf) "~%Reading RDF:~%")
+	     (parse rdf-parser)
+	     (cond ((ll-parser-succeeded-p rdf-parser)
+		    (instans-add-status instans 'instans-rdf-parsing-succeeded))
+		   (t
+		    (instans-add-status instans 'instans-rdf-parsing-failed (ll-parser-error-messages rdf-parser))
+		    (inform "~A:~A" input-iri (ll-parser-error-messages rdf-parser))))))
+      (when input-stream (close input-stream)))
+    instans))
 
 (defun instans-add-triples (instans-iri input &key graph base)
   (let* ((instans (get-instans instans-iri))
@@ -192,9 +191,9 @@
 	;; Is this OK?;	(initialize-execution instans)
 	(parse triples-parser)
 	(cond ((ll-parser-succeeded-p triples-parser)
-	       (instans-add-status instans 'instans-triples-parsing-succeeded))
+	       (instans-add-status instans 'instans-rdf-parsing-succeeded))
 	      (t
-	       (instans-add-status instans 'instans-triples-parsing-failed (ll-parser-error-messages triples-parser))
+	       (instans-add-status instans 'instans-rdf-parsing-failed (ll-parser-error-messages triples-parser))
 	       (inform "~A:~A" input (ll-parser-error-messages triples-parser))))
 	(report-execution-status instans)))
     instans))
@@ -252,4 +251,3 @@
 	  ((stringp name) (probe-file name))
 	  (t
 	   (error* "~A does not name a file or uri" name)))))
-

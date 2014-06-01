@@ -322,6 +322,6 @@
 (define-class instans-rule-translation-succeeded (instans-status) ())
 (define-class instans-initialization-failed (instans-status) ())
 (define-class instans-initialization-succeeded (instans-status) ())
-(define-class instans-triples-parsing-failed (instans-status) ())
-(define-class instans-triples-parsing-succeeded (instans-status) ())
+(define-class instans-rdf-parsing-failed (instans-status) ())
+(define-class instans-rdf-parsing-succeeded (instans-status) ())
 
