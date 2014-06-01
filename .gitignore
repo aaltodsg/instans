@@ -13,6 +13,7 @@ tests/syntax-test-results/DataTables*
 MKHTML_LOG
 bin/instans.bin
 bin/sbcl-instans.core
+tests/RDF
 tests/log
 tests/syntax-test-results
 tests/correct-output
