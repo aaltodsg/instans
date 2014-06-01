@@ -5,6 +5,8 @@
 
 (in-package #:instans)
 
+;;; This should be cleaned and made more compatible with other parsing facilities.
+
 (defun parse-results (instans input &rest keys &key &allow-other-keys)
   (cond ((rdf-iri-p input)
 	 (apply #'parse-results-from-url instans input keys))
@@ -196,7 +198,7 @@
 (defun parse-ttl-stream (instans stream input-name &key base &allow-other-keys)
   (declare (ignorable input-name base))
   (let* ((callback-results nil)
-	 (triples-parser (make-turtle-parser instans stream :base base :triples-block-callback #'(lambda (triples) (push triples callback-results))))
+	 (triples-parser (make-turtle-parser instans stream :base base :block-callback #'(lambda (triples) (push triples callback-results))))
 	 (query-results (make-instance 'sparql-query-results)))
     (parse triples-parser)
     (setf (sparql-query-results-triples query-results) (apply #'append (nreverse callback-results)))

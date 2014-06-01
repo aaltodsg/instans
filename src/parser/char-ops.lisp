@@ -5,7 +5,11 @@
 
 (in-package #:instans)
 
-(defun whitespace-char-p (ch) (char-in-set-p* ch '(#x20 #x9 #xD #xA)))
+(defun whitespace-char-p (ch) (char-in-set-p* ch '(#x20 #x09 #x0D #x0A)))
+
+(defun eol-char-p (ch) (or (char=* ch #x0A) (char=* ch #x0D)))
+
+(defun spacing-char-p (ch) (or (char=* ch #x20) (char=* ch #x09)))
 
 (defun char-in-set-p* (char-or-code chars-or-codes)
   (cond ((stringp chars-or-codes)

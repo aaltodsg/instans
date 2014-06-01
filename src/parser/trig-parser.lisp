@@ -6,7 +6,7 @@
 (in-package #:instans)
 
 (defvar *triple-count* 0)
-(defvar *triple-sizes* 0)
+;; (defvar *triple-sizes* 0)
 
 (defun term-size (x)
   (cond ((consp x)
@@ -19,7 +19,7 @@
   (loop for x in tr
 	sum (term-size x)))
 
-(defmacro define-triple-parser (creator-function input-type)
+(defmacro define-trig-or-turtle-parser (creator-function input-type)
   (unless (member input-type '(:trig :turtle)) (error* "Unknown triple input type ~S" input-type))
   `(defun ,creator-function (instans input-stream &key base subscribe triple-callback block-callback document-callback)
      (when (null base) (setf base (parse-iri "http://")))
@@ -61,7 +61,7 @@
 		,@(if (eq input-type :trig) '((set-graph (g) (setf current-graph g))))
 		(emit-current (current-object)
 		  (incf *triple-count*)
-		  (incf *triple-sizes* (+ (term-size current-subject) (term-size current-predicate) (term-size current-object)))
+		  ;; (incf *triple-sizes* (+ (term-size current-subject) (term-size current-predicate) (term-size current-object)))
 ;		  (inform "emit ~S ~S ~S" current-subject current-predicate current-object)
 		  (let ((new ,(if (eq input-type :trig)
 				  '(list current-subject current-predicate current-object current-graph)
@@ -143,63 +143,7 @@
 	 (setf (ll-parser-subscribe parser) subscribe)
 	 parser))))
 
-(define-triple-parser make-turtle-parser-new :turtle)
+(define-trig-or-turtle-parser make-turtle-parser :turtle)
 
-(define-triple-parser make-trig-parser :trig)
+(define-trig-or-turtle-parser make-trig-parser :trig)
 
-(defun make-turtle-parser (instans input-stream &rest keys &key &allow-other-keys)
-  (apply #'make-turtle-parser-new instans input-stream keys)
-; (apply #'make-turtle-parser-old instans input-stream keys)
-)
-
-(defun parse-triple-file (file &key subscribe base triple-callback block-callback document-callback)
-  (let* ((*triple-count* 0)
-	 (*triple-sizes* 0)
-	 (file-type (pathname-type (parse-namestring file)))
-	 (make-parser (cond ((string-equal file-type "ttl") #'make-turtle-parser)
-			    ((string-equal file-type "trig") #'make-trig-parser)
-			    (t (error* "Cannot parse files of type ~S" file-type)))))
-    (time
-     (with-open-file (stream file)
-       (let* ((instans (make-instance 'instans :name file))
-	      (parser (funcall make-parser instans stream :base base :subscribe subscribe
-			       :triple-callback triple-callback :block-callback block-callback :document-callback document-callback))
-	      (lexer (ll-parser-lexer parser))
-	      (result (parse parser)))
-	 (cond ((ll-parser-succeeded-p result)
-		(inform "~%triple-count = ~D, triple-sizes = ~D~%strings: ~D elems, prefixes: ~D elems, keywords: ~D elems"
-			*triple-count* *triple-sizes* (hash-table-count (lexer-string-table lexer))
-			(hash-table-count (lexer-prefix-table lexer)) (hash-table-count (lexer-keyword-table lexer))))
-	       (t
-		(inform "Parsing failed")))
-	 result)))))
-
-(defun parse-triple-file-all (file &key subscribe base)
-  (time
-   (with-open-file (stream file)
-     (let* ((instans (make-instance 'instans :name file))
-	    (file-type (pathname-type (parse-namestring file)))
-	    (make-parser (cond ((string-equal file-type "ttl") #'make-turtle-parser)
-			       ((string-equal file-type "trig") #'make-trig-parser)
-			       (t (error* "Cannot parse files of type ~S" file-type))))
-	    (parser (funcall make-parser instans stream :base base :subscribe subscribe
-			     :triple-callback #'(lambda (&rest input)
-						  (inform "Triple callback got ~{~A~^ ~}" input)
-						  (ll-parser-yields input))
-			     :block-callback #'(lambda (triples)
-						 (inform "Triples block callback got triples:")
-						 (loop for triple in triples do (inform "~{~A~^ ~}" triple))
-						 (ll-parser-yields triples))
-			     :document-callback #'(lambda (triples)
-						    (inform "Document callback got triples:")
-						    (loop for triple in triples do (inform "~{~A~^ ~}" triple))
-						    (ll-parser-yields triples)))))
-       (loop while (not (ll-parser-finished-p parser))
-	     do (progn
-		  (multiple-value-bind (p value) (parse parser)
-		    (assert (eq p parser))
-		    (case (ll-parser-state parser)
-		      (:succeeded (inform "Parser returned ~A" (ll-parser-result parser)))
-		      (:failed (inform "Parser failed ~A" (ll-parser-error-messages parser)))
-		      (:yield (inform "Parser yielded ~A" value))
-		      (t (inform "Parser state now ~A" (ll-parser-state parser)))))))))))

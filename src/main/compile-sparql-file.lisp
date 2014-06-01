@@ -15,7 +15,7 @@
   (when (null instans)
     (setf instans (make-instance 'instans :name instans-name)))
   (setf (instans-algebra-expr-list instans) nil)
-  (let* ((ll-parser (sparql-parse-stream instans stream :base base)))
+  (let* ((ll-parser (parse-sparql-stream instans stream :base base)))
     (cond ((not (ll-parser-succeeded-p ll-parser))
 	   (instans-add-status instans 'instans-rule-parsing-failed (ll-parser-error-messages ll-parser))
 	   (return-from compile-sparql-stream nil))
