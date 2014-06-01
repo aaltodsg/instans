@@ -1,0 +1,5 @@
+@prefix instans: <http://instans.org/extensions/instans#> .
+
+<> instans:end true .
+
+
