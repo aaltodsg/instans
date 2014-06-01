@@ -63,6 +63,9 @@
     (inform "~A~S" msg x)
     x))
 
+;; (define-sparql-function "instans:compare_rdf_files" (:arguments ((instans-iri rdf-iri) (input1 iri-or-string) (input2 t)) :returns xsd-string-value)
+;;   (:method ((instans-iri rdf-iri) (input1 iri-or-string) (input2 t))
+;;     (
 
 ;; outer-arg-spec ((instans-iri rdf-iri) (triples iri-or-string) &optional (graph-iri rdf-iri) base &rest args)
 ;; outer-lambda (instans-iri triples &optional graph-iri base &rest args)

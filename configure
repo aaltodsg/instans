@@ -9,11 +9,19 @@ function die () {
     exit 1
 }
 test "$LAST" != instans || die "You should run this script in the instans root directory!"
-if test "$1" = "clean" -o "$1" = "--clean" -o "$1" = "-c"; then
-    CLEAN="true"
-else
-    CLEAN="false"
-fi
+CLEAN="false"
+MAKESBCLIMG="false"
+while test $# -gt 0; do
+    if test "$1" = "clean" -o "$1" = "--clean" -o "$1" = "-c"; then
+	CLEAN="true"
+    elif test "$1" = "sbclimg" -o "$1" = "--sbclimg" -o "$1" = "-s"; then
+	MAKESBCLIMG="true"
+    else
+	echo "Usage: $0 { (--clean|clean|-c|--sbclimg|sbclimg|-s) }"
+	exit 1
+    fi
+    shift
+done
 SRC=${ROOT}/src
 TESTS=${ROOT}/tests
 INIT=${ROOT}/init
@@ -87,11 +95,13 @@ echo "Building $EXECUTABLE"
 #sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans))" --eval "(sb-ext:save-lisp-and-die \"${EXECUTABLE}\" :toplevel (quote instans:main) :executable t)" --quit
 echo sbcl --load $ROOT/init/make-executable.lisp --eval "(sb-ext:save-lisp-and-die \"${EXECUTABLE}\" :toplevel (quote instans:main) :executable t)" --quit
 sbcl --load $ROOT/init/make-executable.lisp --eval "(sb-ext:save-lisp-and-die \"${EXECUTABLE}\" :toplevel (quote instans:main) :executable t)" --quit
-echo
-echo "Creating a custom Lisp image for Instans in file ${SBCL_INSTANS_CORE}"
-cd $SRC
-echo sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans) (sb-ext:save-lisp-and-die \"${SBCL_INSTANS_CORE}\"))" --quit
-sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans) (sb-ext:save-lisp-and-die \"${SBCL_INSTANS_CORE}\"))" --quit
+if test "${MAKESBCLIMG}" = "true" ; then
+    echo
+    echo "Creating a custom Lisp image for Instans in file ${SBCL_INSTANS_CORE}"
+    cd $SRC
+    echo sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans) (sb-ext:save-lisp-and-die \"${SBCL_INSTANS_CORE}\"))" --quit
+    sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans) (sb-ext:save-lisp-and-die \"${SBCL_INSTANS_CORE}\"))" --quit
+fi
 cd $TESTS
 if test -d data-r2; then
     echo "data-r2 already exists, skipping downloading it"
@@ -129,10 +139,12 @@ if test ! -d $DATATABLES ; then
 fi
 echo "Configuration done."
 echo
-echo "Run Lisp with INSTANS by:"
-echo
-echo "    instans/bin/sbcl-instans [SBCL arguments]"
-echo
+if test "${MAKESBCLIMG}" = "true" ; then
+    echo "Run Lisp with INSTANS by:"
+    echo
+    echo "    instans/bin/sbcl-instans [SBCL arguments]"
+    echo
+fi
 echo "Run INSTANS on command line by"
 echo
 echo "    instans/bin/instans [INSTANS arguments]"
