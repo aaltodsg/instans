@@ -158,7 +158,7 @@
 ;;   (run-query-input-processors instans)))
 
 (defun instans-parse-rdf-file (instans-iri input-iri)
-  (let ((instans (get-instans instans-iri))
+  (let ((instans (create-instans instans-iri))
 	input-stream file-type error-msg)
     (instans-debug-message instans '(:parse-rdf :execute) "instans-parse-rdf-file ~S ~S" instans-iri input-iri)
     (unwind-protect

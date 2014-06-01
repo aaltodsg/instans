@@ -493,7 +493,10 @@
   ;;; Assuming we have seed \u
   (flet ((get-if-looking-at-hex-digit ()
 	   ;; (inform "get-if-looking-at-hex-digit ~S" (peekch lexer))
-	   (if (digit-char-p (peekch lexer) 16) (get-char lexer))))
+	   (if (digit-char-p (peekch lexer) 16) (get-char lexer)))
+	 (code-to-char-safe (x)
+	   (handler-case (code-char x)
+	     (t (e) (declare (ignore e)) (lexer-error lexer "Cannot convert \\u escape sequence ~A" x)))))
     (let (ch1 ch2 ch3 ch4)
       (cond ((and (setf ch1 (get-if-looking-at-hex-digit))
 		  (setf ch2 (get-if-looking-at-hex-digit))
@@ -503,12 +506,12 @@
 		   ch5 ch6)
 	       (cond ((setf ch5 (get-if-looking-at-hex-digit))
 		      (cond ((setf ch6 (get-if-looking-at-hex-digit))
-			     (code-char (+ (char-code ch6) (* 16 (+ (char-code ch5) (* 16 num1234))))))
+			     (code-to-char-safe (+ (char-code ch6) (* 16 (+ (char-code ch5) (* 16 num1234))))))
 			    (t
 			     (unget-char lexer ch5)
-			     (code-char num1234))))
+			     (code-to-char-safe num1234))))
 		     (t
-		      (code-char num1234)))))
+		      (code-to-char-safe num1234)))))
 	    (t
 	     (lexer-error lexer "Malformed \\u escape sequence"))))))
 
@@ -540,6 +543,8 @@
 	finally (cond ((char=* ch #\>)
 		       (get-char lexer)
 		       (return-input-token lexer 'IRIREF-TERMINAL (lexer-expand-iri lexer (chbuf-string buf))))
+		      ((trig-lexer-p lexer)
+		       (lexer-error lexer "Malformed IRI"))
 		      (t ; we assume, that the original '<' was actually the operator less-than.
 		       (loop for i from (1- (chbuf-index buf)) downto 0
 			     do (unget-char lexer (elt (chbuf-contents buf) i)))
@@ -561,6 +566,8 @@
 	finally (cond ((char=* ch #\>)
 		       (get-char lexer)
 		       (return-input-token lexer 'IRIREF-TERMINAL (lexer-expand-iri lexer (chbuf-string buf))))
+		      ((trig-lexer-p lexer)
+		       (lexer-error lexer "Malformed IRI"))
 		      (t ; we assume, that the original '<' was actually the operator less-than.
 		       (loop for i from (1- (chbuf-index buf)) downto 0
 			     do (unget-char lexer (elt (chbuf-contents buf) i)))
@@ -609,7 +616,6 @@
 				       ((and ch (not (char-in-set-p* ch short-banned-chars)))
 					(chbuf-put-char buf (get-char lexer)))
 				       (t (lexer-error lexer "Malformed string literal, missing ~C" quote-char)))))))))))))
-
 
 ;;; Wrap-up
 (defun next-input-token (lexer)
@@ -674,9 +680,12 @@
 		   (t (return-input-token lexer '/-TERMINAL "/"))))
 	    ((get-char-if-looking-at lexer #\;) (return-input-token lexer '|;-TERMINAL| ";"))
 	    ((get-char-if-looking-at lexer #\<)
-	     (cond ((get-char-if-looking-at lexer #\=) (return-input-token lexer '<=-TERMINAL "<="))
+	     (cond ((trig-lexer-p lexer)
+		    (cond ((and (peekch lexer) (or (char= (peekch lexer) #\>) (iri-char-p (peekch lexer)))) (eat-iri lexer))
+			  (t (lexer-error lexer "Unrecognized input-token <~C" (peekch lexer)))))
+		   ((get-char-if-looking-at lexer #\=)
+		    (return-input-token lexer '<=-TERMINAL "<="))
 		   ((and (peekch lexer) (or (char= (peekch lexer) #\>) (iri-char-p (peekch lexer)))) (eat-iri lexer))
-		   ((trig-lexer-p lexer) (lexer-error lexer "Unrecognized input-token ~C" (peekch lexer)))
 		   (t (return-input-token lexer '<-TERMINAL "<"))))
 	    ((get-char-if-looking-at lexer #\=)
 	     (cond ((trig-lexer-p lexer) (lexer-error lexer "Unrecognized input-token ~C" #\/))
