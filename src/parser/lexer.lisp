@@ -498,35 +498,17 @@
 	  (t (lexer-error lexer "Expected a hex digit")))))
 
 (defun get-uhex (lexer)
-  ;;; Assuming we have seed \u
-  (flet ((get-if-looking-at-hex-digit ()
-	   ;; (inform "get-if-looking-at-hex-digit ~S" (peekch lexer))
-	   (if (digit-char-p (peekch lexer) 16) (get-char lexer)))
-	 (hex-char-to-int (ch) (let ((code (char-code ch)))
-				 (if (<= (char-code #\0) code (char-code #\9))
-				     (- code (char-code #\0))
-				     (+ 10 (- code (char-code #\A))))))
-	 (code-to-char-safe (x)
-	   (handler-case (code-char x)
-	     (t (e) (declare (ignore e)) (lexer-error lexer "Cannot convert \\u escape sequence ~A" x)))))
-    (let (ch1 ch2 ch3 ch4)
-      (cond ((and (setf ch1 (get-if-looking-at-hex-digit))
-		  (setf ch2 (get-if-looking-at-hex-digit))
-		  (setf ch3 (get-if-looking-at-hex-digit))
-		  (setf ch4 (get-if-looking-at-hex-digit)))
-	     (let ((num1234 (+ (hex-char-to-int ch4) (* 16 (+ (hex-char-to-int ch3) (* 16 (+ (hex-char-to-int ch2) (* 16 (hex-char-to-int ch1))))))))
-		   ch5 ch6)
-;	       (inform "got digits ~S~S~S~S -> ~D" ch1 ch2 ch3 ch4 num1234)
-	       (cond ((setf ch5 (get-if-looking-at-hex-digit))
-		      (cond ((setf ch6 (get-if-looking-at-hex-digit))
-			     (code-to-char-safe (+ (hex-char-to-int ch6) (* 16 (+ (hex-char-to-int ch5) (* 16 num1234))))))
-			    (t
-			     (unget-char lexer ch5)
-			     (code-to-char-safe num1234))))
-		     (t
-		      (code-to-char-safe num1234)))))
-	    (t
-	     (lexer-error lexer "Malformed \\u escape sequence ~S~S~S~S" ch1 ch2 ch3 ch4))))))
+  ;;; Assuming we have eaten \ and seed u or U
+  (loop with code = 0
+	repeat (if (char= (get-char lexer) #\u) 4 6)
+        do (cond ((null (peekch lexer))
+		  (lexer-error lexer "Unexpected EOF while scanning Unicode escape sequence"))
+		 ((not (digit-char-p (peekch lexer) 16))
+		  (lexer-error lexer "A non hex digit char ~S in a Unicode escape sequence" (peekch lexer)))
+		 (t
+		  (setf code (+ (* 16 code) (hex-char-to-int (get-char lexer))))))
+	finally (return (handler-case (code-char code)
+			  (t (e) (declare (ignore e)) (lexer-error lexer "Cannot convert \\u escape sequence ~A" code))))))
 
 (defun slurp-local-esc (lexer buf)
   (cond ((and (peekch lexer) (char-in-set-p* (peekch lexer) "_~.-!$&'()*+,;=/?#@%"))
@@ -576,7 +558,7 @@
         do (cond ((iri-char-p ch)
 		  (chbuf-put-char buf (get-char lexer)))
 		 ((get-char-if-looking-at lexer #\\)
-		  (cond ((or (get-char-if-looking-at lexer #\u) (get-char-if-looking-at lexer #\U))
+		  (cond ((char-in-set-p* (peekch lexer) "uU")
 			 (chbuf-put-char buf (get-uhex lexer)))
 			(t
 			 (lexer-error lexer "Unexpected escape char '~C'" (get-char lexer)))))
@@ -614,7 +596,7 @@
 			(lexer-error lexer "Unexpected EOF"))
 		       ((char-in-set-p* (peekch lexer) "tbnrf\\\"'")
 			(chbuf-put-chars buf ch (get-char lexer)))
-		       ((or (get-char-if-looking-at lexer #\u) (get-char-if-looking-at lexer #\U))
+		       ((char-in-set-p* (peekch lexer) "uU")
 			(chbuf-put-char buf (get-uhex lexer)))
 		       (t (lexer-error lexer "Illegal escape char '~C'" (get-char lexer)))))))
 	(cond ((and long-terminal (maybe-get-quote))

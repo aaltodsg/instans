@@ -87,6 +87,17 @@
 
 ;;;
 
+(defun hex-char-to-int (ch)
+  (let ((cc (char-code ch)))
+    (cond ((<= (char-code #\0) cc (char-code #\9))
+	   (- (char-code ch) (char-code #\0)))
+	  ((<= (char-code #\A) cc (char-code #\F))
+	   (+ 10 (- (char-code ch) (char-code #\A))))
+	  ((<= (char-code #\a) cc (char-code #\f))
+	   (+ 10 (- (char-code ch) (char-code #\a))))
+	  (t
+	   (error* "Not a hex digit ~S" ch)))))
+
 (defun split-string (string delimiter &optional (start 0))
   (if (>= start (length string)) nil
       (let ((end (or (search delimiter string :start2 start) (length string))))
