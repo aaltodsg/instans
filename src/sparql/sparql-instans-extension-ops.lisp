@@ -63,11 +63,16 @@
     (inform "~A~S" msg x)
     x))
 
-(define-sparql-function "instans:compare_rdf_files" (:arguments ((instans-iri rdf-iri) (input1 iri-or-string) (input2 t)) :returns xsd-string-value)
+(define-sparql-function "instans:compare_rdf_files" (:arguments ((instans-iri rdf-iri) (input1 iri-or-string) (input2 t)) :returns xsd-boolean-value)
   (:method ((instans-iri rdf-iri) (input1 iri-or-string) (input2 t))
     (declare (ignorable input2))
-    (let ((instans (instans-parse-rdf-file instans-iri input1)))
-      (and instans (instans-has-status instans 'instans-rdf-parsing-succeeded)))))
+    (let* ((instans (or (get-instans instans-iri) (create-instans instans-iri)))
+	   (result1 (instans-parse-rdf-file instans-iri input1))
+	   (result2 (and input2 (not (sparql-unbound-p input2)) (instans-parse-rdf-file instans-iri input2))))
+	;; (unless (instans-find-status instans 'instans-rdf-parsing-failed)
+	;;   (instans-compare-rdf instans result1 result2))
+	(instans-find-status instans 'instans-rdf-compare-files-similar))))
+
 
 ;; outer-arg-spec ((instans-iri rdf-iri) (triples iri-or-string) &optional (graph-iri rdf-iri) base &rest args)
 ;; outer-lambda (instans-iri triples &optional graph-iri base &rest args)

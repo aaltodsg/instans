@@ -9,15 +9,15 @@ PREFIX rdft:   <http://www.w3.org/ns/rdftest#>
 
 #SELECT ?queryfile ?test { # ?testtype ?parsed_ok ?translate_ok ?error_msg ?status WHERE {
 #CONSTRUCT ?queryfile ?testtype ?parsed_ok ?translated_ok ?error_msg ?status WHERE {
-SELECT ?parsed_ok ?testtype ?inputfile_short ?resultfile ?error_msg {
+SELECT ?similar ?parsed_ok ?testtype ?inputfile_short ?resultfile ?error_msg {
        ?test a ?testtype_long; mf:name ?name . 
        ?test mf:action ?inputfile .
        OPTIONAL { ?test mf:result ?resultfile . }
        ?x rdf:first ?test .
        BIND(strafter(str(?inputfile), "/TrigTests/") AS ?inputfile_short)
        BIND(strafter(str(?testtype_long),str(rdft:)) AS ?testtype)
-       BIND(instans:compare_rdf_files(?inputfile, ?inputfile, ?resultfile) AS ?status)
-       BIND((?status || (?testtype="TestTrigNegativeSyntax")) AS ?parsed)
+       BIND(instans:compare_rdf_files(?inputfile, ?inputfile, ?resultfile) AS ?similar)
+#       BIND((?status || (?testtype="TestTrigNegativeSyntax")) AS ?parsed)
        BIND(instans:error_message(?inputfile) AS ?error_msg)
        BIND(instans:has_status(?inputfile, "instans-rdf-parsing-succeeded") AS ?parsed_ok) 
        # BIND(instans:status(?instans) AS ?status) 
