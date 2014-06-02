@@ -580,10 +580,17 @@
 	do (chbuf-put-char buf (get-char lexer))
 	finally (return-input-token lexer terminal-type (string-upcase (canonize-string lexer buf)))))
 
+(defun get-char-if-looking-at-with-eof-error (lexer ch eof-fmt &rest args)
+  (cond ((null (peekch lexer))
+	 (apply #'lexer-error lexer eof-fmt args))
+	(t
+	 (and (char=* ch (peekch lexer)) (get-char lexer)))))
+
 (defun eat-string-literal (lexer quote-char short-banned-chars short-terminal long-terminal)
   (block inner
     (let ((buf (empty-chbuf)))
-      (flet ((handle-escape ()
+      (flet ((maybe-get-quote () (get-char-if-looking-at-with-eof-error lexer quote-char "Eof while scanning string literal"))
+	     (handle-escape ()
 	       (let ((ch (get-char lexer)))
 		 (cond ((not (peekch lexer))
 			(lexer-error lexer "Unexpected EOF"))
@@ -592,12 +599,12 @@
 		       ((or (get-char-if-looking-at lexer #\u) (get-char-if-looking-at lexer #\U))
 			(chbuf-put-char buf (get-uhex lexer)))
 		       (t (lexer-error lexer "Illegal escape char '~C'" (get-char lexer)))))))
-	(cond ((and long-terminal (get-char-if-looking-at lexer quote-char))
-	       (cond ((get-char-if-looking-at lexer quote-char)
+	(cond ((and long-terminal (maybe-get-quote))
+	       (cond ((maybe-get-quote)
 		      (loop for ch = (peekch lexer)
-			    do (cond ((get-char-if-looking-at lexer quote-char)
-				      (cond ((get-char-if-looking-at lexer quote-char)
-					     (cond ((get-char-if-looking-at lexer quote-char)
+			    do (cond ((maybe-get-quote)
+				      (cond ((maybe-get-quote)
+					     (cond ((maybe-get-quote)
 						    (return-from inner (return-input-token lexer long-terminal (canonize-string lexer buf))))
 						   (t (chbuf-put-chars buf quote-char quote-char))))
 					    (t (chbuf-put-char buf quote-char))))
@@ -607,7 +614,7 @@
 				      (chbuf-put-char buf (get-char lexer))))))
 		     (t (return-input-token lexer short-terminal (canonize-string lexer buf)))))
 	      (t
-	       (loop do (cond ((get-char-if-looking-at lexer quote-char)
+	       (loop do (cond ((maybe-get-quote)
 			       (return-input-token lexer short-terminal (canonize-string lexer buf)))
 			      (t
 			       (let ((ch (peekch lexer)))

@@ -1,4 +1,3 @@
-BASE <http://www.w3.org/2013/TrigTests/>
 PREFIX instans: <http://instans.org/extensions/instans#>
 PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
@@ -10,20 +9,18 @@ PREFIX rdft:   <http://www.w3.org/ns/rdftest#>
 
 #SELECT ?queryfile ?test { # ?testtype ?parsed_ok ?translate_ok ?error_msg ?status WHERE {
 #CONSTRUCT ?queryfile ?testtype ?parsed_ok ?translated_ok ?error_msg ?status WHERE {
-SELECT ?testtype ?inputfile_short ?resultfile {
+SELECT ?parsed_ok ?testtype ?inputfile_short ?resultfile ?error_msg {
        ?test a ?testtype_long; mf:name ?name . 
        ?test mf:action ?inputfile .
        OPTIONAL { ?test mf:result ?resultfile . }
        ?x rdf:first ?test .
-       BIND(str(<>) AS ?base)
-       BIND(strafter(str(?inputfile), ?base) AS ?inputfile_short)
+       BIND(strafter(str(?inputfile), "/TrigTests/") AS ?inputfile_short)
        BIND(strafter(str(?testtype_long),str(rdft:)) AS ?testtype)
        BIND(instans:compare_rdf_files(?inputfile, ?inputfile, ?resultfile) AS ?status)
-       # BIND(instans:add_rules(?instans, ?inputfile) AS ?add)
-       # BIND(instans:has_status(?instans, "instans-rule-parsing-succeeded") AS ?parsed_ok) 
-       # BIND(instans:has_status(?instans, "instans-rule-translation-succeeded") AS ?translated_ok) 
+       BIND((?status || (?testtype="TestTrigNegativeSyntax")) AS ?parsed)
+       BIND(instans:error_message(?inputfile) AS ?error_msg)
+       BIND(instans:has_status(?inputfile, "instans-rdf-parsing-succeeded") AS ?parsed_ok) 
        # BIND(instans:status(?instans) AS ?status) 
-       # BIND(instans:error_message(?instans) AS ?error_msg)
 }
 # SELECT ?testtype (COUNT(?test) AS ?count) {
 #        ?y instans:end true .
@@ -34,4 +31,3 @@ SELECT ?testtype ?inputfile_short ?resultfile {
 # } GROUP BY ?testtype
 # ;
 # SELECT ?x { ?x instans:end true }
-

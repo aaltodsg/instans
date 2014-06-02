@@ -531,7 +531,7 @@
 			(let ((input-token (get-input-token lexer)))
 			  (when (debugp subscribe :token) (inform "~%lexer yields ~S" input-token))
 			  (cond ((error-input-token-p input-token)
-				 (ll-parser-failure "Lexer error ~A" (input-token-value input-token)))
+				 (ll-parser-failure "Lexer error: ~A" (input-token-value input-token)))
 				((eof-input-token-p input-token)
 				 (setf (ll-parser-end-of-input-p parser) t)
 				 (make-input-token :type (grammar-symbol-value parser '$)))

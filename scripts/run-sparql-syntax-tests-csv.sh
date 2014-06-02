@@ -28,7 +28,7 @@ if test $# -eq 0 ; then
 	echo ${BIN}/instans -b "file://`dirname $MANIFEST`/" -r ${TESTS}/input/syntax-test.rq -t $MANIFEST
 	${BIN}/instans -b "file://`dirname $MANIFEST`/"  -r ${TESTS}/input/syntax-test.rq -t $MANIFEST > ${TMPOUT} 2>&1
 	cat ${TMPOUT} | egrep -v '(^[ \t]*;|^[ \t]*$|^queryfile,testtype,parsed_ok,translated_ok,error_msg,status$)' >> ${TEST_OUTPUT} 2>&1
-	rm ${TMPOUT}
+	rm -f ${TMPOUT}
     done
     echo "File \"$TEST_OUTPUT\" contains the test output."
     # pwd
