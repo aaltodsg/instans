@@ -172,7 +172,8 @@
 		    (instans-add-status instans 'instans-rdf-parsing-succeeded))
 		   (t
 		    (instans-add-status instans 'instans-rdf-parsing-failed (ll-parser-error-messages rdf-parser))
-		    (inform "~A:~A~%~%" input-iri (ll-parser-error-messages rdf-parser))))))
+		    ;(inform "~A:~A~%~%" input-iri (ll-parser-error-messages rdf-parser))
+		    ))))
       (when input-stream (close input-stream)))
     instans))
 

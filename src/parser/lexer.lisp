@@ -494,6 +494,10 @@
   (flet ((get-if-looking-at-hex-digit ()
 	   ;; (inform "get-if-looking-at-hex-digit ~S" (peekch lexer))
 	   (if (digit-char-p (peekch lexer) 16) (get-char lexer)))
+	 (hex-char-to-int (ch) (let ((code (char-code ch)))
+				 (if (<= (char-code #\0) code (char-code #\9))
+				     (- code (char-code #\0))
+				     (+ 10 (- code (char-code #\A))))))
 	 (code-to-char-safe (x)
 	   (handler-case (code-char x)
 	     (t (e) (declare (ignore e)) (lexer-error lexer "Cannot convert \\u escape sequence ~A" x)))))
@@ -502,18 +506,19 @@
 		  (setf ch2 (get-if-looking-at-hex-digit))
 		  (setf ch3 (get-if-looking-at-hex-digit))
 		  (setf ch4 (get-if-looking-at-hex-digit)))
-	     (let ((num1234 (+ (char-code ch4) (* 16 (+ (char-code ch3) (* 16 (+ (char-code ch2) (* 16 (char-code ch1))))))))
+	     (let ((num1234 (+ (hex-char-to-int ch4) (* 16 (+ (hex-char-to-int ch3) (* 16 (+ (hex-char-to-int ch2) (* 16 (hex-char-to-int ch1))))))))
 		   ch5 ch6)
+;	       (inform "got digits ~S~S~S~S -> ~D" ch1 ch2 ch3 ch4 num1234)
 	       (cond ((setf ch5 (get-if-looking-at-hex-digit))
 		      (cond ((setf ch6 (get-if-looking-at-hex-digit))
-			     (code-to-char-safe (+ (char-code ch6) (* 16 (+ (char-code ch5) (* 16 num1234))))))
+			     (code-to-char-safe (+ (hex-char-to-int ch6) (* 16 (+ (hex-char-to-int ch5) (* 16 num1234))))))
 			    (t
 			     (unget-char lexer ch5)
 			     (code-to-char-safe num1234))))
 		     (t
 		      (code-to-char-safe num1234)))))
 	    (t
-	     (lexer-error lexer "Malformed \\u escape sequence"))))))
+	     (lexer-error lexer "Malformed \\u escape sequence ~S~S~S~S" ch1 ch2 ch3 ch4))))))
 
 (defun slurp-local-esc (lexer buf)
   (cond ((and (peekch lexer) (char-in-set-p* (peekch lexer) "_~.-!$&'()*+,;=/?#@%"))
@@ -534,21 +539,25 @@
 		      (t
 		       (return-input-token lexer 'LANGTAG-TERMINAL (chbuf-string buf))))))
 
-(defun eat-iri-old (lexer) ; we saw '<'
-  (loop with buf = ;(if (trig-lexer-p lexer) 
-       (empty-chbuf)
-	for ch = (peekch lexer)
-	while (and ch (iri-char-p ch))
-	do (chbuf-put-char buf (get-char lexer))
-	finally (cond ((char=* ch #\>)
-		       (get-char lexer)
-		       (return-input-token lexer 'IRIREF-TERMINAL (lexer-expand-iri lexer (chbuf-string buf))))
-		      ((trig-lexer-p lexer)
-		       (lexer-error lexer "Malformed IRI"))
-		      (t ; we assume, that the original '<' was actually the operator less-than.
-		       (loop for i from (1- (chbuf-index buf)) downto 0
-			     do (unget-char lexer (elt (chbuf-contents buf) i)))
-		       (return-input-token lexer '<-TERMINAL "<")))))
+;; (defun eat-at-new (lexer)
+;;   ;;; Saw @
+;;   (let ((ch (peekch lexer)))
+;;     (cond ((null ch)
+;; 	   (lexer-error lexer "Unexpected EOF"))
+;; 	  ((alpha-char-p 
+;;   (loop with buf = (empty-chbuf #\@)
+;; 	for ch = (peekch lexer)
+;; 	while (alpha-char-p ch)
+;; 	do (chbuf-put-char buf (get-char lexer))
+;; 	finally (cond ((trig-lexer-p lexer)
+;; 		       (let ((binding (resolve-keyword lexer buf)))
+;; 			 (cond ((null binding)
+;; 				(return-input-token lexer 'LANGTAG-TERMINAL (canonize-string lexer buf)))
+;; 			       (t
+;; 				(return-input-token lexer (cdr binding) (car binding))))))
+;; 		      (t
+;; 		       (return-input-token lexer 'LANGTAG-TERMINAL (chbuf-string buf))))))
+
 
 (defun eat-iri (lexer) ; we saw '<'
   (loop with buf = ;(if (trig-lexer-p lexer) 
@@ -566,7 +575,7 @@
 	finally (cond ((char=* ch #\>)
 		       (get-char lexer)
 		       (return-input-token lexer 'IRIREF-TERMINAL (lexer-expand-iri lexer (chbuf-string buf))))
-		      ((trig-lexer-p lexer)
+		      ((not (sparql-lexer-p lexer))
 		       (lexer-error lexer "Malformed IRI"))
 		      (t ; we assume, that the original '<' was actually the operator less-than.
 		       (loop for i from (1- (chbuf-index buf)) downto 0

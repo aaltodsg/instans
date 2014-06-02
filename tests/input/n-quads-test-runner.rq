@@ -1,0 +1,41 @@
+PREFIX instans: <http://instans.org/extensions/instans#>
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX mf:     <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#>
+PREFIX qt:     <http://www.w3.org/2001/sw/DataAccess/tests/test-query#>
+PREFIX ut:     <http://www.w3.org/2009/sparql/tests/test-update#>
+PREFIX dawgt:  <http://www.w3.org/2001/sw/DataAccess/tests/test-dawg#>
+PREFIX rdft:   <http://www.w3.org/ns/rdftest#>
+
+#SELECT ?queryfile ?test { # ?testtype ?parsed_ok ?translate_ok ?error_msg ?status WHERE {
+#CONSTRUCT ?queryfile ?testtype ?parsed_ok ?translated_ok ?error_msg ?status WHERE {
+SELECT ?passed ?is_positive_syntax_test ?parsed_ok ?testtype ?inputfile_short ?error_msg {
+       ?test a ?testtype_long; mf:name ?name . 
+       ?test mf:action ?inputfile .
+       ?x rdf:first ?test .
+       BIND(strafter(str(?inputfile), "Tests/") AS ?inputfile_short)
+       BIND(strafter(str(?testtype_long),str(rdft:)) AS ?testtype)
+       BIND(strends(?testtype, "PositiveSyntax") AS ?is_positive_syntax_test)
+       BIND(instans:parse_rdf_file(?inputfile, ?inputfile) AS ?ignore)
+       BIND(instans:has_status(?inputfile, "instans-rdf-parsing-succeeded") AS ?parsed_ok) 
+       BIND((?is_positive_syntax_test = ?parsed_ok) AS ?passed)
+       BIND(instans:error_message(?inputfile) AS ?error_msg)
+       FILTER(!?passed)
+}
+# SELECT ?testtype (COUNT(?test) AS ?count) {
+#        ?y instans:end true .
+#        ?test a ?testtype_long; mf:name ?name . 
+#        ?test mf:action ?inputfile .
+#        ?x rdf:first ?test .
+#        BIND(strafter(str(?testtype_long),str(rdft:)) AS ?testtype)
+# } GROUP BY ?testtype
+# ;
+# SELECT ?x { ?x instans:end true }
+# SELECT ?is_positive_syntax_test ?testtype ?inputfile_short {
+#        ?test a ?testtype_long; mf:name ?name . 
+#        ?test mf:action ?inputfile .
+#        ?x rdf:first ?test .
+#        BIND(strafter(str(?inputfile), "Tests/") AS ?inputfile_short)
+#        BIND(strafter(str(?testtype_long),str(rdft:)) AS ?testtype)
+#        BIND(strends(?testtype, "PositiveSyntax") AS ?is_positive_syntax_test)
+# }

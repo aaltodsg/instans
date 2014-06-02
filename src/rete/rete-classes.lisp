@@ -326,4 +326,3 @@
 (define-class instans-rdf-parsing-succeeded (instans-status) ())
 (define-class instans-rdf-compare-files-similar (instans-status) ())
 (define-class instans-rdf-compare-files-not-similar (instans-status) ())
-

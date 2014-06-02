@@ -10,13 +10,13 @@
   (let* ((lexer (make-instance 'n-statements-lexer :input-stream input-stream :instans instans))
 	 (document-statements (list nil))
 	 (document-statements-last document-statements))
-    (flet ((emit (s p o &optional (g nil g-present-p))
+    (flet ((emit (s p o &optional g)
 ;	     (inform "emit ~S ~S ~S ~S" s p o g)
 	     (incf *triple-count*)
 	     (let ((new (case input-type
 			  (:n-triples
-			   (when g-present-p 
-			     (ll-parser-failure "~A parser does not allow any quad ~A ~A ~A ~A" s p o g))
+			   (when g
+			     (ll-parser-failure "~A parser does not allow any quad ~S ~S ~S ~S" input-type s p o g))
 			   (list s p o))
 			  (:n-quads (list s p o g)))))
 	       (when document-callback
