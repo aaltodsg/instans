@@ -5,8 +5,13 @@
 
 (in-package #:instans)
 
-(defun make-n-statements-parser (instans input-stream &key input-type triple-callback document-callback subscribe)
+(defun make-n-statements-parser (instans input-stream &key base graph input-type triple-callback block-callback document-callback subscribe)
   (assert* (member input-type '(:n-triples :n-quads)) "Unknown type ~A" input-type)
+  (when base (warn "make-n-statements-parser: Ignoring base"))
+  (when (and graph (eq input-type :nquads)) (warn "make-n-statements-parser: Ignoring graph with N-Quads"))
+  (when block-callback
+    (setf triple-callback #'(lambda (&rest args) (funcall block-callback (list args))))
+    (setf block-callback nil))
   (let* ((lexer (make-instance 'n-statements-lexer :input-stream input-stream :instans instans))
 	 (document-statements (list nil))
 	 (document-statements-last document-statements))
@@ -17,7 +22,7 @@
 			  (:n-triples
 			   (when g
 			     (ll-parser-failure "~A parser does not allow any quad ~S ~S ~S ~S" input-type s p o g))
-			   (list s p o))
+			   (list s p o graph))
 			  (:n-quads (list s p o g)))))
 	       (when document-callback
 		 (setf (cdr document-statements-last) (list new))
@@ -46,10 +51,10 @@
 	 (parser (apply #'generate-ll1-grammar 'testaus 'll-parser rules :warn-about-transformations-p t keys)))
     parser))
 
-(defun make-n-triples-parser (instans input-stream &rest keys &key triple-callback document-callback subscribe)
-  (declare (ignorable triple-callback document-callback subscribe))
+(defun make-n-triples-parser (instans input-stream &rest keys &key base graph input-type triple-callback block-callback document-callback subscribe)
+  (declare (ignorable  base graph input-type triple-callback block-callback document-callback subscribe))
   (apply #'make-n-statements-parser instans input-stream :input-type :n-triples keys))
 
-(defun make-n-quads-parser (instans input-stream &rest keys &key triple-callback document-callback subscribe)
-  (declare (ignorable triple-callback document-callback subscribe))
+(defun make-n-quads-parser (instans input-stream &rest keys &key base graph input-type triple-callback block-callback document-callback subscribe)
+  (declare (ignorable  base graph input-type triple-callback block-callback document-callback subscribe))
   (apply #'make-n-statements-parser instans input-stream :input-type :n-quads keys))

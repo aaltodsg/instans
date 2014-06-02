@@ -5,17 +5,16 @@
 
 (in-package #:instans)
 
-(defun make-rdf-parser (instans input-stream file-type &key subscribe base triple-callback block-callback document-callback)
+(defun make-rdf-parser (instans input-stream file-type &key subscribe base graph triple-callback block-callback document-callback)
   (let* ((kind (intern (string-upcase file-type) :keyword))
 	 (make-parser (cond ((member kind '(:ttl :turtle)) #'make-turtle-parser)
 			    ((eq kind ':trig) #'make-trig-parser)
 			    ((member kind '(:nt :ntriples :n-triples)) #'make-n-triples-parser)
 			    ((member kind '(:nq :nquads :n-quads)) #'make-n-quads-parser)
 			    (t (error* "Cannot parse files of type ~S" kind)))))
-    (when (and (or block-callback base) (not (member kind '(:trig :ttl :turtle))))
-      (error* "You cannot use block-callback with ~A input" kind))
     (apply make-parser instans input-stream
 	   (append (if base (list :base base))
+		   (if graph (list :graph graph))
 		   (if subscribe (list :subscribe subscribe))
 		   (if triple-callback (list :triple-callback triple-callback))
 		   (if block-callback (list :block-callback block-callback))

@@ -72,5 +72,3 @@
 		       dir (subseq sh-string (+ (search "instans " sh-string) 8)))))
     (inform "Running issue test ~D with args ~A" n args)
     (main-test args)))
-
-    

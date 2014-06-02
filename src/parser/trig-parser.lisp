@@ -21,7 +21,8 @@
 
 (defmacro define-trig-or-turtle-parser (creator-function input-type)
   (unless (member input-type '(:trig :turtle)) (error* "Unknown triple input type ~S" input-type))
-  `(defun ,creator-function (instans input-stream &key base subscribe triple-callback block-callback document-callback)
+  `(defun ,creator-function (instans input-stream &key base graph subscribe triple-callback block-callback document-callback)
+     ,@(if (eq input-type :trig) `((when graph (warn "Ignoring graph with Trig input"))) `((declare (ignorable graph))))
      (when (null base) (setf base (parse-iri "http://")))
      (let* ((lexer (make-instance ',(case input-type (:trig 'trig-lexer) (:turtle 'turtle-lexer))
 				  :input-stream input-stream :instans instans :base base :show-parses-p subscribe))

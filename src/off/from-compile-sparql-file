@@ -130,3 +130,25 @@
 ;;     (setf (query-input-processor-parser processor)
 ;; 	    (make-turtle-parser :triples-callback #'(lambda (triples) (process-triples processor triples) (ll-parser-yields nil))))
 ;;     (add-query-input-processor instans processor))))
+
+(defun instans-add-triples-old (instans-iri input &key graph base)
+  (let* ((instans (get-instans instans-iri))
+	 (string (stream-contents-to-string (create-input-stream input))))
+    (instans-debug-message instans '(:parse-rdf :execute) "instans-add-triples ~S ~S :graph ~S :base ~S" instans-iri input graph base)
+    (with-input-from-string (triples-stream string)
+      (let ((triples-parser (make-turtle-parser instans triples-stream
+						:base base
+						:block-callback #'(lambda (triples)
+								    (instans-debug-message instans :execute "~%Event callback: ~D triples~%~{ ~S~%~}"
+											   (length triples) triples)
+								    (process-query-input instans triples :ops '(:add :execute) :graph (if (and graph (rdf-iri-equal graph *rdf-nil*)) nil graph))))))
+	(instans-debug-message instans '(:execute :parse-rdf) "~%Processing triples:~%")
+	;; Is this OK?;	(initialize-execution instans)
+	(parse triples-parser)
+	(cond ((ll-parser-succeeded-p triples-parser)
+	       (instans-add-status instans 'instans-rdf-parsing-succeeded))
+	      (t
+	       (instans-add-status instans 'instans-rdf-parsing-failed (ll-parser-error-messages triples-parser))
+	       (inform "~A:~A" input (ll-parser-error-messages triples-parser))))
+	(report-execution-status instans)))
+    instans))

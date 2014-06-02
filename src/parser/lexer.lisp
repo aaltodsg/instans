@@ -5,7 +5,7 @@
 
 (in-package #:instans)
 
-(define-class abstract-sparql-triple-lexer (abstract-lexer)
+(define-class abstract-sparql-rdf-lexer (abstract-lexer)
   ((buffered-input-token :accessor lexer-buffered-input-token :initform nil)
    (base :accessor lexer-base :initarg :base :initform (parse-iri "http://"))
    (prefix-table :accessor lexer-prefix-table :initarg :prefix-table :initform (make-binding-table))
@@ -13,16 +13,27 @@
    (keyword-table :accessor lexer-keyword-table :initarg :keyword-table :initform nil)
    (instans :accessor lexer-instans :initarg :instans)))
 
-(defgeneric make-keyword-table (abstract-sparql-triple-lexer))
+(define-class n-statements-lexer (abstract-sparql-rdf-lexer) ())
 
-(defmethod initialize-instance :after ((this abstract-sparql-triple-lexer) &key &allow-other-keys)
+(define-class sparql-lexer (abstract-sparql-rdf-lexer) ())
+
+(define-class trig-lexer (abstract-sparql-rdf-lexer) ())
+
+(define-class turtle-lexer (trig-lexer) ())
+
+(defgeneric make-keyword-table (abstract-sparql-rdf-lexer))
+
+(defmethod initialize-instance :after ((this abstract-sparql-rdf-lexer) &key &allow-other-keys)
   (setf (lexer-keyword-table this) (make-keyword-table this))
   (bind-prefix this "xsd" (parse-iri "http://www.w3.org/2001/XMLSchema#"))
   (when (lexer-base this)
     (set-lexer-base this (lexer-base this))))
 
+(defmethod initialize-instance :after ((this n-statements-lexer) &key &allow-other-keys)
+  (setf (lexer-base this) nil))
+
 (defgeneric set-lexer-base (lexer iri)
-  (:method ((this abstract-sparql-triple-lexer) iri)
+  (:method ((this abstract-sparql-rdf-lexer) iri)
     (when (null (rdf-iri-scheme iri))
       (warn "Base does not define a scheme: ~A" iri)
       (describe iri)
@@ -32,7 +43,12 @@
     (setf (lexer-base this) iri)))
 
 (defgeneric lexer-expand-iri (lexer iri-string)
-  (:method ((this abstract-sparql-triple-lexer) iri-string)
+  (:method ((this n-statements-lexer) iri-string)
+    (let ((iri (parse-iri iri-string)))
+      (cond ((rdf-iri-scheme iri) iri)
+	    (t
+	     (lexer-error this "Relative IRIs not allowed in N-Triples and N-Quads")))))
+  (:method ((this abstract-sparql-rdf-lexer) iri-string)
     (multiple-value-bind (expanded error-msg)
 	(expand-iri (lexer-base this) iri-string)
       (cond ((null error-msg) expanded)
@@ -74,11 +90,11 @@
 		    (recompose-iri iri))))))))
 
 (defgeneric resolve-prefix (lexer buf &optional start end)
-  (:method ((this abstract-sparql-triple-lexer) buf &optional (start 0) (end (chbuf-index buf)))
+  (:method ((this abstract-sparql-rdf-lexer) buf &optional (start 0) (end (chbuf-index buf)))
     (find-binding (lexer-prefix-table this) (chbuf-contents buf) :start start :end end :case-sensitive-p t :updatep t)))
 
 (defgeneric pname-to-iri (lexer prefix-binding &optional suffix-string)
-  (:method ((this abstract-sparql-triple-lexer) prefix-binding &optional suffix-string)
+  (:method ((this abstract-sparql-rdf-lexer) prefix-binding &optional suffix-string)
     (lexer-expand-iri this (cond ((null (cdr prefix-binding))
 ;			    (error* "Unbound prefix binding ~A" (car prefix-binding)))
 ;			    (lexer-error this "Unbound prefix binding ~A" (car prefix-binding)))
@@ -89,30 +105,22 @@
 			    (concatenate 'string (rdf-iri-string (second prefix-binding)) suffix-string))))))
 
 (defgeneric rebind-prefix (lexer binding expansion)
-  (:method ((this abstract-sparql-triple-lexer) binding expansion)
+  (:method ((this abstract-sparql-rdf-lexer) binding expansion)
     (declare (ignorable this))
     (setf (cdr binding) (list expansion))))
 
 (defgeneric bind-prefix (lexer prefix expansion)
-  (:method ((this abstract-sparql-triple-lexer) prefix expansion)
+  (:method ((this abstract-sparql-rdf-lexer) prefix expansion)
     (let ((binding (find-binding (lexer-prefix-table this) prefix :updatep t)))
       (rebind-prefix this binding expansion))))
 
 (defgeneric canonize-string (lexer buf &optional start end)
-  (:method ((this abstract-sparql-triple-lexer) buf &optional (start 0) (end (chbuf-index buf)))
+  (:method ((this abstract-sparql-rdf-lexer) buf &optional (start 0) (end (chbuf-index buf)))
     (first (find-binding (lexer-string-table this) (chbuf-contents buf) :start start :end end :case-sensitive-p t :updatep t))))
 
 (defgeneric resolve-keyword (lexer buf &optional start end)
-  (:method ((this abstract-sparql-triple-lexer) buf &optional (start 0) (end (chbuf-index buf)))
+  (:method ((this abstract-sparql-rdf-lexer) buf &optional (start 0) (end (chbuf-index buf)))
     (find-binding (lexer-keyword-table this) (chbuf-contents buf) :start start :end end :case-sensitive-p nil :updatep nil :case-sensitive-p nil)))
-
-(define-class n-statements-lexer (abstract-sparql-triple-lexer) ())
-
-(define-class sparql-lexer (abstract-sparql-triple-lexer) ())
-
-(define-class trig-lexer (abstract-sparql-triple-lexer) ())
-
-(define-class turtle-lexer (trig-lexer) ())
 
 (defmethod make-keyword-table ((this sparql-lexer))
   (declare (ignorable this))

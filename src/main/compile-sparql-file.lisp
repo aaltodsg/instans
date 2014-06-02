@@ -177,26 +177,36 @@
       (when input-stream (close input-stream)))
     instans))
 
-(defun instans-add-triples (instans-iri input &key graph base)
+(defun instans-add-triples (instans-iri input-iri &key graph base)
   (let* ((instans (get-instans instans-iri))
-	 (string (stream-contents-to-string (create-input-stream input))))
-    (instans-debug-message instans '(:parse-rdf :execute) "instans-add-triples ~S ~S :graph ~S :base ~S" instans-iri input graph base)
-    (with-input-from-string (triples-stream string)
-      (let ((triples-parser (make-turtle-parser instans triples-stream
-						:base base
-						:block-callback #'(lambda (triples)
-								    (instans-debug-message instans :execute "~%Event callback: ~D triples~%~{ ~S~%~}"
-											   (length triples) triples)
-								    (process-query-input instans triples :ops '(:add :execute) :graph (if (and graph (rdf-iri-equal graph *rdf-nil*)) nil graph))))))
-	(instans-debug-message instans '(:execute :parse-rdf) "~%Processing triples:~%")
-	;; Is this OK?;	(initialize-execution instans)
-	(parse triples-parser)
-	(cond ((ll-parser-succeeded-p triples-parser)
-	       (instans-add-status instans 'instans-rdf-parsing-succeeded))
-	      (t
-	       (instans-add-status instans 'instans-rdf-parsing-failed (ll-parser-error-messages triples-parser))
-	       (inform "~A:~A" input (ll-parser-error-messages triples-parser))))
-	(report-execution-status instans)))
+	 input-stream file-type error-msg)
+    (instans-debug-message instans '(:parse-rdf :execute) "instans-add-triples ~S ~S :graph ~S :base ~S" instans-iri input-iri graph base)
+    (unwind-protect
+	 (progn
+	   (multiple-value-setq (input-stream file-type error-msg) (create-input-stream input-iri))
+	   (unless input-stream (error* error-msg))
+	   (flet ((handle-triples (triples)
+		    (instans-debug-message instans :execute "~%Event callback: ~D triples~%~{ ~S~%~}"
+					   (length triples) triples)
+		    (process-query-input instans triples :ops '(:add :execute)
+					 :graph (if (and graph (rdf-iri-equal graph *rdf-nil*)) nil graph))))
+	     (let* ((kind (intern (string-upcase file-type) :keyword))
+		    (rdf-parser (apply #'make-rdf-parser instans input-stream file-type
+				       :base base
+				       :graph graph
+				       (if (member kind '(:trig :turtle))
+					 (list :block-callback #'handle-triples)
+					 (list :triple-callback #'(lambda (&rest triple) (handle-triples (list triple))))))))
+	       (instans-debug-message instans '(:execute :parse-rdf) "~%Processing triples:~%")
+	       (parse rdf-parser)
+	       (parse rdf-parser)
+	       (cond ((ll-parser-succeeded-p rdf-parser)
+		      (instans-add-status instans 'instans-rdf-parsing-succeeded))
+		     (t
+		      (instans-add-status instans 'instans-rdf-parsing-failed (ll-parser-error-messages rdf-parser))
+		      (inform "~A:~A~%~%" input-iri (ll-parser-error-messages rdf-parser))
+		      )))))
+      (when input-stream (close input-stream)))
     instans))
 
 (defvar *instans-execute-system-previous-rules* nil)
