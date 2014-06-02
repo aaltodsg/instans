@@ -525,26 +525,7 @@
 	 (chbuf-put-char buf (get-char lexer)))
 	(t (lexer-error lexer "Unexpected escape char '~C'" (get-char lexer)))))
 
-(defun eat-at (lexer)
-  (loop with buf = (empty-chbuf #\@)
-	for ch = (peekch lexer)
-	while (alpha-char-p ch)
-	do (chbuf-put-char buf (get-char lexer))
-	finally (cond ((trig-lexer-p lexer)
-		       (let ((binding (resolve-keyword lexer buf)))
-			 (cond ((null binding)
-				(return-input-token lexer 'LANGTAG-TERMINAL (canonize-string lexer buf)))
-			       (t
-				(return-input-token lexer (cdr binding) (car binding))))))
-		      (t
-		       (return-input-token lexer 'LANGTAG-TERMINAL (chbuf-string buf))))))
-
-;; (defun eat-at-new (lexer)
-;;   ;;; Saw @
-;;   (let ((ch (peekch lexer)))
-;;     (cond ((null ch)
-;; 	   (lexer-error lexer "Unexpected EOF"))
-;; 	  ((alpha-char-p 
+;; (defun eat-at (lexer)
 ;;   (loop with buf = (empty-chbuf #\@)
 ;; 	for ch = (peekch lexer)
 ;; 	while (alpha-char-p ch)
@@ -558,6 +539,26 @@
 ;; 		      (t
 ;; 		       (return-input-token lexer 'LANGTAG-TERMINAL (chbuf-string buf))))))
 
+(defun eat-at (lexer)
+  ;;; Saw @
+  (let ((first-ch (peekch lexer)))
+    (cond ((null first-ch)
+	   (lexer-error lexer "Unexpected EOF"))
+	  ((not (alpha-char-p first-ch))
+	   (lexer-error lexer "Unexpected char ~S in langtag" first-ch))
+	  (t
+	   (loop with buf = (empty-chbuf #\@ (get-char lexer))
+		 for ch = (peekch lexer)
+		 while (and ch (or (alphanumericp ch) (char= ch #\-)))
+		 do (chbuf-put-char buf (get-char lexer))
+		 finally (cond ((trig-lexer-p lexer)
+				(let ((binding (resolve-keyword lexer buf)))
+				  (cond ((null binding)
+					 (return-input-token lexer 'LANGTAG-TERMINAL (canonize-string lexer buf)))
+					(t
+					 (return-input-token lexer (cdr binding) (car binding))))))
+			       (t
+				(return-input-token lexer 'LANGTAG-TERMINAL (chbuf-string buf)))))))))
 
 (defun eat-iri (lexer) ; we saw '<'
   (loop with buf = ;(if (trig-lexer-p lexer) 
