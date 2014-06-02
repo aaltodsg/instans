@@ -380,7 +380,9 @@
   (:method ((this csv-query-output-processor))
     (close-csv-output-stream (csv-query-output-processor-output-stream this)))
   (:method ((this solution-set-query-output-processor))
-    (pop (solution-set-query-output-processor-bindings this))))
+    (if (slot-boundp this 'bindings)
+	(pop (solution-set-query-output-processor-bindings this))
+	niL)))
 
 (defgeneric aggregate-get-value (aggregate)
   (:method ((this aggregate-count)) (aggregate-count this))

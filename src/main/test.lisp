@@ -24,6 +24,22 @@
 	       (values nil nil)))
 	  (t nil))))
 
+(defun manifest-tests-pretty (kind &optional query)
+  (let ((root (namestring (find-instans-root-directory))))
+    (multiple-value-bind (manifest default-query)
+	(case kind
+	  ((:ttl :turtle)
+	   (values (format nil "~A/tests/RDF/TurtleTests/manifest.ttl" root) (format nil "~A/tests/input/trig-test-runner.rq" root)))
+	  (:trig
+	   (values (format nil "~A/tests/RDF/TrigTests/manifest.ttl" root) (format nil "~A/tests/input/trig-test-runner.rq" root)))
+	  ((:nt :ntriples)
+	   (values (format nil "~A/tests/RDF/N-TriplesTests/manifest.ttl" root) (format nil "~A/tests/input/n-quads-test-runner.rq" root)))
+	  ((:nq :nquads)
+	   (values (format nil "~A/tests/RDF/N-QuadsTests/manifest.ttl" root) (format nil "~A/tests/input/n-quads-test-runner.rq" root))))
+      (multiple-value-bind (variables bindings)
+	  (manifest-tests manifest (or query default-query))
+	(inform "~{~A~^,~}:" variables) (loop for x in bindings do (inform "~{~A~^,~}" x))))))
+
 (defvar *r2-dirs*)
 (defvar *sparql11-dirs*)
 (defvar *all-dirs*)

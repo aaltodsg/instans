@@ -95,14 +95,12 @@
 
 (defgeneric pname-to-iri (lexer prefix-binding &optional suffix-string)
   (:method ((this abstract-sparql-rdf-lexer) prefix-binding &optional suffix-string)
-    (lexer-expand-iri this (cond ((null (cdr prefix-binding))
-;			    (error* "Unbound prefix binding ~A" (car prefix-binding)))
-;			    (lexer-error this "Unbound prefix binding ~A" (car prefix-binding)))
-			    nil)
-			   ((null suffix-string)
-			    (cdr prefix-binding))
-			   (t
-			    (concatenate 'string (rdf-iri-string (second prefix-binding)) suffix-string))))))
+    (cond ((null (cdr prefix-binding)) nil)
+	  (t 
+	   (lexer-expand-iri this (cond ((null suffix-string)
+					 (cdr prefix-binding))
+					(t
+					 (concatenate 'string (rdf-iri-string (second prefix-binding)) suffix-string))))))))
 
 (defgeneric rebind-prefix (lexer binding expansion)
   (:method ((this abstract-sparql-rdf-lexer) binding expansion)
@@ -396,11 +394,13 @@
 	finally (cond ((char=* ch #\.)
 		       (chbuf-put-char buf (get-char lexer))
 		       (eat-fraction lexer buf))
+		      ((char-in-set-p* ch "eE")
+		       (eat-exponent lexer buf))
 		      (t (return-input-token lexer (cond ((trig-lexer-p lexer) 'INTEGER-TERMINAL)
 							 ((char= #\+ (elt (chbuf-contents buf) 0)) 'INTEGER_POSITIVE-TERMINAL)
 							 ((char= #\- (elt (chbuf-contents buf) 0)) 'INTEGER_NEGATIVE-TERMINAL)
 							 (t 'INTEGER-TERMINAL))
-					     (instans::parse-xsd-integer (chbuf-contents buf) :start 0 :end (chbuf-index buf)))))))
+					     (parse-xsd-integer (chbuf-contents buf) :start 0 :end (chbuf-index buf)))))))
 
 (defun eat-fraction (lexer buf) ; There may be a sign and integral part. Last of buf is #\., which we have already consumed. We are looking at a digit.
   (loop for ch = (peekch lexer)
@@ -412,7 +412,7 @@
 							 ((char= #\+ (elt (chbuf-contents buf) 0)) 'DECIMAL_POSITIVE-TERMINAL)
 							 ((char= #\- (elt (chbuf-contents buf) 0)) 'DECIMAL_NEGATIVE-TERMINAL)
 							 (t 'DECIMAL-TERMINAL))
-					     (instans::parse-xsd-decimal (chbuf-contents buf) :start 0 :end (chbuf-index buf)))))))
+					     (parse-xsd-decimal (chbuf-contents buf) :start 0 :end (chbuf-index buf)))))))
 
 (defun eat-exponent (lexer buf) ;; (peekch lexer) in "eE"
   (chbuf-put-char buf (get-char lexer))
@@ -427,7 +427,7 @@
 						((char= #\+ (elt (chbuf-contents buf) 0)) 'DOUBLE_POSITIVE-TERMINAL)
 						((char= #\- (elt (chbuf-contents buf) 0)) 'DOUBLE_NEGATIVE-TERMINAL)
 						(t 'DOUBLE-TERMINAL))
-				    (instans::parse-xsd-double (chbuf-contents buf) :start 0 :end (chbuf-index buf)))))
+				    (parse-xsd-double (chbuf-contents buf) :start 0 :end (chbuf-index buf)))))
 
 (defun eat-blank-node-label (lexer) ; We saw _, must see : and PN_CHARS_U
   (unless (get-char-if-looking-at lexer #\:) 
@@ -514,20 +514,6 @@
   (cond ((and (peekch lexer) (char-in-set-p* (peekch lexer) "_~.-!$&'()*+,;=/?#@%"))
 	 (chbuf-put-char buf (get-char lexer)))
 	(t (lexer-error lexer "Unexpected escape char '~C'" (get-char lexer)))))
-
-;; (defun eat-at (lexer)
-;;   (loop with buf = (empty-chbuf #\@)
-;; 	for ch = (peekch lexer)
-;; 	while (alpha-char-p ch)
-;; 	do (chbuf-put-char buf (get-char lexer))
-;; 	finally (cond ((trig-lexer-p lexer)
-;; 		       (let ((binding (resolve-keyword lexer buf)))
-;; 			 (cond ((null binding)
-;; 				(return-input-token lexer 'LANGTAG-TERMINAL (canonize-string lexer buf)))
-;; 			       (t
-;; 				(return-input-token lexer (cdr binding) (car binding))))))
-;; 		      (t
-;; 		       (return-input-token lexer 'LANGTAG-TERMINAL (chbuf-string buf))))))
 
 (defun eat-at (lexer)
   ;;; Saw @

@@ -177,6 +177,9 @@
       (when input-stream (close input-stream)))
     instans))
 
+;; (defun instans-compare-rdf (instans-iri input-iri)
+;; nil)
+
 (defun instans-add-triples (instans-iri input-iri &key graph base)
   (let* ((instans (get-instans instans-iri))
 	 input-stream file-type error-msg)

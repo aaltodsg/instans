@@ -9,16 +9,16 @@ PREFIX rdft:   <http://www.w3.org/ns/rdftest#>
 
 #SELECT ?queryfile ?test { # ?testtype ?parsed_ok ?translate_ok ?error_msg ?status WHERE {
 #CONSTRUCT ?queryfile ?testtype ?parsed_ok ?translated_ok ?error_msg ?status WHERE {
-SELECT ?passed ?is_positive_syntax_test ?parsed_ok ?testtype ?inputfile_short ?error_msg {
+SELECT ?passed ?parsed_ok ?is_negative_syntax_test ?testtype ?inputfile ?error_msg {
        ?test a ?testtype_long; mf:name ?name . 
        ?test mf:action ?inputfile .
        ?x rdf:first ?test .
        BIND(strafter(str(?inputfile), "Tests/") AS ?inputfile_short)
        BIND(strafter(str(?testtype_long),str(rdft:)) AS ?testtype)
-       BIND(strends(?testtype, "PositiveSyntax") AS ?is_positive_syntax_test)
+       BIND((strends(?testtype, "NegativeSyntax") || strends(?testtype, "NegativeEval")) AS ?is_negative_syntax_test)
        BIND(instans:parse_rdf_file(?inputfile, ?inputfile) AS ?ignore)
        BIND(instans:has_status(?inputfile, "instans-rdf-parsing-succeeded") AS ?parsed_ok) 
-       BIND((?is_positive_syntax_test = ?parsed_ok) AS ?passed)
+       BIND((?is_negative_syntax_test != ?parsed_ok) AS ?passed)
        BIND(instans:error_message(?inputfile) AS ?error_msg)
        FILTER(!?passed)
 }
