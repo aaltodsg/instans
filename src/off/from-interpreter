@@ -1,3 +1,15 @@
+(defgeneric add-quads (instans quads)
+  (:method ((this instans) quads)
+    (loop for (s p o g) in quads do (rete-add this s p o g))))
+
+(defgeneric remove-quads (instans quads)
+  (:method ((this instans) quads)
+    (loop for (s p o g) in quads do (rete-remove this s p o g))))
+
+(defgeneric add-quads-from-file (instans quads-file)
+  (:method ((this instans) quads-file)
+    (assert "Not implemented yet")))
+
 (defgeneric execute-rules (instans)
   (:method ((this instans))
     (let* ((policy (instans-execution-policy this))

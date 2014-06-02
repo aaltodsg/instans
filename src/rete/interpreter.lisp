@@ -14,6 +14,7 @@
     (let ((quad-store (instans-quad-store this)))
       (when quad-store (add-quad quad-store (list subj pred obj graph))))
     (incf (instans-add-quad-count this))
+    ;;; Note: graph will be first in args!
     (loop for (alpha . args) in (match-quad (instans-triple-pattern-matcher this) subj pred obj graph)
 	  do (add-token alpha args))))
 
@@ -22,20 +23,9 @@
     (let ((quad-store (instans-quad-store this)))
       (when quad-store (remove-quad quad-store (list subj pred obj graph))))
     (incf (instans-remove-quad-count this))
+    ;;; Note: graph will be first in args!
     (loop for (alpha . args) in (match-quad (instans-triple-pattern-matcher this) subj pred obj graph)
 	  do (remove-token alpha args))))
-
-(defgeneric add-quads (instans quads)
-  (:method ((this instans) quads)
-    (loop for (s p o g) in quads do (rete-add this s p o g))))
-
-(defgeneric remove-quads (instans quads)
-  (:method ((this instans) quads)
-    (loop for (s p o g) in quads do (rete-remove this s p o g))))
-
-(defgeneric add-quads-from-file (instans quads-file)
-  (:method ((this instans) quads-file)
-    (assert "Not implemented yet")))
 
 ;;; ---------------
 ;;; Rule add/remove
@@ -298,12 +288,12 @@
     (when (instans-query-output-processor this)
       (close-query-output-processor (instans-query-output-processor this)))))
 
-(defgeneric process-triples (query-input-processor triples)
-  (:method ((this query-input-processor) triples)
-    (process-query-input (query-input-processor-instans this) triples :graph (query-input-processor-graph this) :ops (query-input-processor-operations this))))
+;; (defgeneric process-triples (query-input-processor triples)
+;;   (:method ((this query-input-processor) triples)
+;;     (process-query-input (query-input-processor-instans this) triples :graph (query-input-processor-graph this) :ops (query-input-processor-operations this))))
 
-(defgeneric process-query-input (instans triples &key graph ops)
-  (:method ((this instans) triples &key graph ops)
+(defgeneric process-query-input (instans inputs &key graph ops)
+  (:method ((this instans) inputs &key graph ops)
     (setf ops (or ops (instans-query-processing-operations this)))
     (when (symbolp ops)
       (setf ops (list ops)))
@@ -312,11 +302,11 @@
       (loop for op in ops 
 	 do (case op
 	      (:add
-	       (loop for (subj pred obj) in triples
-		  do (rete-add this subj pred obj graph)))
+	       (loop for (subj pred obj . rest) in inputs
+		     do (rete-add this subj pred obj (if rest (first rest) graph))))
 	      (:remove
-	       (loop for (subj pred obj) in triples 
-		  do (rete-remove this subj pred obj graph)))
+	       (loop for (subj pred obj . rest) in inputs
+		     do (rete-remove this subj pred obj (if rest (first rest) graph))))
 	      (:execute
 	       (execute-rules this))
 	      (t
@@ -364,6 +354,7 @@
     (assert (null stack))
     (let ((dataset (triple-pattern-node-dataset this))
 	  (graph (first values)))
+;      (inform "add-token ~S" values)
       (cond ((rdf-iri-p dataset)
 	     (when (and (rdf-iri-p graph) (rdf-iri= dataset graph))
 	       (add-token (car (node-succ this)) (make-token this nil (alpha-node-variables this) (cdr values)))))
