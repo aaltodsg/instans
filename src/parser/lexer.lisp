@@ -516,7 +516,7 @@
 (defun get-uhex (lexer)
   ;;; Assuming we have eaten \ and seed u or U
   (loop with code = 0
-	repeat (if (char= (get-char lexer) #\u) 4 6)
+	repeat (if (char= (get-char lexer) #\u) 4 8)
         do (cond ((null (peekch lexer))
 		  (lexer-error lexer "Unexpected EOF while scanning Unicode escape sequence"))
 		 ((not (digit-char-p (peekch lexer) 16))
@@ -561,7 +561,11 @@
 		  (chbuf-put-char buf (get-char lexer)))
 		 ((get-char-if-looking-at lexer #\\)
 		  (cond ((char-in-set-p* (peekch lexer) "uU")
-			 (chbuf-put-char buf (get-uhex lexer)))
+			 (let ((uch (get-uhex lexer)))
+			   (cond ((iri-char-p uch)
+				  (chbuf-put-char buf uch))
+				 (t
+				  (lexer-error lexer "Char ~C (~D) not allowed in an IRI" uch (char-code uch))))))
 			(t
 			 (lexer-error lexer "Unexpected escape char '~C'" (get-char lexer)))))
 		 (t (loop-finish)))
