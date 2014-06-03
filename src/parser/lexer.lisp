@@ -408,11 +408,21 @@
 	do (chbuf-put-char buf (get-char lexer))
 	finally (cond ((char-in-set-p* (peekch lexer) "Ee")
 		       (return (eat-exponent lexer buf)))
-		      (t (return-input-token lexer (cond ((trig-lexer-p lexer) 'DECIMAL-TERMINAL)
-							 ((char= #\+ (elt (chbuf-contents buf) 0)) 'DECIMAL_POSITIVE-TERMINAL)
-							 ((char= #\- (elt (chbuf-contents buf) 0)) 'DECIMAL_NEGATIVE-TERMINAL)
+		      (t
+		       (cond ((char=* (aref (chbuf-contents buf) (1- (chbuf-index buf))) #\.)
+			      (unget-char lexer #\.)
+			      (chbuf-drop-last-char buf)
+			      (return-input-token lexer (cond ((trig-lexer-p lexer) 'INTEGER-TERMINAL)
+							      ((char= #\+ (elt (chbuf-contents buf) 0)) 'INTEGER_POSITIVE-TERMINAL)
+							      ((char= #\- (elt (chbuf-contents buf) 0)) 'INTEGER_NEGATIVE-TERMINAL)
+							      (t 'INTEGER-TERMINAL))
+						  (parse-xsd-integer (chbuf-contents buf) :start 0 :end (chbuf-index buf))))
+			     (t
+			      (return-input-token lexer (cond ((trig-lexer-p lexer) 'DECIMAL-TERMINAL)
+							      ((char= #\+ (elt (chbuf-contents buf) 0)) 'DECIMAL_POSITIVE-TERMINAL)
+							      ((char= #\- (elt (chbuf-contents buf) 0)) 'DECIMAL_NEGATIVE-TERMINAL)
 							 (t 'DECIMAL-TERMINAL))
-					     (parse-xsd-decimal (chbuf-contents buf) :start 0 :end (chbuf-index buf)))))))
+						  (parse-xsd-decimal (chbuf-contents buf) :start 0 :end (chbuf-index buf)))))))))
 
 (defun eat-exponent (lexer buf) ;; (peekch lexer) in "eE"
   (chbuf-put-char buf (get-char lexer))
@@ -438,7 +448,7 @@
       (lexer-error lexer "Expected a PN_CHAR_U or DIGIT after '_:'"))
     (loop for prev-ch = first-char then ch
 	  for ch = (peekch lexer)
-	  while (or (pn-chars-p ch) (char=* ch #\.))
+	  while (pn-chars-dot-p ch)
 	  do (chbuf-put-char buf (get-char lexer))
 	  finally (progn
 ;		    (inform "Lexer detected blank node with text ~S. Prev-ch = ~C" (subseq (chbuf-contents buf) 0 (chbuf-index buf)) prev-ch)
@@ -464,27 +474,33 @@
 				(t
 				 (select-keyword lexer buf)))))))
 
-(defun eat-pn-local (lexer prefix-binding) ; prefix and ':'
+(defun eat-pn-local (lexer prefix-binding) ; prefix and ':' seen
   (let ((buf (empty-chbuf)))
+    (cond ((get-char-if-looking-at lexer #\%)
+	   (slurp-hex lexer (chbuf-put-char buf #\%)))
+	  ((get-char-if-looking-at lexer #\\)
+	   (slurp-local-esc lexer (chbuf-put-char buf #\\)))
+	  ((or (pn-chars-u-digit-p (peekch lexer)) (char=* (peekch lexer) #\:))
+	   (chbuf-put-char buf (get-char lexer)))
+	  ((null (peekch lexer))
+	   (lexer-error lexer "Unexpected EOF inside PN_LOCAL"))
+	  (t
+	   (return-input-token lexer 'PNAME_NS-TERMINAL prefix-binding)))
     (loop do (cond ((get-char-if-looking-at lexer #\%)
 		    (slurp-hex lexer (chbuf-put-char buf #\%)))
 		   ((get-char-if-looking-at lexer #\\)
 		    (slurp-local-esc lexer (chbuf-put-char buf #\\)))
+		   ((or (pn-chars-p (peekch lexer)) (char-in-set-p* (peekch lexer) ".:"))
+		    (chbuf-put-char buf (get-char lexer)))
 		   (t
-		    (let ((ch (peekch lexer)))
-		      (cond ((or (pn-chars-p ch) (char-in-set-p* ch ".:"))
-			     (chbuf-put-char buf (get-char lexer)))
-			    ((zerop (chbuf-index buf))
-			     (return-input-token lexer 'PNAME_NS-TERMINAL prefix-binding))
-			    (t
-			     (return-input-token lexer 'PNAME_LN-TERMINAL
-						 (progn
-						   (when (and (char=* (aref (chbuf-contents buf) (1- (chbuf-index buf))) #\.)
-							      (or (= (chbuf-index buf) 1)
-								  (not (char=* (aref (chbuf-contents buf) (- (chbuf-index buf) 2)) #\\))))
-						     (unget-char lexer #\.)
-						     (chbuf-drop-last-char buf))
-						   (list prefix-binding (canonize-string lexer buf))))))))))))
+		    (return-input-token lexer 'PNAME_LN-TERMINAL
+					(progn
+					  (when (and (char=* (aref (chbuf-contents buf) (1- (chbuf-index buf))) #\.)
+						     (or (= (chbuf-index buf) 1)
+							 (not (char=* (aref (chbuf-contents buf) (- (chbuf-index buf) 2)) #\\))))
+					    (unget-char lexer #\.)
+					    (chbuf-drop-last-char buf))
+					  (list prefix-binding (canonize-string lexer buf)))))))))
 
 (defun slurp-hex (lexer buf)
   (let ((ch1 (peekch lexer)))
@@ -562,7 +578,7 @@
 (defun eat-var-name (lexer terminal-type buf)  ; we are looking at a var-name-start-char, just get-char first-char away
   (chbuf-put-char buf (get-char lexer))
   (loop for ch = (peekch lexer)
-	while (var-name-char-p ch)
+	while (var-name-other-char-p ch)
 	do (chbuf-put-char buf (get-char lexer))
 	finally (return-input-token lexer terminal-type (string-upcase (canonize-string lexer buf)))))
 

@@ -34,3 +34,26 @@
 				       ((and ch (not (char-in-set-p* ch short-banned-chars)))
 					(chbuf-put-char buf (get-char lexer)))
 				       (t (lexer-error lexer "Malformed string literal, missing ~C" quote-char)))))))))))))
+
+(defun eat-pn-local-old (lexer prefix-binding) ; prefix and ':'
+  (let ((buf (empty-chbuf)))
+    (loop do (cond ((get-char-if-looking-at lexer #\%)
+		    (slurp-hex lexer (chbuf-put-char buf #\%)))
+		   ((get-char-if-looking-at lexer #\\)
+		    (slurp-local-esc lexer (chbuf-put-char buf #\\)))
+		   (t
+		    (let ((ch (peekch lexer)))
+		      (cond ((or (pn-chars-p ch) (char-in-set-p* ch ".:"))
+			     (chbuf-put-char buf (get-char lexer)))
+			    ((zerop (chbuf-index buf))
+			     (return-input-token lexer 'PNAME_NS-TERMINAL prefix-binding))
+			    (t
+			     (return-input-token lexer 'PNAME_LN-TERMINAL
+						 (progn
+						   (when (and (char=* (aref (chbuf-contents buf) (1- (chbuf-index buf))) #\.)
+							      (or (= (chbuf-index buf) 1)
+								  (not (char=* (aref (chbuf-contents buf) (- (chbuf-index buf) 2)) #\\))))
+						     (unget-char lexer #\.)
+						     (chbuf-drop-last-char buf))
+						   (list prefix-binding (canonize-string lexer buf))))))))))))
+
