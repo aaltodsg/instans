@@ -125,6 +125,10 @@
 (defun quad-contains-blanks-p (quad)
   (some #'rdf-blank-node-p quad))
 
+(defun fill-missing-graph (quads-or-triples &optional graph)
+  (loop for item in quads-or-triples
+        collect (if (eq (length item) 3) (append item (list graph)) item)))
+
 (defun partition-graph-to-constant-and-non-constant-quads (graph)
   (loop for quad in graph
         nconc (filter #'rdf-blank-node-p quad) into blanks
@@ -134,6 +138,8 @@
 
 (defun rdf-graphs-isomorphic-p (graph1 graph2)
 ;  (inform "rdf-graphs-isomorphic-p~%graph1 ~{~{~S~^ ~}~^~%       ~}~%~%graph2 ~{~{~S~^ ~}~^~%       ~}~%" graph1 graph2)
+  (setf graph1 (fill-missing-graph graph1))
+  (setf graph2 (fill-missing-graph graph2))
   (flet ((hash-graph-items (graph)
 	   (loop with table = (make-hash-table)
 		 for item in graph
