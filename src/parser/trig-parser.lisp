@@ -136,7 +136,7 @@
 		 (RDFLiteral	             ::= (String (:OPT (:OR (LANGTAG-TERMINAL :RESULT #'(lambda (s) (create-rdf-literal-with-lang s (subseq $0 1))))
 								    (^^-TERMINAL iri :RESULT #'(lambda (s) (nth-value 0 (create-rdf-literal-with-type s $1))))))
 						 :RESULT (if (opt-yes-p $1) (funcall (opt-value $1) $0) $0)))
-		 (BooleanLiteral	     ::= (:OR (TRUE-TERMINAL :RESULT t) (FALSE-TERMINAL :RESULT nil)))
+		 (BooleanLiteral	     ::= (:OR (TRUE-TERMINAL :RESULT t) (FALSE-TERMINAL :RESULT (progn nil))))
 		 (String		     ::= (:OR STRING_LITERAL_QUOTE-TERMINAL STRING_LITERAL_SINGLE_QUOTE-TERMINAL
 						      STRING_LITERAL_LONG_SINGLE_QUOTE-TERMINAL STRING_LITERAL_LONG_QUOTE-TERMINAL))
 		 (iri		             ::= (:OR IRIREF-TERMINAL PrefixedName))

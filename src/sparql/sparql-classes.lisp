@@ -439,7 +439,8 @@
   (find v vlist :test #'sparql-var-equal))
 
 (defun sparql-value-equal (v1 v2)
-  (and (eq (type-of v1) (type-of v2))
+;  (inform "v1 = ~S (of type ~S), v2 = ~S (of type ~S), (eq (type-of v1) (type-of v2)) = ~S" v1 (type-of v1) v2 (type-of v2) (eq (type-of v1) (type-of v2)))
+  (and (equal (type-of v1) (type-of v2))
        (sparql-call "=" v1 v2)))
 
 (defun equal-triples (tr1 tr2)

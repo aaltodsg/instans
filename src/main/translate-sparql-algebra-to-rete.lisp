@@ -54,7 +54,7 @@
                ;;; If not found, creates a new node, adds it to new-nodes and links it to node-succ of 'prev' (if non-null).
                ;;; Sharing of exists, optional, and union structures is not allowed.
 	       (flet ((node-matches-constructor-args-p (n type args)
-			(and (eq (type-of n) type)
+			(and (equal (type-of n) type)
 			     (loop for rest on args by #'cddr for key = (first rest) for value = (second rest)
 				   unless (or (member key '(:bindings :algebra-expr))
 					      (equal-value (slot-value n (intern (string key) :instans)) value))

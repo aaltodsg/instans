@@ -106,3 +106,16 @@
 		      (setf start i)
 		      (setf inside-range-p t)))
 	    finally (if inside-range-p (show-range start to))))))
+
+(defun decode-string-escape-char (ch)
+  (case ch
+    (#\t (code-char #x0009))
+    (#\b (code-char #x0008))
+    (#\n (code-char #x000A))
+    (#\r (code-char #x000D))
+    (#\f (code-char #x000C))
+    (#\" (code-char #x0022))
+    (#\' (code-char #x0027))
+    (#\\ (code-char #x005C))
+    (t (error* "Illegal string escape char ~C" ch))))
+
