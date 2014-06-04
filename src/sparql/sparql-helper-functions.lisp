@@ -126,15 +126,15 @@
   (some #'rdf-blank-node-p quad))
 
 (defun rdf-graphs-isomorphic-p (graph1 graph2)
-;  (inform "rdf-graphs-isomorphic-p~%graph1 ~{~{~S~^ ~}~^~%       ~}~%~%graph2 ~{~{~S~^ ~}~^~%       ~}~%" graph1 graph2)
+  (inform "rdf-graphs-isomorphic-p~%graph1 ~{~{~S~^ ~}~^~%       ~}~%~%graph2 ~{~{~S~^ ~}~^~%       ~}~%" graph1 graph2)
   (flet ((hash-graph-items (graph)
 	   (loop with table = (make-hash-table)
 		 for item in graph
 		 for items = (gethash (quad-hash-key item) table)
-;		 do (inform "hashing [~{~S~^ ~}]~%previously ~{[~{~S~^ ~}]~}" item items)
-		 when items do (push-to-end-new item items :test #'rdf-quads-equal-p)
+		 do (inform "adding [~{~S~^ ~}]~%to     {~{[~{~S~^ ~}]~^~%        ~}}" item items)
+		 when items do (push-to-end-new item (gethash (quad-hash-key item) table) :test #'rdf-quads-equal-p)
 		 else do (setf (gethash (quad-hash-key item) table) (list item))
-;		 do (inform "now ~{[~{~S~^ ~}]~^ ~}~%" (gethash (quad-hash-key item) table))
+		 do (inform "now    {~{[~{~S~^ ~}]~^~%        ~}}~%" (gethash (quad-hash-key item) table))
 		 finally (return table))))
     (cond ((not (= (length graph1) (length graph2)))
 	   nil)
@@ -144,35 +144,43 @@
 		 (var-mappings12 nil)
 		 (var-mappings21 nil))
 	     (flet ((unify (graph1 table2 var-mappings12)
-;		      (inform "enter unify ~{[~{~S~^ ~}]~^~%            ~}" graph1)
-		      (loop for item1 in graph1
-			    for item1-vars = (filter #'rdf-blank-node-p item1)
-			    for items-from-table2 = (gethash (quad-hash-key item1) table2)
-			    for items-from-table2-vars = (mapcar #'(lambda (item) (filter #'rdf-blank-node-p item)) items-from-table2)
-			    for new-var-mappings = (apply #'mapcar #'list item1-vars items-from-table2-vars)
-			    for old-var-mappings = (mapcar #'(lambda (v1) (assoc v1 var-mappings12 :test #'uniquely-named-object-equal)) item1-vars)
-			    ;; do (inform "item1 = [~{~S~^ ~}], item1-vars = ~S,~%items-from-table2 = ~{[~{~S~^ ~}]~^~%                    ~},~%items-from-table2-vars = ~S"
-			    ;; 	       item1 item1-vars items-from-table2 items-from-table2-vars)
-			    ;; do (inform "new-var-mappings = ~S" new-var-mappings)
-			    ;; do (inform "old-var-mappings = ~S" old-var-mappings)
-			    do (cond ((null item1-vars)
-				      ;; (inform "Comparing non-blank items")
-				      (if (not (and (= (length items-from-table2) 1) (equal-quads item1 (first items-from-table2))))
-					  (return-from rdf-graphs-isomorphic-p nil)))
-				     (t
-				      (loop for old-mapping in old-var-mappings
-					    for new-mapping in new-var-mappings
-					    do (cond ((null old-mapping)
-						      (push new-mapping var-mappings12)
-						      ;; (inform "var-mappings12 = ~S" var-mappings12)
-						      )
-						     (t
-						      (let ((merge (intersection (rest old-mapping) (rest new-mapping) :test #'uniquely-named-object-equal)))
-							(cond ((null merge)
-							       (return-from rdf-graphs-isomorphic-p nil))
-							      (t
-							       (setf (rest old-mapping) merge))))))))))
-		      ;; (inform "exit unify~%" graph1)
+		      (inform "enter unify ~{[~{~S~^ ~}]~^~%            ~}" graph1)
+ 		      (loop with changedp = t
+ 			    while changedp
+ 			    do (progn
+ 				 (setf changedp nil)
+				 (loop for item1 in graph1
+				       for item1-vars = (filter #'rdf-blank-node-p item1)
+				       for items-from-table2 = (gethash (quad-hash-key item1) table2)
+				       for items-from-table2-vars = (mapcar #'(lambda (item) (filter #'rdf-blank-node-p item)) items-from-table2)
+				       for new-var-mappings = (apply #'mapcar #'list item1-vars items-from-table2-vars)
+				       for old-var-mappings = (mapcar #'(lambda (v1) (assoc v1 var-mappings12 :test #'uniquely-named-object-equal)) item1-vars)
+				       do (inform "item1 = [~{~S~^ ~}]~%item1-vars = ~S,~%items-from-table2 = {~{[~{~S~^ ~}]~^~%                    ~}},~%items-from-table2-vars = ~S"
+						  item1 item1-vars items-from-table2 items-from-table2-vars)
+				       do (inform "new-var-mappings = ~S" new-var-mappings)
+				       do (inform "old-var-mappings = ~S" old-var-mappings)
+				       do (cond ((null item1-vars)
+						 (inform "Comparing non-blank items")
+						 (if (not (and (= (length items-from-table2) 1) (equal-quads item1 (first items-from-table2))))
+						     (return-from rdf-graphs-isomorphic-p nil)))
+						(t
+						 (loop for old-mapping in old-var-mappings
+						       for new-mapping in new-var-mappings
+						       do (inform "  old-mapping ~S~%  new-mapping ~S" old-mapping new-mapping)
+						       do (cond ((null old-mapping)
+								 (setf changedp t)
+								 (push new-mapping var-mappings12)
+								 (inform "  var-mappings12 = ~S" var-mappings12)
+								 )
+								(t
+								 (let ((merge (intersection (rest old-mapping) (rest new-mapping) :test #'uniquely-named-object-equal)))
+								   (inform "  merge ~S" merge)
+								   (cond ((null merge)
+									  (return-from rdf-graphs-isomorphic-p nil))
+									 ((< (length merge) (length (rest old-mapping)))
+									  (setf changedp t)
+									  (setf (rest old-mapping) merge))))))))))))
+		      (inform "exit unify, mappings ~S~%" var-mappings12)
 		      (if (null var-mappings12) t
 			  (and (every #'(lambda (mapping) (= 2 (length mapping))) var-mappings12) var-mappings12))))
 	       (and (unify graph1 table2 var-mappings12)

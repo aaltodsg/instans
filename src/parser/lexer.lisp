@@ -477,9 +477,9 @@
 (defun eat-pn-local (lexer prefix-binding) ; prefix and ':' seen
   (let ((buf (empty-chbuf)))
     (cond ((get-char-if-looking-at lexer #\%)
-	   (slurp-hex lexer (chbuf-put-char buf #\%)))
+	   (slurp-hex lexer buf))
 	  ((get-char-if-looking-at lexer #\\)
-	   (slurp-local-esc lexer (chbuf-put-char buf #\\)))
+	   (slurp-local-esc lexer buf))
 	  ((or (pn-chars-u-digit-p (peekch lexer)) (char=* (peekch lexer) #\:))
 	   (chbuf-put-char buf (get-char lexer)))
 	  ((null (peekch lexer))
@@ -487,9 +487,9 @@
 	  (t
 	   (return-input-token lexer 'PNAME_NS-TERMINAL prefix-binding)))
     (loop do (cond ((get-char-if-looking-at lexer #\%)
-		    (slurp-hex lexer (chbuf-put-char buf #\%)))
+		    (slurp-hex lexer buf))
 		   ((get-char-if-looking-at lexer #\\)
-		    (slurp-local-esc lexer (chbuf-put-char buf #\\)))
+		    (slurp-local-esc lexer buf))
 		   ((or (pn-chars-p (peekch lexer)) (char-in-set-p* (peekch lexer) ".:"))
 		    (chbuf-put-char buf (get-char lexer)))
 		   (t
@@ -508,7 +508,7 @@
 	   (get-char lexer)
 	   (let ((ch2 (peekch lexer)))
 	     (cond ((digit-char-p* ch2 16)
-		    (chbuf-put-chars buf ch1 (get-char lexer))
+		    (chbuf-put-chars buf #\% ch1 (get-char lexer))
 		    buf)
 		   (t (lexer-error lexer "Expected a hex digit")))))
 	  (t (lexer-error lexer "Expected a hex digit")))))
