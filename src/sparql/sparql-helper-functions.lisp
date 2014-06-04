@@ -96,3 +96,116 @@
 
 (defun sparql-var-lisp-names (var-list)
   (mapcar #'sparql-var-lisp-name var-list))
+
+(defun rdf-quads-equal-p (quad-or-triple1 quad-or-triple2)
+  (destructuring-bind (s1 p1 o1 &optional g1) quad-or-triple1
+    (destructuring-bind (s2 p2 o2 &optional g2) quad-or-triple2
+      (and (sparql-value-equal s1 s2)
+	   (sparql-value-equal p1 p2)
+	   (sparql-value-equal o1 o2)
+	   (sparql-value-equal g1 g2)))))
+
+(defun rdf-graphs-isomorphic-p-old (graph1 graph2)
+  (and (= (length graph1) (length graph2))
+       (every #'(lambda (q1) (find q1 graph2 :test #'rdf-quads-equal-p)) graph1)))
+
+(defun quad-hash-key (quad)
+  (destructuring-bind (s p o &optional g) quad
+    (let ((key (sxhash nil)))
+      (unless (rdf-blank-node-p s)
+	(setf key (mix key (get-hashkey s))))
+      (unless (rdf-blank-node-p p)
+	(setf key (mix key (get-hashkey p))))
+      (unless (rdf-blank-node-p o)
+	(setf key (mix key (get-hashkey o))))
+      (unless (rdf-blank-node-p g)
+	(setf key (mix key (get-hashkey g))))
+      key)))
+
+(defun quad-contains-blanks-p (quad)
+  (some #'rdf-blank-node-p quad))
+
+(defun rdf-graphs-isomorphic-p (graph1 graph2)
+;  (inform "rdf-graphs-isomorphic-p~%graph1 ~{~{~S~^ ~}~^~%       ~}~%~%graph2 ~{~{~S~^ ~}~^~%       ~}~%" graph1 graph2)
+  (flet ((hash-graph-items (graph)
+	   (loop with table = (make-hash-table)
+		 for item in graph
+		 for items = (gethash (quad-hash-key item) table)
+;		 do (inform "hashing [~{~S~^ ~}]~%previously ~{[~{~S~^ ~}]~}" item items)
+		 when items do (push-to-end-new item items :test #'rdf-quads-equal-p)
+		 else do (setf (gethash (quad-hash-key item) table) (list item))
+;		 do (inform "now ~{[~{~S~^ ~}]~^ ~}~%" (gethash (quad-hash-key item) table))
+		 finally (return table))))
+    (cond ((not (= (length graph1) (length graph2)))
+	   nil)
+	  (t
+	   (let ((table1 (hash-graph-items graph1))
+		 (table2 (hash-graph-items graph2))
+		 (var-mappings12 nil)
+		 (var-mappings21 nil))
+	     (flet ((unify (graph1 table2 var-mappings12)
+;		      (inform "enter unify ~{[~{~S~^ ~}]~^~%            ~}" graph1)
+		      (loop for item1 in graph1
+			    for item1-vars = (filter #'rdf-blank-node-p item1)
+			    for items-from-table2 = (gethash (quad-hash-key item1) table2)
+			    for items-from-table2-vars = (mapcar #'(lambda (item) (filter #'rdf-blank-node-p item)) items-from-table2)
+			    for new-var-mappings = (apply #'mapcar #'list item1-vars items-from-table2-vars)
+			    for old-var-mappings = (mapcar #'(lambda (v1) (assoc v1 var-mappings12 :test #'uniquely-named-object-equal)) item1-vars)
+			    ;; do (inform "item1 = [~{~S~^ ~}], item1-vars = ~S,~%items-from-table2 = ~{[~{~S~^ ~}]~^~%                    ~},~%items-from-table2-vars = ~S"
+			    ;; 	       item1 item1-vars items-from-table2 items-from-table2-vars)
+			    ;; do (inform "new-var-mappings = ~S" new-var-mappings)
+			    ;; do (inform "old-var-mappings = ~S" old-var-mappings)
+			    do (cond ((null item1-vars)
+				      ;; (inform "Comparing non-blank items")
+				      (if (not (and (= (length items-from-table2) 1) (equal-quads item1 (first items-from-table2))))
+					  (return-from rdf-graphs-isomorphic-p nil)))
+				     (t
+				      (loop for old-mapping in old-var-mappings
+					    for new-mapping in new-var-mappings
+					    do (cond ((null old-mapping)
+						      (push new-mapping var-mappings12)
+						      ;; (inform "var-mappings12 = ~S" var-mappings12)
+						      )
+						     (t
+						      (let ((merge (intersection (rest old-mapping) (rest new-mapping) :test #'uniquely-named-object-equal)))
+							(cond ((null merge)
+							       (return-from rdf-graphs-isomorphic-p nil))
+							      (t
+							       (setf (rest old-mapping) merge))))))))))
+		      ;; (inform "exit unify~%" graph1)
+		      (if (null var-mappings12) t
+			  (and (every #'(lambda (mapping) (= 2 (length mapping))) var-mappings12) var-mappings12))))
+	       (and (unify graph1 table2 var-mappings12)
+		    (unify graph2 table1 var-mappings21))))))))
+
+;; _:a1 :p :o
+;; _:a2 :p :o
+;; :s :p2 _:a2
+
+;; _:b1 :p :o
+;; _:b2 :p :o
+
+;; :s :p2 _:b1
+
+;; map _:b1 :p :o
+;; get t2 _:b1 :p :o => _:a1 :p :o, _:a2 :p :o
+;; => (_:b1 => _:a1 _:a2)
+;; get v12 _:b1 => nil
+;; merge, set v12 _:b1 => _:a1, _:a2
+
+;; map _:b2 :p :o
+;; get t2 _:b2 :p :o => _:a1 :p :o, _:a2 :p :o
+;; => (_:b2 => _:a1 _:a2)
+;; get v12 _:b2 => nil
+;; merge, set v12 _:b2 => _:a1, _:a2
+
+;; map :s :p2 _:b1
+;; get t2 :s :p2 _:b1 => :s :p2 _:a2
+;; => (_:b1 => _:a2)
+;; get v12 _:b1 => _:a1, _:a2
+;; merge, set v12 _:b1 => _:a2
+
+	    
+
+
+

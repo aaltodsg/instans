@@ -157,7 +157,7 @@
 ;; (let ((instans (get-instans instans-iri)))
 ;;   (run-query-input-processors instans)))
 
-(defun instans-parse-rdf-file (instans-iri input-iri)
+(defun instans-parse-rdf-file (instans-iri input-iri &key subscribe base graph triple-callback block-callback document-callback)
   (let ((instans (create-instans instans-iri))
 	input-stream file-type error-msg)
     (instans-debug-message instans '(:parse-rdf :execute) "instans-parse-rdf-file ~S ~S" instans-iri input-iri)
@@ -165,7 +165,9 @@
 	 (progn
 	   (multiple-value-setq (input-stream file-type error-msg) (create-input-stream input-iri))
 	   (unless input-stream (error* error-msg))
-	   (let ((rdf-parser (make-rdf-parser instans input-stream file-type :document-callback #'identity)))
+	   (let ((rdf-parser (make-rdf-parser instans input-stream file-type
+					      :subscribe subscribe :base base :graph graph
+					      :triple-callback triple-callback :block-callback block-callback :document-callback document-callback)))
 	     (instans-debug-message instans '(:execute :parse-rdf) "~%Reading RDF:~%")
 	     (parse rdf-parser)
 	     (cond ((ll-parser-succeeded-p rdf-parser)
@@ -177,8 +179,22 @@
       (when input-stream (close input-stream)))
     instans))
 
-;; (defun instans-compare-rdf (instans-iri input-iri)
-;; nil)
+(defun instans-compare-rdf-files (instans-iri input1-iri input2-iri)
+  (let* ((instans (or (get-instans instans-iri) (create-instans instans-iri)))
+	 (result1 nil)
+	 (result2 nil))
+      (instans-parse-rdf-file instans-iri input1-iri :document-callback #'(lambda (result) (setf result1 result)))
+      (cond ((and input2-iri (not (sparql-unbound-p input2-iri)))
+	     (instans-parse-rdf-file instans-iri input2-iri :document-callback #'(lambda (result) (setf result2 result)))
+	     (cond ((instans-has-status instans 'instans-rdf-parsing-failed)
+		    nil)
+		   ((rdf-graphs-isomorphic-p result1 result2)
+		    (instans-add-status instans 'instans-rdf-compare-files-similar)
+		    t)
+		   (t
+		    (instans-add-status instans 'instans-rdf-compare-files-not-similar)
+		    nil)))
+	    (t t))))
 
 (defun instans-add-triples (instans-iri input-iri &key graph base)
   (let* ((instans (get-instans instans-iri))

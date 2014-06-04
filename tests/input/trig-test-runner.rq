@@ -9,19 +9,30 @@ PREFIX rdft:   <http://www.w3.org/ns/rdftest#>
 
 #SELECT ?queryfile ?test { # ?testtype ?parsed_ok ?translate_ok ?error_msg ?status WHERE {
 #CONSTRUCT ?queryfile ?testtype ?parsed_ok ?translated_ok ?error_msg ?status WHERE {
-SELECT ?similar ?parsed_ok ?testtype ?inputfile_short ?resultfile ?error_msg {
+SELECT ?inputfile ?resultfile {
        ?test a ?testtype_long; mf:name ?name . 
        ?test mf:action ?inputfile .
-       OPTIONAL { ?test mf:result ?resultfile . }
-       ?x rdf:first ?test .
-       BIND(strafter(str(?inputfile), "/TrigTests/") AS ?inputfile_short)
-       BIND(strafter(str(?testtype_long),str(rdft:)) AS ?testtype)
-       BIND(instans:compare_rdf_files(?inputfile, ?inputfile, ?resultfile) AS ?similar)
-#       BIND((?status || (?testtype="TestTrigNegativeSyntax")) AS ?parsed)
-       BIND(instans:error_message(?inputfile) AS ?error_msg)
-       BIND(instans:has_status(?inputfile, "instans-rdf-parsing-succeeded") AS ?parsed_ok) 
-       # BIND(instans:status(?instans) AS ?status) 
+       ?test mf:result ?resultfile . 
 }
+# SELECT ?testtype ?parsed_ok ?compare_ok ?inputfile_short ?resultfile_short ?error_msg {
+#        ?test a ?testtype_long; mf:name ?name . 
+#        ?test mf:action ?inputfile .
+# #       OPTIONAL { ?test mf:result ?resultfile . }
+#        ?test mf:result ?resultfile . 
+#        ?x rdf:first ?test .
+# #       FILTER(?inputfile_short = "anonymous_blank_node_graph.trig")
+#        BIND(strafter(str(?inputfile), "/TrigTests/") AS ?inputfile_short)
+#        BIND(if(bound(?resultfile),strafter(str(?resultfile), "/TrigTests/"),"") AS ?resultfile_short)
+#        BIND(strafter(str(?testtype_long),str(rdft:)) AS ?testtype)
+#        BIND(instans:compare_rdf_files(?inputfile, ?inputfile, ?resultfile) AS ?success)
+# #       BIND((?status || (?testtype="TestTrigNegativeSyntax")) AS ?parsed)
+#        BIND(instans:error_message(?inputfile) AS ?error_msg)
+#        BIND(!instans:has_status(?inputfile, "instans-rdf-parsing-failed") AS ?parsed_ok) 
+#        BIND(instans:has_status(?inputfile, "instans-rdf-compare-files-similar") AS ?compare_ok) 
+#        BIND(instans:has_status(?inputfile, "instans-rdf-compare-files-not-similar") AS ?compare_fail) 
+#        # BIND(instans:status(?instans) AS ?status) 
+# #       FILTER(?compare_fail)
+# }
 # SELECT ?testtype (COUNT(?test) AS ?count) {
 #        ?y instans:end true .
 #        ?test a ?testtype_long; mf:name ?name . 
