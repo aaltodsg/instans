@@ -1,0 +1,15 @@
+
+
+INSERT {
+  [ a earl:Assertion;
+    earl:assertedBy <https://people.aalto.fi/index.html#esko_nuutila>;
+    earl:subject <https://github.com/aaltodsg/instans>;
+    earl:test ?test;
+    earl:result [
+      a earl:TestResult;
+      earl:outcome earl:passed;
+      dc:date ?rundate];
+    earl:mode earl:automatic ] .
+} WHERE {
+  
+}
