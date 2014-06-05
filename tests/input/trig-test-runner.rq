@@ -31,8 +31,8 @@ SELECT ?testtype ?parsed_ok ?compare_ok ?inputfile_short ?resultfile_short ?erro
        BIND(instans:has_status(?inputfile, "instans-rdf-compare-files-similar") AS ?compare_ok) 
        BIND(instans:has_status(?inputfile, "instans-rdf-compare-files-not-similar") AS ?compare_fail) 
        # BIND(instans:status(?instans) AS ?status) 
-#       FILTER(?compare_fail)
-# }
+       FILTER(?compare_fail)
+}
 # SELECT ?testtype (COUNT(?test) AS ?count) {
 #        ?y instans:end true .
 #        ?test a ?testtype_long; mf:name ?name . 

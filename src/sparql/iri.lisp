@@ -16,6 +16,41 @@
 ;;; query     = $7
 ;;; fragment  = $9
 
+(defun expand-iri (base iri-or-string)
+;  (inform "expand-iri ~S ~S" base iri-string)
+  (let ((iri (if (rdf-iri-p iri-or-string) iri-or-string (parse-iri iri-or-string))))
+    (cond ((rdf-iri-scheme iri)
+;	   (inform "~S has scheme ~S, we use it" iri (rdf-iri-scheme iri))
+	   iri)
+	  ;; (cond ((rdf-iri-had-dot-segments-p iri)
+	  ;; 	    (recompose-iri iri))
+	  ;; 	   (t iri)))
+	  (t
+	   (let ((cp (rdf-iri-path iri)))
+	     (cond ((null base)
+		    (values nil (format nil "Base not defined for relative IRI ~S" iri)))
+		   (t
+		    (setf (rdf-iri-scheme iri) (rdf-iri-scheme base))
+		    (when (not (rdf-iri-authority iri))
+		      (setf (rdf-iri-authority iri) (rdf-iri-authority base))
+		      (cond ((string= cp "")
+			     (setf (rdf-iri-path iri) (rdf-iri-path base))
+			     (unless (rdf-iri-query iri)
+			       (setf (rdf-iri-query iri) (rdf-iri-query base))))
+			    (t
+			     (when (or (zerop (length cp)) (not (char= (char cp 0) #\/)))
+			       (setf (rdf-iri-path iri)
+				     (cond ((and (rdf-iri-authority base) (string= (rdf-iri-path base) ""))
+					    (concatenate 'string "/" (rdf-iri-path iri)))
+					   (t
+					    (let ((lsp (position #\/ (rdf-iri-path base) :from-end t)))
+					      (cond ((null lsp)
+						     (rdf-iri-path iri))
+						    (t
+						     (coerce (remove-dot-segments (concatenate 'list (subseq (rdf-iri-path base) 0 (1+ lsp)) (rdf-iri-path iri))) 'string)))))))))))
+		    (recompose-iri iri))))))))
+
+
 (defun parse-iri (string)
   (let ((chars (coerce string 'list))
 	(result (make-instance 'rdf-iri :string string)))

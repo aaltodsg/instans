@@ -35,8 +35,10 @@
 	      ;; 	*triple-count* *triple-sizes* (hash-table-count (lexer-string-table lexer))
 	      ;; 	(hash-table-count (lexer-prefix-table lexer)) (hash-table-count (lexer-keyword-table lexer)))
 	      (inform "~%  ~A: triple-count = ~D, strings: ~D elems, prefixes: ~D elems, keywords: ~D elems"
-		      (pathname-name (pathname file)) *triple-count* (hash-table-count (lexer-string-table lexer))
-		      (hash-table-count (lexer-prefix-table lexer)) (hash-table-count (lexer-keyword-table lexer)))
+		      (pathname-name (pathname file)) *triple-count*
+		      (hash-table-count (bindings-table-hash-table (lexer-string-table lexer)))
+		      (hash-table-count (bindings-table-hash-table (lexer-prefix-table lexer)))
+		      (hash-table-count (bindings-table-hash-table (lexer-keyword-table lexer))))
 	      )
 	     (t
 	      (inform "Parsing failed")))

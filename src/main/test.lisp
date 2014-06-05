@@ -373,13 +373,17 @@
 	   (input1-file-iri (first item))
 	   (input1-path (pathname (rdf-iri-path input1-file-iri)))
 	   (input1-filename (format nil "~A.~A" (pathname-name input1-path) (pathname-type input1-path)))
-	   (input2-file-iri (second item))
-	   (input2-path (pathname (rdf-iri-path input2-file-iri)))
-	   (input2-filename (format nil "~A.~A" (pathname-name input2-path) (pathname-type input2-path))))
-      (inform "~S vs. ~S" input1-filename input2-filename)
+	   ;; (input2-file-iri (second item))
+	   ;; (input2-path (pathname (rdf-iri-path input2-file-iri)))
+	   ;; (input2-filename (format nil "~A.~A" (pathname-name input2-path) (pathname-type input2-path)))
+	   )
+;      (inform "~S vs. ~S" input1-filename input2-filename)
       (funcall #'instans-compare-rdf-files (parse-iri "test") (first item) (second item)
 	       :base (parse-iri (format nil "~A~A" manifest-http-root-dir input1-filename))))))
 
 (defun ttt-all (type)
-  (loop for i from 0 below (length (if (eq type :trig) *trig-iof* *turtle-iof*))
-        unless (ttt i type) collect i))
+  (loop with items = (if (eq type :trig) *trig-iof* *turtle-iof*)
+	for i from 0 below (length items)
+        unless (ttt i type) collect (list i (nth i items))))
+
+

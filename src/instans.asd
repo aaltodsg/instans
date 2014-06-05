@@ -36,6 +36,7 @@
 			:components ((:file "version")
 				     (:file "macros")
 				     (:file "misc" :depends-on ("macros"))
+				     (:file "table-bindings" :depends-on ("macros"))
 				     (:file "mix")
 				     (:file "where-am-i")))
 	       (:module "sparql" :depends-on ("util")
@@ -60,8 +61,8 @@
 	       (:module "parser" :depends-on ("util" "cl-ll1" "sparql")
 	       		:components ((:file "chbuf")
 				     (:file "char-ops")
-	       			     (:file "prefixed-names")
-	       			     (:file "lexer" :depends-on ("chbuf" "prefixed-names"))
+	       			     (:file "lexer-classes")
+	       			     (:file "lexer" :depends-on ("chbuf" "lexer-classes"))
 	       			     (:file "n-statements-parser" :depends-on ("lexer"))
 	       			     (:file "trig-parser" :depends-on ("lexer"))
 	       			     (:file "sparql-parser" :depends-on ("lexer"))
@@ -89,4 +90,3 @@
 				     ))))
 
 (progn (setf *print-circle* nil) (setf *print-right-margin* 250))
-
