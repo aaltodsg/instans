@@ -280,11 +280,15 @@
    (bindings :accessor solution-set-output-processor-bindings)
    (end :accessor solution-set-output-processor-end)))
 
-(define-class statement-output-processor (construct-output-processor stream-query-output-processor-mixin) ())
-(define-class nt-output-processor (statement-output-processor) ())
-(define-class nq-output-processor (statement-output-processor) ())
+(define-class n-statement-output-processor (construct-output-processor stream-query-output-processor-mixin) ())
+(define-class nt-output-processor (n-statement-output-processor) ())
+(define-class nq-output-processor (n-statement-output-processor) ())
 
-(define-class trig-output-processor (construct-output-processor stream-query-output-processor-mixin) ())
+(define-class trig-output-processor (construct-output-processor stream-query-output-processor-mixin)
+  ((current-graph :accessor trig-output-processor-current-graph :initform nil)
+   (triples :accessor trig-output-processor-triples :initform nil)
+   (subject-predicate-object-list-form-p :accessor trig-output-processor-subject-predicate-object-list-form-p :initarg :subject-predicate-object-list-form-p :initform t)))
+
 (define-class turtle-output-processor (construct-output-processor stream-query-output-processor-mixin) ())
 
 ;;; System

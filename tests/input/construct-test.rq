@@ -3,10 +3,13 @@
 #       GRAPH ?g { ?s ?p ?o }
 # }
 
-CONSTRUCT WHERE {
+CONSTRUCT {
+      GRAPH ?g { ?s ?p ?o }
+} WHERE {
       GRAPH ?g { ?s ?p ?o }
 }
 ;
-CONSTRUCT WHERE {
+CONSTRUCT { ?s ?p ?o }
+WHERE {
       { ?s ?p ?o }
 }

@@ -17,7 +17,7 @@
 	   (select-output-name nil)
 	   (select-output-type :csv)
 	   (construct-output-name nil)
-	   (construct-output-type :nq)
+	   (construct-output-type :trig)
 	   base graph expected debug reporting rete-html-page-dir)
       (setf *instanssi* instans)
       (labels ((valid-value-p (value accepted-values &key test)
