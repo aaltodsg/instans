@@ -1,0 +1,150 @@
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix tinv: <http://fispace.aston.ac.uk/pharmaCo1/data/transactions/inv/bt/id/> .
+@prefix cbv: <http://purl.org/FIspace/cbv#> .
+@prefix epc: <http://fispace.aston.ac.uk/pharmaCo1/data/epc/id/sgtin/> .
+@prefix rdr2: <http://fispace.aston.ac.uk/pharmaCo1/data/readers/id/> .
+@prefix eve: <http://fispace.aston.ac.uk/pharmaCo1/data/epc/id/events/> .
+@prefix eem: <http://purl.org/FIspace/eem#> .
+@prefix ped: <http://www.fispace.aston.ac.uk/ontologies/pedigree#> .
+@prefix loc: <http://fispace.aston.ac.uk/pharmaCo1/data/epc/id/sgln/> .
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+@prefix co: <http://purl.org/co#> .
+@prefix addr2: <http://fispace.aston.ac.uk/pharmaCo1/data/addresses/id/> .
+@prefix age: <http://fispace.aston.ac.uk/pharmaCo1/data/epc/id/sscc/> .
+@prefix context: <http://fispace.aston.ac.uk/pharmaCo1/data/eventGraphID/event0> .
+@prefix wgs84: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix tpo: <http://fispace.aston.ac.uk/pharmaCo1/data/transactions/po/bt/id/> .
+@prefix qte: <http://fispace.aston.ac.uk/pharmaCo1/data/epc/events/idpat/sgtin/id/> .
+
+@prefix : <http://instans.org/> .
+
+	eve:eve0 a eem:ObjectEvent ;
+		eem:hasEventID "eve0" ;
+		<http://www.w3.org/2000/01/rdf-schema#label> "An ObjectEvent with event ID eve0" ;
+		eem:eventOccurredAt "2014-04-04T17:32:08.187+02:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+		eem:eventTimeZoneOffset "0"^^<http://www.w3.org/2001/XMLSchema#long> .
+	
+	rdr2:reader102 a eem:Reader ;
+		eem:logicalID "reader102" .
+	
+	eve:eve0 eem:recordedByReader rdr2:reader102 ;
+		eem:action eem:ADD ;
+		eem:hasBusinessStepType cbv:commissioning ;
+		eem:hasDisposition cbv:active ;
+		eem:eventRecordedAt "2014-04-04T17:32:08.203+02:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+		<http://www.w3.org/2000/01/rdf-schema#comment> "The object event for commissoning of pharma products" ;
+		eem:associatedWithEPCList _:node18kmlslaox1 .
+	
+	_:node18kmlslaox1 a eem:SetOfEPCs ;
+		co:element epc:233.3344.333323 , epc:233.3344.333324 , epc:233.3344.333325 .
+
+
+	eve:eve1 a eem:ObjectEvent ;
+		eem:hasEventID "eve1" ;
+		<http://www.w3.org/2000/01/rdf-schema#label> "An ObjectEvent with event ID eve1" ;
+		eem:eventOccurredAt "2014-04-04T17:32:11.157+02:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+		eem:eventTimeZoneOffset "0"^^<http://www.w3.org/2001/XMLSchema#long> .
+	
+	rdr2:reader102 a eem:Reader ;
+		eem:logicalID "reader102" .
+	
+	eve:eve1 eem:recordedByReader rdr2:reader102 ;
+		eem:action eem:ADD ;
+		eem:hasBusinessStepType cbv:commissioning ;
+		eem:hasDisposition cbv:active ;
+		eem:eventRecordedAt "2014-04-04T17:32:11.158+02:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+		<http://www.w3.org/2000/01/rdf-schema#comment> "The object event for commissoning of pharma products" ;
+		eem:associatedWithEPCList _:node18kmlslaox2 .
+	
+	_:node18kmlslaox2 a eem:SetOfEPCs ;
+		co:element epc:233.3344.333326 , epc:233.3344.333327 .
+
+
+	eve:eve2 a eem:AggregationEvent ;
+		eem:hasEventID "eve2" ;
+		<http://www.w3.org/2000/01/rdf-schema#label> "An AggregationEvent with event ID eve2" ;
+		eem:eventOccurredAt "2014-04-04T17:32:36.279+02:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+		eem:eventTimeZoneOffset "0"^^<http://www.w3.org/2001/XMLSchema#long> ;
+		eem:hasAggregationURI age:344.444.555523 .
+	
+	rdr2:reader102 a eem:Reader ;
+		eem:logicalID "reader102" .
+	
+	eve:eve2 eem:recordedByReader rdr2:reader102 ;
+		eem:action eem:ADD ;
+		eem:hasBusinessStepType cbv:packing ;
+		eem:hasDisposition cbv:in_progress ;
+		eem:eventRecordedAt "2014-04-04T17:32:36.280+02:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+		eem:associatedWithEPCList _:node18kmlslaox3 .
+	
+	_:node18kmlslaox3 a eem:SetOfEPCs ;
+		co:element epc:233.3344.333323 , epc:233.3344.333324 , epc:233.3344.333325 .
+
+
+	eve:eve3 a eem:AggregationEvent ;
+		eem:hasEventID "eve3" ;
+		<http://www.w3.org/2000/01/rdf-schema#label> "An AggregationEvent with event ID eve3" ;
+		eem:eventOccurredAt "2014-04-04T17:32:36.294+02:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+		eem:eventTimeZoneOffset "0"^^<http://www.w3.org/2001/XMLSchema#long> ;
+		eem:hasAggregationURI age:344.444.555524 .
+	
+	rdr2:reader102 a eem:Reader ;
+		eem:logicalID "reader102" .
+	
+	eve:eve3 eem:recordedByReader rdr2:reader102 ;
+		eem:action eem:ADD ;
+		eem:hasBusinessStepType cbv:packing ;
+		eem:hasDisposition cbv:in_progress ;
+		eem:eventRecordedAt "2014-04-04T17:32:36.296+02:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+		eem:associatedWithEPCList _:node18kmlslaox4 .
+	
+	_:node18kmlslaox4 a eem:SetOfEPCs ;
+		co:element epc:233.3344.333326 , epc:233.3344.333327 .
+
+
+	eve:eve4 a eem:ObjectEvent ;
+		eem:hasEventID "eve4" ;
+		<http://www.w3.org/2000/01/rdf-schema#label> "An ObjectEvent with event ID eve4" ;
+		eem:eventOccurredAt "2014-04-04T17:32:39.403+02:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+		eem:eventTimeZoneOffset "0"^^<http://www.w3.org/2001/XMLSchema#long> ;
+		eem:action eem:OBSERVE ;
+		eem:hasBusinessStepType cbv:shipping ;
+		eem:hasDisposition cbv:in_transit ;
+		eem:associatedWithTransactionList _:node18kmlslaox5 .
+	
+	_:node18kmlslaox5 a eem:SetOfTransactions .
+	
+	tinv:0300011111116:A123 a eem:Transaction ;
+		eem:hasTransactionType <http://purl.org/FIspace/cbv#btt/inv> .
+	
+	_:node18kmlslaox5 co:element tinv:0300011111116:A123 .
+	
+	tpo:0399999999991:XYZ567 a eem:Transaction ;
+		eem:hasTransactionType <http://purl.org/FIspace/cbv#btt/po> .
+	
+	_:node18kmlslaox5 co:element tpo:0399999999991:XYZ567 .
+	
+	eve:eve4 eem:associatedWithEPCList _:node18kmlslaox6 .
+	
+	_:node18kmlslaox6 a eem:SetOfEPCs ;
+		co:element age:344.444.555523 , age:344.444.555524 .
+
+eve:eve5 eem:eventRecordedAt "2014-04-04T17:37:01+02:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+eve:eve6 eem:eventRecordedAt "2014-04-04T17:37:02+02:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+eve:eve7 eem:eventRecordedAt "2014-04-04T17:37:03+02:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+eve:eve8 eem:eventRecordedAt "2014-04-04T17:38:00+02:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+eve:eve9 eem:eventRecordedAt "2014-04-04T17:38:00+02:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+eve:eve10 eem:eventRecordedAt "2014-04-04T17:38:01+02:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+eve:eve11 eem:eventRecordedAt "2014-04-04T17:38:01+02:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+eve:eve12 eem:eventRecordedAt "2014-04-04T17:38:02+02:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+eve:eve13 eem:eventRecordedAt "2014-04-04T17:38:02+02:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+eve:eve14 eem:eventRecordedAt "2014-04-04T17:38:03+02:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+eve:eve15 eem:eventRecordedAt "2014-04-04T17:38:04+02:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+eve:eve16 eem:eventRecordedAt "2014-04-04T17:38:04+02:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+eve:eve17 eem:eventRecordedAt "2014-04-04T17:38:05+02:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+eve:eve18 eem:eventRecordedAt "2014-04-04T17:38:06+02:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+eve:eve19 eem:eventRecordedAt "2014-04-04T17:38:06+02:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+eve:eve20 eem:eventRecordedAt "2014-04-04T17:38:09+02:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+
+:this :is :last .
+

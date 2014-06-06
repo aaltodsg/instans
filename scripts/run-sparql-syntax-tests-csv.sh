@@ -18,6 +18,7 @@ mkdir -p ${SAVEDIR}
 cp -f ${TEST_OUTPUT} ${SAVEDIR}/
 cp -f ${REPORT_HTML} ${SAVEDIR}/
 cp -f ${REPORT_HTML} ${REPORT_HTML}.prev
+rm -f [0-9][0-9]*__tmp_out
 if test $# -eq 0 ; then
     pwd
     echo > $TEST_OUTPUT
