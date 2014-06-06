@@ -224,7 +224,7 @@
 				  (:rule-instance-removal-policy (("--rule-instance-removal-policy" "<policy>")) "See the documentation.")
 				  (:queue-execution-policy        (("--queue-execution-policy" "<policy>")) "See the documentation.")
 				  (:execute       (("-e") ("--execute")) "Execute the system. This is done by default at the end of processing all arguments.")
-				  (:time (("--time" "<file>") "Output timing information to <file>"))
+				  (:time (("--time" "<file or '-'>") "Output timing information to <file> or to standard output ('-')"))
 				  (:debug       (("--debug" "<phases>")) "See the documentation.")
 				  (:verbose       (("--verbose" "<phases>")) "Same ase --debug.")))
       (pop args) ; Program path
