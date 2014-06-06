@@ -18,6 +18,8 @@
 	   (select-output-type :csv)
 	   (construct-output-name nil)
 	   (construct-output-type :trig)
+	   time-output-name
+	   time
 	   base graph expected debug reporting rete-html-page-dir)
       (setf *instanssi* instans)
       (labels ((valid-value-p (value accepted-values &key test)
@@ -105,6 +107,7 @@
 				      (if (member :all reporting)
 					  (setf reporting '(:select :construct :modify :all)))
 				      (setf (rule-instance-queue-report-p (instans-rule-instance-queue instans)) reporting))
+			  (:time (setf time-output-name value))
 			  (:debug (setf debug (parse-colon-separated-values value)))
 			  (:verbose (setf debug (parse-colon-separated-values value)))
 			  (:query-input-policy (set-policy :query-input-policy (intern value :keyword) (instans-available-query-input-policies instans)))
@@ -205,6 +208,7 @@
 				  (:rule-instance-removal-policy (("--rule-instance-removal-policy" "<policy>")) "See the documentation.")
 				  (:queue-execution-policy        (("--queue-execution-policy" "<policy>")) "See the documentation.")
 				  (:execute       (("-e") ("--execute")) "Execute the system. This is done by default at the end of processing all arguments.")
+				  (:time (("--time" "<file>") "Output timing information to <file>"))
 				  (:debug       (("--debug" "<phases>")) "See the documentation.")
 				  (:verbose       (("--verbose" "<phases>")) "Same ase --debug.")))
       (pop args) ; Program path
