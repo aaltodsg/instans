@@ -19,7 +19,9 @@
 	   (construct-output-name nil)
 	   (construct-output-type :trig)
 	   time-output-name
-	   time
+	   time-output-stream
+	   start-time-sec
+	   start-time-usec
 	   base graph expected debug reporting rete-html-page-dir)
       (setf *instanssi* instans)
       (labels ((valid-value-p (value accepted-values &key test)
@@ -44,12 +46,21 @@
 		   (setf (instans-select-output-processor instans) (create-select-output-processor select-output-name select-output-type)))
 		 (when (and construct-output-type (null (instans-construct-output-processor instans)))
 		   (setf (instans-construct-output-processor instans) (create-construct-output-processor construct-output-name construct-output-type)))
-		 ))
+		 )
+	       (output-time (fmt &rest args)
+		 (multiple-value-bind (time-sec time-usec) (sb-unix::get-time-of-day)
+		     (let* ((delta-sec (- time-sec start-time-sec))
+			    (delta-usec (- time-usec start-time-usec)))
+		       (when (< delta-usec 0)
+			 (decf delta-sec)
+			 (incf delta-usec 1000000))
+		       (inform "At ~D.~6,'0D: ~A~%" delta-sec delta-usec  (apply #'format nil fmt args))))))
 	(unwind-protect
 ;	     (handler-case
 	     (progn
 	       (loop for (key value) in configuration
-;		     do (inform "key = ~S, value = ~S~%" key value)
+		     when time-output-stream
+		     do (output-time "Processing key ~A, value ~A" key value)
 		     do (case key
 			  (:name (setf (instans-name instans) value))
 			  (:directory (setf directory (parse-iri (if (http-or-file-iri-string-p value)
@@ -78,7 +89,7 @@
 			   (instans-add-triples instans-iri (expand-iri directory value) :graph graph :base base)
 			   (unless (instans-find-status instans 'instans-rdf-parsing-succeeded)
 			     (let ((status (first (instans-status instans))))
-			       (inform "~%~A:~A~{~%~A~}~%" value (type-of status) (instans-status-messages status)))
+			       (format time-output-stream "~%~A:~A~{~%~A~}~%" value (type-of status) (instans-status-messages status)))
 			     (return-from run-configuration nil)))
 		     ;;; "base=http://example.org/friends/&graph=http://instans.org/events/&file=tests/input/fnb.ttl&input-policy=triples-block&operations:add:execute:remove:execute"
 			  ((:turtle :trig :input)
@@ -107,7 +118,9 @@
 				      (if (member :all reporting)
 					  (setf reporting '(:select :construct :modify :all)))
 				      (setf (rule-instance-queue-report-p (instans-rule-instance-queue instans)) reporting))
-			  (:time (setf time-output-name value))
+			  (:time (setf time-output-name value)
+				 (multiple-value-setq (start-time-sec start-time-usec) (sb-unix::get-time-of-day))
+				 (setf time-output-stream (if (string= value "-") *standard-output* (open value :direction :output :if-exists :supersede))))
 			  (:debug (setf debug (parse-colon-separated-values value)))
 			  (:verbose (setf debug (parse-colon-separated-values value)))
 			  (:query-input-policy (set-policy :query-input-policy (intern value :keyword) (instans-available-query-input-policies instans)))
@@ -122,6 +135,9 @@
 	       instans)
 ;	       (t (e) (inform "~A" e))
 ;	  )
+	  (when time-output-stream
+	    (output-time "Done")
+	    (close time-output-stream))
 	  (instans-close-open-streams instans))))))
 
 (defvar *test-argv*)
