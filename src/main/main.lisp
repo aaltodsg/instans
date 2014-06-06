@@ -14,8 +14,10 @@
     (let* ((policies (copy-list (instans-policies instans)))
 	   (directory (parse-iri (format nil "file://~A" (expand-dirname "."))))
 	   (query-input-type nil)
-	   (query-output-name nil)
-	   (query-output-type :csv)
+	   (select-output-name nil)
+	   (select-output-type :csv)
+	   (construct-output-name nil)
+	   (construct-output-type :ttl)
 	   base graph expected debug reporting rete-html-page-dir)
       (setf *instanssi* instans)
       (labels ((valid-value-p (value accepted-values &key test)
@@ -34,7 +36,13 @@
 	       (parse-parameters (string &key colon-expand-fields)
 		 (loop for param in (parse-spec-string string)
 		       for (key value) = param
-		       collect (if (member key colon-expand-fields) (list key (parse-colon-separated-values value)) param))))
+		       collect (if (member key colon-expand-fields) (list key (parse-colon-separated-values value)) param)))
+	       (set-output-processors ()
+		 (when (and select-output-type (null (instans-select-output-processor instans)))
+		   (setf (instans-select-output-processor instans) (create-select-output-processor select-output-name select-output-type)))
+		 ;; (when (and construct-output-type (null (instans-construct-output-processor instans)))
+		 ;;   (setf (instans-construct-output-processor instans) (create-construct-output-processor construct-output-name construct-output-type)))
+		 ))
 	(unwind-protect
 ;	     (handler-case
 	     (progn
@@ -49,8 +57,7 @@
 		       (:graph (if (string= (string-downcase value) "default") nil (setf graph (parse-iri value))))
 		       (:execute (instans-run instans-iri))
 		       (:rules
-			(when (and query-output-type (null (instans-query-output-processor instans)))
-			  (setf (instans-query-output-processor instans) (create-query-output-processor query-output-name query-output-type)))
+			(set-output-processors)
 			(instans-add-rules instans-iri (expand-iri directory value) :create-instans-p nil :base base)
 			(cond ((instans-find-status instans 'instans-rule-translation-succeeded)
 			       (if rete-html-page-dir (output-rete-html-page instans value rete-html-page-dir)))
@@ -62,10 +69,10 @@
 					(inform "~%~A:~A~{~%~A~}~%" value (type-of status) (instans-status-messages status)))))
 			       (return-from run-configuration nil))))
 		       (:input-type (setf query-input-type (intern (string-upcase value) :keyword)))
-		       (:output-type (setf query-output-type (let ((x (intern (string-upcase value) :keyword))) (unless (eq x :none) x))))
+		       (:select-output-type (setf select-output-type (let ((x (intern (string-upcase value) :keyword))) (unless (eq x :none) x))))
+		       (:construct-output-type (setf construct-output-type (let ((x (intern (string-upcase value) :keyword))) (unless (eq x :none) x))))
 		       (:triples
-			(when (null (instans-query-output-processor instans))
-			  (setf (instans-query-output-processor instans) (create-query-output-processor query-output-name query-output-type)))
+			(set-output-processors)
 			(instans-add-triples instans-iri (expand-iri directory value) :graph graph :base base)
 			(unless (instans-find-status instans 'instans-rdf-parsing-succeeded)
 			  (let ((status (first (instans-status instans))))
@@ -83,10 +90,14 @@
 										   (type-string (and (stringp iri-path) (pathname-type (pathname iri-path))))
 										   (type (and type-string (intern (string-upcase type-string) :keyword))))
 									      (if (member type '(:trig :ttl)) type query-input-type)))))))
-		       (:query-output
-			(setf query-output-name value)
-					;			  (inform "query-output-name = ~S" query-output-name)
-			(setf query-output-type (intern (string-upcase (pathname-type (parse-namestring value))) :keyword)))
+		       (:select-output
+			(setf select-output-name value)
+					;			  (inform "select-output-name = ~S" select-output-name)
+			(setf select-output-type (intern (string-upcase (pathname-type (parse-namestring value))) :keyword)))
+		       (:construct-output
+			(setf construct-output-name value)
+					;			  (inform "construct-output-name = ~S" construct-output-name)
+			(setf construct-output-type (intern (string-upcase (pathname-type (parse-namestring value))) :keyword)))
 		       (:expect (let ((spec (parse-spec-string value)))
 				  (inform "expect spec = ~S" spec)
 				  (setf expected spec)))
@@ -180,8 +191,10 @@
 				  (:turtle        (("--turtle" "<input>")) "Read input turtle input")
 				  (:output        (("-o" "<output>") ("--output" "<output>")) "Redirect output to <output>.")
 				  (:expect        (("-e" "<expect>") ("--expect" "<expect>")) "Compare the results to <expect>." :hiddenp t)
-				  (:query-output (("--query-output" "<file>")) "Output queries to <file>.")
-				  (:output-type (("--output-type" "<csv|solution-set|none>")) "Use the given query output type")
+				  (:select-output (("--select-output" "<file>")) "Output select results to <file>.")
+				  (:construct-output (("--construct-output" "<file>")) "Output construct results to <file>.")
+				  (:select-output-type (("--select-output-type" "<csv|solution-set|none>")) "Use the given select output type")
+				  (:construct-output-type (("--construct-output-type" "<csv|solution-set|none>")) "Use the given construct output type")
 				  (:file          (("-f" "<commands>") ("--file" "<commands>")) "Read options from <commands>."
 						  :operation ,#'(lambda (arg value) (declare (ignore arg)) (setf args (append (read-args-from-file value) args))))
 				  (:reporting        (("--report" "<rules>")) "The kinds of rules you want to get reported; a ':'~%~

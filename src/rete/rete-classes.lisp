@@ -166,7 +166,10 @@
 (define-class select-node (query-node) ())
 
 (define-class construct-node (query-node) 
-  ((construct-template :accessor construct-template :initarg :construct-template)))
+  ((construct-template :accessor construct-template :initarg :construct-template)
+   (construct-parameters :accessor construct-parameters :initarg :construct-parameters)
+   (construct-lambda :accessor construct-lambda :initarg :construct-lambda)
+   (construct-func :accessor construct-func)))
 
 (define-class ask-node (query-node) ((satisfiedp :accessor ask-node-satisfied-p :initform nil)))
 
@@ -241,6 +244,12 @@
   ((node :accessor rule-instance-node :initarg :node)
    (token :accessor rule-instance-token :initarg :token)))
 
+(define-class csv-output ()
+  ((stream :accessor csv-output-stream :initarg :stream)
+   (separator :accessor csv-output-separator :initarg :separator :initform (format nil "~C" #\linefeed))
+   (headers :accessor csv-output-headers)
+   (require-headers-p :accessor csv-output-require-headers-p :initarg :require-headers-p :initform t)))
+
 ;;; Query input processor
 
 (define-class query-input-processor ()
@@ -252,23 +261,31 @@
    (parser :accessor query-input-processor-parser :initarg :parser)
    (subscribe :accessor query-input-processor-subscribe :initarg :subscribe :initform nil)))
 
-(define-class csv-output-stream ()
-  ((stream :accessor csv-output-stream-stream :initarg :stream)
-   (separator :accessor csv-output-stream-separator :initarg :separator :initform (format nil "~C" #\linefeed))
-   (headers :accessor csv-output-stream-headers)
-   (require-headers-p :accessor csv-output-stream-require-headers-p :initarg :require-headers-p :initform t)))
-
 ;;; Select/ask/describe/construct ... processors
 (define-class query-output-processor () 
   ((output-name :accessor query-output-processor-output-name :initarg :output-name)))
 
-(define-class csv-query-output-processor (query-output-processor)
-  ((output-stream :accessor csv-query-output-processor-output-stream)))
+(define-class stream-query-output-processor-mixin ()
+  ((output-stream :accessor query-output-processor-output-stream)))
 
-(define-class solution-set-query-output-processor (query-output-processor)
-  ((variables :accessor solution-set-query-output-processor-variables)
-   (bindings :accessor solution-set-query-output-processor-bindings)
-   (end :accessor solution-set-query-output-processor-end)))
+(define-class select-output-processor (query-output-processor) ())
+
+(define-class construct-output-processor (query-output-processor) ())
+
+(define-class csv-output-processor (select-output-processor stream-query-output-processor-mixin)
+  ((csv-output :accessor csv-output-processor-csv-output :initarg :csv-output)))
+
+(define-class solution-set-output-processor (query-output-processor)
+  ((variables :accessor solution-set-output-processor-variables)
+   (bindings :accessor solution-set-output-processor-bindings)
+   (end :accessor solution-set-output-processor-end)))
+
+(define-class statement-output-processor (construct-output-processor stream-query-output-processor-mixin) ())
+(define-class nt-output-processor (statement-output-processor) ())
+(define-class nq-output-processor (statement-output-processor) ())
+
+(define-class trig-output-processor (construct-output-processor stream-query-output-processor-mixin) ())
+(define-class turtle-output-processor (construct-output-processor stream-query-output-processor-mixin) ())
 
 ;;; System
 (define-class instans ()
@@ -294,7 +311,8 @@
    (queue-execution-policy :accessor instans-queue-execution-policy :initarg :queue-execution-policy :initform :repeat-first)
    (available-queue-execution-policies :accessor instans-available-queue-execution-policies :allocation :class :initform '(:first :snapshot :repeat-first :repeat-snapshot))
 ;   (default-rete-input-op :accessor instans-default-rete-input-op :initarg :default-rete-input-op :initform :add)
-   (query-output-processor :accessor instans-query-output-processor :initarg :query-output-processor :initform nil)
+   (select-output-processor :accessor instans-select-output-processor :initarg :select-output-processor :initform nil)
+   (construct-output-processor :accessor instans-construct-output-processor :initarg :construct-output-processor :initform nil)
    (select-compare-function :accessor instans-select-compare-function :initarg :select-compare-function :initform nil)
    ;; (select-function-arguments :accessor instans-select-function-arguments :initarg :select-function-arguments :initform nil)
    (modify-function :accessor instans-modify-function :initarg :modify-function :initform nil)

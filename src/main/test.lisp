@@ -15,12 +15,12 @@
 
 (defun manifest-tests (manifest &optional (query (concatenate 'string (namestring (find-instans-root-directory)) "tests/input/syntax-test.rq")))
   (let* ((base (format nil "file://~A" (directory-namestring (truename manifest))))
-	 (instans (main-test (format nil "--output-type solution-set -b ~A -r ~A -t ~A" base query manifest)))
-	 (p (instans-query-output-processor instans)))
-    (cond ((solution-set-query-output-processor-p p)
+	 (instans (main-test (format nil "--select-output-type solution-set -b ~A -r ~A -t ~A" base query manifest)))
+	 (p (instans-select-output-processor instans)))
+    (cond ((solution-set-output-processor-p p)
 	   (if (slot-boundp p 'variables)
-	       (values (solution-set-query-output-processor-variables p)
-		       (solution-set-query-output-processor-bindings p))
+	       (values (solution-set-output-processor-variables p)
+		       (solution-set-output-processor-bindings p))
 	       (values nil nil)))
 	  (t nil))))
 

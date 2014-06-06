@@ -285,8 +285,10 @@
   (:method ((this instans))
     (loop for ip in (instans-query-input-processors this)
 	  do (close (lexer-input-stream (ll-parser-lexer (query-input-processor-parser ip)))))
-    (when (instans-query-output-processor this)
-      (close-query-output-processor (instans-query-output-processor this)))))
+    (when (instans-select-output-processor this)
+      (close-query-output-processor (instans-select-output-processor this)))
+    (when (instans-construct-output-processor this)
+      (close-query-output-processor (instans-construct-output-processor this)))))
 
 ;; (defgeneric process-triples (query-input-processor triples)
 ;;   (:method ((this query-input-processor) triples)
@@ -326,6 +328,11 @@
 	(:repeat-snapshot
 	 (loop while (rule-instance-queue-execute-snapshot queue)))
 	(t (error* "Unknown execution policy ~A" policy))))))
+
+(defgeneric output-quad-or-triple (instans &rest args)
+  (:method ((this instans) &rest args)
+    (unless (null (instans-construct-output-processor this))
+      (write-select-output (instans-construct-output-processor this) this args))))
 
 (defgeneric report-execution-status (instans &key stream)
   (:method ((this instans) &key (stream (instans-default-output this)))
@@ -768,17 +775,17 @@
 (defgeneric execute-rule-node (node token)
   (:method ((this select-node) token)
     (let ((instans (node-instans this)))
-;      (inform "execute-rule-node ~A, ~A, processor = ~A" this token (instans-query-output-processor instans))
-      (unless (null (instans-query-output-processor instans))
-	(write-query-output (instans-query-output-processor instans) this token))))
+;      (inform "execute-rule-node ~A, ~A, processor = ~A" this token (instans-select-output-processor instans))
+      (unless (null (instans-select-output-processor instans))
+	(write-select-output (instans-select-output-processor instans) this token))))
   (:method ((this ask-node) token)
     (let ((instans (node-instans this)))
-      (unless (null (instans-query-output-processor instans))
-	(write-query-output (instans-query-output-processor instans) this token))))
+      (unless (null (instans-select-output-processor instans))
+	(write-select-output (instans-select-output-processor instans) this token))))
   (:method ((this describe-node) token)
     (let ((instans (node-instans this)))
-      (unless (null (instans-query-output-processor instans))
-	(write-query-output (instans-query-output-processor instans) this token))))
+      (unless (null (instans-select-output-processor instans))
+	(write-select-output (instans-select-output-processor instans) this token))))
   (:method ((this modify-node) token)
     (let* ((instans (node-instans this))
 	   (modify-function (instans-modify-function instans)))
@@ -814,5 +821,5 @@
 	 rete-add rete-remove add-token remove-token add-alpha-token add-beta-token remove-alpha-token remove-beta-token match-quad
 	 join-beta-key join-alpha-key
 	 token-value make-token call-succ-nodes rete-add-rule-instance execute-rules rule-instance-queue-execute-instance execute-rule-node
-	 write-query-output store-put-token store-get-token store-remove-token store-tokens index-put-token index-get-tokens index-remove-token
+	 write-select-output store-put-token store-get-token store-remove-token store-tokens index-put-token index-get-tokens index-remove-token
 	 aggregate-get-value aggregate-add-value aggregate-remove-value))

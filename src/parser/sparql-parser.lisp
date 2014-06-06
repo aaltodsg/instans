@@ -462,9 +462,9 @@
 						       :RESULT (append '(:query-form CONSTRUCT) $0 $1 $2 $3))
 						      (((:REP0 DatasetClause) :RESULT (and $0 (list :dataset $0)))
 						       WHERE-TERMINAL |{-TERMINAL|
-						       (:OPT (TriplesTemplate :RESULT (translate-group-graph-pattern (list (cons 'BGP (get-triples))))))
+						       (:OPT (TriplesTemplate :RESULT (list (cons 'BGP (get-triples)))))
 						       |}-TERMINAL| SolutionModifier
-						       :RESULT (append '(:query-form CONSTRUCT) (list :where (opt-value $3) :construct-template (opt-value $3)) $0 $5)))
+						       :RESULT (append '(:query-form CONSTRUCT) (list :where (translate-group-graph-pattern (opt-value $3)) :construct-template (opt-value $3)) $0 $5)))
 						 :RESULT $1))
 	 (DescribeQuery ::= (DESCRIBE-TERMINAL ((:OR (:REP1 VarOrIri) (|*-TERMINAL| :RESULT '*)) :RESULT (list :var-or-iri-list $0))
 					       ((:REP0 DatasetClause) :RESULT (and $0 (list :dataset $0)))
@@ -568,7 +568,7 @@
 			   (|(-TERMINAL| (:OPT DISTINCT-TERMINAL) (Expression (:REP0 (|,-TERMINAL| Expression :RESULT $1)) :RESULT (cons $0 $1)) |)-TERMINAL|
 					 :RESULT (if (opt-yes-p $1) (cons (sparql-distinct) $2) $2))))
 	 (ExpressionList ::= (:OR (NIL-TERMINAL :RESULT (progn nil)) (|(-TERMINAL| (Expression (:REP0 (|,-TERMINAL| Expression :RESULT $1)) :RESULT (cons $0 $1)) |)-TERMINAL| :RESULT $1)))
-	 (ConstructTemplate ::= (|{-TERMINAL| (:OPT ConstructTriples) |}-TERMINAL| :RESULT (cons 'BGP (get-triples))))
+	 (ConstructTemplate ::= (|{-TERMINAL| (:OPT ConstructTriples) |}-TERMINAL| :RESULT (list (cons 'BGP (get-triples)))))
 	 (ConstructTriples ::= (TriplesSameSubject (:OPT (|.-TERMINAL| (:OPT ConstructTriples)))))
 	 (TriplesSameSubject ::= (:OR (VarOrTerm PropertyListNotEmpty :RESULT (emit-subj-pred-obj-list $0 $1))
 				      (TriplesNode PropertyList :RESULT (emit-subj-pred-obj-list $0 (opt-value $1)))))

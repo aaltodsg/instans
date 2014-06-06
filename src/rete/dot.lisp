@@ -144,6 +144,9 @@
 (defmethod dot-node-tooltip :around ((this modify-node))
   (format nil "~A~%~S~%~S" (call-next-method) (modify-delete-lambda this) (modify-insert-lambda this)))
 
+(defmethod dot-node-tooltip :around ((this construct-node))
+  (format nil "~A~%~S" (call-next-method) (construct-lambda this)))
+
 (defmethod dot-node-tooltip :around ((this query-node))
   (format nil "~A~%project-vars: ~A" (call-next-method) (var-orig-names this (solution-modifiers-project-vars this))))
 
