@@ -101,6 +101,6 @@
 		  (setf (modify-delete-func node) (and (modify-delete-template node) (compile nil (modify-delete-lambda node))))
 		  (setf (modify-insert-func node) (and (modify-insert-template node) (compile nil (modify-insert-lambda node)))))
 		 ((construct-node-p node)
-		  (inform "compiling construct-lambda ~S~%construct-template = ~S" (construct-lambda node) (construct-template node))
+;		  (inform "compiling construct-lambda ~S~%construct-template = ~S" (construct-lambda node) (construct-template node))
 		  (setf (construct-func node) (and (construct-template node) (compile nil (construct-lambda node))))))))
 

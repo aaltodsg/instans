@@ -329,10 +329,10 @@
 	 (loop while (rule-instance-queue-execute-snapshot queue)))
 	(t (error* "Unknown execution policy ~A" policy))))))
 
-(defgeneric output-quad-or-triple (instans &rest args)
-  (:method ((this instans) &rest args)
+(defgeneric output-quad-or-triple (instans s p o &optional g)
+  (:method ((this instans) s p o &optional g)
     (unless (null (instans-construct-output-processor this))
-      (write-select-output (instans-construct-output-processor this) this args))))
+      (write-construct-output (instans-construct-output-processor this) this s p o g))))
 
 (defgeneric report-execution-status (instans &key stream)
   (:method ((this instans) &key (stream (instans-default-output this)))
@@ -787,17 +787,18 @@
       (unless (null (instans-select-output-processor instans))
 	(write-select-output (instans-select-output-processor instans) this token))))
   (:method ((this modify-node) token)
-    (let* ((instans (node-instans this))
-	   (modify-function (instans-modify-function instans)))
-      (unless (null modify-function)
-	(apply modify-function this token (instans-modify-function-arguments instans))))
+    ;; (let* ((instans (node-instans this))
+    ;; 	   (modify-function (instans-modify-function instans)))
+    ;;   (unless (null modify-function)
+    ;; 	(apply modify-function this token (instans-modify-function-arguments instans))))
     (when (modify-delete-func this)
       (apply (modify-delete-func this) (node-instans this) (loop for var in (modify-delete-parameters this) collect (token-value this token var))))
     (when (modify-insert-func this)
       (apply (modify-insert-func this) (node-instans this) (loop for var in (modify-insert-parameters this) collect (token-value this token var)))))
   (:method ((this construct-node) token)
     (declare (ignorable this token))
-    (signal-sparql-error "(remove-token ~A) not implemented yet" this)))
+    (when (construct-func this)
+      (apply (construct-func this) (node-instans this) (loop for var in (construct-parameters this) collect (token-value this token var))))))
 
 ;;; Group partition
 

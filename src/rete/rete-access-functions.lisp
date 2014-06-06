@@ -41,6 +41,12 @@
     (setf (query-output-processor-output-stream this) stream)
     (setf (csv-output-processor-csv-output this) (make-instance 'csv-output :stream stream))))
 
+(defmethod initialize-instance :after ((this construct-output-processor) &key output-name &allow-other-keys)
+  (let ((stream (cond ((null output-name) *standard-output*)
+		      (t
+		       (open output-name :direction :output :if-exists :supersede)))))
+    (setf (query-output-processor-output-stream this) stream)))
+
 (defmethod initialize-instance :after ((this instans) &key &allow-other-keys)
   (when (and (instans-use-quad-store-p this) (null (instans-quad-store this)))
     (setf (instans-quad-store this) (make-instance 'list-quad-store)))
@@ -381,9 +387,18 @@
       (setf (solution-set-output-processor-end this)
 	    (setf (cdr (solution-set-output-processor-end this)) (list values))))))
 
+(defgeneric write-construct-output (query-output-processor instans s p o &optional g)
+  (:method ((this nq-output-processor) instans s p o &optional g)
+    (let ((stream (query-output-processor-output-stream  this)))
+      (if g
+	  (format stream "~S ~S ~S ~S .~%" s p o g)
+	  (format stream "~S ~S ~S .~%" s p o)))))
+
 (defgeneric close-query-output-processor (query-output-processor)
   (:method ((this stream-query-output-processor-mixin))
-    (close (query-output-processor-output-stream this)))
+;    (inform "close-query-output-processor: ~S" this)
+    (unless (member (query-output-processor-output-stream this) (list *standard-output* *error-output*))
+      (close (query-output-processor-output-stream this))))
   (:method ((this solution-set-output-processor))
     (if (slot-boundp this 'bindings)
 	(pop (solution-set-output-processor-bindings this))

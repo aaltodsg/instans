@@ -1,4 +1,12 @@
-CONSTRUCT { ?s ?p ?o }
-WHERE {
+# CONSTRUCT { ?s ?p ?o }
+# WHERE {
+#       GRAPH ?g { ?s ?p ?o }
+# }
+
+CONSTRUCT WHERE {
       GRAPH ?g { ?s ?p ?o }
+}
+;
+CONSTRUCT WHERE {
+      { ?s ?p ?o }
 }

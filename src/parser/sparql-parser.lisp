@@ -458,7 +458,10 @@
 						 (|*-TERMINAL| :RESULT '*))
 					    :RESULT (append $1 (list :project $2))))
 	 ;;; Note: blanks should be reinstantiated when running the template. See 16.2.1 Templates with Blank Nodes in the SPecs
-	 (ConstructQuery ::= (CONSTRUCT-TERMINAL (:OR ((ConstructTemplate :RESULT (list :construct-template $0)) ((:REP0 DatasetClause) :RESULT (and $0 (list :dataset $0))) WhereClause SolutionModifier 
+	 (ConstructQuery ::= (CONSTRUCT-TERMINAL (:OR ((
+							; ConstructTemplate
+							QuadPattern
+							:RESULT (list :construct-template $0)) ((:REP0 DatasetClause) :RESULT (and $0 (list :dataset $0))) WhereClause SolutionModifier 
 						       :RESULT (append '(:query-form CONSTRUCT) $0 $1 $2 $3))
 						      (((:REP0 DatasetClause) :RESULT (and $0 (list :dataset $0)))
 						       WHERE-TERMINAL |{-TERMINAL|
