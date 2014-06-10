@@ -1,0 +1,12 @@
+PREFIX : <http://instans.org/>
+
+SELECT DISTINCT ?eve1 ?epc1 WHERE {
+  # Match elements in two events
+  ?eve1 a :ObjectEvent ;
+        :associatedWithList ?y1 .
+  ?y1 :element ?epc1 .
+  ?eve2 a :ObjectEvent ;
+        :associatedWithList ?y2 .
+  ?y2  :element ?epc2 .
+  # Remove common elements
+  FILTER NOT EXISTS { ?y2 :element ?epc1 } }

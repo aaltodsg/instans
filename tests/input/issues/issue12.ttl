@@ -1,0 +1,12 @@
+@prefix : <http://instans.org/> .
+
+:eve1 a :ObjectEvent ;
+      :associatedWithList _:node1 .
+_:node1 a :SetOfElements ;
+	:element :first , :second, :third .
+
+:eve2 a :ObjectEvent ;
+      :associatedWithList _:node2 .
+_:node2 a :SetOfElements ;
+	:element :second , :third, :fourth .
+
