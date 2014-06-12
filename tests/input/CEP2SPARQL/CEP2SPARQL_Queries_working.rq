@@ -1,8 +1,8 @@
 
-PREFIX :<http:example.org/default#>
-PREFIX geo:<http://www.w3.org/2003/01/geo/wgs84_pos#>
-PREFIX ssn:<http://purl.oclc.org/NET/ssnx/ssn#>
-PREFIX ep:<http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
+PREFIX : <http:instans.org/default#>
+PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX ssn: <http://purl.oclc.org/NET/ssnx/ssn#>
+PREFIX ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
 PREFIX omgeo: <http://www.ontotext.com/owlim/geo#>
 PREFIX ff: <http://factforge.net/>
 
@@ -51,13 +51,14 @@ WHERE { GRAPH <http://example.org/poststateless/> {
    }
   BIND ( HOURS(?time) as ?hour)
 #  This filter gets stuck:
-#  FILTER ( ?hour != COALESCE(?prevhour,-1) ) # Compare current with memory
+# FILTER ( COALESCE(?hour,-2) != COALESCE(?prevhour,-1) ) # Compare current with memory
 }
 
 ;
 
 # Enrich (EPA 3): Enrich events with the name of the closest location
-# If there are problems with the SERVICE-query, it can be temporarily replaced with BIND ( "Espoo" as ?label )
+# SERVICE-query replaced with BIND ( "Espoo" as ?label ) to avoid external lookup delay
+# and because SERVICE is not yet implemented in INSTANS
 
 PREFIX omgeo: <http://www.ontotext.com/owlim/geo#>
 PREFIX ff: <http://factforge.net/>
@@ -67,7 +68,7 @@ INSERT { GRAPH <http://example.org/translated/> {
          ssn:Sensor ?sensor ;
          geo:Point [ geo:lat ?lat ; geo:long ?long ; ] ;
          ep:hasEventObjectSamplingTime ?time ;
-         ex:locationName ?label } }
+         :locationName ?label } }
 WHERE { GRAPH <http://example.org/poststateful/> { 
     ?event a ep:EventObject ; # Match incoming event
            ssn:Sensor ?sensor ;

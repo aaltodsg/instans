@@ -1,0 +1,3 @@
+SELECT ?result WHERE {
+  BIND ( IF ("string" != 1 , "correct" , "problem") AS ?result )
+}
