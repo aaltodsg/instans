@@ -1,0 +1,4 @@
+PREFIX : <http://instans.org/>
+
+INSERT DATA { [] :pred :obj } ;
+SELECT * WHERE { ?s ?p ?o }

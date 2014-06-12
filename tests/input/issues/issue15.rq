@@ -2,5 +2,5 @@ PREFIX : <http://instans.org/>
 
 SELECT ?var WHERE {
   OPTIONAL { ?s1 ?p1 ?o1 }
-  # GRAPH <http://example.org/memory/> {
-      OPTIONAL  { ?s ?p ?var } } # }
+  GRAPH <http://example.org/memory/> {
+      OPTIONAL  { ?s ?p ?var } } }
