@@ -86,6 +86,7 @@
 	       		:components ((:file "translate-sparql-algebra-to-rete")
 	       			     (:file "compile-sparql-file")
 				     (:file "main")
+				     (:file "main2")
 				     (:file "test")
 				     ))))
 
