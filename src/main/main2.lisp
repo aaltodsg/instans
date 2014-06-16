@@ -373,7 +373,7 @@
 			  "empty. \"Snapshot\" takes the rules currently in the queue and executes them;"
 			  "\"repeat-snapshot\" repeats this as long as the queue is not empty.")
 		  :html ""
-		  (setf (instans-queue-execution-policy instans) value))
+		  (setf (instans-queue-execution-policy instans) (intern (string-upcase value) :keyword)))
 		 (allow-rule-instance-removal
 		  :options ("--allow-rule-instance-removal=BOOL")
 		  :usage ("If true (the default), adding or removing RDF input removes rule instances that have"
@@ -381,7 +381,10 @@
 			  "if false, rule instances are not removed from the queue even when they cease to be"
 			  "satisfied when adding or removing RDF input.")
 		  :html ""
-		  (setf (instans-allow-rule-instance-removal-p instans) value))
+		  (setf (instans-allow-rule-instance-removal-p instans)
+			(cond ((string-equal value "true") t)
+			      ((string-equal value "false") nil)
+			      (t (usage)))))
 		 (t :usage ("" "Miscelaneus debugging and testing options:" ""))
 		 (verbose
 		  :options ("--verbose=SITUATIONS")

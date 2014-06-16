@@ -1,0 +1,106 @@
+@prefix tl:<http://purl.org/NET/c4dm/timeline.owl#> .
+@prefix geo:<http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#> .
+@prefix : <http://instans.org/> .
+
+{ :sensor1 :sum 0; :count 0; event :none }
+:ev0 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 0; :reading 0 }
+:ev1 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 1; :reading 3 }
+:ev2 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 2; :reading 6 }
+# :ev3 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 3; :reading 9 }
+# :ev4 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 4; :reading 12 }
+# :ev5 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 5; :reading 15 }
+# :ev6 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 6; :reading 18 }
+# :ev7 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 7; :reading 21 }
+# :ev8 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 8; :reading 24 }
+# :ev9 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 9; :reading 27 }
+# :ev10 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 10; :reading 30 }
+# :ev11 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 11; :reading 33 }
+# :ev12 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 12; :reading 36 }
+# :ev13 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 13; :reading 39 }
+# :ev14 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 14; :reading 42 }
+# :ev15 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 15; :reading 45 }
+# :ev16 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 16; :reading 48 }
+# :ev17 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 17; :reading 51 }
+# :ev18 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 18; :reading 54 }
+# :ev19 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 19; :reading 57 }
+# :ev20 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 20; :reading 60 }
+# :ev21 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 21; :reading 63 }
+# :ev22 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 22; :reading 66 }
+# :ev23 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 23; :reading 69 }
+# :ev24 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 24; :reading 72 }
+# :ev25 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 25; :reading 75 }
+# :ev26 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 26; :reading 78 }
+# :ev27 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 27; :reading 81 }
+# :ev28 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 28; :reading 84 }
+# :ev29 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 29; :reading 87 }
+# :ev30 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 30; :reading 90 }
+# :ev31 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 31; :reading 93 }
+# :ev32 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 32; :reading 96 }
+# :ev33 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 33; :reading 99 }
+# :ev34 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 34; :reading 102 }
+# :ev35 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 35; :reading 105 }
+# :ev36 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 36; :reading 108 }
+# :ev37 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 37; :reading 111 }
+# :ev38 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 38; :reading 114 }
+# :ev39 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 39; :reading 117 }
+# :ev40 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 40; :reading 120 }
+# :ev41 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 41; :reading 123 }
+# :ev42 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 42; :reading 126 }
+# :ev43 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 43; :reading 129 }
+# :ev44 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 44; :reading 132 }
+# :ev45 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 45; :reading 135 }
+# :ev46 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 46; :reading 138 }
+# :ev47 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 47; :reading 141 }
+# :ev48 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 48; :reading 144 }
+# :ev49 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 49; :reading 147 }
+# :ev50 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 50; :reading 150 }
+# :ev51 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 51; :reading 153 }
+# :ev52 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 52; :reading 156 }
+# :ev53 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 53; :reading 159 }
+# :ev54 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 54; :reading 162 }
+# :ev55 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 55; :reading 165 }
+# :ev56 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 56; :reading 168 }
+# :ev57 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 57; :reading 171 }
+# :ev58 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 58; :reading 174 }
+# :ev59 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 59; :reading 177 }
+# :ev60 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 60; :reading 180 }
+# :ev61 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 61; :reading 183 }
+# :ev62 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 62; :reading 186 }
+# :ev63 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 63; :reading 189 }
+# :ev64 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 64; :reading 192 }
+# :ev65 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 65; :reading 195 }
+# :ev66 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 66; :reading 198 }
+# :ev67 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 67; :reading 201 }
+# :ev68 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 68; :reading 204 }
+# :ev69 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 69; :reading 207 }
+# :ev70 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 70; :reading 210 }
+# :ev71 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 71; :reading 213 }
+# :ev72 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 72; :reading 216 }
+# :ev73 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 73; :reading 219 }
+# :ev74 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 74; :reading 222 }
+# :ev75 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 75; :reading 225 }
+# :ev76 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 76; :reading 228 }
+# :ev77 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 77; :reading 231 }
+# :ev78 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 78; :reading 234 }
+# :ev79 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 79; :reading 237 }
+# :ev80 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 80; :reading 240 }
+# :ev81 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 81; :reading 243 }
+# :ev82 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 82; :reading 246 }
+# :ev83 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 83; :reading 249 }
+# :ev84 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 84; :reading 252 }
+# :ev85 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 85; :reading 255 }
+# :ev86 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 86; :reading 258 }
+# :ev87 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 87; :reading 261 }
+# :ev88 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 88; :reading 264 }
+# :ev89 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 89; :reading 267 }
+# :ev90 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 90; :reading 270 }
+# :ev91 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 91; :reading 273 }
+# :ev92 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 92; :reading 276 }
+# :ev93 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 93; :reading 279 }
+# :ev94 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 94; :reading 282 }
+# :ev95 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 95; :reading 285 }
+# :ev96 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 96; :reading 288 }
+# :ev97 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 97; :reading 291 }
+# :ev98 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 98; :reading 294 }
+# :ev99 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 99; :reading 297 }
