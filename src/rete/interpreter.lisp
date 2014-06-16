@@ -37,7 +37,7 @@
 
 (defgeneric rete-remove-rule-instance (instans node token)
   (:method ((this instans) (node node) token)
-    (when (eq (instans-rule-instance-removal-policy this) :remove)
+    (when (eq (instans-allow-rule-instance-removal-p this) :remove)
       (rule-instance-queue-remove (instans-rule-instance-queue this) node token))))
 
 ;;; ----------------------
@@ -298,7 +298,7 @@
   (:method ((this query-input-processor) input &key graph ops)
     (process-query-input (query-input-processor-instans this) input :graph graph :ops (or ops (query-input-processor-operations this))))
   (:method ((this instans) inputs &key graph ops)
-    (setf ops (or ops (instans-query-processing-operations this)))
+    (setf ops (or ops (instans-rdf-operations this)))
     (when (symbolp ops)
       (setf ops (list ops)))
     (let ((*instans* this))

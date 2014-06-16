@@ -304,9 +304,9 @@
 
 (defgeneric instans-policies (instans)
   (:method ((this instans))
-    (list :query-input-policy (instans-query-input-policy this)
-	  :query-processing-operations (instans-query-processing-operations this)
-	  :rule-instance-removal-policy (instans-rule-instance-removal-policy this)
+    (list :rdf-input-unit (instans-rdf-input-unit this)
+	  :rdf-operations (instans-rdf-operations this)
+	  :allow-rule-instance-removal-p (instans-allow-rule-instance-removal-p this)
 	  :queue-execution-policy (instans-queue-execution-policy this))))
 
 (defgeneric write-csv-headers (csv-output headers)

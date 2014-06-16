@@ -5,10 +5,10 @@
 
 (in-package #:instans)
 
-(defun compile-sparql-file (file &key instans instans-name rete-html-page-dir base)
+(defun compile-sparql-file (file &key instans instans-name rete-html-output base)
   (with-open-file (input-stream file)
     (setf instans (compile-sparql-stream input-stream :instans instans :instans-name instans-name :base base))
-    (when (and instans rete-html-page-dir) (output-rete-html-page instans file rete-html-page-dir))
+    (when (and instans rete-html-output) (output-rete-html-page instans rete-html-output))
     instans))
 
 (defun compile-sparql-stream (stream &key instans instans-name base)
@@ -133,11 +133,11 @@
 (defun instans-add-query-input-processor (instans-iri input-iri &key graph base input-type)
   (let* ((instans (get-instans instans-iri)))
     (instans-debug-message instans '(:parse-rdf :execute) "instans-add-query-input-processor ~S ~S :input-type ~S :graph ~S :base ~S" instans-iri input-iri input-type graph base)
-    (let* ((input-policy (instans-query-input-policy instans))
+    (let* ((input-policy (instans-rdf-input-unit instans))
 	   (processor (make-instance 'query-input-processor
 				     :instans instans
 				     :input-policy input-policy
-				     :operations (instans-query-processing-operations instans)
+				     :operations (instans-rdf-operations instans)
 				     :base base
 				     :graph graph))
 	   (input-stream (create-input-stream input-iri))
