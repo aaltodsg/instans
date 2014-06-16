@@ -145,17 +145,17 @@
 	   (callback (case input-policy
 		       (:single (list :triple-callback #'(lambda (&rest input) (process-query-input processor (list input)))))
 		       (:block (list :block-callback #'(lambda (inputs) (process-query-input processor inputs))))
-		       (:document (list :document-callback #'(lambda (inputs) (process-query-input processor inputs))))))
-	   (parser (apply parser-creator :instans instans :input-stream input-stream :base base (list callback))))
+		       (:document (list :document-callback #'(lambda (inputs) (process-query-input processor inputs))))
+		       (t (error* "Illegal query input policy ~A" input-policy))))
+	   (parser (apply parser-creator instans input-stream :base base callback)))
+;      (make-turtle-parser )
       (setf (query-input-processor-parser processor) parser)
       (push-to-end processor (instans-query-input-processors instans)))
     instans))
 
 (defun instans-run (instans-iri)
-  (declare (ignorable instans-iri))
-  nil)
-;; (let ((instans (get-instans instans-iri)))
-;;   (run-query-input-processors instans)))
+  (let ((instans (get-instans instans-iri)))
+    (run-query-input-processors instans)))
 
 (defun instans-parse-rdf-file (instans-iri input-iri &key subscribe base graph triple-callback block-callback document-callback)
   (let ((instans (create-instans instans-iri))

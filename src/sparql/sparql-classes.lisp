@@ -224,6 +224,19 @@
   (:method ((this sparql-unbound)) "UNBOUND")
   (:method ((this rdf-term)) (format nil "~A" this)))
 
+;;; Note! This is not SPARQL operation RDFterm-equal
+(defgeneric rdf-term-equal (a b)
+  (:method ((i1 rdf-iri) (i2 rdf-iri)) (rdf-iri= i1 i2))
+  (:method ((b1 rdf-blank-node) (b2 rdf-blank-node)) (string= (uniquely-named-object-name b1) (uniquely-named-object-name b2)))
+  (:method ((l1 rdf-literal) (l2 rdf-literal)) (or (and (string= (rdf-literal-string l1) (rdf-literal-string l2))
+							(cond ((rdf-literal-lang l1)
+							       (and (rdf-literal-lang l2) (string= (rdf-literal-lang l1) (rdf-literal-lang l2))))
+							      ((rdf-literal-type l1)
+							       (and (rdf-literal-type l2) (rdf-iri= (rdf-literal-type l1) (rdf-literal-type l2))))
+							      (t (error* "A literal with neither a type nor a lang ~A" l1))))
+						   (signal-sparql-error "rdf-term-equal: Literals ~A and ~A are not the same term" l1 l2)))
+  (:method ((t1 rdf-term) (t2 rdf-term)) (declare (ignorable t1 t2)) nil))
+
 (defun create-rdf-literal-with-type (string type-iri)
   (let ((type-descriptor (find-type-descriptor (rdf-iri-string type-iri))))
 ;    (inform "create-rdf-literal-with-type ~S ~S" string type-iri)

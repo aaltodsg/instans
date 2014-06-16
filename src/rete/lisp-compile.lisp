@@ -28,7 +28,7 @@
 		 ((bind-node-p node)
 		  ;;		      (inform "bind-form ~A = ~A" node (bind-form node))
 		  (let ((bind-lambda `(lambda ,(sparql-var-lisp-names (node-use node)) ,(sparql-expr-to-lisp (bind-form node)))))
-		    ;;			(inform "bind-lambda = ~S" bind-lambda)
+		    ;; (inform "bind-lambda = ~S" bind-lambda)
 		    (setf (bind-form-lambda node) bind-lambda)
 		    (setf (bind-form-func node) (compile nil bind-lambda))))
 		 ((aggregate-join-node-p node)

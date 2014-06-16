@@ -4,6 +4,7 @@ PREFIX geo:<http://www.w3.org/2003/01/geo/wgs84_pos#>
 PREFIX foaf:<http://xmlns.com/foaf/0.1/>
 PREFIX event:<http://purl.org/NET/c4dm/event.owl#>
 PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>
+PREFIX : <http://example.org/#>
 
 # QUERY 2 - PART B: Remove old events
 	# Leave only the newest event for each person

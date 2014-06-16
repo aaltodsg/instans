@@ -116,7 +116,7 @@
   (:method ((a xsd-string-value) (b xsd-string-value)) (string= a b))
   (:method ((a xsd-boolean-value) (b xsd-boolean-value)) (eq a b))
   (:method ((a xsd-datetime-value) (b xsd-datetime-value)) (datetime= a b))
-  (:method ((a term-or-value) (b term-or-value)) (sparql-call "RDFterm-equal" a b))
+  (:method ((a rdf-term) (b rdf-term)) (sparql-call "RDFterm-equal" a b))
   (:method ((a group) (b group)) (eq a b)))
 
 ;; A != B	numeric, numeric		-> xsd:boolean  =>  fn:not(op:numeric-equal(A, B)) 
@@ -262,23 +262,17 @@
 ;;      term1 and term2 are the same blank node as described in 6.6 Blank Nodes of [CONCEPTS].
 (define-sparql-function "RDFterm-equal" (:arguments ((t1 term-or-value) (t2 term-or-value)) :returns xsd-boolean :hiddenp t)
   (:method ((v1 xsd-value) (v2 xsd-value)) (sparql-call "=" v1 v2))
-  (:method ((i1 rdf-iri) (i2 rdf-iri)) (rdf-iri= i1 i2))
-  (:method ((b1 rdf-blank-node) (b2 rdf-blank-node)) (string= (uniquely-named-object-name b1) (uniquely-named-object-name b2)))
-  (:method ((l1 rdf-literal) (l2 rdf-literal)) (or (and (string= (rdf-literal-string l1) (rdf-literal-string l2))
-							(cond ((rdf-literal-lang l1)
-							       (and (rdf-literal-lang l2) (string= (rdf-literal-lang l1) (rdf-literal-lang l2))))
-							      ((rdf-literal-type l1)
-							       (and (rdf-literal-type l2) (rdf-iri= (rdf-literal-type l1) (rdf-literal-type l2))))
-							      (t (error* "A literal with neither a type nor a lang ~A" l1))))
-						   (signal-sparql-error "RDFterm-equal: Literals ~A and ~A are not the same term" l1 l2)))
-  (:method ((t1 rdf-term) (t2 rdf-term)) (declare (ignorable t1 t2)) nil))
+  (:method ((t1 rdf-term) (t2 rdf-term)) (rdf-term-equal t1 t2)))
 
 ;; 17.4.1.8 sameTerm
 ;; -----------------
 ;; sameTerm	RDF term, RDF term -> xsd:boolean	 => term1 = term2
 ;;    Returns TRUE iff term1 and term2 are the same RDF term as defined in Resource Description Framework (RDF): Concepts and Abstract Syntax [CONCEPTS]
 (define-sparql-function "sameTerm" (:arguments ((t1 term-or-value) (t2 term-or-value)) :returns xsd-boolean :hiddenp nil)
-  (:method ((v1 xsd-value) (v2 xsd-value)) (sparql-call "=" v1 v2))
+  (:method ((a xsd-number-value) (b xsd-number-value)) (= a b))
+  (:method ((a xsd-string-value) (b xsd-string-value)) (string= a b))
+  (:method ((a xsd-boolean-value) (b xsd-boolean-value)) (eq a b))
+  (:method ((a xsd-datetime-value) (b xsd-datetime-value)) (datetime= a b))
   (:method ((i1 rdf-iri) (i2 rdf-iri)) (rdf-iri= i1 i2))
   (:method ((b1 rdf-blank-node) (b2 rdf-blank-node)) (string= (uniquely-named-object-name b1) (uniquely-named-object-name b2)))
   (:method ((l1 rdf-literal) (l2 rdf-literal)) (and (string= (rdf-literal-string l1) (rdf-literal-string l2))

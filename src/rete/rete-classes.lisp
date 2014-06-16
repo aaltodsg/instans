@@ -256,7 +256,7 @@
   ((instans :accessor query-input-processor-instans :initarg :instans)
    (input-policy :accessor query-input-processor-input-policy :initarg :input-policy)
    (operations :accessor query-input-processor-operations :initarg :operations)
-   (base :accessor query-input-processor-base :initarg :graph)
+   (base :accessor query-input-processor-base :initarg :base)
    (graph :accessor query-input-processor-graph :initarg :graph)
    (parser :accessor query-input-processor-parser :initarg :parser)
    (subscribe :accessor query-input-processor-subscribe :initarg :subscribe :initform nil)))
