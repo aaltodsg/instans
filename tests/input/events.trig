@@ -3,10 +3,9 @@
 @prefix xsd:<http://www.w3.org/2001/XMLSchema#> .
 @prefix : <http://instans.org/> .
 
-{ :sensor1 :sum 0; :count 0; event :none }
 :ev0 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 0; :reading 0 }
-:ev1 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 1; :reading 3 }
-:ev2 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 2; :reading 6 }
+# :ev1 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 1; :reading 3 }
+# :ev2 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 2; :reading 6 }
 # :ev3 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 3; :reading 9 }
 # :ev4 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 4; :reading 12 }
 # :ev5 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 5; :reading 15 }

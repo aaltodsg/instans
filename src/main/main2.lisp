@@ -138,7 +138,6 @@
   (multiple-value-bind (instans instans-iri) (create-instans)
     (let* ((executedp nil)
 	   (execute-immediately-p t)
-	   (policies (copy-list (instans-policies instans)))
 	   (directory (parse-iri (format nil "file://~A" (expand-dirname "."))))
 	   (select-output-name nil)
 	   (select-output-type :csv)
@@ -156,15 +155,6 @@
       (labels ((valid-value-p (value accepted-values &key test)
 		 (or (funcall test value accepted-values)
 		     (error* "Value ~A not one of ~A" value accepted-values)))
-	       (set-policy (key value accepted-values &key (test #'equal))
-		 (when (valid-value-p value accepted-values :test test)
-		   (setf (getf policies key) value)
-		   (case key
-		     (:rdf-input-unit (setf (instans-rdf-input-unit instans) value))
-		     (:rdf-operations (setf (instans-rdf-operations instans) value))
-		     (:allow-rule-instance-removal-p (setf (instans-allow-rule-instance-removal-p instans) value))
-		     (:queue-execution-policy (setf (instans-queue-execution-policy instans) value))
-		     (t (error* "Unknown policy ~A" key)))))
 ;	       (expand-iri-or-file-path (base iri-or-file-path input-type)
 	       (parse-parameters (string &key colon-expand-fields)
 		 (loop for param in (parse-spec-string string)
@@ -181,8 +171,9 @@
 		 (when execute-immediately-p
 ;		   (inform "yes")
 		   (setf executedp t)
-		   (set-output-processors)
-		   (instans-run instans-iri)))
+		   (instans-run instans-iri
+				:select-output-name select-output-name :select-output-type select-output-type
+				:construct-output-name construct-output-name :construct-output-type construct-output-type)))
 	       (output-time (fmt &rest args)
 		 (multiple-value-bind (time-sec time-usec) (sb-unix::get-time-of-day)
 		     (let* ((delta-sec (- time-sec start-time-sec))
@@ -363,8 +354,8 @@
 		  :usage ("Apply a colon separated list of operations to the unit of RDF input. Operations are"
 			  "\"add\", \"remove\", and \"execute\". You can use \"event\" as a shorthand form"
 			  "\"add:execute:remove:execute\". The default is \"add:execute\".")
-		  :html
-		  (setf (instans-rdf-operations instans) value))
+		  :html ""
+		  (setf (instans-rdf-operations instans) (parse-colon-separated-values value)))
 		 (queue-execution-policy
 		  :options ("--queue-execution-policy=POLICY")
 		  :usage ("Execute the rules in the rule instance queue based on POLICY. Policies are \"first\","

@@ -52,10 +52,14 @@
 (defgeneric create-stores-and-indices (node)
   (:method ((this existence-start-node))
     ;;; An EQL hashtable, since we are using integers as keys!
-    (setf (memory-store this) (make-hash-table)))
+    (push
+     (setf (memory-store this) (make-hash-table))
+     (instans-stores (node-instans this))))
   (:method ((this memory))
     ;;; An EQL hashtable, since we are using integers as keys!
-    (setf (memory-store this) (make-hash-table)))
+    (push
+     (setf (memory-store this) (make-hash-table))
+     (instans-stores (node-instans this))))
   ;;; Join creates indices for alpha/beta memories only if the alpha and beta parents share common variables, i.e., (not (null node-use this))
   (:method ((this join-node))
     (let ((beta-key (node-use this))
@@ -64,8 +68,12 @@
       (cond ((null (node-prev (join-beta this)))
 	     (setf (join-has-dummy-beta-p this) t))
 	    ((node-use this)
-	     (setf (join-beta-index this) (make-instance 'hash-token-index :key beta-key :id (format nil "beta-index ~A" (node-number this))))
-	     (setf (join-alpha-index this) (make-instance 'hash-token-index :key alpha-key :id (format nil "alpha-index ~A" (node-number this))))))))
+	     (push
+	      (setf (join-beta-index this) (make-instance 'hash-token-index :key beta-key :id (format nil "beta-index ~A" (node-number this))))
+	      (instans-indices (node-instans this)))
+	     (push
+	      (setf (join-alpha-index this) (make-instance 'hash-token-index :key alpha-key :id (format nil "alpha-index ~A" (node-number this))))
+	      (instans-indices (node-instans this)))))))
   (:method ((this aggregate-join-node))
     (setf (aggregate-join-groups this) (make-hash-table :test #'equal)))
   (:method ((this query-node))
@@ -301,6 +309,8 @@
     (setf ops (or ops (instans-rdf-operations this)))
     (when (symbolp ops)
       (setf ops (list ops)))
+    (setf ops (loop for op in ops nconc (if (eq op :event) (list :add :execute :remove :execute) (list op))))
+;    (inform "Ops = ~S" ops)
     (let ((*instans* this))
       (declare (special *instans*))
       (loop for op in ops 
@@ -316,10 +326,31 @@
 	      (t
 	       (error* "Illegal op ~S" op)))))))
 
+(defgeneric report-sizes (instan)
+  (:method ((this instans))
+    (loop for store in (instans-stores this)
+	  sum (hash-table-count store) into sizes
+	  finally (inform "Store total size = ~D" sizes))
+    (loop for index in (instans-indices this)
+	  sum (hash-table-count (hash-token-index-table index)) into sizes
+	  finally (inform "Index total size = ~D" sizes))
+    (let ((queue (instans-rule-instance-queue this))
+	  (stream *error-output*))
+      (format stream "~&add-quad-count = ~S~%" (instans-add-quad-count this))
+      (format stream "remove-quad-count = ~S~%" (instans-remove-quad-count this))
+      (format stream "queue-add-count = ~S~%" (rule-instance-queue-add-count queue))
+      (format stream "queue-remove-count = ~S~%" (rule-instance-queue-remove-count queue))
+      (format stream "queue-select-count = ~S~%" (rule-instance-queue-select-count queue))
+      (format stream "queue-modify-count = ~S~%" (rule-instance-queue-modify-count queue)))))
+
 (defgeneric execute-rules (instans)
   (:method ((this instans))
     (let* ((policy (instans-queue-execution-policy this))
 	   (queue (instans-rule-instance-queue this)))
+      (when (instans-size-report-interval this)
+	(when (zerop (mod (instans-size-report-counter this) (instans-size-report-interval this)))
+	  (report-sizes this))
+	(incf (instans-size-report-counter this)))
       (case policy
 	(:first
 	 (rule-instance-queue-execute-first queue))

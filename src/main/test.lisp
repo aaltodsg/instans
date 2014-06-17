@@ -387,3 +387,14 @@
         unless (ttt i type) collect (list i (nth i items))))
 
 
+(defun fulltest (dirname)
+  (let ((base (format nil "file://~A" dirname))
+	(manifest (format nil "~A/manifest.ttl" dirname))
+	(query (format nil "~A/tests/input/testsuite.rq" (namestring (find-instans-root-directory)))))
+;    (inform "")
+    (cond ((probe-file manifest)
+	   (inform "Directory ~A" dirname)
+	   (main "-b" base "-r" query "-t" manifest))
+	  (t
+;	   (inform "No manifest.ttl in directory ~A" dirname)
+))))

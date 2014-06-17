@@ -4,22 +4,23 @@ PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>
 PREFIX : <http://instans.org/>
 
 #:ev0 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 0; :reading 0 }
-#:ev0 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 0; :reading 0 }
 
-
-DELETE { ?sensor :sum ?sum; :count ?count; :event ?event} 
-INSERT { ?sensor :sum ?newsum; :count ?newcount; :event ?newevent }
+INSERT DATA { :sensor1 :sum 0; :count 0; :timestamp -1 }
+;
+DELETE { ?sensor :sum ?sum; :count ?count; :timestamp ?ts} 
+INSERT { ?sensor :sum ?newsum; :count ?newcount; :timestamp ?newts}
 WHERE {
       GRAPH ?newevent {
-        ?sensor a :Thermometer; :timestamp ?ts; :reading ?reading .
+        ?sensor a :Thermometer; :timestamp ?newts; :reading ?reading .
       }
-      ?sensor :sum ?sum; :count ?count; :event ?event
-      FILTER(?event != ?newevent)
+      ?sensor :sum ?sum; :count ?count; :timestamp ?ts 
+      FILTER (?ts < ?newts)
+      FILTER NOT EXISTS { ?sensor :timestamp ?newts }
       BIND(?sum + ?reading AS ?newsum)
       BIND(?count + 1 AS ?newcount)
 }
 ;
-SELECT ?count ?sum WHERE { ?sensor :sum ?sum; :count ?count}
+SELECT * WHERE { ?sensor :sum ?sum; :count ?count; :timestamp ?ts}
 # ;
 # SELECT * {
 #       GRAPH ?event {
