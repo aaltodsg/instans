@@ -32,7 +32,7 @@
 	    
 ;(defvar *doit* nil)
 
-(defmacro parsing-commands (((key-var value-var) args-var &key program html usage) &body command-cases)
+(defmacro parsing-commands (((key-var value-var) args-var &key program html usage before after) &body command-cases)
   (declare (ignorable html))
   (let* ((option-var (gensym "OPTION"))
 	 (options-var (gensym "OPTIONS"))
@@ -119,12 +119,13 @@
 							    (return-from ,middle t))))))))
 ;				 (inform "After middle")
 				 )
-			  do (progn ;(inform "key = ~S, value = ~S, args = ~S" ,key-var ,value-var ,args-var)
+			  do (progn ,@(if before (list before))
 				    (case ,key-var
 				      ,@(loop for case in command-cases
 					      unless (eq (first case) t)
 					      collect (cons (first case)
 							    (loop for rest on (rest case) by #'cddr while (keywordp (first rest)) finally (return rest)))))
+				    ,@(if after (list after))
 				    (return))
 			 finally (progn
 				   (format *error-output* "~%Unrecognized option ~A~%" ,arg-var)
@@ -176,25 +177,25 @@
 				:construct-output-name construct-output-name :construct-output-type construct-output-type)))
 	       (output-time (fmt &rest args)
 		 (multiple-value-bind (time-sec time-usec) (sb-unix::get-time-of-day)
-		     (let* ((delta-sec (- time-sec start-time-sec))
-			    (delta-usec (- time-usec start-time-usec)))
-		       (when (< delta-usec 0)
-			 (decf delta-sec)
-			 (incf delta-usec 1000000))
-		       (inform "At ~D.~6,'0D: ~A~%" delta-sec delta-usec  (apply #'format nil fmt args))))))
+		   (let* ((delta-sec (- time-sec start-time-sec))
+			  (delta-usec (- time-usec start-time-usec)))
+		     (when (< delta-usec 0)
+		       (decf delta-sec)
+		       (incf delta-usec 1000000))
+		     (format time-output-stream "~%At ~D.~6,'0D: ~A~%" delta-sec delta-usec  (apply #'format nil fmt args))))))
 	(setf *instanssi* instans)
 	(pop args) ; Program path
 	(when (equalp (first args) "--end-toplevel-options") (pop args)) ; Inserted by wrapper script
 	(unwind-protect
 	     (block command-loop
-	       (parsing-commands ((key value) args :program "instans" :html html :usage usage)
+	       (parsing-commands ((key value) args :program "instans" :html html :usage usage
+				  :before (when time-output-stream (output-time "Command: ~(~A~), Parameter: ~A" key value)))
 		 (t :usage ("" "Options are of form '-o', '-o PARAM', or '--option=PARAM'." ""
 			    "General options:" ""))
 		 (usage
 		  :options ("--help" "-h")
 		  :usage "Print help text."
-		  :html
-		  :operation
+		  :html ""
 		  (usage)
 		  (return-from command-loop))
 		 ;; (html
@@ -268,15 +269,15 @@
 						     :graph graph :base base :input-type :nt)
 		  (maybe-execute))
 		 (base
-		  :options (("-b" "URL") "--base=URL")
+		  :options ("--base=URL" ("-b" "URL"))
 		  :usage "Use URL as the base."
 		  (setf base (parse-iri value)))
 		 (directory
-		  :options (("-d" "DIR") "--directory=DIR")
+		  :options ("--directory=DIR" ("-d" "DIR"))
 		  :usage "Use DIR as the prefix for file lookup. You can use a file or an URL as DIR."
 		  (setf directory (parse-iri (if (http-or-file-iri-string-p value) value (format nil "file://~A" (expand-dirname value))))))
 		 (graph
-		  :options (("-g" "URL") "--graph=URL")
+		  :options ("--graph=URL" ("-g" "URL"))
 		  :usage "Use URL as the graph."
 		  (if (string= (string-downcase value) "default") nil (setf graph (parse-iri value))))
 		 (t :usage ("" "Output options:" ""))
@@ -356,15 +357,15 @@
 			  "\"add:execute:remove:execute\". The default is \"add:execute\".")
 		  :html ""
 		  (setf (instans-rdf-operations instans) (parse-colon-separated-values value)))
-		 (queue-execution-policy
-		  :options ("--queue-execution-policy=POLICY")
-		  :usage ("Execute the rules in the rule instance queue based on POLICY. Policies are \"first\","
-			  "\"snapshot\", \"repeat-first\" (the default), and \"repeat-snapshot\". \"First\" executes"
-			  "the first instance in the queue, \"repeat-first\" does this as long as the queue is not"
-			  "empty. \"Snapshot\" takes the rules currently in the queue and executes them;"
-			  "\"repeat-snapshot\" repeats this as long as the queue is not empty.")
-		  :html ""
-		  (setf (instans-queue-execution-policy instans) (intern (string-upcase value) :keyword)))
+		 ;; (queue-execution-policy
+		 ;;  :options ("--queue-execution-policy=POLICY")
+		 ;;  :usage ("Execute the rules in the rule instance queue based on POLICY. Policies are \"first\","
+		 ;; 	  "\"snapshot\", \"repeat-first\" (the default), and \"repeat-snapshot\". \"First\" executes"
+		 ;; 	  "the first instance in the queue, \"repeat-first\" does this as long as the queue is not"
+		 ;; 	  "empty. \"Snapshot\" takes the rules currently in the queue and executes them;"
+		 ;; 	  "\"repeat-snapshot\" repeats this as long as the queue is not empty.")
+		 ;;  :html ""
+		 ;;  (setf (instans-queue-execution-policy instans) (intern (string-upcase value) :keyword)))
 		 (allow-rule-instance-removal
 		  :options ("--allow-rule-instance-removal=BOOL")
 		  :usage ("If true (the default), adding or removing RDF input removes rule instances that have"
@@ -376,6 +377,40 @@
 			(cond ((string-equal value "true") t)
 			      ((string-equal value "false") nil)
 			      (t (usage)))))
+		 (t :usage ("" "Combos:" ""))
+		 (input-triples
+		  :options ("--input-triples=FILE")
+		  :usage "Same as '--rdf-input-unit=triple --input=FILE'"
+		  (setf (instans-rdf-input-unit instans) :triple)
+		  (instans-add-query-input-processor instans-iri (expand-iri directory value)
+						     :graph graph :base base
+						     :input-type (intern (string-upcase (pathname-type (parse-namestring value))) :keyword))
+		  (maybe-execute))
+		 (input-blocks
+		  :options ("--input-blocks=FILE")
+		  :usage "Same as '--rdf-input-unit=block --input=FILE'"
+		  (setf (instans-rdf-input-unit instans) :block)
+		  (instans-add-query-input-processor instans-iri (expand-iri directory value)
+						     :graph graph :base base
+						     :input-type (intern (string-upcase (pathname-type (parse-namestring value))) :keyword))
+		  (maybe-execute))
+		 (input-document
+		  :options ("--input-document=FILE")
+		  :usage "Same as '--rdf-input-unit=document --input=FILE'"
+		  (setf (instans-rdf-input-unit instans) :document)
+		  (instans-add-query-input-processor instans-iri (expand-iri directory value)
+						     :graph graph :base base
+						     :input-type (intern (string-upcase (pathname-type (parse-namestring value))) :keyword))
+		  (maybe-execute))
+		 (input-events
+		  :options ("--input-events=FILE")
+		  :usage "Same as '--rdf-operations=event --rdf-input-unit=block --input=FILE'"
+		  (setf (instans-rdf-operations instans) :event)
+		  (setf (instans-rdf-input-unit instans) :block)
+		  (instans-add-query-input-processor instans-iri (expand-iri directory value)
+						     :graph graph :base base
+						     :input-type (intern (string-upcase (pathname-type (parse-namestring value))) :keyword))
+		  (maybe-execute))
 		 (t :usage ("" "Miscelaneus debugging and testing options:" ""))
 		 (verbose
 		  :options ("--verbose=SITUATIONS")
