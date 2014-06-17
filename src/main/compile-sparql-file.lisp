@@ -145,10 +145,10 @@
 	   (callback (case input-policy
 		       (:single (list :triple-callback #'(lambda (&rest input)
 							   (process-query-input processor (list input))
-							   ;(ll-parser-yields nil)
+;							   (ll-parser-yields nil)
 							   )))
 		       (:block (list :block-callback #'(lambda (inputs) (process-query-input processor inputs)
-							       ;(ll-parser-yields nil)
+;							       (ll-parser-yields nil)
 							       )))
 		       (:document (list :document-callback #'(lambda (inputs) (process-query-input processor inputs))))
 		       (t (error* "Illegal query input policy ~A" input-policy))))

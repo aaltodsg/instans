@@ -596,12 +596,21 @@
 				  (let ((args nil))
 				    (loop repeat (production-result-arg-count p) do (push (pop (ll-parser-result-stack parser)) args))
 				    (when (debugp subscribe :parse-operations) (inform "Rule [~D], arg-count = ~D" (production-number p) (production-result-arg-count p)))
-				    (setf (ll-parser-saved-input-token parser) input-token) ; Save input-token, in case result-func does a nonlocal exit
-;				    (inform "Saving input token: (ll-parser-saved-input-token parser) = ~S" (ll-parser-saved-input-token parser))
-				    (let ((values (multiple-value-list (apply result-func p args))))
-				      (setf (ll-parser-saved-input-token parser) nil) ; Unset saved-input-token, if we did not do a nonlocal exit
-				      (when (debugp subscribe :parse-operations) (inform "  Execute rule [~D] with args = ~A ->~&  ~A" (production-number p) args values))
-				      (loop for value in values do (push value (ll-parser-result-stack parser))))))))))))
+				    (let* ((threwp t)
+					   (values (multiple-value-list (catch 'parsed
+									  (prog1 (apply result-func p args)
+									    (setf threwp nil))))))
+				      (cond ((not threwp)
+					     (when (debugp subscribe :parse-operations)
+					       (inform "  Execute rule [~D] with args = ~A ->~&  ~A" (production-number p) args values))
+					     (loop for value in values do (push value (ll-parser-result-stack parser))))
+					    (t
+					     (inform "threwp")
+					     (setf (ll-parser-saved-input-token parser) input-token) ; Save input-token for next call of parser
+					     (when (debugp subscribe :parse-operations)
+					       (inform "  Non-local exit after execute rule [~D] with args = ~A ->~&  ~A" (production-number p) args values))
+					     (push (second values) (ll-parser-result-stack parser))
+					     (throw 'parsed (values-list values)))))))))))))
 	      finally (cond ((and (null (ll-parser-stack parser)) (null input-token))
 			     (when (debugp subscribe :phases) (push (list nil nil (copy-list (ll-parser-parsed-input parser)) (list 'accept nil)) (ll-parser-phases parser)))
 			     (pop (ll-parser-result-stack parser)) ; Remove the value corresponding '$
