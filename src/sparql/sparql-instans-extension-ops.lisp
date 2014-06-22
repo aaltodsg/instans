@@ -31,7 +31,7 @@
 
 (define-sparql-function "instans:has_status" (:arguments ((instans-iri rdf-iri) (status xsd-string-value)) :returns xsd-string)
   (:method ((instans-iri rdf-iri) (status xsd-string-value))
-    (let* ((key (intern (string-upcase status) 'instans)) ;;; Note: always us package when interning something in run-time
+    (let* ((key (intern-instans (string-upcase status))) ;;; Note: always us package when interning something in run-time
 	   (instans (get-instans instans-iri)))
       (and instans (instans-has-status instans key)))))
 
@@ -46,7 +46,7 @@
 							   &optional (graph-iri rdf-iri) (base rdf-iri))
 							  :returns xsd-boolean)
   (:method ((instans-iri rdf-iri) (input-iri iri-or-string) &optional (graph-iri rdf-iri) (base rdf-iri))
-    (instans-add-query-input-processor instans-iri input-iri :graph graph-iri :base base :input-type (intern (string-upcase (file-type input-iri)) :keyword))
+    (instans-add-query-input-processor instans-iri input-iri :graph graph-iri :base base :input-type (intern-keyword (string-upcase (file-type input-iri))))
     t))
 
 (define-sparql-function "instans:execute_system" (:arguments ((rules iri-or-string) &optional (triples iri-or-string) (expected-results iri-or-string) (graph-iri iri-or-string) (base iri-or-string)) :returns xsd-boolean)

@@ -40,7 +40,7 @@
 
 (defun parse-results-stream (instans stream input-name &rest keys &key &allow-other-keys)
   (let* ((pos (position #\. input-name :from-end t :test #'char=))
-	 (input-type (and pos (intern (string-upcase (subseq input-name (1+ pos))) :keyword))))
+	 (input-type (and pos (intern-keyword (string-upcase (subseq input-name (1+ pos)))))))
     (apply (case input-type
 	     (:srx #'parse-srx-stream)
 	     (:srj #'parse-srj-stream)

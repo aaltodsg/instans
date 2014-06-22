@@ -237,8 +237,8 @@
 		  :html "The recognized file formats are TriG (type '.trig'), Turtle (type '.ttl' or '.turtle'), N-Triples (type '.nt' or '.n-triples'), and N-Quads (type '.nt' or '.n-quads').
                                 If INPUT does not have a file type, use the type specific input options below."
 		  (instans-add-query-input-processor instans-iri (expand-iri directory value)
-						     :graph graph :base base
-						     :input-type (intern (string-upcase (pathname-type (parse-namestring value))) :keyword))
+						     :graph graph :base base :subscribe debug
+						     :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
 		  (maybe-execute))
 		 (input-trig
 		  :options ("--input-trig=INPUT")
@@ -286,7 +286,7 @@
 		  :usage "Write SELECT results to FILE. Output is based on the file name suffix."
 		  :html ""
 		  (setf select-output-name value)
-		  (setf select-output-type (intern (string-upcase (pathname-type (parse-namestring value))) :keyword)))
+		  (setf select-output-type (intern-keyword (string-upcase (pathname-type (parse-namestring value))))))
 		 (select-output-csv
 		  :options ("--select-output-csv=OUTPUT")
 		  :usage "Write SELECT results as CSV to OUTPUT."
@@ -298,7 +298,7 @@
 		  :usage "Write CONSTRUCT results to FILE. Output format is based on the file name suffix."
 		  :html ""
 		  (setf construct-output-name value)
-		  (setf construct-output-type (intern (string-upcase (pathname-type (parse-namestring value))) :keyword)))
+		  (setf construct-output-type (intern-keyword (string-upcase (pathname-type (parse-namestring value))))))
 		 (construct-output-trig
 		  :options ("--construct-output-trig=OUTPUT")
 		  :usage "Write CONSTRUCT results as TriG to OUTPUT."
@@ -349,7 +349,7 @@
 			  "of the TriG grammar, and in Turtle it means that the input is read and processed"
 			  "based on the grammar rule [6] of the Turtle grammar. The default is \"block\".")
 		  :html ""
-		  (setf (instans-rdf-input-unit instans) (intern (string-upcase value) :keyword)))
+		  (setf (instans-rdf-input-unit instans) (intern-keyword (string-upcase value))))
 		 (rdf-operations
 		  :options  ("--rdf-operations=LIST")
 		  :usage ("Apply a colon separated list of operations to the unit of RDF input. Operations are"
@@ -365,7 +365,7 @@
 		 ;; 	  "empty. \"Snapshot\" takes the rules currently in the queue and executes them;"
 		 ;; 	  "\"repeat-snapshot\" repeats this as long as the queue is not empty.")
 		 ;;  :html ""
-		 ;;  (setf (instans-queue-execution-policy instans) (intern (string-upcase value) :keyword)))
+		 ;;  (setf (instans-queue-execution-policy instans) (intern-keyword (string-upcase value))))
 		 (allow-rule-instance-removal
 		  :options ("--allow-rule-instance-removal=BOOL")
 		  :usage ("If true (the default), adding or removing RDF input removes rule instances that have"
@@ -384,7 +384,7 @@
 		  (setf (instans-rdf-input-unit instans) :triple)
 		  (instans-add-query-input-processor instans-iri (expand-iri directory value)
 						     :graph graph :base base
-						     :input-type (intern (string-upcase (pathname-type (parse-namestring value))) :keyword))
+						     :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
 		  (maybe-execute))
 		 (input-blocks
 		  :options ("--input-blocks=FILE")
@@ -392,7 +392,7 @@
 		  (setf (instans-rdf-input-unit instans) :block)
 		  (instans-add-query-input-processor instans-iri (expand-iri directory value)
 						     :graph graph :base base
-						     :input-type (intern (string-upcase (pathname-type (parse-namestring value))) :keyword))
+						     :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
 		  (maybe-execute))
 		 (input-document
 		  :options ("--input-document=FILE")
@@ -400,7 +400,7 @@
 		  (setf (instans-rdf-input-unit instans) :document)
 		  (instans-add-query-input-processor instans-iri (expand-iri directory value)
 						     :graph graph :base base
-						     :input-type (intern (string-upcase (pathname-type (parse-namestring value))) :keyword))
+						     :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
 		  (maybe-execute))
 		 (input-events
 		  :options ("--input-events=FILE")
@@ -409,7 +409,7 @@
 		  (setf (instans-rdf-input-unit instans) :block)
 		  (instans-add-query-input-processor instans-iri (expand-iri directory value)
 						     :graph graph :base base
-						     :input-type (intern (string-upcase (pathname-type (parse-namestring value))) :keyword))
+						     :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
 		  (maybe-execute))
 		 (t :usage ("" "Miscelaneus debugging and testing options:" ""))
 		 (verbose

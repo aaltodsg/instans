@@ -7,7 +7,7 @@
   nil)
 
 (defun result-var (i)
-  (intern (format nil "$~D" i)))
+  (fmt-intern "$~D" i))
 
 (defvar *generated-nonterminals* nil)
 (defvar *gen-counter* 0)
@@ -23,14 +23,14 @@
   (case *numbering-scheme*
     (:named-linear
      (incf *gen-counter*)
-     (let ((name (intern (format nil "~A-~D" base *gen-counter*))))
+     (let ((name (fmt-intern "~A-~D" base *gen-counter*)))
        (when (member name *generated-nonterminals*)
 	 (error* "Something wrong in make-nonterminal: generating the same nonteraminal twice"))
        (push name *generated-nonterminals*)
        name))
     (:linear
      (incf *gen-counter*)
-     (let ((name (intern (format nil "_~D" *gen-counter*))))
+     (let ((name (fmt-intern "_~D" *gen-counter*)))
        (when (member name *generated-nonterminals*)
 	 (error* "Something wrong in make-nonterminal: generating the same nonteraminal twice"))
        (push name *generated-nonterminals*)
@@ -47,7 +47,7 @@
 	 (when (null extension-previous)
 	   (setf extension-previous (list extension))
 	   (push extension-previous (cdr base-previous)))
-	 (let ((name (intern (format nil "~A-~D-in-~A" extension (1- (length extension-previous)) base))))
+	 (let ((name (fmt-intern "~A-~D-in-~A" extension (1- (length extension-previous)) base)))
 	   (push name extension-previous)
 	   name))))
     (:prime
@@ -57,7 +57,7 @@
 	 (push base-previous *generated-nonterminals*))
        (let* ((prime-count (length base-previous))
 
-	      (name (intern (format nil "~A~{~A~}~@['~]" base (loop for i from 1 to (floor prime-count 2) collect #\") (oddp prime-count)))))
+	      (name (fmt-intern "~A~{~A~}~@['~]" base (loop for i from 1 to (floor prime-count 2) collect #\") (oddp prime-count))))
 	 (when (member name *generated-nonterminals*)
 	   (error* "Something wrong in make-nonterminal: generating the same nonterminal twice"))
 	 (push name (cdr base-previous))

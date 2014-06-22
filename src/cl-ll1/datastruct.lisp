@@ -46,6 +46,8 @@
    (position :accessor ll-parser-position :initform 0)
    (end-of-input-p :accessor ll-parser-end-of-input-p :initform nil)
    (state :accessor ll-parser-state :initform :uninitialized)
+   (round :accessor ll-parser-round :initform -1)
+   (print-snapshot-p :accessor ll-parser-print-snapshot-p :initform nil)
    (error-messages :accessor ll-parser-error-messages :initform nil)
    (parse-function :accessor ll-parser-parse-function :initarg :parse-function :initform nil)))
 

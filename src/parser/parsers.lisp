@@ -6,7 +6,7 @@
 (in-package #:instans)
 
 (defun make-rdf-parser (instans input-stream file-type &key subscribe base graph triple-callback block-callback document-callback)
-  (let* ((kind (intern (string-upcase file-type) :keyword))
+  (let* ((kind (intern-keyword (string-upcase file-type)))
 	 (make-parser (cond ((member kind '(:ttl :turtle)) #'make-turtle-parser)
 			    ((eq kind ':trig) #'make-trig-parser)
 			    ((member kind '(:nt :ntriples :n-triples)) #'make-n-triples-parser)
@@ -48,7 +48,7 @@
 
 (defun parse-triple-file (file &key subscribe base triple-callback block-callback document-callback)
   (let* ((*triple-count* 0)
-	 (kind (intern (string-upcase (pathname-type (parse-namestring file))) :keyword))
+	 (kind (intern-keyword (string-upcase (pathname-type (parse-namestring file)))))
 	 ;; (*triple-sizes* 0)
 	 (make-parser (cond ((member kind '(:ttl :turtle)) #'make-turtle-parser)
 			    ((eq kind ':trig) #'make-trig-parser)
@@ -56,7 +56,7 @@
 			    ((member kind '(:nq :nquads :n-quads)) #'make-n-quads-parser)
 			    (t (error* "Cannot parse files of type ~S" kind)))))
     (when (and (or block-callback base) (not (member kind '(:trig :ttl :turtle))))
-      (error* "You cannot use block-callback with ~A input" kind))
+      (error* "You cannot use block-callback or base with ~A input" kind))
 ;    (time
     (inform "~%parse-triple-file ~A:~%" file)
      (with-open-file (stream file)

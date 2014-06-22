@@ -12,7 +12,7 @@
 	   ;; (cond ((sparql-form-p sparql-op) (apply (sparql-op-lisp-name sparql-op) args-in-lisp)))
 	   (cons (sparql-op-lisp-name sparql-op) args-in-lisp)))
 	((sparql-var-p expr)
-	 (intern (string (uniquely-named-object-name expr)) :instans))
+	 (intern-instans (string (uniquely-named-object-name expr))))
 	(t expr)))
 
 (defun lisp-compile-nodes (new-nodes)

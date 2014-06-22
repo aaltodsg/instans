@@ -3,6 +3,8 @@
 ;;; Author: Esko Nuutila (esko.nuutila@aalto.fi)
 ;;;
 
+;;; Shorthand
+
 ;;; Definition forms
 
 (in-package #:instans)
@@ -48,11 +50,6 @@
     `(or ,access (let ((,update-var ,update))
 		   (setf ,access ,update-var)
 		   ,update-var))))
-
-;;; Shorthand
-
-(defmacro fmt-intern (fmt &rest args)
-  `(intern (format nil ,fmt ,@args) :instans))
 
 ;;; Assertions
 

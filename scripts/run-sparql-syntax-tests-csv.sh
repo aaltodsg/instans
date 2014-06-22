@@ -24,6 +24,8 @@ if test $# -eq 0 ; then
     echo > $TEST_OUTPUT
     /bin/echo -n "Running tests ... "
     TMPOUT=$$__tmp_out
+#    TMPOUT=ask.out
+#    for i in data-r2/ask/manifest.ttl ; do 
     for i in data-r2/*/manifest.ttl data-sparql11/*/manifest.ttl ; do 
         MANIFEST=`pwd`/$i
 	echo ${BIN}/instans -b "file://`dirname $MANIFEST`/" -r ${TESTS}/input/syntax-test.rq -t $MANIFEST

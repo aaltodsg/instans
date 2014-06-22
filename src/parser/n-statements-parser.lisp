@@ -6,7 +6,7 @@
 (in-package #:instans)
 
 (defun make-n-statements-parser (instans input-stream &key base graph input-type triple-callback block-callback document-callback subscribe)
-  (declare (ignorable base))
+  (declare (ignorable base) (special *triple-count*))
   (assert* (member input-type '(:n-triples :n-quads)) "Unknown type ~A" input-type)
   ;; (when base (warn "make-n-statements-parser: Ignoring base"))
   ;; (when (and graph (eq input-type :nquads)) (warn "make-n-statements-parser: Ignoring graph with N-Quads"))

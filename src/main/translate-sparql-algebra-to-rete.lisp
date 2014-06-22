@@ -57,7 +57,7 @@
 			(and (equal (type-of n) type)
 			     (loop for rest on args by #'cddr for key = (first rest) for value = (second rest)
 				   unless (or (member key '(:bindings :algebra-expr))
-					      (equal-value (slot-value n (intern (string key) :instans)) value))
+					      (equal-value (slot-value n (intern-instans (string key))) value))
 				   do (return nil)
 				   finally (return t)))))
 		 (let ((prev (or (getf args :prev) (getf args :beta))))

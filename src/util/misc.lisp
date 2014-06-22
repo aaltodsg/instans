@@ -13,6 +13,15 @@
 (defun quotify-list (l)
   (mapcar #'(lambda (x) (if (symbolp x) (list 'quote x) x)) l))
 
+(defun intern-instans (name)
+  (intern name :instans))
+
+(defun intern-keyword (name)
+  (intern name :keyword))
+
+(defun fmt-intern (fmt &rest args)
+  (intern (apply #'format nil fmt args) :instans))
+
 ;;; This retains the order and possible duplicates of the arguments.
 (defun list-union (list1 list2 &key (test #'eql))
   (cond ((null list1) list2)
@@ -124,7 +133,8 @@
 (defun parse-colon-separated-values (string)
   (loop while (> (length string) 0)
         collect (let ((pos (or (position #\: string) (length string))))
-		  (prog1 (intern (string-upcase (subseq string 0 pos)) :keyword) (setf string (subseq string (min (length string) (1+ pos))))))))
+		  (prog1 (intern-keyword (string-upcase (subseq string 0 pos)))
+		    (setf string (subseq string (min (length string) (1+ pos))))))))
 
 (defun parse-spec-string (string)
   (let ((directives (split-string-with-backslash-escapes string "&")))
@@ -132,7 +142,7 @@
 	  for pieces = (split-string-with-backslash-escapes directive "=")
 	  when (not (= (length pieces) 2))
 	  do (return-from parse-spec-string (values nil (format nil "Illegal form in specification: ~S" pieces)))
-	  else collect (list (intern (string-upcase (first pieces)) :keyword) (second pieces)))))
+	  else collect (list (intern-keyword (string-upcase (first pieces))) (second pieces)))))
 
 
 (defun create-temp-file-name (&key (directory ".") (name-prefix "tmp") type)

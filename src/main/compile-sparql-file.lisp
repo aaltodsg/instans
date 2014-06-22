@@ -130,7 +130,7 @@
 	 (values (open input) (file-type input)))
 	(t (values nil nil (format nil "Cannot create an input stream based on ~S" input)))))
 
-(defun instans-add-query-input-processor (instans-iri input-iri &key graph base input-type)
+(defun instans-add-query-input-processor (instans-iri input-iri &key graph base input-type subscribe)
   (let* ((instans (get-instans instans-iri)))
     (instans-debug-message instans '(:parse-rdf :execute) "instans-add-query-input-processor ~S ~S :input-type ~S :graph ~S :base ~S" instans-iri input-iri input-type graph base)
     (let* ((input-policy (instans-rdf-input-unit instans))
@@ -139,20 +139,26 @@
 				     :input-policy input-policy
 				     :operations (instans-rdf-operations instans)
 				     :base base
-				     :graph graph))
+				     :graph graph
+				     :subscribe subscribe))
 	   (input-stream (create-input-stream input-iri))
 	   (parser-creator (case input-type (:trig #'make-trig-parser) (:ttl #'make-turtle-parser) (t (error* "Unknown input type ~S" input-type))))
+	   (parser nil)
 	   (callback (case input-policy
 		       (:single (list :triple-callback #'(lambda (&rest input)
 							   (process-query-input processor (list input))
-;							   (ll-parser-yields nil)
+;							   (setf (ll-parser-print-snapshot-p parser) t)
+							   (ll-parser-yields)
+							   input
 							   )))
-		       (:block (list :block-callback #'(lambda (inputs) (process-query-input processor inputs)
-;							       (ll-parser-yields nil)
+		       (:block (list :block-callback #'(lambda (inputs)
+							 (process-query-input processor inputs)
+							 (ll-parser-yields)
+							 inputs
 							       )))
 		       (:document (list :document-callback #'(lambda (inputs) (process-query-input processor inputs))))
-		       (t (error* "Illegal query input policy ~A" input-policy))))
-	   (parser (apply parser-creator instans input-stream :base base callback)))
+		       (t (error* "Illegal query input policy ~A" input-policy)))))
+      (setf parser (apply parser-creator instans input-stream :base base :subscribe subscribe callback))
 ;      (make-turtle-parser )
       (setf (query-input-processor-parser processor) parser)
       (add-query-input-processor instans processor)
@@ -220,7 +226,7 @@
 					   (length triples) triples)
 		    (process-query-input instans triples :ops '(:add :execute)
 					 :graph (if (and graph (rdf-iri-equal graph *rdf-nil*)) nil graph))))
-	     (let* ((kind (intern (string-upcase file-type) :keyword))
+	     (let* ((kind (intern-keyword (string-upcase file-type)))
 		    (rdf-parser (apply #'make-rdf-parser instans input-stream file-type
 				       :base base
 				       :graph graph
