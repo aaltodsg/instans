@@ -605,7 +605,7 @@
 					       (inform "  Execute rule [~D] with args = ~A ->~&  ~A" (production-number p) args values))
 					     (loop for value in values do (push value (ll-parser-result-stack parser))))
 					    (t
-					     (inform "threwp")
+					     ;(inform "threwp")
 					     (setf (ll-parser-saved-input-token parser) input-token) ; Save input-token for next call of parser
 					     (when (debugp subscribe :parse-operations)
 					       (inform "  Non-local exit after execute rule [~D] with args = ~A ->~&  ~A" (production-number p) args values))
