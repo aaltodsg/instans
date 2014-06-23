@@ -1,0 +1,3 @@
+SELECT * {
+       GRAPH ?g { ?s ?p ?o }       
+}
