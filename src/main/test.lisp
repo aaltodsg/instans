@@ -393,7 +393,7 @@
 	(query (format nil "~A/tests/input/testsuite.rq" (namestring (find-instans-root-directory)))))
 ;    (inform "")
     (cond ((probe-file manifest)
-	   (inform "Directory ~A" dirname)
+	   (inform "Directory ~A:~%~%" dirname)
 	   (main "-b" base "-r" query "-t" manifest))
 	  (t
 ;	   (inform "No manifest.ttl in directory ~A" dirname)

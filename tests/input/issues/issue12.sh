@@ -1,1 +1,1 @@
-../../../bin/instans -r issue12.rq -t issue12.ttl
+../../../bin/instans -r issue12.rq --input-blocks=issue12.ttl

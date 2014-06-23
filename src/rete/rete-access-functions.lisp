@@ -34,10 +34,17 @@
 	(setf (node-number node) (incf (instans-node-id-counter instans)))
 	(setf (node-name node) (format nil "~A~D" (type-of node) (node-number node)))))))
 
+;; (defmethod initialize-instance :after ((node select-node) &rest keys &key &allow-other-keys)
+;;  (inform "initialize-instance :after (~S) (~S)" node keys)
+;; )
+
 (defmethod initialize-instance :after ((this csv-output-processor) &key output-name &allow-other-keys)
-  (let ((stream (cond ((null output-name) *standard-output*)
+  (let ((stream (cond ((null output-name)
+;		       (inform "Using *standard-output* = ~S as output stream" *standard-output*)
+		       *standard-output*)
 		      (t
 		       (open output-name :direction :output :if-exists :supersede)))))
+;    (inform "stream = ~S" stream)
     (setf (query-output-processor-output-stream this) stream)
     (setf (csv-output-processor-csv-output this) (make-instance 'csv-output :stream stream))))
 
@@ -463,8 +470,8 @@
     (output-pending-graph this)
     (call-next-method))
   (:method ((this stream-query-output-processor-mixin))
-;    (inform "close-query-output-processor: ~S" this)
     (unless (member (query-output-processor-output-stream this) (list *standard-output* *error-output*))
+      (inform "close-query-output-processor : ~S, stream = ~S" this (query-output-processor-output-stream this))
       (close (query-output-processor-output-stream this))))
   (:method ((this solution-set-output-processor))
     (if (slot-boundp this 'bindings)

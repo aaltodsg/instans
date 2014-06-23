@@ -11,7 +11,7 @@
 	  (case (length key)
 	    (0 nil)
 	    ;;; Change this, if the iris are coded in other way
-	    (t (make-hash-table))))))
+	    (t (make-hash-table :test #'equal))))))
 	    ;; (1 (make-hash-table))
 	    ;; ((2 3) (make-hash-table))
 	    ;; (t (error* "Illegal key ~A" key))))))
@@ -44,7 +44,12 @@
   (:method ((this hash-token-index) key token)
     (assert key)
     (let ((item (gethash key (hash-token-index-table this))))
-      (checkit item "trying to remove a non-existent key ~S" key)
+      (when (null item)
+	(loop for (k v) in (index-tokens this)
+	      when (eq k key)
+	      do (error* "Something really wrong, key ~S in table is eq to key ~S" k key)
+	      else when (equal k key)
+	      do (error* "Trying to remove key ~S that is equal, but not eq to key ~S in the table" key k)))
       (loop named delete-token
 	 with hashkey1 = (second (car token))
 	 for prev on item

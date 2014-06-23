@@ -452,7 +452,7 @@
 	 (SubSelect ::= (SelectClause WhereClause SolutionModifier ValuesClause
 				      :RESULT (build-query-expression instans (append '(:query-form SELECT) $0 $1 $2 (opt-value $3)))))
 					; `(SELECT ,@$0 :where ,$1 ,@$2 ,@(if (opt-yes-p $3) (opt-value $3)))))
-	 (SelectClause ::= (SELECT-TERMINAL ((:OPT (:OR (DISTINCT-TERMINAL :RESULT :distinct) (REDUCED-TERMINAL :RESULT :reduced)))
+	 (SelectClause ::= (SELECT-TERMINAL ((:OPT (:OR (DISTINCT-TERMINAL :RESULT :distinctp) (REDUCED-TERMINAL :RESULT :distinctp))) ;;; distinct == reduced!
 					     :RESULT (if (opt-yes-p $0) (list (opt-value $0) t)))
 					    (:OR (:REP1 (:OR Var (|(-TERMINAL| Expression AS-TERMINAL Var |)-TERMINAL| :RESULT (list 'AS $3 $1))))
 						 (|*-TERMINAL| :RESULT '*))
@@ -720,15 +720,15 @@
 	 (ExistsFunc ::= (EXISTS-TERMINAL GroupGraphPattern :RESULT (list 'EXISTS $1)))
 	 (NotExistsFunc ::= (NOT-TERMINAL EXISTS-TERMINAL GroupGraphPattern :RESULT (list 'NOT-EXISTS $2)))
 	 (Aggregate ::= (:OR (COUNT-TERMINAL |(-TERMINAL| (:OPT DISTINCT-TERMINAL) (:OR (|*-TERMINAL| :RESULT '*) Expression) |)-TERMINAL|
-					     :RESULT (if (opt-yes-p $2) (list 'COUNT :distinct t $3) (list 'COUNT $3)))
-			     (SUM-TERMINAL |(-TERMINAL| (:OPT DISTINCT-TERMINAL) Expression |)-TERMINAL| :RESULT (if (opt-yes-p $2) (list 'SUM :distinct t $3) (list 'SUM $3)))
-			     (MIN-TERMINAL |(-TERMINAL| (:OPT DISTINCT-TERMINAL) Expression |)-TERMINAL| :RESULT (if (opt-yes-p $2) (list 'MIN :distinct t $3) (list 'MIN $3)))
-			     (MAX-TERMINAL |(-TERMINAL| (:OPT DISTINCT-TERMINAL) Expression |)-TERMINAL| :RESULT (if (opt-yes-p $2) (list 'MAX :distinct t $3) (list 'MAX $3)))
-			     (AVG-TERMINAL |(-TERMINAL| (:OPT DISTINCT-TERMINAL) Expression |)-TERMINAL| :RESULT (if (opt-yes-p $2) (list 'AVG :distinct t $3) (list 'AVG $3)))
-			     (SAMPLE-TERMINAL |(-TERMINAL| (:OPT DISTINCT-TERMINAL) Expression |)-TERMINAL| :RESULT (if (opt-yes-p $2) (list 'SAMPLE :distinct t $3) (list 'SAMPLE $3)))
+					     :RESULT (if (opt-yes-p $2) (list 'COUNT :distinctp t $3) (list 'COUNT $3)))
+			     (SUM-TERMINAL |(-TERMINAL| (:OPT DISTINCT-TERMINAL) Expression |)-TERMINAL| :RESULT (if (opt-yes-p $2) (list 'SUM :distinctp t $3) (list 'SUM $3)))
+			     (MIN-TERMINAL |(-TERMINAL| (:OPT DISTINCT-TERMINAL) Expression |)-TERMINAL| :RESULT (if (opt-yes-p $2) (list 'MIN :distinctp t $3) (list 'MIN $3)))
+			     (MAX-TERMINAL |(-TERMINAL| (:OPT DISTINCT-TERMINAL) Expression |)-TERMINAL| :RESULT (if (opt-yes-p $2) (list 'MAX :distinctp t $3) (list 'MAX $3)))
+			     (AVG-TERMINAL |(-TERMINAL| (:OPT DISTINCT-TERMINAL) Expression |)-TERMINAL| :RESULT (if (opt-yes-p $2) (list 'AVG :distinctp t $3) (list 'AVG $3)))
+			     (SAMPLE-TERMINAL |(-TERMINAL| (:OPT DISTINCT-TERMINAL) Expression |)-TERMINAL| :RESULT (if (opt-yes-p $2) (list 'SAMPLE :distinctp t $3) (list 'SAMPLE $3)))
 			     (GROUP_CONCAT-TERMINAL |(-TERMINAL| (:OPT DISTINCT-TERMINAL) Expression
 						    (:OPT (|;-TERMINAL| SEPARATOR-TERMINAL |=-TERMINAL| String :RESULT $3)) |)-TERMINAL|
-						    :RESULT (if (opt-yes-p $2) (list 'GROUP_CONCAT :distinct t $3 :separator (opt-value $4)) (list 'GROUP_CONCAT $3 :separator (opt-value $4))))))
+						    :RESULT (if (opt-yes-p $2) (list 'GROUP_CONCAT :distinctp t $3 :separator (opt-value $4)) (list 'GROUP_CONCAT $3 :separator (opt-value $4))))))
 	 (iriOrFunction ::= (iri (:OPT ArgList) :RESULT (if (opt-no-p $1) $0 (create-call-through-iri $0 (opt-value $1)))))
 	 (RDFLiteral		  ::= (String (:OPT (:OR (LANGTAG-TERMINAL :RESULT #'(lambda (s) (create-rdf-literal-with-lang s (subseq $0 1))))
 							 (^^-TERMINAL iri :RESULT #'(lambda (s) (nth-value 0 (create-rdf-literal-with-type s $1))))))

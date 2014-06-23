@@ -117,91 +117,11 @@
       (setf (solution-modifiers-project-index this) (make-instance 'hash-token-index :key (solution-modifiers-project-vars this) :id (format nil "solution-modifiers-project-index ~A" (node-number this))))))
   (:method ((this node)) this))
 
-;; (defgeneric initialize-node (node new-nodes)
-;;   ;;; Memory just creates store
-;;   (:method ((this existence-start-node) new-nodes)
-;;     ;;; An EQL hashtable, since we are using integers as keys!
-;;     (setf (memory-store this) (make-hash-table))
-;;     (when (null (node-prev this))
-;;       (let* ((active-p-var (existence-active-p-var this))
-;; 	     (counter-var (existence-counter-var this))
-;; 	     (initial-token (make-token this (make-singleton-token) (list active-p-var counter-var) (list nil 0)))) ;;; Node is inactive; zero hits
-;; 	(add-token this initial-token))))
-;;   (:method ((this memory) new-nodes)
-;;     ;;; An EQL hashtable, since we are using integers as keys!
-;;     (setf (memory-store this) (make-hash-table))
-;;     (when (null (node-prev this))
-;;       (add-token this (make-singleton-token))))
-;;   ;;; Join creates indices for alpha/beta memories only if the alpha and beta parents share common variables, i.e., (not (null node-use this))
-;;   (:method ((this join-node) new-nodes)
-;;     (let ((beta-key (node-use this))
-;; 	  (alpha-key (node-def-preceq (join-alpha this)))
-;; 	  (beta-memory (join-beta this))
-;; 	  (alpha-memory (join-alpha this)))
-;;       (setf (join-has-dummy-beta-p this) nil)
-;;       (cond ((null (node-prev beta-memory))
-;; 	     (setf (join-has-dummy-beta-p this) t))
-;; 	    ((node-use this)
-;; 	     (setf (join-beta-index this) (make-instance 'hash-token-index :key beta-key :id (format nil "beta-index ~A" (node-number this))))
-;; 	     (when (not (member beta-memory new-nodes))
-;; 	       (loop for beta-token in (store-tokens beta-memory)
-;; 		     for key = (join-beta-key this beta-token)
-;; 		     do (index-put-token (join-beta-index this) key beta-token)))
-;; 	     (setf (join-alpha-index this) (make-instance 'hash-token-index :key alpha-key :id (format nil "beta-alpha ~A" (node-number this))))
-;; 	     (when (not (member alpha-memory new-nodes))
-;; 	       (loop for alpha-token in (store-tokens alpha-memory)
-;; 		     for key = (join-alpha-key this alpha-token)
-;; 		     do (index-put-token (join-alpha-index this) key alpha-token)))))))
-;;   (:method ((this aggregate-join-node) new-nodes)
-;;     (setf (aggregate-join-groups this) (make-instance 'group)))
-;;   (:method ((this solution-modifiers-node) new-nodes)
-;;     (when (solution-modifiers-distinct-p this)
-;;       (setf (solution-modifiers-project-index this) (make-instance 'hash-token-index :key (solution-modifiers-project-vars this) :id (format nil "solution-modifiers-project-index ~A" (node-number this))))))
-;;   (:method ((this node) new-nodes) this))
 
 (defun dominator-nodes (nodes)
   (loop for node in nodes
 	unless (some #'(lambda (p) (member p nodes)) (node-all-precs node))
 	collect node))
-
-;; (defun initialize-new-nodes (instans new-nodes)
-;;   (loop for node in new-nodes do (initialize-node node new-nodes))
-;;   (when (instans-active-p instans)
-;;     (let ((dominators (dominator-nodes new-nodes)))
-;;       (loop for dominator in dominators
-;; 	    do (initialize-new-node-tokens instans dominator))))
-;;   instans)
-
-;; ;;; Union?
-;; (defgeneric initialize-new-node-tokens (instans node &optional stack)
-;;   (:method ((instans instans) (node triple-pattern-node) &optional stack)
-;;     (assert (null stack))
-;;     (let ((quad-store (instans-quad-store instans)))
-;;       (when quad-store
-;; 	(error* "Quad store not implemented yet"))))
-;;   (:method ((instans instans) (join join-node) &optional stack)
-;;     (let* ((alpha-memory (join-alpha join))
-;; 	   (beta-memory (join-beta join)))
-;;       (cond ((< (store-count beta-memory) (store-count alpha-memory))
-;; 	     (loop for beta-token in (store-tokens beta-memory)
-;; 		   do (add-beta-token join beta-token stack)))
-;; 	    (t
-;; 	     (loop for alpha-token in (store-tokens alpha-memory)
-;; 		   do (add-alpha-token join alpha-token stack))))))
-;;   ;;; does this handle correctly new nodes with a beta-memory predecessor not in new nodes?
-;;   (:method ((instans instans) (betamem beta-memory) &optional stack)
-;;     (cond ((null stack)
-;; 	   (when (node-prev betamem)
-;; 	     (initialize-new-node-tokens instans (node-prev betamem) (cons betamem stack))))
-;; 	  (t
-;; 	   (loop for beta-token in (store-tokens betamem)
-;; 		 when (join-node-p (car stack))
-;; 		 do (add-beta-token (car stack) beta-token (cdr stack))
-;; 		 else
-;; 		 do (add-token (car stack) beta-token (cdr stack))))))
-;;   (:method ((instans instans) (node node) &optional stack)
-;;     (when (node-prev node)
-;;       (initialize-new-node-tokens instans (node-prev node) (cons node stack)))))
 
 (defun clear-instans-contents (instans)
   (loop for mem in (filter #'memoryp (instans-nodes instans))
@@ -230,22 +150,6 @@
 	   do (execute-rules this))
 ;      (describe this)
       (instans-add-status this 'instans-initialization-succeeded))))
-
-;; (defgeneric initial-data-ops (instans)
-;;   (:method ((this instans))
-;;     (flet ((doit (op data)
-;; 	     (inform "doit ~A ~A" op data)
-;; 	     (loop with func = (case op (INSERT-DATA #'rete-add) (DELETE-DATA #'rete-remove) (t (error* "Unknown init op ~A" op)))
-;; 		for item in data
-;; 		do (case (car item)
-;; 		     (GRAPH (loop for triple in (rest (third item)) do (funcall func this (first triple) (second triple) (third triple) (second item))))
-;; 		     (BGP (loop for triple in (rest item) do (funcall func this (first triple) (second triple) (third triple) nil)))
-;; 		     (t (error* "Malformed item ~A in data op" item))))))
-;;       (loop for op in (instans-initial-data-ops this)
-;; 	 do (inform "initial-op ~A" op)
-;; 	 do (case (car op)
-;; 	      ((INSERT-DATA DELETE-DATA)
-;; 	       (doit (first op) (second op))))))))
 
 (defgeneric initialize-constant-iris (instans)
   (:method ((this instans))
@@ -282,8 +186,14 @@
 	  do (setf continuep nil)
 	  do (loop for processor in (instans-query-input-processors this)
 		   for ll-parser = (run-query-input-processor processor)
-		   unless (ll-parser-finished-p ll-parser)
-		   do (setf continuep t)))))
+		   do (cond ((ll-parser-failed-p ll-parser)
+			     (instans-add-status this 'instans-rdf-parsing-failed (ll-parser-error-messages ll-parser))
+			     (return nil))
+			    ((ll-parser-succeeded-p ll-parser)
+			     (instans-add-status this 'instans-rdf-parsing-succeeded))
+			    (t
+			     (setf continuep t))))
+	 finally (return t))))
 
 (defgeneric run-query-input-processor (query-input-processor)
   (:method ((this query-input-processor))
@@ -297,10 +207,6 @@
       (close-query-output-processor (instans-select-output-processor this)))
     (when (instans-construct-output-processor this)
       (close-query-output-processor (instans-construct-output-processor this)))))
-
-;; (defgeneric process-triples (query-input-processor triples)
-;;   (:method ((this query-input-processor) triples)
-;;     (process-query-input (query-input-processor-instans this) triples :graph (query-input-processor-graph this) :ops (query-input-processor-operations this))))
 
 (defgeneric process-query-input (instans-or-query-input-processor inputs &key graph ops)
   (:method ((this query-input-processor) input &key graph ops)
@@ -520,15 +426,27 @@
   (:method ((this union-end-node) token &optional stack)
     (call-succ-nodes #'add-token this token stack))
   (:method ((this query-node) token &optional stack)
-    (when (or (not (solution-modifiers-distinct-p this))
-	      (let ((key (loop for var in (solution-modifiers-project-vars this) collect (token-value this token var)))
-		    (index (solution-modifiers-project-index this)))
-		(index-put-token index key token))) ;;; First token with this key added
-      (cond ((null (node-succ this))
-	     (assert (null stack))
-	     (rete-add-rule-instance (node-instans this) this token))
-	    (t
-	     (call-succ-nodes #'add-token this token stack)))))
+    (cond ((not (solution-modifiers-distinct-p this))
+	   (cond ((null (node-succ this))
+		  (assert (null stack))
+		  (rete-add-rule-instance (node-instans this) this token))
+		 (t
+		  (call-succ-nodes #'add-token this token stack))))
+	  (t
+	   (let ((key (loop for var in (solution-modifiers-project-vars this) collect (token-value this token var)))
+		 (index (solution-modifiers-project-index this)))
+	     ;; (inform "Calling (index-put-token ~S ~S ~S)~%Before (index-get-tokens ~S ~S) = ~S" index key token index key (index-get-tokens index key))
+	     ;; (inform "Index ~S:~%" index)
+	     ;; (loop for x in (index-tokens index) do (inform "  ~S" x))
+	     (when (index-put-token index key token) ;;; First token with this key added
+	       ;; (inform "Returned T, (index-get-tokens ~S ~S) = ~S" index key (index-get-tokens index key))
+	       ;; (inform "Index ~S:~%" index)
+	       ;; (loop for x in (index-tokens index) do (inform "  ~S" x))
+	       (cond ((null (node-succ this))
+		      (assert (null stack))
+		      (rete-add-rule-instance (node-instans this) this token))
+		     (t
+		      (call-succ-nodes #'add-token this token stack))))))))
   (:method ((this modify-node) token &optional stack)
     (assert (null stack))
     (rete-add-rule-instance (node-instans this) this token))
@@ -670,15 +588,24 @@
   (:method ((this union-end-node) token &optional stack)
     (call-succ-nodes #'remove-token this token stack))
   (:method ((this query-node) token &optional stack)
-    (when (or (not (solution-modifiers-distinct-p this))
-	      (let ((key (loop for var in (solution-modifiers-project-vars this) collect (token-value this token var)))
-		    (index (solution-modifiers-project-index this)))
-		(index-remove-token index key token))) ;;; Last token with this key removed!
-      (cond ((null (node-succ this))
-	     (assert (null stack))
-	     (rete-remove-rule-instance (node-instans this) this token))
-	    (t
-	     (call-succ-nodes #'remove-token this token stack)))))
+    (cond ((not (solution-modifiers-distinct-p this))
+	   (cond ((null (node-succ this))
+		  (assert (null stack))
+		  (rete-remove-rule-instance (node-instans this) this token))
+		 (t
+		  (call-succ-nodes #'remove-token this token stack))))
+	  (t
+	   (let ((key (loop for var in (solution-modifiers-project-vars this) collect (token-value this token var)))
+		 (index (solution-modifiers-project-index this)))
+	     ;; (inform "Calling (index-remove-token ~S ~S ~S)~%Before (index-get-tokens ~S ~S) = ~S" index key token index key (index-get-tokens index key))
+	     ;; (inform "Index ~S:~%" index)
+	     ;; (loop for x in (index-tokens index) do (inform "  ~S" x))
+	     (when (index-remove-token index key token) ;;; Last token with this key removed!
+	       (cond ((null (node-succ this))
+		      (assert (null stack))
+		      (rete-remove-rule-instance (node-instans this) this token))
+		     (t
+		      (call-succ-nodes #'remove-token this token stack))))))))
   (:method ((this modify-node) token &optional stack)
     (assert (null stack))
     (rete-remove-rule-instance (node-instans this) this token)

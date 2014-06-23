@@ -64,7 +64,7 @@
 												       `(make-instance 'aggregate-max))
 												      ((eq (second aggr-expr) 'GROUP_CONCAT)
 												       (let* ((properties (nthcdr 5 aggr-expr))
-													      (distinctp (getf properties :distinct))
+													      (distinctp (getf properties :distinctp))
 													      (separator (getf properties :separator)))
 ;													 (inform "dist=~A,sep = ~A" distinctp separator)
 													 `(make-instance 'aggregate-group-concat
