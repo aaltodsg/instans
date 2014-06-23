@@ -158,7 +158,7 @@
 							       )))
 		       (:document (list :document-callback #'(lambda (inputs) (process-query-input processor inputs))))
 		       (t (error* "Illegal query input policy ~A" input-policy)))))
-      (setf parser (apply parser-creator instans input-stream :base base :subscribe subscribe callback))
+      (setf parser (apply parser-creator instans input-stream :base base :graph graph :subscribe subscribe callback))
 ;      (make-turtle-parser )
       (setf (query-input-processor-parser processor) parser)
       (add-query-input-processor instans processor)
