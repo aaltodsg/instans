@@ -276,9 +276,7 @@
   ((csv-output :accessor csv-output-processor-csv-output :initarg :csv-output)))
 
 (define-class solution-set-output-processor (query-output-processor)
-  ((variables :accessor solution-set-output-processor-variables)
-   (bindings :accessor solution-set-output-processor-bindings)
-   (end :accessor solution-set-output-processor-end)))
+  ((query-results :accessor solution-set-output-processor-query-results :initarg :query-results)))
 
 (define-class n-statement-output-processor (construct-output-processor stream-query-output-processor-mixin) ())
 (define-class nt-output-processor (n-statement-output-processor) ())

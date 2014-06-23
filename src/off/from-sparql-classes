@@ -1,0 +1,144 @@
+(defgeneric sparql-results-compare (query-results1 query-results2 &key verbosep output-stream result-label1 result-label2)
+  (:method ((query-results1 sparql-query-results) (query-results2 sparql-query-results) &key verbosep (output-stream *standard-output*) (result-label1 "") (result-label2 ""))
+    (cond ((and (slot-boundp query-results1 'boolean) (slot-boundp query-results2 'boolean))
+	   (cond ((eq (sparql-query-results-boolean query-results1) (sparql-query-results-boolean query-results2))
+		  (when verbosep (format output-stream "~%~:(~A~) solutions ~S and ~(~A~) solutions ~S are equal" result-label1 query-results1 result-label2 query-results2))
+		  (values t t))
+		 (t
+		  (when verbosep (format output-stream "~%~:(~A~) solutions ~S and ~(~A~) solutions ~S are not equal" result-label1 query-results1 result-label2 query-results2))
+		  (values nil nil))))
+	  ((and (slot-boundp query-results1 'triples) (slot-boundp query-results2 'triples))
+	   (let ((triple-list1 (sparql-query-results-triples query-results1))
+		 (triple-list2 (sparql-query-results-triples query-results2)))
+	     (cond ((and (= (length triple-list1) (length triple-list2))
+			 (every #'(lambda (tr1 tr2) (equal-triples tr1 tr2)) triple-list1 triple-list2))
+		    (when verbosep (format output-stream "~%~:(~A~) and ~(~A~) are equal" result-label1 result-label2))
+		    (values t t))
+		   ((not (= (length triple-list1) (length triple-list2)))
+		    (when verbosep (format output-stream "~%~D ~:(~A~) triples, ~(~A~) ~D triples" result-label1 (length triple-list1) result-label2 (length triple-list2)))
+		    (values nil nil))
+		   (t
+		    (flet ((show-triples (triples) (loop for triple in triples do (format output-stream "~%Triple: [~{~A~^ ~}]" triple))))
+		      (let ((observed-minus-expected (set-difference triple-list1 triple-list2 :test #'equal-triples))
+			    (expected-minus-observed (set-difference triple-list2 triple-list1 :test #'equal-triples)))
+			(cond ((and (null observed-minus-expected) (null expected-minus-observed))
+			       (when verbosep
+				 (format output-stream "~%~:(~A~) triples and ~(~A~) triples are same, but in a different order~%" result-label1 result-label2)
+				 (format output-stream "~%~:(~A~):" result-label1)
+				 (show-triples triple-list1)
+				 (format output-stream "~%~:(~A~):" result-label2)
+				 (show-triples triple-list2)
+				 (values t nil)))
+			      (t
+			       (format output-stream "~%~:(~A~) triples not in ~(~A~):" result-label1 result-label2)
+			       (show-triples expected-minus-observed)
+			       (format output-stream "~%~:(~A~) triples not ~(~A~):" result-label2 result-label1)
+			       (show-triples observed-minus-expected)
+			       (values nil nil)))))))))
+	  ((and (slot-boundp query-results1 'results) (slot-boundp query-results2 'results))
+	   (let ((result-list1 (sparql-query-results-results query-results1))
+		 (result-list2 (sparql-query-results-results query-results2)))
+	     (cond ((and (= (length result-list1) (length result-list2))
+			 (every #'(lambda (r1 r2) (sparql-result-equal r1 r2)) result-list1 result-list2))
+		    (when verbosep (format output-stream "~%~:(~A~) solutions and ~(~A~) solutions are equal" result-label1 result-label2))
+		    (values t t))
+		   ((not (= (length result-list1) (length result-list2)))
+		    (when verbosep (format output-stream "~%~D ~:(~A~) solutions, ~(~A~) ~D solutions" result-label1 (length result-list1) result-label2 (length result-list2)))
+		    (values nil nil))
+		   (t
+		    (flet ((show-solutions (sl) (loop for s in sl do (format output-stream "~%Solution: ~{~A~^ ~}" (sparql-result-bindings s)))))
+		      (let ((observed-minus-expected (set-difference result-list1 result-list2 :test #'sparql-result-equal))
+			    (expected-minus-observed (set-difference result-list2 result-list1 :test #'sparql-result-equal)))
+			(cond ((and (null observed-minus-expected) (null expected-minus-observed))
+			       (when verbosep
+				 (format output-stream "~%~:(~A~) solutions and ~(~A~) solutions are same, but in a different order~%" result-label1 result-label2)
+				 (format output-stream "~%~:(~A~):" result-label1)
+				 (show-solutions result-list1)
+				 (format output-stream "~%~:(~A~):" result-label2)
+				 (show-solutions result-list2)
+				 (values t nil)))
+			      (t
+			       (format output-stream "~%~:(~A~) solutions not in ~(~A~):" result-label1 result-label2)
+			       (show-solutions expected-minus-observed)
+			       (format output-stream "~%~:(~A~) solutions not ~(~A~):" result-label2 result-label1)
+			       (show-solutions observed-minus-expected)
+			       (values nil nil)))))))))
+	  (t
+	   (when verbosep (format output-stream "~%Cannot compare ~:(~A~) ~S and ~(~A~) ~S" result-label1 query-results1 result-label2 query-results2))
+	   (values nil nil)))))
+
+;; (defmethod print-object ((this sparql-runtime-exception) stream)
+;;   (format stream "#<~A format=~S>" (type-of this) (sparql-runtime-exception-data this)))
+;; (define-class sparql-runtime-exception ()
+;;   ((runtime-exception :accessor sparql-runtime-exception-data :initarg :data)))
+
+(define-class sparql-abstract-result ()
+  ((rule :accessor sparql-result-rule :initarg :rule :initform nil)))
+
+(define-class sparql-result (sparql-abstract-result)
+  ((bindings :accessor sparql-result-bindings :initarg :bindings)))
+
+(define-class sparql-binding ()
+  ((variable :accessor sparql-binding-variable :initarg :variable)
+   (value :accessor sparql-binding-value :initarg :value)))
+
+(define-class sparql-link (sparql-abstract-result)
+  ((href :accessor sparql-link-href :initarg :href)))
+
+(define-class sparql-boolean-result (sparql-abstract-result)
+  ((value :accessor sparql-boolean-result-value :initarg :value)))
+
+(define-class sparql-query-results ()
+  ((variables :accessor sparql-query-results-variables :initarg :variables :initform nil)
+   (links :accessor sparql-query-results-links :initarg :links :initform nil)
+   (results :accessor sparql-query-results-results :initarg :results)
+   (boolean :accessor sparql-query-results-boolean :initarg :boolean)))
+
+(defmethod initialize-instance :after ((this sparql-results) &key &allow-other-keys)
+  (setf (slot-value this 'results) (list nil))
+  (setf (slot-value this 'tail) (slot-value this 'results)))
+
+(defgeneric add-sparql-result (sparql-results result)
+  (:method ((this sparql-results) result)
+    (setf (cdr (slot-value this 'tail)) (list result))
+    (setf (slot-value this 'tail) (cdr (slot-value this 'tail)))))
+
+(defgeneric sparql-results (sparql-results)
+  (:method ((this sparql-results))
+    (cdr (slot-value this 'results))))
+
+(defmethod print-object ((this sparql-binding) stream)
+  (format stream "#<~A ~A = ~S>" (type-of this) (uniquely-named-object-name (sparql-binding-variable this)) (sparql-binding-value this)))
+
+(defun create-sparql-binding (var value)
+  (make-instance 'sparql-binding :variable var :value value))
+
+(defun create-sparql-result (bindings)
+  (make-instance 'sparql-result :bindings bindings))
+
+(defgeneric sparql-result-equal (r1 r2)
+  (:method ((r1 sparql-result) (r2 sparql-result))
+    (let ((bl1 (sparql-result-bindings r1))
+	  (bl2 (sparql-result-bindings r2)))
+      (and (every #'(lambda (b1) (or (sparql-unbound-p (sparql-binding-value b1)) (find b1 bl2 :test #'sparql-binding-equal))) bl1)
+	   (every #'(lambda (b2) (or (sparql-unbound-p (sparql-binding-value b2)) (find b2 bl1 :test #'sparql-binding-equal))) bl2)))))
+
+(defgeneric sparql-binding-equal (b1 b2)
+  (:method ((b1 sparql-binding) (b2 sparql-binding))
+    (and (sparql-var-equal (sparql-binding-variable b1) (sparql-binding-variable b2))
+	 (sparql-value-equal (sparql-binding-value b1) (sparql-binding-value b2)))))
+
+(defun create-sparql-link (href)
+  (make-instance 'sparql-link :href href))
+
+(defgeneric sparql-query-results-solutions (r)
+  (:method ((this sparql-query-results))
+    (cond ((slot-boundp this 'boolean)
+	   (sparql-query-results-boolean this))
+	  (t
+	   (loop with variables = (sparql-query-results-variables this)
+		 for result in (sparql-query-results-results this)
+		 collect (loop for var in variables
+			       for binding = (find-if #'(lambda (b) (sparql-var-equal var (sparql-binding-variable b))) (sparql-result-bindings result))
+			       when binding collect binding))))))
+

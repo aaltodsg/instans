@@ -1,0 +1,5 @@
+(define-class solution-set-output-processor (query-output-processor)
+  ((variables :accessor solution-set-output-processor-variables)
+   (bindings :accessor solution-set-output-processor-bindings)
+   (end :accessor solution-set-output-processor-end)))
+

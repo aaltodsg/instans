@@ -47,6 +47,7 @@
 				     (:file "sparql-types" :depends-on ("sparql-macros" "datetime" "parse-values" "sparql-classes"))
 				     (:file "iri" :depends-on ("sparql-types" "sparql-macros"))
 				     (:file "sparql-helper-functions" :depends-on ("sparql-types" "sparql-macros"))
+				     (:file "sparql-query-results" :depends-on ("sparql-types" "sparql-macros"))
 				     (:file "sparql-ops" :depends-on ("sparql-types" "sparql-macros" "sparql-helper-functions"))
 				     (:file "sparql-instans-extension-ops" :depends-on ("sparql-types" "sparql-macros" "sparql-helper-functions"))))
 	       (:module "cl-ll1" :depends-on ("util")

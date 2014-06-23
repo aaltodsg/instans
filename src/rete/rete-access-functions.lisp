@@ -48,6 +48,9 @@
     (setf (query-output-processor-output-stream this) stream)
     (setf (csv-output-processor-csv-output this) (make-instance 'csv-output :stream stream))))
 
+(defmethod initialize-instance :after ((this solution-set-output-processor) &key &allow-other-keys)
+  (setf (solution-set-output-processor-query-results this) (make-instance 'sparql-query-results)))
+
 (defmethod initialize-instance :after ((this construct-output-processor) &key output-name &allow-other-keys)
   (let ((stream (cond ((null output-name) *standard-output*)
 		      (t
@@ -364,10 +367,14 @@
     (:trig (make-instance 'trig-output-processor :output-name output-name))
     (:nt (make-instance 'nt-output-processor :output-name output-name))
     (:nq (make-instance 'nq-output-processor :output-name output-name))
-    (:solution-set (make-instance 'solution-set-output-processor :output-name output-name))
     (t (error* "Unknown select output processor type ~S" output-type))))
 
 (defun solution-bindings (node token)
+  (let* ((vars (solution-modifiers-project-vars node))
+	 (values (mapcar #'(lambda (var) (token-value node token var)) vars)))
+    (values vars values)))
+
+(defun solution-bindings-pretty (node token)
   (let* ((vars (solution-modifiers-project-vars node))
 	 (values (mapcar #'(lambda (var)
 			     (let ((value (token-value node token var)))
@@ -380,19 +387,14 @@
 
 (defgeneric write-select-output (query-output-processor node token)
   (:method ((this csv-output-processor) node token)
-    (multiple-value-bind (vars values) (solution-bindings node token)
+    (multiple-value-bind (vars values) (solution-bindings-pretty node token)
       (let ((query-output-stream (csv-output-processor-csv-output this)))
 	(unless (slot-boundp query-output-stream 'headers)
 	  (write-csv-headers query-output-stream (mapcar #'(lambda (var) (format nil "~(~A~)" (subseq (uniquely-named-object-name (reverse-resolve-binding (node-instans node) var)) 1))) vars)))
 	(write-csv-record query-output-stream values))))
   (:method ((this solution-set-output-processor) node token)
     (multiple-value-bind (vars values) (solution-bindings node token)
-      (unless (slot-boundp this 'variables)
-	(setf (solution-set-output-processor-variables this)
-	      (mapcar #'(lambda (var) (format nil "~(~A~)" (subseq (uniquely-named-object-name (reverse-resolve-binding (node-instans node) var)) 1))) vars))
-	(setf (solution-set-output-processor-end this) (setf (solution-set-output-processor-bindings this) (list nil))))
-      (setf (solution-set-output-processor-end this)
-	    (setf (cdr (solution-set-output-processor-end this)) (list values))))))
+      (add-sparql-result (solution-set-output-processor-query-results this) vars values))))
 
 (defgeneric output-pending-graph (trig-output-processor)
   (:method ((this trig-output-processor))
@@ -474,9 +476,7 @@
       (inform "close-query-output-processor : ~S, stream = ~S" this (query-output-processor-output-stream this))
       (close (query-output-processor-output-stream this))))
   (:method ((this solution-set-output-processor))
-    (if (slot-boundp this 'bindings)
-	(pop (solution-set-output-processor-bindings this))
-	nil)))
+    nil))
 
 (defgeneric aggregate-get-value (aggregate)
   (:method ((this aggregate-count)) (aggregate-count this))
