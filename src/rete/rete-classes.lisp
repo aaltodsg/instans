@@ -335,6 +335,7 @@
    (status :accessor instans-status :initform nil)
    (debug-topics :accessor instans-debug-topics :initform nil)
    (algebra-expr-list :accessor instans-algebra-expr-list :initform nil)
+   (canonic-algebra-expr-list :accessor instans-canonic-algebra-expr-list :initform nil)
    (colors :accessor instans-colors :initform nil)))
 
 (define-class instans-status ()

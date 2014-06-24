@@ -200,7 +200,7 @@
     (cond ((directoryp html-file)
 	   (setf dir (expand-dirname html-file))
 	   (setf name (pathname-name (if (rdf-iri-p rules-file) (rdf-iri-path rules-file) rules-file)))
-	   (setf html-file (format nil "~A~A" dir name)))
+	   (setf html-file (format nil "~A~A.html" dir name)))
 	  (t
 	   (setf dir (expand-dirname (directory-namestring html-file)))
 	   (setf name (pathname-name html-file))))
@@ -219,7 +219,7 @@
 			   (loop for (from . to) in (instans-bindings instans)
 				 do (format str "~%  ~A -> ~A" (uniquely-named-object-name from) (uniquely-named-object-name to)))))
 	       (sparql-algebra (with-output-to-string (str)
-				 (loop for expr in (instans-algebra-expr-list instans)
+				 (loop for expr in (instans-canonic-algebra-expr-list instans)
 ;				       do (inform "algebra-expr:~%~A" expr)
 				       do (let* ((*print-circle* nil)
 						 (*print-pretty* t)

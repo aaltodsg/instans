@@ -46,10 +46,11 @@ if test $# -eq 0 ; then
 #	${ECHO} '${INSTANS}' -b 'file://`dirname $MANIFEST`/' -r '${RULES}' -t '${MANIFEST}'
 #	${ECHO}
 	${INSTANS} -b file://`dirname $MANIFEST`/ -r ${RULES} -t ${MANIFEST} > ${TMPOUT1} 2>&1
-	cat ${TMPOUT1} | egrep -v '(^[ \t]*;|^[ \t]*$|^parsed_ok,translated_ok,testtype,queryfile_short,error_msg$)' > ${TMPOUT2}
+	cat ${TMPOUT1} | egrep -v '(^[ \t]*;|^[ \t]*$|^parsed_ok,translated_ok,testtype,queryfile_short,error_msg$)' \
+	    | egrep '(^(true|false))' > ${TMPOUT2}
 	LC=`wc -l $TMPOUT2|awk '{print $1;}'`
 	TC=$(($TC+$LC))
-	printf " %2d tests\n" $LC
+	printf " %3d tests\n" $LC
 	cat ${TMPOUT2} >> ${TEST_OUTPUT} 2>&1
 	rm -f ${TMPOUT1} ${TMPOUT2}
     done

@@ -26,6 +26,7 @@
     (loop for algebra-expr in (instans-algebra-expr-list instans)
 	  for canonic = (canonize-sparql-algebra-variables instans algebra-expr)
 	  for new-nodes = (translate-sparql-algebra-to-rete instans canonic)
+	  do (push-to-end canonic (instans-canonic-algebra-expr-list instans))
 	  when (instans-find-status instans 'instans-rule-translation-failed)
 	  do (return-from compile-sparql-stream nil)
 	  else do (lisp-compile-nodes new-nodes))

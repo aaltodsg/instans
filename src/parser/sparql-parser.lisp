@@ -293,7 +293,12 @@
 	     (make-blank-node-or-var (name)
 	       (cond ((not blank-nodes-allowed-p)
 		      (sparql-parse-error "Blank node (~A) not allowed here" name))
-		     ((not replace-blank-nodes-by-vars-p) (make-rdf-blank-node instans name))
+		     ((not replace-blank-nodes-by-vars-p)
+		      (or (find-if #'(lambda (var) (string= (uniquely-named-object-name var) name)) blanks)
+			  (let ((blank (make-rdf-blank-node instans name)))
+;			    (inform "Not replacing blanks by vars, created ~S" blank)
+			    (push blank blanks)
+			    blank)))
 		     (t
 		      (or (find-if #'(lambda (var) (string= (uniquely-named-object-name var) name)) blanks)
 			  (let ((var (make-var name)))
