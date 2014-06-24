@@ -1,0 +1,25 @@
+@prefix tl:<http://purl.org/NET/c4dm/timeline.owl#> .
+@prefix geo:<http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#> .
+@prefix : <http://instans.org/> .
+
+:ev1 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 1; :reading 1 }
+:ev2 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 2; :reading 4 }
+:ev3 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 3; :reading 9 }
+:ev4 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 4; :reading 16 }
+:ev5 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 5; :reading 25 }
+:ev6 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 6; :reading 36 }
+:ev7 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 7; :reading 49 }
+:ev8 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 8; :reading 64 }
+:ev9 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 9; :reading 81 }
+:ev10 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 10; :reading 100 }
+:ev11 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 11; :reading 121 }
+:ev12 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 12; :reading 144 }
+:ev13 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 13; :reading 169 }
+:ev14 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 14; :reading 196 }
+:ev15 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 15; :reading 225 }
+:ev16 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 16; :reading 256 }
+:ev17 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 17; :reading 289 }
+:ev18 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 18; :reading 324 }
+:ev19 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 19; :reading 361 }
+:ev20 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 20; :reading 400 }
