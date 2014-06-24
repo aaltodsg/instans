@@ -1,0 +1,14 @@
+@prefix : <http://instans.org/> .
+:G1 { 
+  :eve1 a :ObjectEvent ;
+        :associatedWithList _:node1 .
+  _:node1 a :SetOfElements ;
+  	  :element :first , :second, :third .
+}
+:G2 {
+  :eve2 a :ObjectEvent ;
+        :associatedWithList _:node2 .
+  _:node2 a :SetOfElements ;
+	  :element :second , :third, :fourth .
+}
+
