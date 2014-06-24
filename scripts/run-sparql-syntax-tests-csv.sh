@@ -1,17 +1,23 @@
 #!/bin/sh
-CNT=0
+ECHO=/bin/echo
+${ECHO} 
+${ECHO} "===================="
+${ECHO} "Running syntax tests"
+${ECHO} "===================="
+${ECHO}
 cd `dirname $0`/.. > /dev/null
 ROOT=`pwd`
 BIN=${ROOT}/bin
 TESTS=${ROOT}/tests
+RULES=${TESTS}/input/syntax-test.rq
 cd ${TESTS} > /dev/null
 RESULTSDIR=syntax-test-results
 TEST_OUTPUT=${RESULTSDIR}/results
 REPORT_HTML=${RESULTSDIR}/index.html
 if test ! -d $RESULTSDIR; then
-  echo "Directory \"$RESULTSDIR\" does not exist; creating it"
+  ${ECHO} "Directory \"$RESULTSDIR\" does not exist; creating it"
   mkdir $RESULTSDIR
-  echo
+  ${ECHO}
 fi
 SAVEDIR=${RESULTSDIR}/save/`date "+%Y-%m-%dT%H:%M:%S"`
 mkdir -p ${SAVEDIR}
@@ -20,28 +26,41 @@ cp -f ${REPORT_HTML} ${SAVEDIR}/
 cp -f ${REPORT_HTML} ${REPORT_HTML}.prev
 rm -f [0-9][0-9]*__tmp_out
 if test $# -eq 0 ; then
-    pwd
-    echo > $TEST_OUTPUT
-    /bin/echo -n "Running tests ... "
-    TMPOUT=$$__tmp_out
+    ${ECHO} > $TEST_OUTPUT
+    TMPOUT1=$$__tmp_out1
+    TMPOUT2=$$__tmp_out2
 #    TMPOUT=ask.out
 #    for i in data-r2/ask/manifest.ttl ; do 
+#     ${ECHO} "INSTANS=${BIN}/instans"
+#     ${ECHO} "TESTS=${TESTS}"
+#     ${ECHO} "RULES=${TESTS}/input/syntax-test.rq"
+#     ${ECHO}
+    CNT=0
+    TC=0
     for i in data-r2/*/manifest.ttl data-sparql11/*/manifest.ttl ; do 
+	CNT=$(($CNT+1))
         MANIFEST=`pwd`/$i
-	echo ${BIN}/instans -b "file://`dirname $MANIFEST`/" -r ${TESTS}/input/syntax-test.rq -t $MANIFEST
-	${BIN}/instans -b "file://`dirname $MANIFEST`/"  -r ${TESTS}/input/syntax-test.rq -t $MANIFEST > ${TMPOUT} 2>&1
-	cat ${TMPOUT} | egrep -v '(^[ \t]*;|^[ \t]*$|^queryfile,testtype,parsed_ok,translated_ok,error_msg,status$)' >> ${TEST_OUTPUT} 2>&1
-	rm -f ${TMPOUT}
+	x=${MANIFEST%manifest.ttl}
+	printf "%-35s" ${x#$TESTS/}
+#        ${ECHO} MANIFEST=${MANIFEST}
+#	${ECHO} '${INSTANS}' -b 'file://`dirname $MANIFEST`/' -r '${RULES}' -t '${MANIFEST}'
+#	${ECHO}
+	${INSTANS} -b file://`dirname $MANIFEST`/ -r ${RULES} -t ${MANIFEST} > ${TMPOUT1} 2>&1
+	cat ${TMPOUT1} | egrep -v '(^[ \t]*;|^[ \t]*$|^parsed_ok,translated_ok,testtype,queryfile_short,error_msg$)' > ${TMPOUT2}
+	LC=`wc -l $TMPOUT2|awk '{print $1;}'`
+	TC=$(($TC+$LC))
+	printf " %2d tests\n" $LC
+	cat ${TMPOUT2} >> ${TEST_OUTPUT} 2>&1
+	rm -f ${TMPOUT1} ${TMPOUT2}
     done
-    echo "File \"$TEST_OUTPUT\" contains the test output."
-    # pwd
-    # /bin/echo -n "Running tests ... "
-    # ${BIN}/sbcl-instans --noinform --eval '(run-all-syntax-tests)' --quit > $TEST_OUTPUT 2>&1
-    # echo "File \"$TEST_OUTPUT\" contains the test output."
+    ${ECHO}
+    ${ECHO} "$CNT test sets, $TC tests"
+    ${ECHO}
+    ${ECHO} "File \"$TEST_OUTPUT\" contains the test output."
 elif test -f $TEST_OUTPUT; then
-    echo "Using the old results in $TEST_OUTPUT"  
+    ${ECHO} "Using the old results in $TEST_OUTPUT"  
 else
-    echo "No results in $TEST_OUTPUT!"
+    ${ECHO} "No results in $TEST_OUTPUT!"
     exit 1
 fi
 REPORT_HTML=${RESULTSDIR}/index.html
@@ -176,5 +195,11 @@ EOF
 rm -f log; touch log
 awk -f $AWK < $TEST_OUTPUT >> $REPORT_HTML
 rm -rf $AWK
-echo
-echo "File \"$REPORT_HTML\" contains the test results in HTML form."
+tail -7 $REPORT_HTML | sed '/<[^>]*>/s///g'|sed '/^$/d'
+${ECHO}
+${ECHO} "File \"$REPORT_HTML\" contains the test results in HTML form."
+${ECHO} 
+${ECHO} "======================"
+${ECHO} "Syntax tests completed"
+${ECHO} "======================"
+${ECHO}

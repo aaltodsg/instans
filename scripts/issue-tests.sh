@@ -1,12 +1,18 @@
 #!/bin/sh
+ECHO=/bin/echo
+${ECHO} 
+${ECHO} "==================="
+${ECHO} "Running issue tests"
+${ECHO} "==================="
+${ECHO}
+
 die() {
-    echo $*
+    ${ECHO} $*
     exit 1
 }
 
-cd `dirname $0`/../tests/input/issues
+cd `dirname $0`/../tests/input/issues > /dev/null
 STAMP=`date "+%Y%m%d%H%M%S"`
-mkdir -p output
 for i in issue?.sh issue??.sh; do
     CORRECT=`basename $i .sh`.correct
     OUTPUT=`basename $i .sh`.output
@@ -14,11 +20,16 @@ for i in issue?.sh issue??.sh; do
     if (sh $i 2>&1 | sed -e '/^"/s///' -e '/",/s//,/g' -e '/,"/s//,/g' -e '/"$/s///' > ${OUTPUT}); then
 	if cmp -s ${CORRECT} ${OUTPUT}; then
 	    rm -f ${OUTPUT}
-	    echo "OK $i"
+	    ${ECHO} "OK $i"
 	else
-	    echo "Unexpected results from $i"
+	    ${ECHO} "Unexpected results from $i"
 	fi
     else
-	echo "Failed $i"
+	${ECHO} "Failed $i"
     fi
 done
+${ECHO}
+${ECHO} "====================="
+${ECHO} "Issue tests completed"
+${ECHO} "====================="
+${ECHO}
