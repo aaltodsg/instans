@@ -85,7 +85,7 @@
 	 (sh-file (format nil "~A.sh" file-base))
 	 (sh-string (with-open-file (str sh-file) (read-line str)))
 	 (args (format nil "~A-d file://~A/ ~A"
-		       (if htmlp (format nil "--rete-html-output ~A/tests/output " rootdir) "")
+		       (if htmlp (format nil "--rete-html-file ~A/tests/output " rootdir) "")
 		       dir (subseq sh-string (+ (search "instans " sh-string) 8)))))
     (inform "Running issue test ~D with args ~A" n args)
     (main-test args)))

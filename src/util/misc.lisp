@@ -160,10 +160,18 @@
       file-name)))
 
 (defun expand-dirname (directory)
-  (let ((chars (remove-dot-segments (coerce (namestring (format nil "~A~A" (namestring (probe-file ".")) directory)) 'list))))
+  (setf directory (namestring directory))
+  (let ((chars (remove-dot-segments (coerce (if (char= (char directory 0) #\/) directory (namestring (format nil "~A~A" (namestring (probe-file ".")) directory))) 'list))))
     (unless (char= (first (last chars)) #\/)
       (setf (cdr (last chars)) (list #\/)))
     (coerce chars 'string)))
+
+(defun directoryp (name)
+  (let ((dn (probe-file (expand-dirname name))))
+    (cond ((null dn) nil)
+	  (t
+	   (setf dn (namestring dn))
+	   (char= (char dn (1- (length dn))) #\/)))))
 
 ;;;
 
@@ -173,7 +181,21 @@
 	   (eq subscribe :all)
 	   (some #'(lambda (key) (member key subscribe)) publish))))
 
+;;;
+
+
+
 #+sbcl
 (defun shell-script (script &rest args)
   (let ((process (sb-ext:run-program "/bin/sh" (cons script args) :output t :error :output)))
     process))
+
+(defun shell-cmd (cmd &rest args)
+  (let ((process nil)
+	(output-string nil)
+	(error-string nil))
+    (setf error-string (with-output-to-string (error-stream)
+			 (setf output-string 
+			       (with-output-to-string (output-stream)
+				 (setf process (sb-ext:run-program cmd args :output output-stream :error error-stream :search t))))))
+    (values (zerop (sb-ext:process-exit-code process)) output-string error-string))) 

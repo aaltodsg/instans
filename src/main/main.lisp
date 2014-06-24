@@ -22,7 +22,7 @@
 	   time-output-stream
 	   start-time-sec
 	   start-time-usec
-	   base graph expected debug reporting rete-html-output)
+	   base graph expected debug reporting rete-html-file)
       (setf *instanssi* instans)
       (labels ((valid-value-p (value accepted-values &key test)
 		 (or (funcall test value accepted-values)
@@ -70,17 +70,18 @@
 			  (:graph (if (string= (string-downcase value) "default") nil (setf graph (parse-iri value))))
 			  (:execute (instans-run instans-iri))
 			  (:rules
-			   (set-output-processors)
-			   (instans-add-rules instans-iri (expand-iri directory value) :create-instans-p nil :base base)
-			   (cond ((instans-find-status instans 'instans-rule-translation-succeeded)
-				  (if rete-html-output (output-rete-html-page instans rete-html-output)))
-				 (t
-				  (let ((status (first (instans-status instans))))
-				    (cond ((null status)
-					   (inform "Something wrong!"))
-					  (t
-					   (inform "~%~A:~A~{~%~A~}~%" value (type-of status) (instans-status-messages status)))))
-				  (return-from run-configuration nil))))
+			   (let ((rules (expand-iri directory value)))
+			     (set-output-processors)
+			     (instans-add-rules instans-iri rules :create-instans-p nil :base base)
+			     (cond ((instans-find-status instans 'instans-rule-translation-succeeded)
+				    (if rete-html-file (output-rete-html-page instans rules rete-html-file)))
+				   (t
+				    (let ((status (first (instans-status instans))))
+				      (cond ((null status)
+					     (inform "Something wrong!"))
+					    (t
+					     (inform "~%~A:~A~{~%~A~}~%" value (type-of status) (instans-status-messages status)))))
+				    (return-from run-configuration nil)))))
 			  (:input-type (setf query-input-type (intern-keyword (string-upcase value))))
 			  (:select-output-type (setf select-output-type (let ((x (intern-keyword (string-upcase value)))) (unless (eq x :none) x))))
 			  (:construct-output-type (setf construct-output-type (let ((x (intern-keyword (string-upcase value)))) (unless (eq x :none) x))))
@@ -129,7 +130,7 @@
 								    :test #'(lambda (values accepted) (every #'(lambda (v) (member v accepted :test #'equal)) values))))
 			  (:allow-rule-instance-removal-p (set-policy :allow-rule-instance-removal-p (intern-keyword value) (instans-available-rule-instance-removal-policies instans)))
 			  (:queue-execution-policy (set-policy :queue-execution-policy (intern-keyword value) (instans-available-queue-execution-policies instans)))
-			  (:rete-html-output (setf rete-html-output value))))
+			  (:rete-html-file (setf rete-html-file value))))
 	       (unless (find :execute configuration :key #'first)
 		 (instans-run instans-iri))
 	       instans)
@@ -219,7 +220,7 @@
 						      :operation ,#'(lambda (arg value) (declare (ignore arg)) (setf args (append (read-args-from-file value) args))))
 				      (:reporting        (("--report" "<rules>")) "The kinds of rules you want to get reported; a ':'~%~
                                                                            ~40Tseparated list of (select|construct|modify|all)." :hiddenp t)
-				      (:rete-html-output           (("--rete-html-output" "<dir>")) "Create an HTML page about the Rete network.")
+				      (:rete-html-file           (("--rete-html-file" "<dir>")) "Create an HTML page about the Rete network.")
 				      (:rdf-input-unit          (("--rdf-input-unit" "<policy>")) "The triple input policy.")
 				      (:rdf-operations     (("--rdf-operations" "<policy>")) "See the documentation.")
 				      (:allow-rule-instance-removal-p (("--allow-rule-instance-removal-p" "<policy>")) "See the documentation.")

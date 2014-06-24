@@ -65,7 +65,7 @@
 		  (incf *triple-count*)
 		  ;; (incf *triple-sizes* (+ (term-size current-subject) (term-size current-predicate) (term-size current-object)))
 		  (when (debugp subscribe :triples)
-		    (inform "emit ~S ~S ~S" current-subject current-predicate current-object))
+		    (inform "emit ~S ~S ~S ~S~%" current-subject current-predicate current-object current-graph))
 		  ;; (let ((new ,(if (eq input-type :trig)
 		  ;; 		  '(list current-subject current-predicate current-object current-graph)
 		  ;; 		  '(list current-subject current-predicate current-object))))

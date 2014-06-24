@@ -194,32 +194,76 @@
 (defun print-dot-file (net file &key (html-labels-p t))
   (with-open-file (stream file :direction :output :if-exists :supersede) (print-dot net :stream stream :show-vars-p t :html-labels-p html-labels-p)))
 
-(defun output-rete-html-page (instans rete-html-output &key (make-rete-html-page-script (find-make-rete-html-script)))
-  (unless (null rete-html-output)
-    (setf rete-html-output (pathname rete-html-output))
-    (let* ((name-part (pathname-name rete-html-output))
-	   (dirname (directory-namestring rete-html-output))
-	   (dot-output-file (concatenate 'string dirname "/" name-part ".dot"))
-	   (bnd-output-file (concatenate 'string dirname "/" name-part ".bnd"))
-	   (sa-output-file (concatenate 'string dirname "/" name-part ".sa")))
-      (with-open-file (out sa-output-file :direction :output :if-exists :supersede)
-	(loop for expr in (instans-algebra-expr-list instans)
-					;	        do (inform "algebra-expr:~%~A" expr)
-	      do (let* ((*print-circle* nil)
-			(*print-pretty* t)
-			(*print-right-margin* 110))
-		   (let ((string (with-output-to-string (str)
-				   (print expr str))))
-		     (setf string (cl-ppcre:regex-replace-all ">" (cl-ppcre:regex-replace-all "<"  string "&lt;") "&gt;"))
-		     (format out "~A" string)))))
-      (with-open-file (out bnd-output-file :direction :output :if-exists :supersede)
-	(let ((string (with-output-to-string (str)
-			(format str "Bindings:")
-			(loop for (from . to) in (instans-bindings instans)
-			      do (format str "~%  ~A -> ~A" (uniquely-named-object-name from) (uniquely-named-object-name to))))))
-	  (setf string (cl-ppcre:regex-replace-all ">" (cl-ppcre:regex-replace-all "<"  string "&lt;") "&gt;"))
-	  (format out "~A" string)))
+(defun output-rete-html-page (instans rules-file html-file)
+  (let (name dir)
+;    (inform "(directoryp ~A) = ~A" html-file (directoryp html-file))
+    (cond ((directoryp html-file)
+	   (setf dir (expand-dirname html-file))
+	   (setf name (pathname-name (if (rdf-iri-p rules-file) (rdf-iri-path rules-file) rules-file)))
+	   (setf html-file (format nil "~A~A" dir name)))
+	  (t
+	   (setf dir (expand-dirname (directory-namestring html-file)))
+	   (setf name (pathname-name html-file))))
+    (let* ((dot-output-file (create-temp-file-name :directory dir :name-prefix name :type "dot"))
+	   (dot-svg-output-file (create-temp-file-name :directory dir :name-prefix name :type "dot.svg")))
       (print-dot-file instans dot-output-file :html-labels-p nil)
-      (when (pathnamep make-rete-html-page-script) (setf make-rete-html-page-script (namestring make-rete-html-page-script)))
-      (assert (probe-file make-rete-html-page-script))
-      (shell-script make-rete-html-page-script name-part (directory-namestring rete-html-output)))))
+      (multiple-value-bind (dot-ok output error)
+	  (shell-cmd "dot" "-Tsvg" "-O" dot-output-file)
+	(declare (ignorable output))
+	(unless dot-ok
+	  (inform "Running 'dot -Tsvg -O ~A failed:~%A" dot-output-file error)
+	  (return-from output-rete-html-page nil))
+	(let* ((rules (read-from-url-or-file rules-file))
+	       (bindings (with-output-to-string (str)
+			   (format str "Bindings:")
+			   (loop for (from . to) in (instans-bindings instans)
+				 do (format str "~%  ~A -> ~A" (uniquely-named-object-name from) (uniquely-named-object-name to)))))
+	       (sparql-algebra (with-output-to-string (str)
+				 (loop for expr in (instans-algebra-expr-list instans)
+;				       do (inform "algebra-expr:~%~A" expr)
+				       do (let* ((*print-circle* nil)
+						 (*print-pretty* t)
+						 (*print-right-margin* 110))
+					    (print expr str)))))
+	       (svg (read-from-url-or-file dot-svg-output-file)))
+	  (with-open-file (out html-file :direction :output :if-exists :supersede)
+	    (format out "
+<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\">
+<html>
+<head>
+  <meta charset=\"utf-8\"> 
+  <title>~A</title>
+</head>
+<body>
+  <table border=\"1\" cellspacing=\"0\" cellpadding=\"4\">
+  <tr>
+    <td>
+      <pre>
+~A
+      </pre>
+    </td>
+    <td rowspan=\"2\" valign=\"bottom\">
+      <pre>
+~A
+      </pre>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      <pre>
+~A
+      </pre>
+      </td>
+    </tr>
+  </table>
+  <hr/>
+~A
+  <hr/>
+</body>
+</html>"
+		    name
+		    (html-entities:encode-entities sparql-algebra)
+		    (html-entities:encode-entities bindings)
+		    (html-entities:encode-entities rules)
+		    svg))))))
+  t)

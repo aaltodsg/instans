@@ -152,7 +152,7 @@
 	   ;; expected
 	   debug
 	   reporting
-	   rete-html-output)
+	   rete-html-file)
       (labels ((valid-value-p (value accepted-values &key test)
 		 (or (funcall test value accepted-values)
 		     (error* "Value ~A not one of ~A" value accepted-values)))
@@ -219,17 +219,18 @@
 		 (rules
 		  :options ("--rules=RULES" ("-r" "RULES"))
 		  :usage "Load SPARQL rules from a file or an URL."
-		  (set-output-processors)
-		  (instans-add-rules instans-iri (expand-iri directory value) :create-instans-p nil :base base)
-		  (cond ((instans-find-status instans 'instans-rule-translation-succeeded)
-			 (if rete-html-output (output-rete-html-page instans rete-html-output)))
-			(t
-			 (let ((status (first (instans-status instans))))
-			   (cond ((null status)
-				  (inform "Something wrong!"))
-				 (t
-				  (inform "~%~A:~A~{~%~A~}~%" value (type-of status) (instans-status-messages status)))))
-			 (return-from command-loop nil))))
+		  (let ((rules (expand-iri directory value)))
+		    (set-output-processors)
+		    (instans-add-rules instans-iri rules :create-instans-p nil :base base)
+		    (cond ((instans-find-status instans 'instans-rule-translation-succeeded)
+			   (if rete-html-file (output-rete-html-page instans rules rete-html-file)))
+			  (t
+			   (let ((status (first (instans-status instans))))
+			     (cond ((null status)
+				    (inform "Something wrong!"))
+				   (t
+				    (inform "~%~A:~A~{~%~A~}~%" value (type-of status) (instans-status-messages status)))))
+			   (return-from command-loop nil)))))
 		 (input
 		  :options ("--input=INPUT" ("-i" "INPUT") ("-t" "INPUT") )
 		  :usage ("Read RDF from a file or an URL. The suffix of INPUT is used to"
@@ -425,7 +426,7 @@
 		  :usage ("Create an HTML page about the Rete network. The HTML page contains the SPARQL query,"
 			  "a picture of the generate Rete network and other useful information.")
 		  :html ""
-		  (setf rete-html-output value))
+		  (setf rete-html-file value))
 		 (name
 		  :options ("--name=NAME" ("-n" "NAME"))
 		  :usage "Use NAME as the name of the system."
