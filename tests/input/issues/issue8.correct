@@ -1,5 +1,5 @@
 s,p,o
-":!-0","http://www.w3.org/1999/02/22-rdf-syntax-ns#type","http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#EventObject"
-":!-0","http://www.w3.org/2003/01/geo/wgs84_pos#Point","_:!-1"
-":!-1","http://www.w3.org/2003/01/geo/wgs84_pos#long","24.88149"
-":!-1","http://www.w3.org/2003/01/geo/wgs84_pos#lat","60.158775"
+_:!-3,http://www.w3.org/2003/01/geo/wgs84_pos#lat,60.158775
+_:!-3,http://www.w3.org/2003/01/geo/wgs84_pos#long,24.88149
+_:!-1,http://www.w3.org/1999/02/22-rdf-syntax-ns#type,http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#EventObject
+_:!-1,http://www.w3.org/2003/01/geo/wgs84_pos#Point,_:!-3
