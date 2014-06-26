@@ -73,8 +73,12 @@
 
 (defvar *instanssi*)
 
-(defun instans-add-rules (instans-iri rules &key (create-instans-p t) base)
+(defun instans-add-rules (instans-iri rules &key (create-instans-p t) base encode-prefixes-p)
   (let ((instans (if create-instans-p (create-instans instans-iri) (get-instans instans-iri))))
+    (when encode-prefixes-p
+      (setf (instans-encode-prefixes-p instans) t)
+      (unless (instans-prefixes instans)
+	(setf (instans-prefixes instans) (create-initial-prefix-alist))))
     (instans-debug-message instans :parse-rules "instans-add-rules ~S ~S :base ~S" instans-iri rules base)
     (cond ((sparql-error-p instans) nil)
 	  ((file-or-uri-exists-p rules)

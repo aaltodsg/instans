@@ -185,7 +185,9 @@
 		      (when (rdf-iri-fragment iri)
 			(format str "#~A" (rdf-iri-fragment iri))))))
 	   (loop for (k . v) in prefixes
-		 do (when (and (<= (length v) (length str)) (every #'char= k str))
+;		 do (inform "testing, k = ~S, v = ~S, str = ~S" k v str)
+		 do (when (and (<= (length v) (length str)) (every #'char= v str))
+;		      (inform "Hit: k = ~S, v = ~S, str = ~S" k v str)
 		      (return-from iri-to-string (format nil "~A:~A" k (subseq str (length v)))))
 		 finally (return (format nil "<~A>" str)))))))
 

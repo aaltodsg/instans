@@ -84,6 +84,6 @@
 				   (let ((varstr (cond ((sparql-var-p var) (uniquely-named-object-name (reverse-resolve-binding (node-instans node) var)))
 						       ((null var) "key")
 						       (t var))))
-				     (format nil "~A -> ~A" varstr (sparql-value-to-string value :prefixes (instans-prefixes (node-instans node)))))))
+				     (format nil "~A -> ~A" varstr (sparql-value-to-string value :instans (node-instans node))))))
 				(t
 				 (format nil "~A" item)))))))

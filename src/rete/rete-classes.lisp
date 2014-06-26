@@ -335,6 +335,7 @@
    (status :accessor instans-status :initform nil)
    (current-op :accessor instans-current-op :initform nil)
    (prefixes :accessor instans-prefixes :initform nil)
+   (encode-prefixes-p :accessor instans-encode-prefixes-p :initform nil)
    (debug-topics :accessor instans-debug-topics :initform nil)
    (algebra-expr-list :accessor instans-algebra-expr-list :initform nil)
    (canonic-algebra-expr-list :accessor instans-canonic-algebra-expr-list :initform nil)

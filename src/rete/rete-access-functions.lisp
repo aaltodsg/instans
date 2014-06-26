@@ -619,7 +619,7 @@
   (:method ((this instans) (node node) token fmt &rest args)
     (let ((node-name (string (node-name node))))
       (inform "~A at ~A~%instans-op = ~{~A~^ ~}" (apply #'format nil fmt args) node-name
-	      (mapcar #'(lambda (x) (sparql-value-to-string x :prefixes (instans-prefixes this))) (instans-current-op this)))
+	      (mapcar #'(lambda (x) (sparql-value-to-string x :instans this)) (instans-current-op this)))
       (inform "   ~A" (token-pretty-string node token 3)))))
     
 (defgeneric instans-store-prefix-binding (instans prefix expansion)

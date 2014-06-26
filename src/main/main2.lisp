@@ -144,6 +144,7 @@
 	   (select-output-type :csv)
 	   (construct-output-name nil)
 	   (construct-output-type :trig)
+	   (encode-prefixes-p nil)
 	   time-output-name
 	   time-output-stream
 	   start-time-sec
@@ -191,7 +192,7 @@
 	       (parsing-commands ((key value) args :program "instans" :html html :usage usage
 				  :before (when time-output-stream (output-time "Command: ~(~A~), Parameter: ~A" key value)))
 		 (t :usage ("" "Options are of form '-o', '-o PARAM', or '--option=PARAM'." ""
-			    "General options:" ""))
+		 	       "General options:" ""))
 		 (usage
 		  :options ("--help" "-h")
 		  :usage "Print help text."
@@ -221,7 +222,7 @@
 		  :usage "Load SPARQL rules from a file or an URL."
 		  (let ((rules (expand-iri directory value)))
 		    (set-output-processors)
-		    (instans-add-rules instans-iri rules :create-instans-p nil :base base)
+		    (instans-add-rules instans-iri rules :create-instans-p nil :base base :encode-prefixes-p encode-prefixes-p)
 		    (cond ((instans-find-status instans 'instans-rule-translation-succeeded)
 			   (if rete-html-file (output-rete-html-page instans rules rete-html-file)))
 			  (t
@@ -412,6 +413,7 @@
 						     :graph graph :base base
 						     :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
 		  (maybe-execute))
+		 (t :usage ("" "Miscelaneus debugging and testing options:" ""))
 		 (warnings
 		  :options ("--warn-on-errors=BOOL")
 		  :usage ("If true, prints warnings, when FILTER or BIND evaluation causes an error. If false (the default), produces no output.")
@@ -419,7 +421,6 @@
 		  (cond ((string-equal value "true") (sparql-inform-and-throw-on-errors))
 			((string-equal value "false") (sparql-throw-on-errors))
 			(t (usage))))
-		 (t :usage ("" "Miscelaneus debugging and testing options:" ""))
 		 (verbose
 		  :options ("--verbose=SITUATIONS")
 		  :usage ("Print lots of information based on a comma-separated list of situations. Currently"
@@ -441,13 +442,20 @@
 		  (setf (instans-name instans) value))
 		 (reporting
 		  :options ("--report=KINDS")
-		  :usage "The kinds of rules you want to get reported; a ':' separated list of (select|construct|modify|all)."
+		  :usage "The kinds of rules you want to get reported; a ':' separated list of (select|construct|modify|all|add|remove)."
 		  :html ""
 		  :hiddenp t
 		  (setf reporting (parse-colon-separated-values value))
 		  (if (member :all reporting)
-		      (setf reporting '(:select :construct :modify :all)))
+		      (setf reporting '(:select :construct :modify :all :add :remove)))
 		  (setf (rule-instance-queue-report-p (instans-rule-instance-queue instans)) reporting))
+		 (prefix-encoding
+		  :options ("--prefix-encoding=BOOL")
+		  :usage ("If true, use known prefixes when printing IRIs. If false (the default), print IRIs as such.")
+		  :html ""
+		  (setf encode-prefixes-p (cond ((string-equal value "true") t)
+						((string-equal value "false") nil)
+						(t (usage)))))
 		 (time
 		  :options ("--time=FILE")
 		  :usage "Output timing information to FILE. Use '-' for standard output."

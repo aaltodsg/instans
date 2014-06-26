@@ -277,6 +277,10 @@
   (setf *instans-datetime-extension-op-library* (add-sparql-op-library :prefix "datetime" :iri-string "http://instans.org/extensions/datetime#"))
   (setf *instans-op-library* (add-sparql-op-library :prefix "instans" :iri-string "http://instans.org/extensions/instans#")))
 
+(defun create-initial-prefix-alist ()
+  (list (cons "rdf" "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+	(cons "xsd" "http://www.w3.org/2001/XMLSchema#")))
+
 (eval-when (:load-toplevel :execute)
   (initialize-globals))
 

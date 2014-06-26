@@ -8,7 +8,7 @@
 ;;; Errors
 
 ;(defvar *sparql-error-op* :inform-and-throw)
-(defvar *sparql-error-op* :inform-and-throw)
+(defvar *sparql-error-op* :throw)
 
 (defun sparql-error-on-errors ()
   (setf *sparql-error-op* :error))
@@ -332,17 +332,17 @@
 ;; 	       (and (unify graph1 table2 var-mappings12)
 ;; 		    (unify graph2 table1 var-mappings21))))))))
 
-(defun sparql-value-to-string (x &key always-use-typed-literal-p prefixes)
+(defun sparql-value-to-string (x &key instans always-use-typed-literal-p)
   (labels ((as-typed-literal (str type-iri)
-	     (format nil "\"~A\"^^<~A>" str type-iri))
+	     (format nil "\"~A\"^^~A" str (sparql-value-to-string type-iri :instans instans)))
 	   (maybe-as-typed-literal (str type-iri) (if (not always-use-typed-literal-p) str (as-typed-literal str type-iri))))
     (cond ((typep x 'xsd-string-value) (format nil "\"~A\"" x))
-	  ((typep x 'xsd-boolean-value) (maybe-as-typed-literal (if x "true" "false") *xsd-boolean-iri-string*))
-	  ((typep x 'xsd-integer-value) (maybe-as-typed-literal (format nil "~D" x) *xsd-integer-iri-string*))
-	  ((typep x 'xsd-decimal-value) (maybe-as-typed-literal (format nil "~F" x) *xsd-decimal-iri-string*))
+	  ((typep x 'xsd-boolean-value) (maybe-as-typed-literal (if x "true" "false") *xsd-boolean-iri*))
+	  ((typep x 'xsd-integer-value) (maybe-as-typed-literal (format nil "~D" x) *xsd-integer-iri*))
+	  ((typep x 'xsd-decimal-value) (maybe-as-typed-literal (format nil "~F" x) *xsd-decimal-iri*))
 ;	  ((typep x 'xsd-float-value) (maybe-as-typed-literal (format nil "~E" x) *xsd-float-iri-string*))
 	  ((typep x 'xsd-double-value) (maybe-as-typed-literal (format nil "~E" x) *xsd-double-iri-string*))
-	  ((typep x 'xsd-datetime-value) (as-typed-literal (datetime-canonic-string x) *xsd-decimal-iri-string*))
+	  ((typep x 'xsd-datetime-value) (as-typed-literal (datetime-canonic-string x) *xsd-datetime-iri*))
 	  ((rdf-literal-p x)
 	   (cond ((rdf-literal-type x)
 		  (as-typed-literal (rdf-literal-string x) (rdf-literal-type x)))
@@ -351,7 +351,7 @@
 		 (t
 		  (format nil "\"~A\"" (rdf-literal-string x)))))
 	  ((rdf-iri-p x)
-	   (iri-to-string x prefixes))
+	   (iri-to-string x (and instans (instans-encode-prefixes-p instans) (instans-prefixes instans))))
 	  ((rdf-blank-node-p x) (uniquely-named-object-name x))
 	  ((sparql-unbound-p x) "UNBOUND")
 	  (t (format nil "~A" x)))))

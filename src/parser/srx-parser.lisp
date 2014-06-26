@@ -43,7 +43,7 @@
 	 (input-type (and pos (intern-keyword (string-upcase (subseq input-name (1+ pos)))))))
     (apply (case input-type
 	     (:srx #'parse-srx-stream)
-	     (:srj #'parse-srj-stream)
+;	     (:srj #'parse-srj-stream)
 	     (t (error* "Cannot parse ~S. Unknown file type" input-type)))
 	   instans stream input-name keys)))
 

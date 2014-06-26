@@ -128,7 +128,7 @@
        (defvar ,iri-var)
        (defvar ,descriptor-var)
        (setf ,iri-string-var ,iri-string)
-       (setf ,iri-var (make-instance 'rdf-iri :string ,iri-string-var))
+       (setf ,iri-var (parse-iri ,iri-string-var))
        (setf ,descriptor-var (make-instance 'type-descriptor :iri ,iri-var :iri-string ,iri-string-var :lisp-type ',lisp-type :value-parser #',value-parser))
        (setf (gethash ,iri-string-var (type-descriptors-string-map *xsd-value-type-descriptors*)) ,descriptor-var)
        )))
