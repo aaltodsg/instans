@@ -11,4 +11,5 @@ SELECT DISTINCT ?eve1 ?epc1 WHERE {
           :associatedWithList ?y2 .
     ?y2  :element ?epc2 }
   # Remove common elements
-  FILTER NOT EXISTS { ?y2 :element ?epc1 } }
+  FILTER NOT EXISTS { GRAPH ?g2 { ?y2 :element ?epc1 } }}
+

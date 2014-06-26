@@ -333,6 +333,8 @@
    (remove-quad-count :accessor instans-remove-quad-count :initarg :remove-quad-count)
    (default-output :accessor instans-default-output :initarg :default-output :initform t)
    (status :accessor instans-status :initform nil)
+   (current-op :accessor instans-current-op :initform nil)
+   (prefixes :accessor instans-prefixes :initform nil)
    (debug-topics :accessor instans-debug-topics :initform nil)
    (algebra-expr-list :accessor instans-algebra-expr-list :initform nil)
    (canonic-algebra-expr-list :accessor instans-canonic-algebra-expr-list :initform nil)

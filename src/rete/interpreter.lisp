@@ -16,7 +16,10 @@
     (incf (instans-add-quad-count this))
     ;;; Note: graph will be first in args!
     (loop for (alpha . args) in (match-quad (instans-triple-pattern-matcher this) subj pred obj graph)
-	  do (add-token alpha args))))
+	  do (setf (instans-current-op this) (list :rete-add subj pred obj graph))
+	  do (add-token alpha args)
+	  do (setf (instans-current-op this) nil)
+	 )))
 
 (defgeneric rete-remove (instans subj pred obj graph)
   (:method ((this instans) subj pred obj graph)
@@ -25,7 +28,10 @@
     (incf (instans-remove-quad-count this))
     ;;; Note: graph will be first in args!
     (loop for (alpha . args) in (match-quad (instans-triple-pattern-matcher this) subj pred obj graph)
-	  do (remove-token alpha args))))
+	  do (setf (instans-current-op this) (list :rete-remove subj pred obj graph))
+	  do (remove-token alpha args)
+	  do (setf (instans-current-op this) nil)
+)))
 
 ;;; ---------------
 ;;; Rule add/remove
@@ -359,7 +365,8 @@
 	     (counter-var (existence-counter-var this))
 	     (new-token (make-token this token (list active-p-var counter-var) (list t 0)))) ;;; Node is active; zero hits
 	(store-put-token this new-token)
-	;; (inform "add-token ~A calls store-put-token, token=~%~A~%new-token=~%~A" this token new-token)
+;	(inform "~%add-token ~S: this=~%, kind=~A" this (exists-kind this))
+;	(instans-show-rete-status (node-instans this) this new-token "~%Before children calls")
 	(let ((next (car (node-succ this))))
 	  (cond ((typep next 'join-node)
 		 (add-beta-token next new-token stack))
@@ -372,23 +379,24 @@
 	  (:simple-not-exists
 	   (when (zerop (token-value this new-token counter-var)) (call-succ-nodes #'add-token (subgraph-end-node this) new-token stack)))
 	  (t
-	   (call-succ-nodes #'add-token (subgraph-end-node this) new-token stack))))))
+	   (call-succ-nodes #'add-token (subgraph-end-node this) new-token stack)))
+;	(instans-show-rete-status (node-instans this) this new-token "~%After children calls")
+	)))
   (:method ((this exists-end-node) token &optional stack)
     (let* ((start-node (subgraph-start-node this))
 	   (active-p (token-value this token (existence-active-p-var start-node)))
 	   (counter (incf (token-value this token (existence-counter-var start-node)))))
-      ;; (inform "~%add-token ~S: this=~%" this)
-      ;; (describe this)
-      ;; (inform "~%start-node=~S~%" start-node)
-      ;; (describe start-node)
-;      (inform "~%add-token ~S, counter = ~S, active-p = ~S~%" this counter active-p)
+;      (instans-show-rete-status (node-instans this) this token "~%Entering, kind = ~A, activep = ~A" (exists-kind this) active-p)
       (when (not active-p)
 	(case (exists-kind this)
 	  (:simple-exists
 ;	   (inform "Hit!~%")
 	   (when (= 1 counter) (call-succ-nodes #'add-token this (start-node-token this token) stack)))
 	  (:simple-not-exists
-	   (when (= 1 counter) (call-succ-nodes #'remove-token this (start-node-token this token) stack)))
+;	   (instans-show-rete-status (node-instans this) this (start-node-token this token) "~%Before children calls")
+	   (when (= 1 counter) (call-succ-nodes #'remove-token this (start-node-token this token) stack))
+;	   (instans-show-rete-status (node-instans this) this (start-node-token this token ) "~%After children calls")
+	   )
 	  (t
 	   (when (= 1 counter) (call-succ-nodes #'add-token this (start-node-token this token) stack)))))))
   (:method ((this aggregate-join-node) token &optional stack)

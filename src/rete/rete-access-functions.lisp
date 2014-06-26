@@ -615,3 +615,19 @@
     (when (apply #'instans-debug-p this (if (listp topic-or-topics) topic-or-topics (list topic-or-topics)))
       (apply #'inform fmt args))))
 
+(defgeneric instans-show-rete-status (instans node token fmt &rest args)
+  (:method ((this instans) (node node) token fmt &rest args)
+    (let ((node-name (string (node-name node))))
+      (inform "~A at ~A~%instans-op = ~{~A~^ ~}" (apply #'format nil fmt args) node-name
+	      (mapcar #'(lambda (x) (sparql-value-to-string x :prefixes (instans-prefixes this))) (instans-current-op this)))
+      (inform "   ~A" (token-pretty-string node token 3)))))
+    
+(defgeneric instans-store-prefix-binding (instans prefix expansion)
+  (:method ((this instans) prefix expansion)
+    (let ((item (assoc prefix (instans-prefixes this) :test #'string=))
+	  (expansion-string (iri-to-string expansion)))
+      (setf expansion-string (subseq expansion-string 1 (- (length expansion-string) 1)))
+      (cond ((null item)
+	     (push (cons prefix expansion-string) (instans-prefixes this)))
+	    (t (setf (cdr item) expansion-string)))
+      (setf (instans-prefixes this) (sort (instans-prefixes this) #'(lambda (kv1 kv2) (> (length (cdr kv1)) (length (cdr kv2)))))))))

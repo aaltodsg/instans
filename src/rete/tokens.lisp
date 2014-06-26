@@ -74,3 +74,16 @@
 			 (or (eq value1 value2) (sparql-call "=" value1 value2)))
 	     do (return nil)
 	     finally (return t))))
+
+(defun token-pretty-string (node token &optional indent)
+  (let ((fmt (if indent (format nil "~~{~~A~~^~~%~V@T~~}" indent) "~~{~~A~~^~~%~~}")))
+    (format nil fmt
+	    (loop for item in token
+		  collect (cond ((consp item)
+				 (destructuring-bind (var value) item
+				   (let ((varstr (cond ((sparql-var-p var) (uniquely-named-object-name (reverse-resolve-binding (node-instans node) var)))
+						       ((null var) "key")
+						       (t var))))
+				     (format nil "~A -> ~A" varstr (sparql-value-to-string value :prefixes (instans-prefixes (node-instans node)))))))
+				(t
+				 (format nil "~A" item)))))))

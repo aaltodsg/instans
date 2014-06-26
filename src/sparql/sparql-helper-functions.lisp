@@ -332,7 +332,7 @@
 ;; 	       (and (unify graph1 table2 var-mappings12)
 ;; 		    (unify graph2 table1 var-mappings21))))))))
 
-(defun sparql-value-to-string (x &optional always-use-typed-literal-p)
+(defun sparql-value-to-string (x &key always-use-typed-literal-p prefixes)
   (labels ((as-typed-literal (str type-iri)
 	     (format nil "\"~A\"^^<~A>" str type-iri))
 	   (maybe-as-typed-literal (str type-iri) (if (not always-use-typed-literal-p) str (as-typed-literal str type-iri))))
@@ -350,7 +350,8 @@
 		  (format nil "\"~A\"@~A" (rdf-literal-string x) (rdf-literal-lang x)))
 		 (t
 		  (format nil "\"~A\"" (rdf-literal-string x)))))
-	  ((rdf-iri-p x) (iri-to-string x))
+	  ((rdf-iri-p x)
+	   (iri-to-string x prefixes))
 	  ((rdf-blank-node-p x) (uniquely-named-object-name x))
 	  ((sparql-unbound-p x) "UNBOUND")
 	  (t (format nil "~A" x)))))
