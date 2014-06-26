@@ -109,8 +109,8 @@
 			  (list `(t
 				  ,(let ((format (case (length outer-arg-names)
 						   (0 (format nil "~A: Cannot apply to zero arguments" name))
-						   (1 (format nil "~A: Cannot apply to argument ~~A" name))
-						   (t (format nil "~A: Cannot apply to arguments ~A" name (loop repeat (length outer-arg-names) collect "~A"))))))
+						   (1 (format nil "~A: Cannot apply to argument ~~S" name))
+						   (t (format nil "~A: Cannot apply to arguments ~{~A~^ ~}" name (loop repeat (length outer-arg-names) collect "~S"))))))
 					`(signal-sparql-error ,format ,@outer-arg-names))))))))))
 
 (defmacro define-xsd-value-type (short-name-string spec)

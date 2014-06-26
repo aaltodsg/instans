@@ -412,6 +412,13 @@
 						     :graph graph :base base
 						     :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
 		  (maybe-execute))
+		 (warnings
+		  :options ("--warn-on-errors=BOOL")
+		  :usage ("If true, prints warnings, when FILTER or BIND evaluation causes an error. If false (the default), produces no output.")
+		  :html ""
+		  (cond ((string-equal value "true") (sparql-inform-and-throw-on-errors))
+			((string-equal value "false") (sparql-throw-on-errors))
+			(t (usage))))
 		 (t :usage ("" "Miscelaneus debugging and testing options:" ""))
 		 (verbose
 		  :options ("--verbose=SITUATIONS")

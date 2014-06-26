@@ -181,8 +181,8 @@
 							       (and (rdf-literal-lang l2) (string= (rdf-literal-lang l1) (rdf-literal-lang l2))))
 							      ((rdf-literal-type l1)
 							       (and (rdf-literal-type l2) (rdf-iri= (rdf-literal-type l1) (rdf-literal-type l2))))
-							      (t (error* "A literal with neither a type nor a lang ~A" l1))))
-						   (signal-sparql-error "rdf-term-equal: Literals ~A and ~A are not the same term" l1 l2)))
+							      (t (error* "A literal with neither a type nor a lang ~S" l1))))
+						   (signal-sparql-error "rdf-term-equal: Literals ~S and ~S are not the same term" l1 l2)))
   (:method ((t1 rdf-term) (t2 rdf-term)) (declare (ignorable t1 t2)) nil))
 
 (defun create-rdf-literal-with-type (string type-iri)
