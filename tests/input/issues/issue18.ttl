@@ -1,0 +1,15 @@
+@prefix : <http:example.org/default#> .
+@prefix ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#> .
+
+[] a ep:EventObject ;
+     ep:hasEventObjectSamplingTime "2014-01-07T09:18:21"^^xsd:dateTime .
+[] a ep:EventObject ;
+     ep:hasEventObjectSamplingTime "2014-01-07T09:42:00"^^xsd:dateTime .
+[] a ep:EventObject ;
+     ep:hasEventObjectSamplingTime "2014-01-07T10:18:21"^^xsd:dateTime .
+[] a ep:EventObject ;
+     ep:hasEventObjectSamplingTime "2014-01-07T11:32:34"^^xsd:dateTime .
+[] a ep:EventObject ;
+     ep:hasEventObjectSamplingTime "2014-01-07T21:12:32"^^xsd:dateTime .
+[] a ep:EventObject ;
+     ep:hasEventObjectSamplingTime "2014-01-08T04:02:11"^^xsd:dateTime .

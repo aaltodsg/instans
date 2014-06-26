@@ -1,0 +1,21 @@
+PREFIX : <http://instans.org/>
+PREFIX ep:<http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
+
+DELETE { GRAPH <http://example.org/memory/> { # Clear old value
+  :poststateful :prevHour ?prevhour } }
+INSERT { GRAPH <http://example.org/output/> { # Copy the event
+       ?event a ep:EventObject ;
+              ep:hasEventObjectSamplingTime ?time }
+  GRAPH <http://example.org/memory/> { # Write new value to memory
+    :poststateful :prevHour ?hour }  
+}
+WHERE { 
+   ?event a ep:EventObject ; # Match incoming events
+          ep:hasEventObjectSamplingTime ?time .
+   GRAPH <http://example.org/memory/> { # Retrieve value from memory, if available
+     OPTIONAL  { :poststateful :prevHour ?prevhour } }
+  BIND ( HOURS(?time) as ?hour )
+} ;
+
+# Output everything
+SELECT * WHERE { GRAPH ?g { ?s ?p ?o } }
