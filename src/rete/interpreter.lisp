@@ -247,6 +247,14 @@
 		     do (rete-remove this subj pred obj (if rest (first rest) graph))))
 	      (:execute
 	       (execute-rules this))
+	      (:execute-snapshot
+	       (execute-rules this :snapshot))
+	      (:execute-first
+	       (execute-rules this :first))
+	      (:execute-repeat-snapshot
+	       (execute-rules this :repeat-snapshot))
+	      (:execute-repeat-first
+	       (execute-rules this :repeat-first))
 	      (t
 	       (error* "Illegal op ~S" op)))))))
 
@@ -267,10 +275,10 @@
       (format stream "queue-select-count = ~S~%" (rule-instance-queue-select-count queue))
       (format stream "queue-modify-count = ~S~%" (rule-instance-queue-modify-count queue)))))
 
-(defgeneric execute-rules (instans)
-  (:method ((this instans))
-    (let* ((policy (instans-queue-execution-policy this))
-	   (queue (instans-rule-instance-queue this)))
+(defgeneric execute-rules (instans &optional policy)
+  (:method ((this instans) &optional policy)
+    (unless policy (setf policy (instans-queue-execution-policy this)))
+    (let ((queue (instans-rule-instance-queue this)))
       (when (instans-size-report-interval this)
 	(when (zerop (mod (instans-size-report-counter this) (instans-size-report-interval this)))
 	  (report-sizes this))

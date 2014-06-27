@@ -311,7 +311,8 @@
    (rdf-input-unit :accessor instans-rdf-input-unit :initarg :rdf-input-unit :initform :single)
    (available-query-input-policies :accessor instans-available-query-input-policies :allocation :class :initform '(:single :block :document))
    (rdf-operations :accessor instans-rdf-operations :initarg :rdf-operations :initform '(:add :execute))
-   (available-rdf-operations :accessor instans-available-rdf-operations :allocation :class :initform '(:add :remove :execute))
+   (available-rdf-operations :accessor instans-available-rdf-operations :allocation :class
+			     :initform '(:add :remove :execute :execute-first :execute-snapshot :execute-repeat-first :execute-repeat-snapshot))
    (allow-rule-instance-removal-p :accessor instans-allow-rule-instance-removal-p :initarg :allow-rule-instance-removal-p :initform :remove)
    (available-rule-instance-removal-policies :accessor instans-available-rule-instance-removal-policies :allocation :class :initform '(:remove :keep))
    (queue-execution-policy :accessor instans-queue-execution-policy :initarg :queue-execution-policy :initform :repeat-first)

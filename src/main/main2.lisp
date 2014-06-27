@@ -355,8 +355,15 @@
 		 (rdf-operations
 		  :options  ("--rdf-operations=LIST")
 		  :usage ("Apply a colon separated list of operations to the unit of RDF input. Operations are"
-			  "\"add\", \"remove\", and \"execute\". You can use \"event\" as a shorthand form"
-			  "\"add:execute:remove:execute\". The default is \"add:execute\".")
+			  "\"add\", \"remove\", \"execute\", \"execute-first\", \"execute-snapshot\","
+			  "\"execute-repeat-first\", and \"execute-repeat-snapshot\". The last four operations"
+			  "use the specified execution policy. \"First\" means to execute only the first rule"
+			  "instance in the queue, \"snapshot\" to execute the the instances currently in the"
+			  "queue, but not the new instances that are added to the queue during these instances."
+			  "\"Repeat\" before \"first\" or \"snapshot\" means to execute the system using that"
+			  "policy until the queue is empty. Operation \"execute\" is the a synonym to"
+			  "\"execute-repeat-first\". You can use \"event\" as a shorthand form"
+			  "\"add:execute:remove:execute\". The default operations list is \"add:execute\".")
 		  :html ""
 		  (setf (instans-rdf-operations instans) (parse-colon-separated-values value)))
 		 ;; (queue-execution-policy

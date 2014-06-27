@@ -26,7 +26,7 @@ for COUNT in $*; do
     OUT=output/fnb${COUNT}.out-${STAMP}
 #     ${ECHO} '${INSTANS}' -b file:/// -d '${FNBDIR}' -r CF-Queries-default.rq --report=all -t 5actors${COUNT}events.ttl
     ${ECHO} "FNB $COUNT"
-    ${INSTANS} -b file:/// -d ${FNBDIR} -r CF-Queries-default.rq --report=all -t 5actors${COUNT}events.ttl > ${OUT} 2>&1
+    ${INSTANS} -b file:/// -d ${FNBDIR} -r CF-Queries-default.rq --report=select:modify -t 5actors${COUNT}events.ttl > ${OUT} 2>&1
     if test -f ${CORRECT} ; then
 	if cmp ${CORRECT} ${OUT}; then
 	    ${ECHO}
