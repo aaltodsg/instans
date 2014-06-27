@@ -11,7 +11,7 @@
 
 (defgeneric rete-add (instans subj pred obj graph)
   (:method ((this instans) subj pred obj graph)
-    (if (member :add (rule-instance-queue-report-p (instans-rule-instance-queue this)))
+    (if (member :rete-add (rule-instance-queue-report-p (instans-rule-instance-queue this)))
 	(format (instans-default-output this) "~%Rete add ~A ~A ~A ~A~%"
 		 (sparql-value-to-string subj :instans this)
 		 (sparql-value-to-string pred :instans this)
@@ -29,7 +29,7 @@
 
 (defgeneric rete-remove (instans subj pred obj graph)
   (:method ((this instans) subj pred obj graph)
-    (if (member :remove (rule-instance-queue-report-p (instans-rule-instance-queue this)))
+    (if (member :rete-remove (rule-instance-queue-report-p (instans-rule-instance-queue this)))
 	(format (instans-default-output this) "~%Rete remove ~A ~A ~A ~A~%"
 		 (sparql-value-to-string subj :instans this)
 		 (sparql-value-to-string pred :instans this)
@@ -676,6 +676,8 @@
 (defun rule-instance-queue-add (queue node token)
   (let* ((instance (make-instance 'rule-instance :node node :token token))
 	 (new-cell (list instance)))
+    (if (member :queue (rule-instance-queue-report-p (instans-rule-instance-queue (node-instans node))))
+	(report-rule-op :add node token))
     (cond ((null (rule-instance-queue-head queue))
 	   (setf (rule-instance-queue-head queue) new-cell)
 	   (setf (rule-instance-queue-tail queue) new-cell))
@@ -685,6 +687,8 @@
     (incf (rule-instance-queue-add-count queue))))
 
 (defun rule-instance-queue-remove (queue node token)
+  (if (member :queue (rule-instance-queue-report-p (instans-rule-instance-queue (node-instans node))))
+      (report-rule-op :add node token))
   (loop for prev = nil then list
 	for list on (rule-instance-queue-head queue)
 	for instance = (car list)
@@ -705,19 +709,19 @@
 	(token (rule-instance-token instance))
 	(rule-types (rule-instance-queue-report-p queue)))
     (cond ((typep node 'select-node)
-	   (if (member :select rule-types) (report-rule-execution node token))
+	   (if (member :select rule-types) (report-rule-op :execute node token))
 	   (incf (rule-instance-queue-select-count queue)))
 	  ((typep node 'ask-node)
-	   (if (member :ask rule-types) (report-rule-execution node token))
+	   (if (member :ask rule-types) (report-rule-op :execute node token))
 	   (incf (rule-instance-queue-ask-count queue)))
 	  ((typep node 'describe-node)
-	   (if (member :describe rule-types) (report-rule-execution node token))
+	   (if (member :describe rule-types) (report-rule-op :execute node token))
 	   (incf (rule-instance-queue-describe-count queue)))
 	  ((typep node 'modify-node)
-	   (if (member :modify rule-types) (report-rule-execution node token))
+	   (if (member :modify rule-types) (report-rule-op :execute node token))
 	   (incf (rule-instance-queue-modify-count queue)))
 	  ((typep node 'construct-node)
-	   (if (member :construct rule-types) (report-rule-execution node token))
+	   (if (member :construct rule-types) (report-rule-op :execute node token))
 	   (incf (rule-instance-queue-construct-count queue)))
 	  (t
 	   (error* "Illegal kind of node ~S" node)))
@@ -754,7 +758,7 @@
      (rule-instance-queue-construct-count queue)
      (rule-instance-queue-modify-count queue)))
 
-(defun report-rule-execution (node token &key (variables :project) (stream (instans-default-output (node-instans node))))
+(defun report-rule-op (op node token &key (variables :project) (stream (instans-default-output (node-instans node))))
   (unless (typep node 'query-node)
     (when (eq variables :project)
       (setf variables :visible)))
@@ -767,7 +771,7 @@
 				   unless (null var)
 				   collect (list (uniquely-named-object-name (reverse-resolve-binding instans var))
 						 (sparql-value-to-string (token-value node token var) :instans instans)))))
-    (format stream "Rule ~A in ~A~%~{~{       ~A = ~A~}~^~%~}~%" node (instans-name (node-instans node)) displayed-bindings)))
+    (format stream "~%~:(~A~) rule ~A in ~A~%~{~{       ~A = ~A~}~^~%~}~%" op node (instans-name (node-instans node)) displayed-bindings)))
  
 (defgeneric execute-rule-node (node token)
   (:method ((this select-node) token)

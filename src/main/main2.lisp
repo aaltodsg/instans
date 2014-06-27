@@ -449,12 +449,12 @@
 		  (setf (instans-name instans) value))
 		 (reporting
 		  :options ("--report=KINDS")
-		  :usage "The kinds of rules you want to get reported; a ':' separated list of (select|construct|modify|all|add|remove)."
+		  :usage "The kinds of rules you want to get reported; a ':' separated list of (select|construct|modify|all|rete-add|rete-remove|queue)."
 		  :html ""
 		  :hiddenp t
 		  (setf reporting (parse-colon-separated-values value))
 		  (if (member :all reporting)
-		      (setf reporting '(:select :construct :modify :all :add :remove)))
+		      (setf reporting '(:select :construct :modify :all :rete-add :rete-remove :queue)))
 		  (setf (rule-instance-queue-report-p (instans-rule-instance-queue instans)) reporting))
 		 (prefix-encoding
 		  :options ("--prefix-encoding=BOOL")

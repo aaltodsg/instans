@@ -4,15 +4,15 @@ PREFIX ep:<http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
 DELETE { GRAPH <http://example.org/memory/> { # Clear old value
   :poststateful :prevHour ?prevhour; :uuid ?prevuuid } }
 INSERT { GRAPH <http://example.org/output/> { # Copy the event
-       ?event a ep:EventObject ;
+       ?event # a ep:EventObject ;
               ep:hasEventObjectSamplingTime ?time }
   GRAPH <http://example.org/memory/> { # Write new value to memory
     :poststateful :prevHour ?hour; :uuid ?uuid }  
 }
 WHERE { 
-   ?event a ep:EventObject ; # Match incoming events
+   ?event # a ep:EventObject ; # Match incoming events
           ep:hasEventObjectSamplingTime ?time .
-   BIND(uuid() AS ?id)
+   BIND(uuid() AS ?uuid)
    GRAPH <http://example.org/memory/> { # Retrieve value from memory, if available
      OPTIONAL  { :poststateful :prevHour ?prevhour; :uuid ?prevuuid FILTER(?uuid != ?prevuuid) } }
   BIND ( HOURS(?time) as ?hour )
