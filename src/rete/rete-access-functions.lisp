@@ -210,7 +210,7 @@
 						(solution-modifiers-project-vars node))
 					       (t nil)))
 					;		     (inform "(node-def ~S) = ~S" node (revresol (node-def node)))
-		   (when (existence-end-node-p node)
+		   (when (exists-end-node-p node)
 		     (setf (node-kill node) (sparql-var-list-difference (node-all-vars-in node) (node-all-vars-in (subgraph-start-node node)))))
 		   (setf (node-all-vars-out node) (list-union (node-all-vars-in node) (node-def node) :test #'sparql-var-equal))
 					;		     (inform "(node-all-vars-out ~S) = ~S" node (revresol (node-all-vars-out node)))

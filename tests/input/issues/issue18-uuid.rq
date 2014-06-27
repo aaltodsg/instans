@@ -1,22 +1,18 @@
 PREFIX : <http://instans.org/>
 PREFIX ep:<http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
+PREFIX memory: <http://example.org/memory/>
+PREFIX output: <http://example.org/output/>
 
-DELETE { GRAPH <http://example.org/memory/> { # Clear old value
-  :poststateful :prevHour ?prevhour; :uuid ?prevuuid } }
-INSERT { GRAPH <http://example.org/output/> { # Copy the event
-       ?event # a ep:EventObject ;
-              ep:hasEventObjectSamplingTime ?time }
-  GRAPH <http://example.org/memory/> { # Write new value to memory
-    :poststateful :prevHour ?hour; :uuid ?uuid }  
+DELETE { GRAPH memory: { :poststateful :prevHour ?prevhour; :uuid ?prevuuid } }
+INSERT { GRAPH output: { ?event ep:hasEventObjectSamplingTime ?time }
+         GRAPH memory: { :poststateful :prevHour ?hour; :uuid ?uuid }
 }
 WHERE { 
-   ?event # a ep:EventObject ; # Match incoming events
-          ep:hasEventObjectSamplingTime ?time .
+   ?event ep:hasEventObjectSamplingTime ?time .
    BIND(uuid() AS ?uuid)
-   GRAPH <http://example.org/memory/> { # Retrieve value from memory, if available
-     OPTIONAL  { :poststateful :prevHour ?prevhour; :uuid ?prevuuid FILTER(?uuid != ?prevuuid) } }
-  BIND ( HOURS(?time) as ?hour )
-} ;
+   GRAPH memory: { OPTIONAL  { :poststateful :prevHour ?prevhour; :uuid ?prevuuid } }
+   FILTER(!bound(?prevuuid) || ?uuid != ?prevuuid)
+   BIND ( HOURS(?time) as ?hour )
+};
 
-# Output everything
 SELECT * WHERE { GRAPH ?g { ?s ?p ?o } }

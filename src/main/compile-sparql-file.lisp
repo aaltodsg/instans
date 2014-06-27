@@ -40,7 +40,7 @@
 (defvar *current-instans* nil)
 
 (defun create-instans (&optional instans-iri)
-  (unless instans-iri (setf instans-iri (parse-iri (format nil "http://www.cse.aalto.fi/instans/instanses/~A" (string (gensym "INSTANS"))))))
+  (unless instans-iri (setf instans-iri (parse-iri (format nil "http://www.instans.org/~A" (string (gensym "INSTANS"))))))
   (let* ((instans-name (rdf-iri-string instans-iri))
 	 (instans (make-instance 'instans :name instans-name)))
     (setf (gethash instans-name  *instanses*) instans)

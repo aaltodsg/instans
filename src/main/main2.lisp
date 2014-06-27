@@ -452,9 +452,9 @@
 		  :usage "The kinds of rules you want to get reported; a ':' separated list of (select|construct|modify|all|rete-add|rete-remove|queue)."
 		  :html ""
 		  :hiddenp t
-		  (setf reporting (parse-colon-separated-values value))
-		  (if (member :all reporting)
-		      (setf reporting '(:select :construct :modify :all :rete-add :rete-remove :queue)))
+		  (setf reporting (loop for kind in (parse-colon-separated-values value)
+					when (eq kind :all) append '(:select :construct :modify :all :rete-add :rete-remove :queue)
+					else append (list kind)))
 		  (setf (rule-instance-queue-report-p (instans-rule-instance-queue instans)) reporting))
 		 (prefix-encoding
 		  :options ("--prefix-encoding=BOOL")
