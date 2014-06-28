@@ -15,7 +15,7 @@
   (string-downcase (coerce (substitute #\_ #\- (coerce (node-name node) 'list)) 'string)))
 
 (defun dot-subscript-number-format ()
-  "<sub><font point-size=\"10\">~D</font></sub>")
+  "<sub><font point-size=\"6\">~D</font></sub>")
 
 (defun dot-default-pretty-name-format (class-part)
   (format nil "~A~A" class-part (dot-subscript-number-format)))
@@ -45,15 +45,13 @@
 (defun dot-node-pretty-name (node)
   (format nil (dot-node-pretty-name-format-string node) (dot-node-number node)))
 
-(defun dot-pretty-triple-pattern (node &optional (shortp t))
-  (flet ((shorten-string (s)
-	   (if (not shortp) s (let ((i (position-if-not #'alphanumericp s :from-end t))) (if (and (numberp i) (< 0 i (length s))) (subseq s (+ i 1)) s)))))
-    (format nil "~{~a~^ ~}" (mapcar #'(lambda (x) (cond ((sparql-var-p x) (uniquely-named-object-name (reverse-resolve-binding (node-instans node) x)))
-							((rdf-iri-p x) (shorten-string (rdf-iri-string x)))
-							((rdf-literal-p x)
-							 (shorten-string (rdf-literal-string x)))
-							(t x)))
-				    (triple-pattern-node-triple-pattern node)))))
+(defun dot-pretty-triple-pattern (node)
+  (format nil "~{~a~^ ~}" (mapcar #'(lambda (x) (cond ((sparql-var-p x)
+						       (string-downcase (string (uniquely-named-object-name (reverse-resolve-binding (node-instans node) x)))))
+						      ((or (rdf-iri-p x) (rdf-literal-p x))
+						       (sparql-value-to-string x :instans (node-instans node)))
+						      (t x)))
+				  (triple-pattern-node-triple-pattern node))))
 
 (defun var-name (node var)
   (let* ((to (second var))
@@ -65,7 +63,7 @@
 
 (defgeneric dot-node-label (node &key html-labels-p show-vars-p)
   (:method ((this triple-pattern-node) &key &allow-other-keys)
-    (format nil "~A: ~(~A~)"
+    (format nil "~A: ~A"
 	    (dot-node-pretty-name this)
 	    (dot-pretty-triple-pattern this)))
   (:method ((this alpha-node) &key &allow-other-keys)
@@ -130,7 +128,7 @@
 	    )))
 
 (defmethod dot-node-tooltip :around ((this triple-pattern-node))
-  (format nil "~A~%[~A]" (call-next-method) (dot-pretty-triple-pattern this nil)))
+  (format nil "~A~%[~A]" (call-next-method) (dot-pretty-triple-pattern this)))
 
 (defmethod dot-node-tooltip :around ((this join-node))
   (format nil "~A~%a-b ~A~%b-a ~A" (call-next-method) (var-orig-names this (join-alpha-minus-beta-vars this)) (var-orig-names this (join-beta-minus-alpha-vars this))))
@@ -156,10 +154,10 @@
     (when (and (null shape) html-labels-p show-vars-p)
       (setf shape "box"))
     (let ((color (dot-node-color this)))
-      (format nil "~A[class=\"~A\" id=\"~A\",color=~A, shape=~A, label=<~A>, margin=0, tooltip=~S];" (dot-node-name this) (type-of this) (dot-node-name this)
+      (format nil "~A[class=\"~A\" id=\"~A\",fontname=\"Courier\",fontsize=\"10\", color=~A, shape=~A, label=<~A>, margin=0, tooltip=~S];" (dot-node-name this) (type-of this) (dot-node-name this)
 	      color shape (dot-node-label this :html-labels-p html-labels-p :show-vars-p show-vars-p) (dot-node-tooltip this)))))
 
-(defun print-dot-nodes (stream nodes &key rank (node-shape "oval") (html-labels-p t) show-vars-p)
+(defun print-dot-nodes (stream nodes &key rank (node-shape "ellipse") (html-labels-p t) show-vars-p)
   (cond ((null rank)
 	 (format stream "~%  {"))
 	(t
@@ -168,7 +166,7 @@
     (format stream "~%    ~A" (dot-node-description node :html-labels-p html-labels-p :shape node-shape :show-vars-p show-vars-p)))
   (format stream "~%  }"))
 
-(defun print-dot (net &key (stream *standard-output*) show-vars-p (html-labels-p t) (node-shape "oval"))
+(defun print-dot (net &key (stream *standard-output*) show-vars-p (html-labels-p t) (node-shape "ellipse"))
   (let* ((nodes (instans-nodes net))
 	 (alphas (filter #'(lambda (node) (typep node 'alpha-node)) nodes))
 	 (alphamems (filter #'(lambda (node) (typep node 'alpha-memory)) nodes))
@@ -179,7 +177,9 @@
     (print-dot-nodes stream other-nodes :show-vars-p show-vars-p :node-shape node-shape :html-labels-p html-labels-p)
     (dolist (node nodes)
       (flet ((edge-attrs (vars parent)
-	       (format nil "[label=<~(~{~a~^<br/>~}~)>~:[, style=\"dashed\"~;~]]" vars (member node (node-succ parent)))))
+	       (format nil "[id=~A, label=<~(~{~a~^<br/>~}~)>~:[, style=\"dashed\"~;~]]"
+		       (format nil "~A_to_~A" (dot-node-name parent) (dot-node-name node))
+		       vars (member node (node-succ parent)))))
 	(loop with parent-slots = (node-parent-slots node)
 	      for parent-slot in parent-slots
 	      for parent = (slot-value node parent-slot)
