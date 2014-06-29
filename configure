@@ -88,19 +88,19 @@ cd $SRC
     echo
     echo "Compiling system"
     echo
-    make
+    make > /dev/null
 #fi
 #echo
 echo "Building $EXECUTABLE"
 #sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans))" --eval "(sb-ext:save-lisp-and-die \"${EXECUTABLE}\" :toplevel (quote instans:main) :executable t)" --quit
 echo sbcl --load $ROOT/init/make-executable.lisp --eval "(sb-ext:save-lisp-and-die \"${EXECUTABLE}\" :toplevel (quote instans:main) :executable t)" --quit
-sbcl --load $ROOT/init/make-executable.lisp --eval "(sb-ext:save-lisp-and-die \"${EXECUTABLE}\" :toplevel (quote instans:main) :executable t)" --quit
+sbcl --load $ROOT/init/make-executable.lisp --eval "(sb-ext:save-lisp-and-die \"${EXECUTABLE}\" :toplevel (quote instans:main) :executable t)" --quit > /dev/null
 if test "${MAKESBCLIMG}" = "true" ; then
     echo
     echo "Creating a custom Lisp image for Instans in file ${SBCL_INSTANS_CORE}"
     cd $SRC
     echo sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans) (sb-ext:save-lisp-and-die \"${SBCL_INSTANS_CORE}\"))" --quit
-    sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans) (sb-ext:save-lisp-and-die \"${SBCL_INSTANS_CORE}\"))" --quit
+    sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans) (sb-ext:save-lisp-and-die \"${SBCL_INSTANS_CORE}\"))" --quit > /dev/null
 fi
 cd $TESTS
 if test -d data-r2; then
