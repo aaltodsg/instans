@@ -1,0 +1,156 @@
+#!/bin/sh
+
+cd `dirname $0`
+ROOT=`pwd`
+
+LOGFILE=${ROOT}/build.log
+TMP=build$$.tmp
+rm -f ${LOGFILE}
+
+. scripts/functions
+
+CLEAN="false"
+MAKESBCLIMG="false"
+VERBOSE="false"
+
+while test $# -gt 0; do
+    case $1 in
+	clean | --clean | -c ) CLEAN="true" ;;
+	sbclimg | --sbclimg | -s ) MAKESBCLIMG="true" ;;
+	verbose | --verbose | -v ) VERBOSE="true" ;;
+	*) die "Usage: $0 { (--clean|clean|-c|--sbclimg|sbclimg|-s) }"
+    esac
+    shift
+done
+
+msg "In directory $ROOT: running `basename $0` $*"
+msg
+
+SRC=${ROOT}/src
+TESTS=${ROOT}/tests
+INIT=${ROOT}/init
+BIN=${ROOT}/bin
+SYNTAX_TEST_RESULTS=${TESTS}/syntax-test-results
+DATATABLES=${SYNTAX_TEST_RESULTS}/DataTables
+LISP_CONFIGURATION=lisp-configuration
+SBCL_INSTANS_CORE=${BIN}/sbcl-instans.core
+EXECUTABLE=${BIN}/instans.bin
+
+# if test "$CLEAN" = "true"; then
+#     rm -rf $HOME/quicklisp
+#     rm -rf ${TESTS}/data-r2 ${TESTS}/data-sparql11
+#     rm -rf $DATATABLES $DATATABLES-*
+# else
+#     newersources=`find src/ -name '*.lisp' -newer bin/instans.bin|wc -l`
+#     if test $newersources -eq 0; then
+# 	msg "Instans is already up to date"
+# 	exit
+#     fi
+# fi
+
+sbcl --noinform --load init/output-configuration.lisp --eval '(output-configuration)' --quit 2>&1 | output
+
+LISP_IMPLEMENTATION_TYPE=`sed -n "/^lisp-implementation-type:[ ]*\([^ ]*\)$/s//\1/p" ${LISP_CONFIGURATION}`
+LISP_IMPLEMENTATION_VERSION=`sed -n "/^lisp-implementation-version:[ ]*\([^ ]*\)$/s//\1/p" ${LISP_CONFIGURATION}`
+MINIMUM_SBCL_VERSION_FOR_INSTANS=`sed -n "/^minimum-sbcl-version-for-instans:[ ]*\([^ ]*\)$/s//\1/p" ${LISP_CONFIGURATION}`
+CONSISTENT_SBCL_VERSION=`sed -n "/^consistent-sbcl-version:[ ]*\([^ ]*\)$/s//\1/p" ${LISP_CONFIGURATION}`
+QUICKLISP=`sed -n "/^quicklisp:[ ]*\([^ ]*\)$/s//\1/p" ${LISP_CONFIGURATION}`
+ASDF=`sed -n "/^asdf:[ ]*\([^ ]*\)$/s//\1/p" ${LISP_CONFIGURATION}`
+rm ${LISP_CONFIGURATION}
+msg
+msg "Detected the following configuration:"
+msg "  LISP_IMPLEMENTATION_TYPE=$LISP_IMPLEMENTATION_TYPE"
+msg "  LISP_IMPLEMENTATION_VERSION=$LISP_IMPLEMENTATION_VERSION"
+msg "  MINIMUM_SBCL_VERSION_FOR_INSTANS=$MINIMUM_SBCL_VERSION_FOR_INSTANS"
+msg "  CONSISTENT_SBCL_VERSION=$CONSISTENT_SBCL_VERSION"
+msg "  QUICKLISP=$QUICKLISP"
+msg "  ASDF=$ASDF"
+msg
+
+if test "$LISP_IMPLEMENTATION_TYPE" != "SBCL" -o $CONSISTENT_SBCL_VERSION = "no" ; then
+    msg "You seem to be running $LISP_IMPLEMENTATION_TYPE. Instans has only been tested with SBCL (minimum version $MINIMUM_SBCL_VERSION_FOR_INSTANS)."
+    exit 1
+fi
+if test "$CONSISTENT_SBCL_VERSION" = "no" ; then
+    msg "You seem to be running $LISP_IMPLEMENTATION_TYPE $LISP_IMPLEMENTATION_VERSION. Instans has only been tested version $LISP_IMPLEMENTATION_TYPE $MINIMUM_SBCL_VERSION_FOR_INSTANS."
+    exit 1
+fi
+
+if test "$QUICKLISP" = "no"; then
+    touch $HOME/.sbclrc
+    msg "Installing Quicklisp"
+    msg "Trying to download http://beta.quicklisp.org/quicklisp.lisp with curl"
+    curl -s -O http://beta.quicklisp.org/quicklisp.lisp || die "Curl failed. Check http://www.quicklisp.org/beta/ how to install Quicklisp"
+    msg "Trying to install Quicklisp into ~/quicklisp. Also updating your ~/.sbclrc file to automatically use Quicklisp"
+    sbcl --noinform --load quicklisp.lisp \
+ 	--eval "(quicklisp-quickstart:install)" \
+ 	--eval  "(let ((ql-util::*do-not-prompt* t) (*query-io* (make-two-way-stream *standard-input* *standard-output*))) (ql:add-to-init-file))"  --quit 2>&1 | output
+    rm quicklisp.lisp
+fi
+test "$ASDF" = "yes" || die "No ASDF found. It should come with $LISP_IMPLEMENTATION_TYPE. You may try to install it from http://common-lisp.net/project/asdf/ and then try again."
+cd $SRC
+
+msg
+msg "Compiling system"
+msg
+make 2>&1 | noisy | sed -n -e '/compilation unit finished/,$p' -e '/compilation unit aborted/,$p'
+
+msg "Building $EXECUTABLE"
+#sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans))" --eval "(sb-ext:save-lisp-and-die \"${EXECUTABLE}\" :toplevel (quote instans:main) :executable t)" --quit
+msg sbcl --load $ROOT/init/make-executable.lisp --eval "(sb-ext:save-lisp-and-die \"${EXECUTABLE}\" :toplevel (quote instans:main) :executable t)" --quit
+sbcl --load $ROOT/init/make-executable.lisp --eval "(sb-ext:save-lisp-and-die \"${EXECUTABLE}\" :toplevel (quote instans:main) :executable t)" --quit
+if test "${MAKESBCLIMG}" = "true" ; then
+    msg
+    msg "Creating a custom Lisp image for Instans in file ${SBCL_INSTANS_CORE}"
+    cd $SRC
+    sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans) (sb-ext:save-lisp-and-die \"${SBCL_INSTANS_CORE}\"))" --quit 2>&1 | output
+fi
+cd $TESTS
+if test -d data-r2; then
+    msg "data-r2 already exists, skipping downloading it"
+else
+    noisy echo "Installing data-r2"
+    msg "Downloading http://www.w3.org/2001/sw/DataAccess/tests/data-r2.tar.gz"
+    cmd curl -s -O http://www.w3.org/2001/sw/DataAccess/tests/data-r2.tar.gz
+    cmd tar -xzf data-r2.tar.gz test-suite-archive/data-r2
+    msg "Moving test-suite-archive/data-r2 to data-r2"
+    mv test-suite-archive/data-r2 .
+    rm -rf test-suite-archive data-r2.tar.gz
+fi
+if test -d data-sparql11; then
+    msg "data-sparql11 already exists, skipping downloading it"
+else
+    noisy echo "Installing data-sparql11"
+    cmd "Downloading http://www.w3.org/2009/sparql/docs/tests/sparql11-test-suite-20121023.tar.gz"
+    cmd curl -s -O http://www.w3.org/2009/sparql/docs/tests/sparql11-test-suite-20121023.tar.gz
+    cmd tar -xzf sparql11-test-suite-20121023.tar.gz
+    msg "Moving sparql11-test-suite to data-sparql11"
+    mv sparql11-test-suite data-sparql11
+    rm sparql11-test-suite-20121023.tar.gz 
+fi
+mkdir -p ${SYNTAX_TEST_RESULTS}
+if test ! -d $DATATABLES ; then
+    noisy "Installing $DATATABLES"
+    msg "Did not found \"$DATATABLES\"; installing it."
+    msg "Downloading http://datatables.net/releases/DataTables-1.9.4.zip"
+    cmd curl -s -O http://datatables.net/releases/DataTables-1.9.4.zip
+    cmd unzip -q -d ${SYNTAX_TEST_RESULTS} DataTables-1.9.4.zip
+    rm DataTables-1.9.4.zip
+    ln -s DataTables-1.9.4 ${SYNTAX_TEST_RESULTS}/DataTables
+    msg "Cloning https://github.com/cyberhobo/ColumnFilterWidgets.git into $DATATABLES/extras"
+    cd $DATATABLES/extras
+    cmd git clone -q https://github.com/cyberhobo/ColumnFilterWidgets.git
+    cd $ROOT
+fi
+msg "Configuration done."
+msg
+if test "${MAKESBCLIMG}" = "true" ; then
+    msg "Run Lisp with INSTANS by:"
+    msg
+    msg "    instans/bin/sbcl-instans [SBCL arguments]"
+    msg
+fi
+msg "Run INSTANS on command line by"
+msg
+msg "    instans/bin/instans [INSTANS arguments]"
+msg

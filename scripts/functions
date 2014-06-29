@@ -1,0 +1,40 @@
+# -*- Mode: Shell-script -*-
+
+function die () {
+    echo $*
+    exit 1
+}
+
+test "$TMP" != "" || die "$0: Variable TMP unset!"
+
+test "$LOGFILE" != "" || die "$0: Variable LOGFILE unset!"
+
+rm -f ${LOGFILE}
+
+function echolog () {
+    echo Echolog $*
+    echo $* >> ${LOGFILE}
+}
+
+function msg () {
+    echolog $*
+    if test "$VERBOSE" = "true"; then
+	echo $*
+    fi
+}
+
+function catlog () {
+    cat $* >> ${LOGFILE}
+}
+
+function output () {
+    if $VERBOSE; then
+	tee -a ${LOGFILE}
+    else
+	cat >> ${LOGFILE}
+    fi
+}
+
+function noisy () {
+    tee -a ${LOGFILE}
+}

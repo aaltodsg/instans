@@ -26,7 +26,7 @@
 			(and (= minor1 minor2)
 			     (< revision1 revision2)))))))))
 
-(defun output-configuration (&optional (target "LISP-CONFIGURATION"))
+(defun output-configuration (&optional (target "lisp-configuration"))
   (flet ((output (stream)
 	   (format stream "minimum-sbcl-version-for-instans: ~A" *minimum-sbcl-version-for-instans*)
 	   (format stream "~%lisp-implementation-type:         ~A" (lisp-implementation-type))
