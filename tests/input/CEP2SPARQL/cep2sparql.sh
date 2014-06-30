@@ -1,1 +1,1 @@
-../../../bin/instans --time 0 -r CEP2SPARQL_Queries_working.rq -g http://example.org/pattern/ -t CEP2SPARQL_SamplePattern.ttl -g http://example.org/source/ -t CEP2SPARQL_SampleEvents.ttl
+../../../bin/instans -r CEP2SPARQL_Queries_working.rq -g http://example.org/pattern/ -t CEP2SPARQL_SamplePattern.ttl --rdf-operations=add:execute-snapshot:remove:execute -g http://example.org/source/ --time=- --input-blocks=CEP2SPARQL_SampleEvents.ttl
