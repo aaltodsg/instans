@@ -1,0 +1,6 @@
+PREFIX : <http://instans.org/updating#>
+
+:var1 :init 0 .
+:var2 :init 10 .
+:var3 :init -6 .
+

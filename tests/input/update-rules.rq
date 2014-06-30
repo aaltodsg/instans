@@ -1,0 +1,34 @@
+# PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+# PREFIX tl:<http://purl.org/NET/c4dm/timeline.owl#>
+# PREFIX geo:<http://www.w3.org/2003/01/geo/wgs84_pos#>
+# PREFIX foaf:<http://xmlns.com/foaf/0.1/>
+# PREFIX event:<http://purl.org/NET/c4dm/event.owl#>
+# PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>
+PREFIX : <http://instans.org/updating#>
+
+#INSERT {?var :value ?initialvalue ; :stamp  }
+
+INSERT {?var :value ?initialvalue ; :storedstamp ?stamp }
+WHERE {
+      ?var :init ?initialvalue .
+      BIND(uuid() AS ?stamp)
+};
+
+DELETE {?var :value ?oldvalue; :storedstamp ?oldstamp ; :instamp ?newstamp}
+INSERT {?var :value ?newvalue; :storedstamp ?newstamp}
+WHERE {
+      ?var :update ?newvalue ; :instamp ?newstamp .
+      ?var :value ?oldvalue ; :storedstamp ?oldstamp .
+#      BIND(uuid() AS ?newstamp)
+      FILTER(?newstamp != ?oldstamp)
+};
+
+INSERT {?var :instamp ?stamp}
+WHERE {
+      ?var :update ?u .
+      BIND(uuid() AS ?stamp)
+};
+
+SELECT * {
+       ?var ?o ?value
+}

@@ -1,0 +1,8 @@
+PREFIX : <http://instans.org/updating#>
+
+
+:var1 :update 11 ; :stamp 1 .
+:var2 :update -3 ; :stamp 2 .
+:var1 :update 2 ; :stamp 3 .
+:var3 :update 0 ; :stamp 4 .
+

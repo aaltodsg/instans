@@ -1,0 +1,5 @@
+PREFIX eve: <http://fispace.aston.ac.uk/pharmaCo1/data/epc/id/events/>
+
+SELECT * WHERE { ?s ?p ?o }
+#SELECT * WHERE { GRAPH <eve:x> { ?s ?p ?o }}
+#SELECT * WHERE { GRAPH ?g { ?s ?p ?o }}

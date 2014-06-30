@@ -1,0 +1,12 @@
+PREFIX : <http://instans.org/updating#>
+
+
+:var1 :update 11  .
+:var2 :update -3 .
+:var1 :update 2 .
+:var3 :update 0 .
+:var1 :update 3 .
+:var1 :update 40 .
+:var1 :update 17 .
+:var1 :update 25 .
+
