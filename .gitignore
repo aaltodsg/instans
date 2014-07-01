@@ -18,3 +18,5 @@ tests/log
 tests/syntax-test-results
 tests/correct-output
 tests/input/issues/*.output
+tests/input/local
+
