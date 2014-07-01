@@ -158,7 +158,9 @@
    (project-index :accessor solution-modifiers-project-index)))
 
 (define-class rule-node (node) 
-  ((comment :accessor rule-node-comment :initarg :comment :initform nil)))
+  ((rule-name :accessor rule-node-rule-name :initarg :rule-name :initform nil)
+   (comment :accessor rule-node-comment :initarg :comment :initform nil)
+   (annotations :accessor rule-node-annotations :initarg :annotations :initform nil)))
 
 (define-class query-node (rule-node solution-modifiers-mixin) ())
 

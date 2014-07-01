@@ -6,8 +6,7 @@ PREFIX event:<http://purl.org/NET/c4dm/event.owl#>
 PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>
 PREFIX : <http://example.org/#>
 
-# QUERY 2 - PART B: Remove old events
-	# Leave only the newest event for each person
+# QUERY 2 - PART B: @name RemoveOldEvents. Leave only the newest event for each person
 	DELETE { 
          ?event event:agent ?person .
            ?event event:place ?place .
@@ -31,7 +30,7 @@ PREFIX : <http://example.org/#>
 		}
 	} ;
 
-# QUERY 3: Detect nearby
+# QUERY 3: @name DetectNearby
 	INSERT { ?person1 :nearby ?person2 }
 	WHERE { ?person1 foaf:knows ?person2 .
 			?event1 event:agent ?person1 .
@@ -51,11 +50,11 @@ PREFIX : <http://example.org/#>
 			FILTER NOT EXISTS { ?person1 :nearby ?person2 }
 	} ;
 
-# QUERY 4: Notification
+# QUERY 4: @name Notification
 	SELECT ?person1 ?person2
 	WHERE {  ?person1 :nearby ?person2 } ;
 
-# QUERY 5: Detect not nearby
+# QUERY 5: @name DetectNotNearby
 	DELETE { ?person1 :nearby ?person2 }
 	WHERE { ?person1 foaf:knows ?person2 .
 			?event1 event:agent ?person1 .

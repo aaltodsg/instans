@@ -34,9 +34,37 @@
 	(setf (node-number node) (incf (instans-node-id-counter instans)))
 	(setf (node-name node) (format nil "~A~D" (type-of node) (node-number node)))))))
 
+(defmethod initialize-instance :after ((this rule-node) &key comment &allow-other-keys)
+  (when comment
+    (setf (rule-node-annotations this) (parse-annotations comment))
+    (setf (rule-node-rule-name this) (getf (rule-node-annotations this) :name))))
 ;; (defmethod initialize-instance :after ((node select-node) &rest keys &key &allow-other-keys)
 ;;  (inform "initialize-instance :after (~S) (~S)" node keys)
 ;; )
+
+(defun parse-annotations (comment)
+  (loop with annotations = nil
+	for i from 0
+	while (< i (length comment))
+        do (let ((ch (char comment i)))
+	     (cond ((char= ch #\@)
+		    (incf i)
+		    (flet ((scan-string (pred)
+			     (loop while (and (< i (length comment)) (funcall pred (char comment i)))
+				   collect (char comment i) into result-chars
+				   do (incf i)
+				   finally (return (coerce result-chars 'string)))))
+		      (let ((id (scan-string #'alpha-char-p)))
+			(cond ((string-equal "name" id)
+			       (scan-string #'whitespace-char-p)
+			       (let ((value (scan-string #'(lambda (ch) (or (char= ch #\_) (char= ch #\-) (alphanumericp ch))))))
+				 (cond ((zerop (length value))
+					(inform "Empty @name definition in ~A" comment))
+				       (t
+					(setf (getf annotations :name) value)))))))))
+		   (t
+		    (incf i))))
+       finally (return annotations)))
 
 (defmethod initialize-instance :after ((this csv-output-processor) &key output-name &allow-other-keys)
   (let ((stream (cond ((null output-name)

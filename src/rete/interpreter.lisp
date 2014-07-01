@@ -789,9 +789,9 @@
 				   unless (null var)
 				   collect (list (uniquely-named-object-name (reverse-resolve-binding instans var))
 						 (sparql-value-to-string (token-value node token var) :instans instans)))))
-    (format stream "~%~A~%~A rule ~A in ~A (queue length ~D)~%~{~{       ~A = ~A~}~^~%~}~%"
-	    (rule-node-comment node)
-	    op node (instans-name (node-instans node)) (length (rule-instance-queue-head (instans-rule-instance-queue instans))) displayed-bindings)))
+    (format stream "~%~A rule ~A in ~A (queue length ~D)~%~{~{       ~A = ~A~}~^~%~}~%"
+	    op (if (rule-node-rule-name node) (format nil "~A (node ~A)" (rule-node-rule-name node) node) node)
+	    (instans-name (node-instans node)) (length (rule-instance-queue-head (instans-rule-instance-queue instans))) displayed-bindings)))
  
 (defgeneric execute-rule-node (node token)
   (:method ((this select-node) token)

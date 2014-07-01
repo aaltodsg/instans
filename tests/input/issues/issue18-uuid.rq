@@ -3,6 +3,7 @@ PREFIX ep:<http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
 PREFIX memory: <http://example.org/memory/>
 PREFIX output: <http://example.org/output/>
 
+# @name ChangeState
 DELETE { GRAPH memory: { :poststateful :prevHour ?prevhour; :uuid ?prevuuid } }
 INSERT { GRAPH output: { ?event ep:hasEventObjectSamplingTime ?time }
          GRAPH memory: { :poststateful :prevHour ?hour; :uuid ?uuid }
@@ -15,4 +16,5 @@ WHERE {
    BIND ( HOURS(?time) as ?hour )
 };
 
+# @name OutputEverything
 SELECT * WHERE { GRAPH ?g { ?s ?p ?o } }

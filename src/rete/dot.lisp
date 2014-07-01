@@ -9,6 +9,7 @@
   (let* ((name-string (string (node-name node)))
 	 (pos (position-if-not #'digit-char-p name-string :from-end t))
 	 (num-string (subseq name-string (1+ pos))))
+    (inform "dot-node-number ~A, name-string = ~S, pos = ~S, num-string = ~S" node name-string pos num-string)
     (parse-integer num-string)))
 
 (defun dot-node-name (node)

@@ -4,10 +4,13 @@ ROOT=`pwd`
 echo "In directory $ROOT: running `basename $0` $*"
 echo
 LAST=`echo $ROOT | sed '/^.*[/]\([^/]*\)^/s//\1/'`
+
 function die () {
     echo $*
     exit 1
 }
+
+
 test "$LAST" != instans || die "You should run this script in the instans root directory!"
 CLEAN="false"
 MAKESBCLIMG="false"
@@ -44,7 +47,7 @@ else
     fi
 fi
 
-echo sbcl --noinform --load init/output-configuration.lisp --eval "(output-configuration \"$LISP_CONFIGURATION\")" --quit
+# echo sbcl --noinform --load init/output-configuration.lisp --eval "(output-configuration \"$LISP_CONFIGURATION\")" --quit
 sbcl --noinform --load init/output-configuration.lisp --eval "(output-configuration \"$LISP_CONFIGURATION\")" --quit
 
 LISP_IMPLEMENTATION_TYPE=`sed -n "/^lisp-implementation-type:[ ]*\([^ ]*\)$/s//\1/p" ${LISP_CONFIGURATION}`
@@ -54,25 +57,30 @@ CONSISTENT_SBCL_VERSION=`sed -n "/^consistent-sbcl-version:[ ]*\([^ ]*\)$/s//\1/
 QUICKLISP=`sed -n "/^quicklisp:[ ]*\([^ ]*\)$/s//\1/p" ${LISP_CONFIGURATION}`
 ASDF=`sed -n "/^asdf:[ ]*\([^ ]*\)$/s//\1/p" ${LISP_CONFIGURATION}`
 rm ${LISP_CONFIGURATION}
-echo
-echo "Detected the following configuration:"
-echo "  LISP_IMPLEMENTATION_TYPE=$LISP_IMPLEMENTATION_TYPE"
-echo "  LISP_IMPLEMENTATION_VERSION=$LISP_IMPLEMENTATION_VERSION"
-echo "  MINIMUM_SBCL_VERSION_FOR_INSTANS=$MINIMUM_SBCL_VERSION_FOR_INSTANS"
-echo "  CONSISTENT_SBCL_VERSION=$CONSISTENT_SBCL_VERSION"
-echo "  QUICKLISP=$QUICKLISP"
-echo "  ASDF=$ASDF"
-echo
+
+function show_configuration () {
+    echo
+    echo "Detected the following configuration:"
+    echo "  LISP_IMPLEMENTATION_TYPE=$LISP_IMPLEMENTATION_TYPE"
+    echo "  LISP_IMPLEMENTATION_VERSION=$LISP_IMPLEMENTATION_VERSION"
+    echo "  MINIMUM_SBCL_VERSION_FOR_INSTANS=$MINIMUM_SBCL_VERSION_FOR_INSTANS"
+    echo "  CONSISTENT_SBCL_VERSION=$CONSISTENT_SBCL_VERSION"
+    echo "  QUICKLISP=$QUICKLISP"
+    echo "  ASDF=$ASDF"
+    echo
+}
 if test "$LISP_IMPLEMENTATION_TYPE" != "SBCL" -o $CONSISTENT_SBCL_VERSION = "no" ; then
+    show_configuration
     echo "You seem to be running $LISP_IMPLEMENTATION_TYPE. Instans has only been tested with SBCL (minimum version $MINIMUM_SBCL_VERSION_FOR_INSTANS)."
     exit 1
 fi
 if test "$CONSISTENT_SBCL_VERSION" = "no" ; then
+    show_configuration
     echo "You seem to be running $LISP_IMPLEMENTATION_TYPE $LISP_IMPLEMENTATION_VERSION. Instans has only been tested version $LISP_IMPLEMENTATION_TYPE $MINIMUM_SBCL_VERSION_FOR_INSTANS."
     exit 1
 fi
 if test "$QUICKLISP" = "no"; then
-#    touch $HOME/.sbclrc
+    touch $HOME/.sbclrc
     echo "Installing Quicklisp"
     echo "Trying to download http://beta.quicklisp.org/quicklisp.lisp with curl"
     curl -s -O http://beta.quicklisp.org/quicklisp.lisp || die "Curl failed. Check http://www.quicklisp.org/beta/ how to install Quicklisp"
@@ -84,27 +92,33 @@ if test "$QUICKLISP" = "no"; then
 fi
 test "$ASDF" = "yes" || die "No ASDF found. It should come with $LISP_IMPLEMENTATION_TYPE. You may try to install it from http://common-lisp.net/project/asdf/ and then try again."
 cd $SRC
-#if test "$CLEAN" = "true"; then
-    echo
-    echo "Compiling system"
-    echo
-    make > /dev/null
-#fi
+echo
+echo "Compiling system"
+echo
+TMP=make_tmp_$$
+make > $TMP
+if test $? -ne 0; then
+    cat $TMP
+    rm $TMP
+    die "Compilation failed"
+else
+    rm $TMP
+fi
 #echo
 echo "Building $EXECUTABLE"
 #sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans))" --eval "(sb-ext:save-lisp-and-die \"${EXECUTABLE}\" :toplevel (quote instans:main) :executable t)" --quit
-echo sbcl --load $ROOT/init/make-executable.lisp --eval "(sb-ext:save-lisp-and-die \"${EXECUTABLE}\" :toplevel (quote instans:main) :executable t)" --quit
+#echo sbcl --load $ROOT/init/make-executable.lisp --eval "(sb-ext:save-lisp-and-die \"${EXECUTABLE}\" :toplevel (quote instans:main) :executable t)" --quit
 sbcl --load $ROOT/init/make-executable.lisp --eval "(sb-ext:save-lisp-and-die \"${EXECUTABLE}\" :toplevel (quote instans:main) :executable t)" --quit > /dev/null
 if test "${MAKESBCLIMG}" = "true" ; then
     echo
     echo "Creating a custom Lisp image for Instans in file ${SBCL_INSTANS_CORE}"
     cd $SRC
-    echo sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans) (sb-ext:save-lisp-and-die \"${SBCL_INSTANS_CORE}\"))" --quit
+    # echo sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans) (sb-ext:save-lisp-and-die \"${SBCL_INSTANS_CORE}\"))" --quit
     sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans) (sb-ext:save-lisp-and-die \"${SBCL_INSTANS_CORE}\"))" --quit > /dev/null
 fi
 cd $TESTS
 if test -d data-r2; then
-    echo "data-r2 already exists, skipping downloading it"
+    echo "data-r2 already exists, skipping downloading it" > /dev/null
 else
     echo "Downloading http://www.w3.org/2001/sw/DataAccess/tests/data-r2.tar.gz"
     curl -s -O http://www.w3.org/2001/sw/DataAccess/tests/data-r2.tar.gz
@@ -114,7 +128,7 @@ else
     rm -rf test-suite-archive data-r2.tar.gz
 fi
 if test -d data-sparql11; then
-    echo "data-sparql11 already exists, skipping downloading it"
+    echo "data-sparql11 already exists, skipping downloading it" > /dev/null
 else
     echo "Downloading http://www.w3.org/2009/sparql/docs/tests/sparql11-test-suite-20121023.tar.gz"
     curl -s -O http://www.w3.org/2009/sparql/docs/tests/sparql11-test-suite-20121023.tar.gz

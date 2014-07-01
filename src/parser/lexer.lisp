@@ -31,10 +31,12 @@
 		        when save-comment-p collect ch2 into comment
 			do (get-char lexer)
 		        finally (when save-comment-p 
-				  (push-to-end (if (char=* ch2 #\newline) (append comment '(#\newline)) comment) comments))))
+				  (push-to-end (apply #'append '(#\#) comment (if (char=* ch2 #\newline) '((#\newline)))) comments))))
 
-		 (t (when save-comment-p
-		      (setf (lexer-previous-comment lexer) (coerce (apply #'append comments) 'string)))
+		 (t (when (and save-comment-p comments)
+		      (setf (lexer-previous-comment lexer) (coerce (apply #'append comments) 'string))
+;		      (inform "Got comment ~A" (lexer-previous-comment lexer))
+		      )
 		    (return saw-eol-p)))))
 
 (defun get-char-if-looking-at (lexer ch) (and (char=* ch (peekch lexer)) (get-char lexer)))
