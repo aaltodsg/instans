@@ -444,7 +444,9 @@
 				(t
 				 (cons dynamic-call-op (cons iri arglist))))))
 		       (t
-			(cons sparql-op arglist))))))
+			(cons sparql-op arglist)))))
+	     (get-preceding-comment ()
+	       (and (lexer-previous-comment lexer) (list :comment (lexer-previous-comment lexer)))))
       (setf
        parser
        (generate-ll1-parser sparql-parser ()
@@ -461,29 +463,32 @@
 	 (SubSelect ::= (SelectClause WhereClause SolutionModifier ValuesClause
 				      :RESULT (build-query-expression instans (append '(:query-form SELECT) $0 $1 $2 (opt-value $3)))))
 					; `(SELECT ,@$0 :where ,$1 ,@$2 ,@(if (opt-yes-p $3) (opt-value $3)))))
-	 (SelectClause ::= (SELECT-TERMINAL ((:OPT (:OR (DISTINCT-TERMINAL :RESULT :distinctp) (REDUCED-TERMINAL :RESULT :distinctp))) ;;; distinct == reduced!
+	 (SelectClause ::= ((SELECT-TERMINAL :RESULT (get-preceding-comment))
+			    ((:OPT (:OR (DISTINCT-TERMINAL :RESULT :distinctp) (REDUCED-TERMINAL :RESULT :distinctp))) ;;; distinct == reduced!
 					     :RESULT (if (opt-yes-p $0) (list (opt-value $0) t)))
 					    (:OR (:REP1 (:OR Var (|(-TERMINAL| Expression AS-TERMINAL Var |)-TERMINAL| :RESULT (list 'AS $3 $1))))
 						 (|*-TERMINAL| :RESULT '*))
-					    :RESULT (append $1 (list :project $2))))
+					    :RESULT (append $0 $1 (list :project $2))))
 	 ;;; Note: blanks should be reinstantiated when running the template. See 16.2.1 Templates with Blank Nodes in the SPecs
-	 (ConstructQuery ::= (CONSTRUCT-TERMINAL (:OR ((
-							; ConstructTemplate
-							QuadPattern
-							:RESULT (list :construct-template $0)) ((:REP0 DatasetClause) :RESULT (and $0 (list :dataset $0))) WhereClause SolutionModifier 
-						       :RESULT (append '(:query-form CONSTRUCT) $0 $1 $2 $3))
-						      (((:REP0 DatasetClause) :RESULT (and $0 (list :dataset $0)))
-						       WHERE-TERMINAL |{-TERMINAL|
-						       (:OPT (TriplesTemplate :RESULT (list (cons 'BGP (get-triples)))))
-						       |}-TERMINAL| SolutionModifier
-						       :RESULT (append '(:query-form CONSTRUCT) (list :where (translate-group-graph-pattern (opt-value $3)) :construct-template (opt-value $3)) $0 $5)))
-						 :RESULT $1))
-	 (DescribeQuery ::= (DESCRIBE-TERMINAL ((:OR (:REP1 VarOrIri) (|*-TERMINAL| :RESULT '*)) :RESULT (list :var-or-iri-list $0))
-					       ((:REP0 DatasetClause) :RESULT (and $0 (list :dataset $0)))
-					       (:OPT WhereClause) SolutionModifier
-					       :RESULT (append '(:query-form DESCRIBE) $1 $2 (opt-value $3) $4)))
-	 (AskQuery ::= (ASK-TERMINAL ((:REP0 DatasetClause) :RESULT (and $0 (list :dataset $0))) WhereClause SolutionModifier
-				     :RESULT (append '(:query-form ASK) $1 $2 $3)))
+	 (ConstructQuery ::= ((CONSTRUCT-TERMINAL :RESULT (get-preceding-comment))
+			      (:OR ((; ConstructTemplate
+				     QuadPattern
+				     :RESULT (list :construct-template $0)) ((:REP0 DatasetClause) :RESULT (and $0 (list :dataset $0))) WhereClause SolutionModifier 
+				    :RESULT (append '(:query-form CONSTRUCT) $0 $1 $2 $3))
+				   (((:REP0 DatasetClause) :RESULT (and $0 (list :dataset $0)))
+				    WHERE-TERMINAL |{-TERMINAL|
+				    (:OPT (TriplesTemplate :RESULT (list (cons 'BGP (get-triples)))))
+				    |}-TERMINAL| SolutionModifier
+				    :RESULT (append '(:query-form CONSTRUCT) (list :where (translate-group-graph-pattern (opt-value $3)) :construct-template (opt-value $3)) $0 $5)))
+			      :RESULT (append $0 $1)))
+	 (DescribeQuery ::= ((DESCRIBE-TERMINAL :RESULT (get-preceding-comment))
+			     ((:OR (:REP1 VarOrIri) (|*-TERMINAL| :RESULT '*)) :RESULT (list :var-or-iri-list $0))
+			     ((:REP0 DatasetClause) :RESULT (and $0 (list :dataset $0)))
+			     (:OPT WhereClause) SolutionModifier
+			     :RESULT (append $0 '(:query-form DESCRIBE) $1 $2 (opt-value $3) $4)))
+	 (AskQuery ::= ((ASK-TERMINAL :RESULT (get-preceding-comment))
+			((:REP0 DatasetClause) :RESULT (and $0 (list :dataset $0))) WhereClause SolutionModifier
+			:RESULT (append $0 '(:query-form ASK) $1 $2 $3)))
 	 (DatasetClause ::= (FROM-TERMINAL (:OR DefaultGraphClause NamedGraphClause) :RESULT $1))
 	 (DefaultGraphClause ::= (SourceSelector :RESULT (list :default $0)))
 	 (NamedGraphClause ::= (NAMED-TERMINAL SourceSelector :RESULT (list :named $1)))
@@ -509,25 +514,31 @@
 	 ;; (Update ::= (Prologue (:OPT (Update1 (:OPT (|;-TERMINAL| Update))))))
 	 (Update1 ::= (:OR Load Clear Drop Add Move Copy Create InsertData DeleteData DeleteWhere Modify) :RESULT (build-query-expression instans $0))
 	 (_OptSilent ::= (:OPT SILENT-TERMINAL) :RESULT (if (opt-yes-p $0) (list :silent t)))
-	 (Load ::= (LOAD-TERMINAL _OptSilent iri (:OPT (INTO-TERMINAL GraphRef :RESULT $1)) :RESULT (append '(:query-form LOAD) $1 (list :from $2) (if (opt-yes-p $3) (list :to (opt-value $3))))))
-	 (Clear ::= (CLEAR-TERMINAL _OptSilent GraphRefAll :RESULT (append '(:query-form CLEAR) $1 $2)))
-	 (Drop ::= (DROP-TERMINAL _OptSilent GraphRefAll :RESULT (append '(:query-form DROP) $1 $2)))
-	 (Create ::= (CREATE-TERMINAL _OptSilent GraphRef :RESULT (append '(:query-form CREATE) $1 $2)))
-	 (Add ::= (ADD-TERMINAL _OptSilent GraphOrDefault TO-TERMINAL GraphOrDefault :RESULT (append '(:query-form ADD) $1 (list :graph $2 :to $4))))
-	 (Move ::= (MOVE-TERMINAL _OptSilent GraphOrDefault TO-TERMINAL GraphOrDefault :RESULT (append '(:query-form MOVE) $1 (list :graph $2 :to $4))))
-	 (Copy ::= (COPY-TERMINAL _OptSilent GraphOrDefault TO-TERMINAL GraphOrDefault :RESULT (append '(:query-form COPY) $1 (list :graph $2 :to $4))))
-;	 (InsertData ::= (INSERT-DATA-TERMINAL QuadData :RESULT (list :query-form 'INSERT-DATA $1)))
-;	 (DeleteData ::= (DELETE-DATA-TERMINAL QuadData :RESULT (list :query-form  'DELETE-DATA $1)))
-	 (InsertData ::= ((INSERT-DATA-TERMINAL :result (blank-translation-settings :allowedp t :replacep nil))
+	 (Load ::= ((LOAD-TERMINAL :RESULT (get-preceding-comment))
+		    _OptSilent iri (:OPT (INTO-TERMINAL GraphRef :RESULT $1)) :RESULT (append '(:query-form LOAD) $1 (list :from $2) (if (opt-yes-p $3) (list :to (opt-value $3))))))
+	 (Clear ::= ((CLEAR-TERMINAL :RESULT (get-preceding-comment))
+		     _OptSilent GraphRefAll :RESULT (append '(:query-form CLEAR) $1 $2)))
+	 (Drop ::= ((DROP-TERMINAL :RESULT (get-preceding-comment))
+		    _OptSilent GraphRefAll :RESULT (append '(:query-form DROP) $1 $2)))
+	 (Create ::= ((CREATE-TERMINAL :RESULT (get-preceding-comment))
+		      _OptSilent GraphRef :RESULT (append '(:query-form CREATE) $1 $2)))
+	 (Add ::= ((ADD-TERMINAL :RESULT (get-preceding-comment))
+		   _OptSilent GraphOrDefault TO-TERMINAL GraphOrDefault :RESULT (append '(:query-form ADD) $1 (list :graph $2 :to $4))))
+	 (Move ::= ((MOVE-TERMINAL :RESULT (get-preceding-comment))
+		    _OptSilent GraphOrDefault TO-TERMINAL GraphOrDefault :RESULT (append '(:query-form MOVE) $1 (list :graph $2 :to $4))))
+	 (Copy ::= ((COPY-TERMINAL :RESULT (get-preceding-comment))
+		    _OptSilent GraphOrDefault TO-TERMINAL GraphOrDefault :RESULT (append '(:query-form COPY) $1 (list :graph $2 :to $4))))
+	 (InsertData ::= ((INSERT-DATA-TERMINAL :result (progn (blank-translation-settings :allowedp t :replacep nil) (get-preceding-comment)))
 			  QuadData :RESULT (progn (blank-translation-settings :allowedp t :replacep t)
 						  (list :query-form 'INSERT-DATA :insert-clause $1 :where (translate-group-graph-pattern nil)))))
 	 (DeleteData ::= ((DELETE-DATA-TERMINAL :result (blank-translation-settings :allowedp nil :replacep nil))
 			  QuadData :RESULT (progn (blank-translation-settings :allowedp t :replacep t)
 						  (list :query-form 'DELETE-DATA :delete-clause $1 :where (translate-group-graph-pattern nil)))))
-	 (DeleteWhere ::= ((DELETE-WHERE-TERMINAL :result (blank-translation-settings :allowedp nil)) QuadPattern
+	 (DeleteWhere ::= ((DELETE-WHERE-TERMINAL :result (progn (blank-translation-settings :allowedp nil) (get-preceding-comment)))
+			   QuadPattern
 			   :RESULT (progn (blank-translation-settings :allowedp t :replacep t)
 					  (list :query-form 'DELETE-WHERE :delete-clause $1 :where (translate-group-graph-pattern $1)))))
-	 (Modify ::= (((:OPT (WITH-TERMINAL iri :RESULT $1)) :RESULT (if (opt-yes-p $0) (list :with (opt-value $0))))
+	 (Modify ::= (((:OPT (WITH-TERMINAL iri :RESULT $1)) :RESULT (append (if (opt-yes-p $0) (list :with (opt-value $0))) (get-preceding-comment)))
 		      (:OR (DeleteClause (:OPT InsertClause) :RESULT (append $0 (opt-value $1)))
 			   (InsertClause))
 		      ((:REP0 UsingClause) :RESULT (if $0 (list :using $0)))

@@ -5,6 +5,7 @@ PREFIX : <http://instans.org/>
 
 #:ev0 { :sensor1 a :Thermometer; :location [ geo:lat 60.15922234475837; geo:long 24.87610729902513 ]; :timestamp 0; :reading 0 }
 
+# @name NewValue
 DELETE { ?sensor :sum ?sum; :count ?count; :timestamp ?ts} 
 INSERT { ?sensor :sum ?newsum; :count ?newcount; :timestamp ?newts}
 WHERE {
@@ -18,6 +19,7 @@ WHERE {
       BIND(?count + 1 AS ?newcount)
 }
 ;
+# @name OutputResults
 SELECT * WHERE { ?sensor :sum ?sum; :count ?count; :timestamp ?ts}
 # ;
 # SELECT * {

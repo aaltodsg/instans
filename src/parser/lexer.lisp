@@ -15,6 +15,8 @@
 
 (defun skip-whitespace-and-comments (lexer)
   (loop with saw-eol-p = nil
+	with save-comment-p = (lexer-save-previous-comment-p lexer)
+	with comments = nil
 	for ch = (peekch lexer)
 	do (cond ((null ch) (return saw-eol-p))
 		 ((eol-char-p ch)
@@ -26,8 +28,14 @@
 		  (get-char lexer)
 		  (loop for ch2 = (peekch lexer)
 			while (not (char=* ch2 #\newline))
-			do (get-char lexer)))
-		 (t (return saw-eol-p)))))
+		        when save-comment-p collect ch2 into comment
+			do (get-char lexer)
+		        finally (when save-comment-p 
+				  (push-to-end (if (char=* ch2 #\newline) (append comment '(#\newline)) comment) comments))))
+
+		 (t (when save-comment-p
+		      (setf (lexer-previous-comment lexer) (coerce (apply #'append comments) 'string)))
+		    (return saw-eol-p)))))
 
 (defun get-char-if-looking-at (lexer ch) (and (char=* ch (peekch lexer)) (get-char lexer)))
 

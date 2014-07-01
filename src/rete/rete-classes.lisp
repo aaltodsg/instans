@@ -157,7 +157,8 @@
 ;   (project-as-exprs :accessor solution-modifiers-project-as-exprs :initarg :project-as-exprs :initform nil)
    (project-index :accessor solution-modifiers-project-index)))
 
-(define-class rule-node (node) ())
+(define-class rule-node (node) 
+  ((comment :accessor rule-node-comment :initarg :comment :initform nil)))
 
 (define-class query-node (rule-node solution-modifiers-mixin) ())
 
