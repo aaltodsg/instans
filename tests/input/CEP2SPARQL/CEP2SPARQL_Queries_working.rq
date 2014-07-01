@@ -168,29 +168,31 @@ WHERE { GRAPH <source> {
     ?event a ep:EventObject ; # Match incoming events
            ssn:Sensor ?sensor ;
            geo:Point [ geo:lat ?lat ; geo:long ?long ; ] . } 
-  GRAPH <memory> { # Retrieve coordinates of previous event from memory-graph
-    OPTIONAL  { ?mem ssn:Sensor ?sensor ;
-    	      	     :prevLat ?prevlat ;
-                     :prevLong ?prevlong  }
-      BIND ( IF ( ?lat > ?prevlat, "N", "") as ?latdir1) # Test for directions
-      BIND ( IF ( ?lat < ?prevlat, "S", "") as ?latdir2)
-      BIND ( IF ( ?long > ?prevlong, "E", "") as ?longdir1)
-      BIND ( IF ( ?long < ?prevlong, "W", "") as ?longdir2) 
-      BIND ( concat(?latdir1, ?latdir2, ?longdir1, ?longdir2) as ?dir ) # Concatenate result
-} } ;
+  OPTIONAL { GRAPH <memory> { # Retrieve coordinates of previous event from memory-graph
+    ?mem ssn:Sensor ?sensor ;
+    	 :prevLat ?prevlat ;
+         :prevLong ?prevlong } }
+  BIND ( IF ( ?lat > ?prevlat, "N", "") as ?latdir1) # Test for directions
+  BIND ( IF ( ?lat < ?prevlat, "S", "") as ?latdir2)
+  BIND ( IF ( ?long > ?prevlong, "E", "") as ?longdir1)
+  BIND ( IF ( ?long < ?prevlong, "W", "") as ?longdir2) 
+  BIND ( concat(?latdir1, ?latdir2, ?longdir1, ?longdir2) as ?tdir ) # Concatenate result
+  BIND ( IF ( !bound(?tdir) || strlen(?tdir)=0, "0", ?tdir ) as ?dir )
+} ;
 
 # Pattern Detection (EPA 8-1): Compare incoming pattern with pattern in database, advance index in memory if a match
 
 DELETE {  GRAPH <memory> { # Clear old index from memory
-  ?mem :patternindex ?memindex } }
+    :pattern :patternindex ?memindex } }
 INSERT { GRAPH <memory> { # Write new index to memory
-    [] :patternindex ?newindex } }
+    :pattern :patternindex ?newindex } }
 WHERE { GRAPH <directions> {
     ?event a ep:EventObject ; # Match directional input
            ssn:Sensor ?sensor ;
 	   :direction ?dir }
-  GRAPH <memory> { # Retrieve index from memory
-    OPTIONAL  { ?mem :patternindex ?memindex } }
+  FILTER ( ?dir != "0" )
+  OPTIONAL { GRAPH <memory> { # Retrieve index from memory
+      :pattern :patternindex ?memindex } }
   GRAPH <pattern> { # Retrieve pattern index and value
     ?pattern :index ?ptindex ;
              :value ?ptvalue }
