@@ -1,4 +1,4 @@
-
+BASE <http://instans.org/>
 PREFIX :<http:example.org/>
 PREFIX geo:<http://www.w3.org/2003/01/geo/wgs84_pos#>
 PREFIX ssn:<http://purl.oclc.org/NET/ssnx/ssn#>
@@ -8,47 +8,43 @@ PREFIX ff: <http://factforge.net/>
 
 # Aggregate (EPA 6): Create new events out of the number of events observed in each hour
 
-# Q6-1: Count event occurrence of each hour in memory
+# Q6-1: Maintain counter of number of events per hour in memory
 
-DELETE { GRAPH <http://example.org/memory/> {
+DELETE { GRAPH <memory> { # Delete old entry from memory
   ?hourIRI :hour ?memhour ;
            :counter ?oldcount } }
-INSERT { GRAPH <http://example.org/memory/> {
-  ?hourIRI :hour ?memhour ;
+INSERT { GRAPH <memory> { # Insert new entry to memory
+  ?hourIRI :hour ?hour ;
            :counter ?newcount } }
-WHERE { GRAPH <http://example.org/source/> {
+WHERE { GRAPH <source> { # Match incoming event
   ?event a ep:EventObject ;
          ep:hasEventObjectSamplingTime ?time }
   BIND ( HOURS(?time) as ?hour )
-#  BIND ( IRI(concat("Counter",str(?hour))) AS ?hourIRI)
-  BIND ( IRI(concat("Counter","strike")) AS ?hourIRI)
-  GRAPH <http://example.org/memory/> {
-    OPTIONAL { ?hourIRI :hour ?memhour ;
-                        :counter ?oldcount } }
-#  FILTER ( ?hour = ?memhour || !bound(?memhour) )
-  BIND ( COALESCE(?oldcount,0)+1 AS ?newcount )
+  BIND ( IRI(concat("Counter",str(?hour))) AS ?hourIRI) # Create new IRI for memory entry
+  OPTIONAL { GRAPH <memory> { # Match previous memory entry, if one exists
+      ?hourIRI :hour ?memhour ;
+               :counter ?oldcount } }
+  BIND ( COALESCE(?oldcount,0)+1 AS ?newcount ) # Advance counter by 1
 } ;
 
 # Q6-2: Output result when latest event is higher than the hour in an existing entry
-# Delete memory
+# Delete memory entries
 
-#DELETE { GRAPH <http://example.org/memory/> {
-#  ?hourIRI :hour ?memhour ;
-#           :counter ?oldcount } }
-#INSERT { GRAPH <http://example.org/eventcounts/> {
-#   [] a ep:EventObject ; # Insert counter events
-#      :eventType :eventCount ;
-#      :hour ?hour ;
-#      :count ?nrevent } }
-#WHERE { GRAPH <http://example.org/source/> {
-#  ?event a ep:EventObject ;
-#           ep:hasEventObjectSamplingTime ?time }
-#  BIND ( HOURS(?time) as ?hour )
-#  GRAPH <http://example.org/memory/> {
-#    OPTIONAL { ?hourIRI :hour ?memhour ;
-#                        :counter ?count } }
-#  FILTER ( ?memhour < ?hour )  
-#} ;
+DELETE { GRAPH <memory> { # Remove final counter entry
+  ?hourIRI :hour ?memhour ;
+           :counter ?count } }
+INSERT { GRAPH <eventcounts> { # Insert counter event
+   [] a ep:EventObject ;
+      :eventType :eventCount ;
+      :hour ?memhour ;
+      :count ?count } }
+WHERE { GRAPH <memory> { # Match entries in memory
+    ?hourIRI :hour ?memhour ;
+             :counter ?count }
+  GRAPH <source> { # Match time from incoming events
+    ?event ep:hasEventObjectSamplingTime ?time }
+  FILTER ( ?memhour < HOURS(?time) ) # Wait until incoming hour > memory hour
+} ;
 
 # Output everything
 
