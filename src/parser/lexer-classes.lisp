@@ -18,6 +18,7 @@
    (prefix-table :accessor lexer-prefix-table :initarg :prefix-table)
    (keyword-table :accessor lexer-keyword-table :initarg :keyword-table :initform nil)
    (string-table :accessor lexer-string-table :initarg :string-table)
+   (annotations :accessor lexer-annotations :initform nil)
    (instans :accessor lexer-instans :initarg :instans)))
 
 (define-class n-statements-lexer (abstract-sparql-rdf-lexer) ())
@@ -27,6 +28,21 @@
 (define-class trig-lexer (abstract-sparql-rdf-lexer) ())
 
 (define-class turtle-lexer (trig-lexer) ())
+
+(define-class lexer-annotations ()
+  ((table :accessor lexer-annotations-table :initform (make-hash-table :test #'equal))))
+
+(defgeneric get-annotation (annotations name)
+  (:method ((this lexer-annotations) name)
+    (gethash name (lexer-annotations-table this))))
+
+(defgeneric set-annotation (annotations name value)
+  (:method ((this lexer-annotations) name value)
+    (setf (gethash name (lexer-annotations-table this)) value)))
+
+(defgeneric remove-annotation (annotations name)
+  (:method ((this lexer-annotations) name)
+    (setf (gethash name (lexer-annotations-table this)) nil)))
 
 (defmethod initialize-instance :after ((this abstract-sparql-rdf-lexer) &key base &allow-other-keys)
   (setf (lexer-string-table this) (make-instance 'string-table :case-sensitive-p t))
@@ -40,6 +56,9 @@
 
 (defmethod initialize-instance :before ((this n-statements-lexer) &rest keys &key &allow-other-keys)
   (remf keys :base))
+
+(defmethod initialize-instance :after ((this sparql-lexer) &key &allow-other-keys)
+  (setf (lexer-annotations this) (make-instance 'lexer-annotations)))
 
 (defgeneric lexer-keywords (abstract-sparql-rdf-lexer)
   (:method ((this sparql-lexer))

@@ -133,7 +133,7 @@
 
 (defun main (&rest args)
   (cond ((null args)
-	 (setf args (command-line-argv)))
+	 (setf args sb-ext:*posix-argv*))
 	(t
 	 (setf args (cons "instans" (cons "--end-toplevel-options" (if (= 1 (length args)) (split-string (first args) " ") args))))))
   (multiple-value-bind (instans instans-iri) (create-instans)
@@ -157,7 +157,7 @@
       (labels ((valid-value-p (value accepted-values &key test)
 		 (or (funcall test value accepted-values)
 		     (error* "Value ~A not one of ~A" value accepted-values)))
-;	       (expand-iri-or-file-path (base iri-or-file-path input-type)
+					;	       (expand-iri-or-file-path (base iri-or-file-path input-type)
 	       (parse-parameters (string &key colon-expand-fields)
 		 (loop for param in (parse-spec-string string)
 		       for (key value) = param
@@ -169,9 +169,9 @@
 		   (setf (instans-construct-output-processor instans) (create-construct-output-processor construct-output-name construct-output-type)))
 		 )
 	       (maybe-execute ()
-;		 (inform "maybe-execute?")
+					;		 (inform "maybe-execute?")
 		 (when execute-immediately-p
-;		   (inform "yes")
+					;		   (inform "yes")
 		   (setf executedp t)
 		   (instans-run instans-iri
 				:select-output-name select-output-name :select-output-type select-output-type
@@ -192,7 +192,7 @@
 	       (parsing-commands ((key value) args :program "instans" :html html :usage usage
 				  :before (when time-output-stream (output-time "Command: ~(~A~), Parameter: ~A" key value)))
 		 (t :usage ("" "Options are of form '-o', '-o PARAM', or '--option=PARAM'." ""
-		 	       "General options:" ""))
+			       "General options:" ""))
 		 (usage
 		  :options ("--help" "-h")
 		  :usage "Print help text."
@@ -235,7 +235,7 @@
 		 (input
 		  :options ("--input=INPUT" ("-i" "INPUT") ("-t" "INPUT") )
 		  :usage ("Read RDF from a file or an URL. The suffix of INPUT is used to"
-                          "determine the type of the input.")
+			  "determine the type of the input.")
 		  :html "The recognized file formats are TriG (type '.trig'), Turtle (type '.ttl' or '.turtle'), N-Triples (type '.nt' or '.n-triples'), and N-Quads (type '.nt' or '.n-quads').
                                 If INPUT does not have a file type, use the type specific input options below."
 		  (instans-add-query-input-processor instans-iri (expand-iri directory value)

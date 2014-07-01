@@ -15,7 +15,7 @@
 
 (defun manifest-tests (manifest &optional (query (concatenate 'string (namestring (find-instans-root-directory)) "tests/input/syntax-test.rq")))
   (let* ((base (format nil "file://~A" (directory-namestring (truename manifest))))
-	 (instans (main-test (format nil "--select-output-type solution-set -b ~A -r ~A -t ~A" base query manifest)))
+	 (instans (main (format nil "--select-output-type solution-set -b ~A -r ~A -t ~A" base query manifest)))
 	 (p (instans-select-output-processor instans)))
     (declare (ignorable p))
     nil))
@@ -90,7 +90,7 @@
 		       (if htmlp (format nil "--rete-html-file ~A/tests/output " rootdir) "")
 		       dir (subseq sh-string (+ (search "instans " sh-string) 8)))))
     (inform "Running issue test ~A with args ~A" n args)
-    (main-test args)))
+    (main args)))
 
 (defvar *trig-iof*
   (list
