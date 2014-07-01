@@ -192,24 +192,14 @@
 	       (parsing-commands ((key value) args :program "instans" :html html :usage usage
 				  :before (when time-output-stream (output-time "Command: ~(~A~), Parameter: ~A" key value)))
 		 (t :usage ("" "Options are of form '-o', '-o PARAM', or '--option=PARAM'." ""
-			       "General options:" ""))
+		 	       "General options:" ""))
 		 (usage
 		  :options ("--help" "-h")
 		  :usage "Print help text."
-		  :html ""
-		  (usage)
-		  (return-from command-loop))
-		 ;; (html
-		 ;;  :options ("--html")
-		 ;;  :usage  "Print html help text."
-		 ;;  :html
-		 ;;  :operation
-		 ;;  (html)
-		 ;;  (return-from command-loop))
+		  (usage))
 		 (version
 		  :options ("--version" "-v")
 		  :usage "Print version information and exit."
-		  :html ""
 		  (format t "INSTANS version ~A~%" (instans-version))
 		  (return-from command-loop))
 		 (commands
@@ -234,39 +224,40 @@
 			   (return-from command-loop nil)))))
 		 (input
 		  :options ("--input=INPUT" ("-i" "INPUT") ("-t" "INPUT") )
-		  :usage ("Read RDF from a file or an URL. The suffix of INPUT is used to"
-			  "determine the type of the input.")
-		  :html "The recognized file formats are TriG (type '.trig'), Turtle (type '.ttl' or '.turtle'), N-Triples (type '.nt' or '.n-triples'), and N-Quads (type '.nt' or '.n-quads').
-                                If INPUT does not have a file type, use the type specific input options below."
+		  :usage ("Read RDF from a file or an URL. The suffix of INPUT is used to determine the"
+			  "type of the input. The recognized file formats are TriG (type '.trig'), Turtle"
+			  "(type '.ttl' or '.turtle'), N-Triples (type '.nt' or '.n-triples'), and N-Quads"
+			  "(type '.nt' or '.n-quads'). If INPUT does not have a file type, use the type"
+			  "specific input options below.")
 		  (instans-add-query-input-processor instans-iri (expand-iri directory value)
 						     :graph graph :base base :subscribe debug
 						     :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
 		  (maybe-execute))
 		 (input-trig
 		  :options ("--input-trig=INPUT")
-		  :usage "Read RDF in TriG format from INPUT."
-		  :html "The '--input-<type>' options take a parameter INPUT, which can be a real file, a pseudo file like /dev/stdint, or a URI. The content format should be of the specified type, e.g., for '--input-ttl' INPUT should contain TriG format input. Even if INPUT is a file with a specific type, the type is not considered when parsing the file."
+		  :usage ("Read RDF in TriG format from INPUT. The '--input-<type>' options take a"
+			  "parameter INPUT, which can be a real file, a pseudo file like /dev/stdint,"
+			  "or a URI. The content format should be of the specified type, e.g., for "
+			  "'--input-ttl' INPUT should contain TriG format input. Even if INPUT is a file"
+			  "with a specific type, the type is not considered when parsing the file.")
 		  (instans-add-query-input-processor instans-iri (expand-iri directory value)
 						     :graph graph :base base :input-type :trig)
 		  (maybe-execute))
 		 (input-turtle
 		  :options ("--input-turtle=INPUT" "--input-ttl=INPUT")
 		  :usage "Read RDF in Turtle format from INPUT."
-		  :html "The '--input-<type>' options take a parameter INPUT, which can be a real file, a pseudo file like /dev/stdint, or a URI. The content format should be of the specified type, e.g., for '--input-ttl' INPUT should contain Turtle format input. Even if INPUT is a file with a specific type, the type is not considered when parsing the file."
 		  (instans-add-query-input-processor instans-iri (expand-iri directory value)
 						     :graph graph :base base :input-type :ttl)
 		  (maybe-execute))
 		 (input-nq
 		  :options ("--input-nq=INPUT" "--input-n-quads=INPUT")
 		  :usage "Read RDF in N-Quads format from INPUT."
-		  :html "The '--input-<type>' options take a parameter INPUT, which can be a real file, a pseudo file like /dev/stdint, or a URI. The content format should be of the specified type, e.g., for '--input-ttl' INPUT should contain N-Quads format input. Even if INPUT is a file with a specific type, the type is not considered when parsing the file."
 		  (instans-add-query-input-processor instans-iri (expand-iri directory value)
 						     :graph graph :base base :input-type :nq)
 		  (maybe-execute))
 		 (input-nt
 		  :options ("--input-nt=INPUT" "--input-n-triples=INPUT")
 		  :usage "Read RDF in N-Triples format from INPUT."
-		  :html "The '--input-<type>' options take a parameter INPUT, which can be a real file, a pseudo file like /dev/stdint, or a URI. The content format should be of the specified type, e.g., for '--input-ttl' INPUT should contain N-Triples format input. Even if INPUT is a file with a specific type, the type is not considered when parsing the file."
 		  (instans-add-query-input-processor instans-iri (expand-iri directory value)
 						     :graph graph :base base :input-type :nt)
 		  (maybe-execute))
@@ -286,43 +277,36 @@
 		 (select-output
 		  :options ("--select-output=FILE")
 		  :usage "Write SELECT results to FILE. Output is based on the file name suffix."
-		  :html ""
 		  (setf select-output-name value)
 		  (setf select-output-type (intern-keyword (string-upcase (pathname-type (parse-namestring value))))))
 		 (select-output-csv
 		  :options ("--select-output-csv=OUTPUT")
 		  :usage "Write SELECT results as CSV to OUTPUT."
-		  :html ""
 		  (setf select-output-name value)
 		  (setf select-output-type :csv))
 		 (construct-output
 		  :options ("--construct-output=FILE")
 		  :usage "Write CONSTRUCT results to FILE. Output format is based on the file name suffix."
-		  :html ""
 		  (setf construct-output-name value)
 		  (setf construct-output-type (intern-keyword (string-upcase (pathname-type (parse-namestring value))))))
 		 (construct-output-trig
 		  :options ("--construct-output-trig=OUTPUT")
 		  :usage "Write CONSTRUCT results as TriG to OUTPUT."
-		  :html ""
 		  (setf construct-output-name value)
 		  (setf construct-output-type :trig))
 		 (construct-output-ttl
 		  :options ("--construct-output-ttl=OUTPUT" "--construct-output-turtle=OUTPUT")
 		  :usage "Write CONSTRUCT results as Turtle to OUTPUT."
-		  :html ""
 		  (setf construct-output-name value)
 		  (setf construct-output-type :ttl))
 		 (construct-output-nq
 		  :options ("--construct-output-nq=OUTPUT" "--construct-output-n-quads=OUTPUT")
 		  :usage "Write CONSTRUCT results as N-Quads to OUTPUT."
-		  :html ""
 		  (setf construct-output-name value)
 		  (setf construct-output-type :nq))
 		 (construct-output-nt
 		  :options ("--construct-output-nt=OUTPUT" "--construct-output-n-triples=OUTPUT")
 		  :usage "Write CONSTRUCT results as N-Triples to OUTPUT."
-		  :html ""
 		  (setf construct-output-name value)
 		  (setf construct-output-type :nt))
 		 (t :usage ("" "Execution control options:" ""))
@@ -350,7 +334,6 @@
 			  "In TriG it means that the input is read and processed based on the grammar rule [2g]"
 			  "of the TriG grammar, and in Turtle it means that the input is read and processed"
 			  "based on the grammar rule [6] of the Turtle grammar. The default is \"block\".")
-		  :html ""
 		  (setf (instans-rdf-input-unit instans) (intern-keyword (string-upcase value))))
 		 (rdf-operations
 		  :options  ("--rdf-operations=LIST")
@@ -364,7 +347,6 @@
 			  "policy until the queue is empty. Operation \"execute\" is the a synonym to"
 			  "\"execute-repeat-first\". You can use \"event\" as a shorthand form"
 			  "\"add:execute:remove:execute\". The default operations list is \"add:execute\".")
-		  :html ""
 		  (setf (instans-rdf-operations instans) (parse-colon-separated-values value)))
 		 ;; (queue-execution-policy
 		 ;;  :options ("--queue-execution-policy=POLICY")
@@ -373,7 +355,6 @@
 		 ;; 	  "the first instance in the queue, \"repeat-first\" does this as long as the queue is not"
 		 ;; 	  "empty. \"Snapshot\" takes the rules currently in the queue and executes them;"
 		 ;; 	  "\"repeat-snapshot\" repeats this as long as the queue is not empty.")
-		 ;;  :html ""
 		 ;;  (setf (instans-queue-execution-policy instans) (intern-keyword (string-upcase value))))
 		 (allow-rule-instance-removal
 		  :options ("--allow-rule-instance-removal=BOOL")
@@ -381,7 +362,6 @@
 			  "not been executed yet from the rule instance queue, if they cease to be satisfied;"
 			  "if false, rule instances are not removed from the queue even when they cease to be"
 			  "satisfied when adding or removing RDF input.")
-		  :html ""
 		  (setf (instans-allow-rule-instance-removal-p instans)
 			(cond ((string-equal value "true") t)
 			      ((string-equal value "false") nil)
@@ -424,7 +404,6 @@
 		 (warnings
 		  :options ("--warn-on-errors=BOOL")
 		  :usage ("If true, prints warnings, when FILTER or BIND evaluation causes an error. If false (the default), produces no output.")
-		  :html ""
 		  (cond ((string-equal value "true") (sparql-inform-and-throw-on-errors))
 			((string-equal value "false") (sparql-throw-on-errors))
 			(t (usage))))
@@ -434,23 +413,21 @@
 			  "the possible states are \"parser\", which prints information on the generated SPARQL,"
 			  "TriG, Turtle, N-Quads, and N-Triples parsers, \"parse-operations\", which prints"
 			  "operations of the parser, and \"token\", which prints the recognized input tokens.")
-		  :html ""
 		  (setf debug (parse-colon-separated-values value)))
 		 (rete-html
 		  :options ("--rete-html=FILE")
 		  :usage ("Create an HTML page about the Rete network. The HTML page contains the SPARQL query,"
 			  "a picture of the generate Rete network and other useful information.")
-		  :html ""
 		  (setf rete-html-file value))
 		 (name
 		  :options ("--name=NAME" ("-n" "NAME"))
-		  :usage "Use NAME as the name of the system."
-		  :html "The name of system is used in generating various outputs and names during the execution of INSTANS, but the name does not bear any actual semantics."
+		  :usage ("Use NAME as the name of the system. The name of system is used in generating"
+			  "various outputs and names during the execution of INSTANS, but the name does"
+			  "not bear any actual semantics.")
 		  (setf (instans-name instans) value))
 		 (reporting
 		  :options ("--report=KINDS")
 		  :usage "The kinds of rules you want to get reported; a ':' separated list of (select|construct|modify|all|rete-add|rete-remove|queue)."
-		  :html ""
 		  :hiddenp t
 		  (setf reporting (loop for kind in (parse-colon-separated-values value)
 					when (eq kind :all) append '(:select :construct :modify :all :rete-add :rete-remove :queue)
@@ -459,14 +436,12 @@
 		 (prefix-encoding
 		  :options ("--prefix-encoding=BOOL")
 		  :usage ("If true, use known prefixes when printing IRIs. If false (the default), print IRIs as such.")
-		  :html ""
 		  (setf encode-prefixes-p (cond ((string-equal value "true") t)
 						((string-equal value "false") nil)
 						(t (usage)))))
 		 (time
 		  :options ("--time=FILE")
 		  :usage "Output timing information to FILE. Use '-' for standard output."
-		  :html ""
 		  (setf time-output-name value)
 		  (multiple-value-setq (start-time-sec start-time-usec) (sb-unix::get-time-of-day))
 		  (setf time-output-stream
