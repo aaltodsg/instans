@@ -809,7 +809,9 @@
     (format stream "~%")))
  
 (defun report-queue (queue &key stream (variables :project))
-  (let* ((rule-instances (rule-instance-queue-head queue)))
+  (let ((instans (rule-instance-queue-instans queue))
+	(rule-instances (rule-instance-queue-head queue)))
+    (when (null stream) (setf stream  (instans-default-output instans)))
     (format stream "~%     Queue has now ~D rules:" (length rule-instances))
     (loop for ri in rule-instances do
 	 (format stream "~%     Rule ~A~%~{~{          ~A = ~A~}~^~%~}"

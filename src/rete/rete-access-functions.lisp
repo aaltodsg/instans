@@ -428,12 +428,13 @@
   (:method ((this trig-output-processor))
     (let ((stream (query-output-processor-output-stream  this))
 	  (indent 0)
+	  (init-sep "")
 ;	  (indents nil)
 	  )
       (labels ((incf-indent (n)
 ;		 (push indent indents)
 		 (incf indent n))
-	       (output-spol (triples)
+	       (output-spol (triples init-sep)
 		 (let ((trie nil))
 		   (loop for (s p o) in triples
 			 do (let ((s-item (assoc s trie :test #'sparql-value-equal)))
@@ -446,7 +447,7 @@
 					     (t
 					      (push o (cdr p-item)))))))))
 		   (loop for s-item in trie
-			 for s-sep = " " then (format nil "~%~V@T" indent)
+			 for s-sep = init-sep then (format nil "~%~V@T" indent)
 			 for s-string = (sparql-value-to-string (first s-item))
 			 do (format stream "~A~A" s-sep s-string)
 			 do (incf-indent (length s-string))
@@ -459,23 +460,26 @@
 					   for o in (rest p-item) do (format stream "~A ~A" o-sep (sparql-value-to-string o)))
 				  do (incf-indent (- (length p-string))))
 			 do (incf-indent (- (length s-string)))
-			 do (format stream " ."))))
-	       (output-triples (triples)
+			 do (format stream " .~%"))))
+	       (output-triples (triples init-sep)
 		 (loop for triple in triples
-		       do (format stream "~V@T~A ~A ~A ." indent
+		       for s-sep = init-sep then (format nil "~%~V@T" indent)
+		       do (format stream "~A~A ~A ~A .~%" indent
 				  (sparql-value-to-string (first triple)) (sparql-value-to-string (second triple)) (sparql-value-to-string (third triple))))))
 	(let (g-string)
 	  (when (trig-output-processor-current-graph this)
 	    (setf g-string (sparql-value-to-string (trig-output-processor-current-graph this)))
-	    (format stream "~A {" g-string)
-	    (incf-indent (+ (length g-string) 3)))
+	    (format stream "~%~A {" g-string)
+	    (incf-indent (+ (length g-string) 3))
+	    (setf init-sep " "))
 	  (cond ((trig-output-processor-subject-predicate-object-list-form-p this)
-		 (output-spol (trig-output-processor-triples this)))
+		 (output-spol (trig-output-processor-triples this) init-sep))
 		(t
-		 (output-triples (reverse (trig-output-processor-triples this)))))
+		 (output-triples (reverse (trig-output-processor-triples this)) init-sep)))
 	  (when (trig-output-processor-current-graph this)
 	    (incf-indent (- (+ (length g-string) 3)))
-	    (format stream "~%}~%"))))
+	    (format stream "}~%")
+	    (setf init-sep ""))))
       ;(inform "~A" (reverse indents))
       )))
   
