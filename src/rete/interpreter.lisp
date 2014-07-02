@@ -717,9 +717,11 @@
 	     (if (operation-report-p (rule-instance-queue-instans queue) :queue)
 		 (report-rule-op queue "Removed existing" rule-instance))
 	     (return :found))
-	finally (progn
-		  (if (operation-report-p (rule-instance-queue-instans queue) :queue)
-		      (report-rule-op queue "Tried to remove non-existing" rule-instance))
+	finally (let ((instans (rule-instance-queue-instans queue)))
+		  (when (operation-report-p instans :queue)
+		    (format (instans-default-output instans) "Tried to remove non-existing rule-instance in ~A~%Rule ~A~%~{~{     ~A = ~A~}~^~%~}~%"
+			    (instans-name instans) (rule-node-name-pretty node) (node-token-bindings-for-reporting node token))
+		    (report-queue queue))
 		  (return :not-found))))
 
 (defun rule-instance-queue-execute-instance (queue rule-instance)
@@ -779,34 +781,42 @@
 (defun operation-report-p (instans kind)
   (member kind (instans-report-operation-kinds instans)))
 
+(defgeneric rule-node-name-pretty (rule-node)
+  (:method ((this rule-node))
+    (if (rule-node-rule-name this) (format nil "~A (~(~A~))" (rule-node-rule-name this) (node-name this)) (node-name this))))
+
+(defun node-token-bindings-for-reporting (node token &key (variables :project))
+  (let ((instans (node-instans node)))
+    (unless (typep node 'query-node)
+      (when (eq variables :project)
+	(setf variables :visible)))
+    (loop for var in (funcall (case variables
+				(:all #'node-all-vars-out)
+				(:visible #'node-visible-vars-out)
+				(:project #'solution-modifiers-project-vars ))
+			      node)
+	  unless (null var)
+	  collect (list (uniquely-named-object-name (reverse-resolve-binding instans var))
+			(sparql-value-to-string (token-value node token var) :instans instans)))))
+
 (defun report-rule-op (queue op rule-instance &key stream (variables :project))
   (let ((instans (rule-instance-queue-instans queue)))
     (when (null stream) (setf stream  (instans-default-output instans)))
-    (flet ((rule-id (ri)
-	     (let ((node (rule-instance-node ri)))
-	       (if (rule-node-rule-name node) (format nil "~A (~(~A~))" (rule-node-rule-name node) (node-name node)) (node-name node))))
-	   (displayed-bindings (ri)
-	     (let ((node (rule-instance-node ri))
-		   (token (rule-instance-token ri))
-		   (variables variables))
-	       (unless (typep node 'query-node)
-		 (when (eq variables :project)
-		   (setf variables :visible)))
-	       (loop for var in (funcall (case variables
-					   (:all #'node-all-vars-out)
-					   (:visible #'node-visible-vars-out)
-					   (:project #'solution-modifiers-project-vars ))
-					 node)
-		     unless (null var)
-		     collect (list (uniquely-named-object-name (reverse-resolve-binding instans var))
-				   (sparql-value-to-string (token-value node token var) :instans instans))))))
-      (format stream "~&~A in ~A~%Rule ~A~%~{~{     ~A = ~A~}~^~%~}~%"
-	      op (instans-name instans) (rule-id rule-instance) (displayed-bindings rule-instance))
-      (let* ((rule-instances (rule-instance-queue-head queue)))
-	(format stream "~%     Queue has now ~D rules:" (length rule-instances))
-	(loop for ri in rule-instances do (format stream "~%     Rule ~A~%~{~{          ~A = ~A~}~^~%~}" (rule-id ri) (displayed-bindings ri)))
-	(format stream "~%~%")))))
+    (format stream "~&~A in ~A~%Rule ~A~%~{~{     ~A = ~A~}~^~%~}~%"
+	    op (instans-name instans) (rule-node-name-pretty (rule-instance-node rule-instance))
+	    (node-token-bindings-for-reporting (rule-instance-node rule-instance) (rule-instance-token rule-instance) :variables variables))
+    (report-queue queue :variables variables)
+    (format stream "~%")))
  
+(defun report-queue (queue &key stream (variables :project))
+  (let* ((rule-instances (rule-instance-queue-head queue)))
+    (format stream "~%     Queue has now ~D rules:" (length rule-instances))
+    (loop for ri in rule-instances do
+	 (format stream "~%     Rule ~A~%~{~{          ~A = ~A~}~^~%~}"
+		 (rule-node-name-pretty (rule-instance-node ri))
+		 (node-token-bindings-for-reporting (rule-instance-node ri) (rule-instance-token ri) :variables variables)))
+  (format stream "~%")))
+
 (defgeneric execute-rule-node (node token)
   (:method ((this select-node) token)
     (let ((instans (node-instans this)))
