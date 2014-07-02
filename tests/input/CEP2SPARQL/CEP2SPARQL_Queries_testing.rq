@@ -8,7 +8,7 @@ PREFIX ff: <http://factforge.net/>
 
 # Transform (auxiliary rule): Create directional events
 
-#@EPA8-Transform
+#@name EPA8-Transform
 DELETE {  GRAPH <memory> { # Delete previous memory entry
   :transform ssn:Sensor ?sensor ;
        :prevLat ?prevlat ;
@@ -47,7 +47,7 @@ WHERE { GRAPH <source> {
 
 # Pattern Detection (EPA 8-1): Compare incoming pattern with pattern in database, advance index in memory if a match
 
-#@EPA8-1-Advance-Index
+#@name EPA8-1-Advance-Index
 DELETE {  GRAPH <memory> { # Clear old index from memory
     :pattern ssn:Sensor ?sensor ;
              :basedOnEvent ?oldEvent ;
@@ -75,7 +75,7 @@ WHERE { GRAPH <directions> {
 
 # Pattern Detection (EPA 8-2): Reset index if the latest event does not match
 
-#@EPA8-2-ResetIndex
+#@name EPA8-2-ResetIndex
 DELETE { GRAPH <memory> { # Remove index from memory
     :pattern ssn:Sensor ?sensor ;
              :basedOnEvent ?memEvent ;
@@ -98,7 +98,7 @@ WHERE { GRAPH <directions> { # Match directional input
 
 # Pattern Detection (EPA 8-3): Insert an event into "patterndetect" channel, when the designated pattern is detected. Reset pattern index.
 
-#@EPA8-3-Complete-Reset
+#@name EPA8-3-Complete-Reset
 DELETE {  GRAPH <memory> { # Remove last index from memory
     :pattern ssn:Sensor ?sensor ;
              :basedOnEvent ?memEvent ;
@@ -118,7 +118,7 @@ WHERE { GRAPH <pattern> { :pattern :length ?length }
 
 # Output everything
 
-#@Output
+#@name Output
 SELECT *
 WHERE { GRAPH ?g { ?s ?p ?o } }
 
