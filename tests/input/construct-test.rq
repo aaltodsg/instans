@@ -3,12 +3,14 @@
 #       GRAPH ?g { ?s ?p ?o }
 # }
 
+#@name ConstructGraph
 CONSTRUCT {
       GRAPH ?g { ?s ?p ?o }
 } WHERE {
       GRAPH ?g { ?s ?p ?o }
 }
 ;
+#@name ConstructDefault
 CONSTRUCT { ?s ?p ?o }
 WHERE {
       { ?s ?p ?o }

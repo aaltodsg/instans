@@ -44,7 +44,7 @@
 
 (defun parse-annotations (comment)
   (loop with annotations = nil
-	for i from 0
+	with i = 0
 	while (< i (length comment))
         do (let ((ch (char comment i)))
 	     (cond ((char= ch #\@)
@@ -64,7 +64,7 @@
 					(setf (getf annotations :name) value)))))))))
 		   (t
 		    (incf i))))
-       finally (return annotations)))
+	finally (return annotations)))
 
 (defmethod initialize-instance :after ((this csv-output-processor) &key output-name &allow-other-keys)
   (let ((stream (cond ((null output-name)
@@ -424,8 +424,40 @@
     (multiple-value-bind (vars values) (solution-bindings node token)
       (add-sparql-result (solution-set-output-processor-query-results this) vars values))))
 
+;; (defgeneric output-dataset (trig-output-processor)
+;;   (:method ((this trig-output-processor))
+;;     (unless (trig-output-processor-batch-p this)
+;;       (error* "Use output-graph in only in batch mode!"))
+;;     (let ((graph-table (make-hash-table :test #'equal))
+;; 	  (graph-names nil)
+;; 	  (blank-as-object-count-table (make-hash-table :test #'equal)))
+;;       (loop for quad in (trig-output-processor quads)
+;; 	    do (let* ((g (fourth quad))
+;; 		      (gti (gethash g graph-table)))
+;; 		 (when (null gti)
+;; 		   (when g (push g graph-names))
+;; 		   (setf (gethash g graph-table) (list nil)))
+;; 		 (push quad (cdr gti)))
+;; 	    do (let ((o (third quad)))
+;; 		 (when (rdf-blank-node-p o)
+;; 		   (let ((o-count (gethash o blank-as-object-count-table)))
+;; 		     (cond ((null o-count)
+;; 			    (setf (gethash o blank-as-object-count-table) 0))
+;; 			   (t
+;; 			    (incf (gethash o blank-as-object-count-table))))))))
+;;       (loop for g in (cons nil graph-names)
+;; 	    do (output-graph-pretty g (gethash g graph-table) blank-as-object-count-table)))))
+
+;; (defgeneric output-graph-pretty (trig-output-processor &optional blank-as-object-count-table)
+;;   (:method ((this trig-output-processor))
+;;     (cond ((trig-output-processor-batch-p this)
+;; 	   (let ((trie nil))
+	     
+
 (defgeneric output-pending-graph (trig-output-processor)
   (:method ((this trig-output-processor))
+    (when (trig-output-processor-batch-p this)
+      (error* "Do not use output-pending-graph in batch mode!"))
     (let ((stream (query-output-processor-output-stream  this))
 	  (indent 0)
 	  (init-sep "")
@@ -492,7 +524,14 @@
 	  (format stream "~A ~A ~A .~%"
 		  (sparql-value-to-string s) (sparql-value-to-string p) (sparql-value-to-string o)))))
   (:method ((this trig-output-processor) instans s p o &optional g)
-    (cond ((eq (trig-output-processor-current-graph this) g)
+    (cond ((trig-output-processor-batch-p this)
+	   (cond ((null (trig-output-processor-quads this))
+		  (setf (trig-output-processor-quads this) (list (list s p o g)))
+		  (setf (trig-output-processor-quads-tail this) (trig-output-processor-quads this)))
+		 (t
+		  (setf (cdr (trig-output-processor-quads-tail this)) (list (list s p o g)))
+		  (setf (trig-output-processor-quads-tail this) (cdr (trig-output-processor-quads-tail this))))))
+	  ((eq (trig-output-processor-current-graph this) g)
 	   (push (list s p o) (trig-output-processor-triples this)))
 	  (t
 	   (output-pending-graph this)

@@ -285,9 +285,12 @@
 (define-class nq-output-processor (n-statement-output-processor) ())
 
 (define-class trig-output-processor (construct-output-processor stream-query-output-processor-mixin)
-  ((current-graph :accessor trig-output-processor-current-graph :initform nil)
+  ((batchp :accessor trig-output-processor-batch-p :initarg :batchp :initform nil)
+   (current-graph :accessor trig-output-processor-current-graph :initform nil)
    (triples :accessor trig-output-processor-triples :initform nil)
-   (subject-predicate-object-list-form-p :accessor trig-output-processor-subject-predicate-object-list-form-p :initarg :subject-predicate-object-list-form-p :initform t)))
+   (subject-predicate-object-list-form-p :accessor trig-output-processor-subject-predicate-object-list-form-p :initarg :subject-predicate-object-list-form-p :initform t)
+   (quads :accessor trig-output-processor-quads :initform nil)
+   (quads-tail :accessor trig-output-processor-quads-tail :initform nil)))
 
 (define-class turtle-output-processor (construct-output-processor stream-query-output-processor-mixin) ())
 
