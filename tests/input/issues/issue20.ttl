@@ -1,0 +1,4 @@
+@prefix : <http://instans.org/> .
+
+_:1 a :EventObject .
+_:1 :hasEventObjectSamplingTime "2012-03-05T13:32:28"^^xsd:dateTime .

@@ -1,0 +1,6 @@
+PREFIX : <http://instans.org/>
+
+SELECT * WHERE { 
+ ?event a :EventObject ;
+        :hasEventObjectSamplingTime ?time  
+}
