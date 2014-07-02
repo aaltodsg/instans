@@ -202,14 +202,16 @@ WHERE { GRAPH <directions> {
 
 # Pattern Detection (EPA 8-2): Reset index if the latest event does not match
 
-DELETE {  GRAPH <memory> { # Remove index from memory
-  ?mem :patternindex ?memindex } }
+#DELETE {  GRAPH <memory> { # Remove index from memory
+#    :pattern :patternindex ?memindex } }
+SELECT ?dir ?ptvalue ?memindex ?ptindex
 WHERE { GRAPH <directions> { # Match directional input
     ?event a ep:EventObject ;
            ssn:Sensor ?sensor ;
 	   :direction ?dir }
+  FILTER ( ?dir != "0" )
   GRAPH <memory> { # Retrieve index from memory
-    ?mem :patternindex ?memindex }
+    :pattern :patternindex ?memindex }
   GRAPH <pattern> {
     ?pattern :index ?ptindex ;
              :value ?ptvalue }
@@ -218,14 +220,17 @@ WHERE { GRAPH <directions> { # Match directional input
 
 # Pattern Detection (EPA 8-3): Insert an event into "patterndetect" channel, when the designated pattern is detected. Reset pattern index.
 
-DELETE {  GRAPH <memory> { # Remove index from memory
-  ?mem :patternindex ?memindex } }
-INSERT { GRAPH <patterndetect> { # Create an event object to announce pattern match
+DELETE {  GRAPH <memory> { # Remove last index from memory
+  :pattern :patternindex ?memindex } }
+INSERT { # GRAPH <memory> { :pattern :patternindex 0 }
+  GRAPH <patterndetect> { # Create an event object to announce pattern match
     [] a ep:EventObject ;
-       :patterndetected "BackAndForth!" } }
-WHERE { GRAPH <memory> { # Check, when pattern index in memory matches pattern length.
-    ?mem :patternindex ?memindex }
-    FILTER ( ?memindex = 2 ) # Instead of literal constant, also the pattern length could be saved to a graph as a parameter.
+       :patterndetected "BackAndForth!" }
+ }
+WHERE { GRAPH <pattern> { :pattern :length ?length }
+  GRAPH <memory> { # Check, when pattern index in memory matches pattern length.
+    :pattern :patternindex ?memindex }
+  FILTER ( ?memindex = ?length )
 } ;
 
 # Output everything
