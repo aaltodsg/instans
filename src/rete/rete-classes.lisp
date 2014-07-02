@@ -233,7 +233,6 @@
   ((instans :accessor rule-instance-queue-instans :initarg :instans)
    (head :accessor rule-instance-queue-head :initform nil)
    (tail :accessor rule-instance-queue-tail :initform nil)
-   (reportp :accessor rule-instance-queue-report-p :initarg :reportp :initform nil)
    (add-count :accessor rule-instance-queue-add-count :initform 0)
    (remove-count :accessor rule-instance-queue-remove-count :initform 0)
    (select-count :accessor rule-instance-queue-select-count :initform 0)
@@ -342,6 +341,7 @@
    (encode-prefixes-p :accessor instans-encode-prefixes-p :initform nil)
    (debug-topics :accessor instans-debug-topics :initform nil)
    (algebra-expr-list :accessor instans-algebra-expr-list :initform nil)
+   (report-operation-kinds :accessor instans-report-operation-kinds :initarg :report-operation-kinds :initform nil)
    (canonic-algebra-expr-list :accessor instans-canonic-algebra-expr-list :initform nil)
    (colors :accessor instans-colors :initform nil)))
 

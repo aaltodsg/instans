@@ -432,7 +432,7 @@
 		  (setf reporting (loop for kind in (parse-colon-separated-values value)
 					when (eq kind :all) append '(:select :construct :modify :all :rete-add :rete-remove :queue)
 					else append (list kind)))
-		  (setf (rule-instance-queue-report-p (instans-rule-instance-queue instans)) reporting))
+		  (setf (instans-report-operation-kinds instans) reporting))
 		 (prefix-encoding
 		  :options ("--prefix-encoding=BOOL")
 		  :usage ("If true, use known prefixes when printing IRIs. If false (the default), print IRIs as such.")
