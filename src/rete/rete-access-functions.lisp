@@ -428,19 +428,19 @@
 ;;   (:method ((this trig-output-processor))
 ;;     (unless (trig-output-processor-batch-p this)
 ;;       (error* "Use output-graph in only in batch mode!"))
-;;     (let ((graph-table (make-hash-table :test #'equal))
-;; 	  (graph-names nil)
+;;     (let ((graph-table (make-instance 'insert-ordered-multivalue-table))
 ;; 	  (blank-as-object-count-table (make-hash-table :test #'equal)))
-;;       (loop for quad in (trig-output-processor quads)
-;; 	    do (let* ((g (fourth quad))
-;; 		      (gti (gethash g graph-table)))
-;; 		 (when (null gti)
-;; 		   (when g (push g graph-names))
-;; 		   (setf (gethash g graph-table) (list nil)))
-;; 		 (push quad (cdr gti)))
-;; 	    do (let ((o (third quad)))
-;; 		 (when (rdf-blank-node-p o)
-;; 		   (let ((o-count (gethash o blank-as-object-count-table)))
+;;       (loop for quad in (trig-output-processor-quads this)
+;; 	    do (destructuring-bind (s p o g) quad
+;; 		 (let ((gti 
+;; 		   (when (null gti) (setf (
+;; (setf (assoc g graph-table :test #'equal) (list))))
+;; 		   (let ((sti (assoc s gti :test #'equal)))
+;; 		     (when (null sti) (setf sti (setf (assoc s gti :test #'equal) (list))))
+;; 		     (let ((pti (assoc p sti :test #'equal)))
+;; 		       (when (null pti) (setf pti (setf (assoc p gti :test #'equal) (list)))))
+;; 		   (when (rdf-blank-node-p o)
+;; 		     (let ((o-count (gethash o blank-as-object-count-table)))
 ;; 		     (cond ((null o-count)
 ;; 			    (setf (gethash o blank-as-object-count-table) 0))
 ;; 			   (t
@@ -451,7 +451,8 @@
 ;; (defgeneric output-graph-pretty (trig-output-processor &optional blank-as-object-count-table)
 ;;   (:method ((this trig-output-processor))
 ;;     (cond ((trig-output-processor-batch-p this)
-;; 	   (let ((trie nil))
+;; 	   (let ((trie nil)))
+
 	     
 
 (defgeneric output-pending-graph (trig-output-processor)

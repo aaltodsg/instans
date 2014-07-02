@@ -199,3 +199,29 @@
 			       (with-output-to-string (output-stream)
 				 (setf process (sb-ext:run-program cmd args :output output-stream :error error-stream :search t))))))
     (values (zerop (sb-ext:process-exit-code process)) output-string error-string))) 
+
+;;;
+
+;; (define-class insert-ordered-multivalue-table ()
+;;   ((data :accessor insert-ordered-multivalue-table-data :initform (make-hash-table :test #'equal))
+;;    (order :accessor insert-ordered-multivalue-table-order :initform nil)
+;;    (order-tail :accessor insert-ordered-multivalue-table-order-tail :initform nil)))
+
+;; (defgeneric add-to-ordered-table (table key value &optional new-level-if-does-not-exist-p)
+;;   (:method ((this insert-ordered-multivalue-table) key value)
+;;     (let* ((table (insert-ordered-multivalue-table-data this))
+;; 	   (item (gethash key table)))
+;;       (cond ((null item)
+;; 	     (setf item (setf (gethash key table) (make-instance 'insert-ordered-multivalue-table)))
+;; 	     (cond ((null (insert-ordered-multivalue-table-order this))
+;; 		    (setf (insert-ordered-multivalue-table-order this) (list key))
+;; 		    (setf (insert-ordered-multivalue-table-order-tail this) (insert-ordered-multivalue-table-order this)))
+;; 		   (t
+;; 		    (setf (cdr (insert-ordered-multivalue-table-order-tail this)) (list key))
+;; 		    (setf (insert-ordered-multivalue-table-order-tail this) (cdr (insert-ordered-multivalue-table-order-tail this))))))
+;; 	    (t
+;; 	     (
+
+;; (defgeneric get-ordered-multivalue-table-values (table key)
+;;   (:method ((this insert-ordered-multivalue-table) key)
+;;     (gethash key (insert-ordered-multivalue-table-data this))))
