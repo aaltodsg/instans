@@ -190,5 +190,3 @@
 ;		      (inform "Hit: k = ~S, v = ~S, str = ~S" k v str)
 		      (return-from iri-to-string (format nil "~A:~A" k (subseq str (length v)))))
 		 finally (return (format nil "<~A>" str)))))))
-
-

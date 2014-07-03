@@ -9,7 +9,7 @@
   (let* ((name-string (string (node-name node)))
 	 (pos (position-if-not #'digit-char-p name-string :from-end t))
 	 (num-string (subseq name-string (1+ pos))))
-    (inform "dot-node-number ~A, name-string = ~S, pos = ~S, num-string = ~S" node name-string pos num-string)
+;    (inform "dot-node-number ~A, name-string = ~S, pos = ~S, num-string = ~S" node name-string pos num-string)
     (parse-integer num-string)))
 
 (defun dot-node-name (node)
@@ -50,7 +50,7 @@
   (format nil "~{~a~^ ~}" (mapcar #'(lambda (x) (cond ((sparql-var-p x)
 						       (string-downcase (string (uniquely-named-object-name (reverse-resolve-binding (node-instans node) x)))))
 						      ((or (rdf-iri-p x) (rdf-literal-p x))
-						       (sparql-value-to-string x :instans (node-instans node)))
+						       (html-entities:encode-entities (sparql-value-to-string x :instans (node-instans node))))
 						      (t x)))
 				  (triple-pattern-node-triple-pattern node))))
 

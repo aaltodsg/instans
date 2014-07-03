@@ -623,9 +623,6 @@
       (when (and (not active-p) (zerop counter))
 	(call-succ-nodes #'add-token this (start-node-token this token) stack)) ; Have to add the skip optional token.
       (call-succ-nodes #'remove-token this token stack)))
-  (:method ((this construct-node) token &optional stack)
-    (declare (ignorable this token stack))
-    (signal-sparql-error "(add-token ~A) not implemented yet" this))
   (:method ((this union-start-node) token &optional stack)
     (call-succ-nodes #'remove-token this token stack))
   (:method ((this union-end-node) token &optional stack)
