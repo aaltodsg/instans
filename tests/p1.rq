@@ -1,0 +1,8 @@
+PREFIX : <http://instans.org/>
+
+#@name FilterPositive
+CONSTRUCT {
+      GRAPH ?g { ?var :value ?value }
+} WHERE {
+      GRAPH ?g { ?var :value ?value FILTER(?value > 0) }
+}

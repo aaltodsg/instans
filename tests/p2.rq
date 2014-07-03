@@ -1,0 +1,27 @@
+PREFIX : <http://instans.org/>
+
+#@name OutputMax
+CONSTRUCT {
+  ?var :max-so-far ?max .
+} WHERE {
+  ?var :max-so-far ?max .
+};
+
+#@name UpdateMax
+DELETE { ?var :max-so-far ?prevmax }
+INSERT { ?var :max-so-far ?newmax }
+WHERE {
+  ?var :max-so-far ?prevmax .
+  GRAPH ?g { ?var :value ?newmax }
+  FILTER(?newmax > ?prevmax)
+};
+
+#@name InitMax
+INSERT { ?var :max-so-far ?firstvalue }
+WHERE {
+  GRAPH ?g { ?var :value ?firstvalue }
+  FILTER NOT EXISTS {
+  	 ?var :max-so-far ?any
+  }
+}
+

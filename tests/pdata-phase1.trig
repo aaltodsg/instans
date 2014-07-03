@@ -1,0 +1,15 @@
+
+<http://instans.org/e0> { <http://instans.org/var1> <http://instans.org/value> 15 .
+}
+
+<http://instans.org/e3> { <http://instans.org/var1> <http://instans.org/value> 7 .
+}
+
+<http://instans.org/e4> { <http://instans.org/var1> <http://instans.org/value> 20 .
+}
+
+<http://instans.org/e7> { <http://instans.org/var1> <http://instans.org/value> 200 .
+}
+
+<http://instans.org/e9> { <http://instans.org/var1> <http://instans.org/value> 300 .
+}

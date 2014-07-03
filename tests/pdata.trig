@@ -1,0 +1,12 @@
+PREFIX : <http://instans.org/>
+
+:e0 { :var1 :value 15 . }
+:e1 { :var1 :value 0 . }
+:e2 { :var1 :value -1 . }
+:e3 { :var1 :value 7 . }
+:e5 { :var1 :value -13 . }
+:e6 { :var1 :value -33 . }
+:e7 { :var1 :value 200 . }
+:e4 { :var1 :value 20 . }
+:e8 { :var1 :value -1 . }
+:e9 { :var1 :value 300 . }
