@@ -48,15 +48,15 @@ WHERE { GRAPH <source> {
 # Output everything
 
 # @name Output
-#CONSTRUCT { ?s ?p ?o }
-#WHERE { GRAPH <directions> { ?s ?p ?o } }
+CONSTRUCT { ?s ?p ?o }
+WHERE { GRAPH <directions> { ?s ?p ?o } }
 
-CONSTRUCT {
-    ?event a ep:EventObject ;
-           ssn:Sensor ?sensor ;
-	   :direction ?dir
-}
-WHERE { GRAPH <directions> {
-    ?event a ep:EventObject ;
-           ssn:Sensor ?sensor ;
-	   :direction ?dir } }
+# CONSTRUCT {
+#    ?event a ep:EventObject ;
+#            ssn:Sensor ?sensor ;
+# 	   :direction ?dir
+# }
+# WHERE { GRAPH <directions> {
+#    ?event a ep:EventObject ;
+#           ssn:Sensor ?sensor ;
+#	   :direction ?dir } }
