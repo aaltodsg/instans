@@ -1,0 +1,14 @@
+BASE <http://instans.org/>
+PREFIX :<http:instans.org/default#>
+PREFIX geo:<http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX ssn:<http://purl.oclc.org/NET/ssnx/ssn#>
+PREFIX ep:<http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
+PREFIX omgeo: <http://www.ontotext.com/owlim/geo#>
+PREFIX ff: <http://factforge.net/>
+
+# Output everything
+
+# @name Output
+SELECT *
+WHERE { GRAPH ?g { ?s ?p ?o } }
+
