@@ -28,7 +28,7 @@ for COUNT in $*; do
     ${ECHO} "FNB $COUNT"
     ${INSTANS} -b file:/// -d ${FNBDIR} -r CF-Queries-default.rq --report=select:modify -t 5actors${COUNT}events.ttl > ${OUT} 2>&1
     if test -f ${CORRECT} ; then
-	if cmp ${CORRECT} ${OUT}; then
+	if cmp ${OUT} ${CORRECT}; then
 	    ${ECHO}
 	    ${ECHO} "Test OK: Same results as previous time. Output is in ${CORRECT}"
 	    ${ECHO}
@@ -42,7 +42,7 @@ for COUNT in $*; do
 	    if test "$answer" != "no"; then
 		diff ${OUT} ${CORRECT} | less
 	    fi
-	    ${ECHO} -n "Accept ${OUT} as ${CORRECT} (no)? "
+	    ${ECHO} -n "Accept new=${OUT} as ${CORRECT} (no)? "
 	    read answer
 	    if test "$answer" = "yes"; then
 		mv ${CORRECT} ${CORRECT}.${STAMP}
