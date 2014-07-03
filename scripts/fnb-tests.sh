@@ -37,7 +37,7 @@ for COUNT in $*; do
 	    ${ECHO}
 	    ${ECHO} "Test not OK!"
 	    ${ECHO}
-	    ${ECHO} -n "Diff ${OUT} ${CORRECT} (yes)? "
+	    ${ECHO} -n "Diff new=${OUT} old=${CORRECT} (yes)? "
 	    read answer
 	    if test "$answer" != "no"; then
 		diff ${OUT} ${CORRECT} | less
