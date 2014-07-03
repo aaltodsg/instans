@@ -12,12 +12,15 @@
 (ql:quickload "yason")
 (ql:quickload "uuid")
 (ql:quickload "percent-encoding")
+(ql:quickload "sb-concurrency")
 ;(ql:quickload "lisp-unit")
 ;(ql:quickload "cl-json")
 ;; (load "lisp-unit/lisp-unit")
 ;; (setq lisp-unit:*print-failures* t)
 ;; (setq lisp-unit:*print-errors* t)
 ;; (setq lisp-unit:*print-summary* t)
+;; (require 'sb-mailbox)
+;; (require 'sb-thread)
 
 (defpackage #:instans
   (:use #:common-lisp) ; #:lisp-unit
@@ -88,6 +91,7 @@
 	       			     (:file "compile-sparql-file")
 				     (:file "main")
 				     (:file "test")
+				     (:file "ptest")
 				     ))))
 
 (progn (setf *print-circle* nil) (setf *print-right-margin* 250))

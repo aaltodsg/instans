@@ -197,8 +197,11 @@
 ;;; Execution
 ;;; ---------
 
+(defvar *seen-threads* nil)
+
 (defgeneric run-query-input-processors (instans)
   (:method ((this instans))
+    (push (list sb-thread:*current-thread* :run-query-input-processors) *seen-threads*)
     (loop with continuep = t
 	  while continuep
 	  do (setf continuep nil)

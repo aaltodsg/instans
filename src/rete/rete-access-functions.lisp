@@ -66,25 +66,23 @@
 		    (incf i))))
 	finally (return annotations)))
 
-(defmethod initialize-instance :after ((this csv-output-processor) &key output-name &allow-other-keys)
+(defmethod initialize-instance :after ((this stream-query-output-processor-mixin) &key output-name &allow-other-keys)
+;  (inform "initialize-instance :after ((this query-output-processor) &key output-name &allow-other-keys)")
   (let ((stream (cond ((or (null output-name) (string= "-" output-name))
 ;		       (inform "Using *standard-output* = ~S as output stream" *standard-output*)
 		       *standard-output*)
 		      (t
 		       (open output-name :direction :output :if-exists :supersede)))))
 ;    (inform "stream = ~S" stream)
-    (setf (query-output-processor-output-stream this) stream)
-    (setf (csv-output-processor-csv-output this) (make-instance 'csv-output :stream stream))))
+    (setf (query-output-processor-output-stream this) stream)))
+
+(defmethod initialize-instance :after ((this csv-output-processor) &key &allow-other-keys)
+;  (inform "initialize-instance :after ((this csv-output-processor) &key &allow-other-keys)")
+  (setf (csv-output-processor-csv-output this)
+	(make-instance 'csv-output :stream (query-output-processor-output-stream this))))
 
 (defmethod initialize-instance :after ((this solution-set-output-processor) &key &allow-other-keys)
   (setf (solution-set-output-processor-query-results this) (make-instance 'sparql-query-results)))
-
-(defmethod initialize-instance :after ((this construct-output-processor) &key output-name &allow-other-keys)
-;  (inform "output-name=~S" output-name)
-  (let ((stream (cond ((or (null output-name) (string= "-" output-name)) *standard-output*)
-		      (t
-		       (open output-name :direction :output :if-exists :supersede)))))
-    (setf (query-output-processor-output-stream this) stream)))
 
 (defmethod initialize-instance :after ((this instans) &key &allow-other-keys)
   (when (and (instans-use-quad-store-p this) (null (instans-quad-store this)))
@@ -542,9 +540,9 @@
 	   (output-pending-graph this)
 	   (setf (trig-output-processor-current-graph this) g)
 	   (setf (trig-output-processor-triples this) (list (list s p o))))))
-  ;; (:method ((this mailbox-output-processor) instans s p o &optional g)
-  ;;   (loop for mailbox in (mailbox-output-processor-mailboxes this)
-  ;; 	  do (sb-concurrency:send-message mailbox (list s p o g))))
+  (:method ((this mailbox-output-processor) instans s p o &optional g)
+    (loop for mailbox in (mailbox-output-processor-mailboxes this)
+  	  do (sb-concurrency:send-message mailbox (list s p o g))))
 )
 
 (defgeneric close-query-output-processor (query-output-processor)
