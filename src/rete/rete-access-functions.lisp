@@ -391,10 +391,15 @@
 
 (defun create-construct-output-processor (output-name output-type)
   (case output-type
-    ((:ttl :turtle) (make-instance 'turtle-output-processor :output-name output-name))
+    ((:ttl :turtle)
+     ;(make-instance 'turtle-output-processor :output-name output-name)
+     (error* "Turtle construct output-processor not implemented yet"))
     (:trig (make-instance 'trig-output-processor :output-name output-name))
-    (:nt (make-instance 'nt-output-processor :output-name output-name))
-    (:nq (make-instance 'nq-output-processor :output-name output-name))
+    (:nt ;(make-instance 'nt-output-processor :output-name output-name)
+     (error* "N-Triples construct output-processor not implemented yet"))
+    (:nq 
+     ;(make-instance 'nq-output-processor :output-name output-name)
+     (error* "N-Quads construct output-processor not implemented yet"))
     (t (error* "Unknown select output processor type ~S" output-type))))
 
 (defun solution-bindings (node token)
