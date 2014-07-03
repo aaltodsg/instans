@@ -292,7 +292,7 @@
    (quads :accessor trig-output-processor-quads :initform nil)
    (quads-tail :accessor trig-output-processor-quads-tail :initform nil)))
 
-(define-class turtle-output-processor (construct-output-processor stream-query-output-processor-mixin) ())
+(define-class turtle-output-processor (trig-output-processor) ())
 
 ;;; System
 (define-class instans ()

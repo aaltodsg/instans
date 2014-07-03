@@ -67,7 +67,7 @@
 	finally (return annotations)))
 
 (defmethod initialize-instance :after ((this csv-output-processor) &key output-name &allow-other-keys)
-  (let ((stream (cond ((null output-name)
+  (let ((stream (cond ((or (null output-name) (string= "-" output-name))
 ;		       (inform "Using *standard-output* = ~S as output stream" *standard-output*)
 		       *standard-output*)
 		      (t
@@ -80,7 +80,8 @@
   (setf (solution-set-output-processor-query-results this) (make-instance 'sparql-query-results)))
 
 (defmethod initialize-instance :after ((this construct-output-processor) &key output-name &allow-other-keys)
-  (let ((stream (cond ((null output-name) *standard-output*)
+  (inform "output-name=~S" output-name)
+  (let ((stream (cond ((or (null output-name) (string= "-" output-name)) *standard-output*)
 		      (t
 		       (open output-name :direction :output :if-exists :supersede)))))
     (setf (query-output-processor-output-stream this) stream)))
@@ -392,14 +393,11 @@
 (defun create-construct-output-processor (output-name output-type)
   (case output-type
     ((:ttl :turtle)
-     ;(make-instance 'turtle-output-processor :output-name output-name)
-     (error* "Turtle construct output-processor not implemented yet"))
+     (make-instance 'turtle-output-processor :output-name output-name))
     (:trig (make-instance 'trig-output-processor :output-name output-name))
-    (:nt ;(make-instance 'nt-output-processor :output-name output-name)
-     (error* "N-Triples construct output-processor not implemented yet"))
+    (:nt (make-instance 'nt-output-processor :output-name output-name))
     (:nq 
-     ;(make-instance 'nq-output-processor :output-name output-name)
-     (error* "N-Quads construct output-processor not implemented yet"))
+     (make-instance 'nq-output-processor :output-name output-name))
     (t (error* "Unknown select output processor type ~S" output-type))))
 
 (defun solution-bindings (node token)
@@ -457,8 +455,6 @@
 ;;   (:method ((this trig-output-processor))
 ;;     (cond ((trig-output-processor-batch-p this)
 ;; 	   (let ((trie nil)))
-
-	     
 
 (defgeneric output-pending-graph (trig-output-processor)
   (:method ((this trig-output-processor))
@@ -530,6 +526,8 @@
 	  (format stream "~A ~A ~A .~%"
 		  (sparql-value-to-string s) (sparql-value-to-string p) (sparql-value-to-string o)))))
   (:method ((this trig-output-processor) instans s p o &optional g)
+    (when (and (turtle-output-processor-p this) g)
+      (error* "Cannot produce Turtle output in a CONSTRUCT with named graphs. Use TriG instead"))
     (cond ((trig-output-processor-batch-p this)
 	   (cond ((null (trig-output-processor-quads this))
 		  (setf (trig-output-processor-quads this) (list (list s p o g)))
