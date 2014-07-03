@@ -294,6 +294,11 @@
 
 (define-class turtle-output-processor (trig-output-processor) ())
 
+(define-class mailbox-output-processor (construct-output-processor)
+  ((mailboxes :accessor mailbox-output-processor-mailboxes :initarg :mailboxes :initform nil)
+   (quads :accessor mailbox-output-processor-quads :initform nil)
+   (quads-tail :accessor mailbox-output-processor-quads-tail :initform nil)))
+
 ;;; System
 (define-class instans ()
   ((name :accessor instans-name :initarg :name)

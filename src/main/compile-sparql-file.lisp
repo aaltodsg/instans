@@ -135,6 +135,21 @@
 	 (values (open input) (file-type input)))
 	(t (values nil nil (format nil "Cannot create an input stream based on ~S" input)))))
 
+;; (defun instans-add-mailbox-input-processor (instans-iri input-iri &key graph base subscribe)
+;;   (let* ((instans (get-instans instans-iri))
+;; 	 (input-processors (instans-query-input-processors instans)))
+;;     (cond ((null input-processors)
+;; 	   (let ((mailbox (sb-concurrency:make-mailbox :name input-iri)))
+;; 	     (add-query-input-processor instans
+;; 					(make-instance 'query-input-processor
+;; 						       :instans instans
+;; 						       :input-policy input-policy
+;; 						       :operations (instans-rdf-operations instans)
+;; 						       :base base
+;; 						       :graph graph
+;; 						       :subscribe subscribe
+;; 						       :parser #'(lambda ()
+
 (defun instans-add-query-input-processor (instans-iri input-iri &key graph base input-type subscribe)
   (let* ((instans (get-instans instans-iri)))
     (instans-debug-message instans '(:parse-rdf :execute) "instans-add-query-input-processor ~S ~S :input-type ~S :graph ~S :base ~S" instans-iri input-iri input-type graph base)

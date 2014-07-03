@@ -398,6 +398,7 @@
     (:nt (make-instance 'nt-output-processor :output-name output-name))
     (:nq 
      (make-instance 'nq-output-processor :output-name output-name))
+    (:mbox (make-instance 'mailbox-output-processor :output-name output-name))
     (t (error* "Unknown select output processor type ~S" output-type))))
 
 (defun solution-bindings (node token)
@@ -540,7 +541,11 @@
 	  (t
 	   (output-pending-graph this)
 	   (setf (trig-output-processor-current-graph this) g)
-	   (setf (trig-output-processor-triples this) (list (list s p o)))))))
+	   (setf (trig-output-processor-triples this) (list (list s p o))))))
+  ;; (:method ((this mailbox-output-processor) instans s p o &optional g)
+  ;;   (loop for mailbox in (mailbox-output-processor-mailboxes this)
+  ;; 	  do (sb-concurrency:send-message mailbox (list s p o g))))
+)
 
 (defgeneric close-query-output-processor (query-output-processor)
   (:method ((this trig-output-processor))
