@@ -80,7 +80,7 @@
   (setf (solution-set-output-processor-query-results this) (make-instance 'sparql-query-results)))
 
 (defmethod initialize-instance :after ((this construct-output-processor) &key output-name &allow-other-keys)
-  (inform "output-name=~S" output-name)
+;  (inform "output-name=~S" output-name)
   (let ((stream (cond ((or (null output-name) (string= "-" output-name)) *standard-output*)
 		      (t
 		       (open output-name :direction :output :if-exists :supersede)))))
