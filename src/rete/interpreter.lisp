@@ -307,10 +307,10 @@
 				   do (format stream "~%  ~A: +~D now ~D" index delta new-count))))))
       (loop for item in (instans-stores this)
 	    sum (hash-table-count (cdr item)) into sizes
-	    finally (inform "Store total size = ~D" sizes))
+	    finally (format stream "Store total size = ~D" sizes))
       (loop for index in (instans-indices this)
 	    sum (hash-table-count (hash-token-index-table index)) into sizes
-	    finally (inform "Index total size = ~D" sizes))
+	    finally (format stream "Index total size = ~D" sizes))
       (let ((queue (instans-rule-instance-queue this)))
 	(format stream "~&add-quad-count = ~S~%" (instans-add-quad-count this))
 	(format stream "remove-quad-count = ~S~%" (instans-remove-quad-count this))
