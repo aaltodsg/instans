@@ -71,12 +71,12 @@
   (:method ((this existence-start-node))
     ;;; An EQL hashtable, since we are using integers as keys!
     (push
-     (setf (memory-store this) (make-hash-table))
+     (cons this (setf (memory-store this) (make-hash-table)))
      (instans-stores (node-instans this))))
   (:method ((this memory))
     ;;; An EQL hashtable, since we are using integers as keys!
     (push
-     (setf (memory-store this) (make-hash-table))
+     (cons this (setf (memory-store this) (make-hash-table)))
      (instans-stores (node-instans this))))
   ;;; Join creates indices for alpha/beta memories only if the alpha and beta parents share common variables, i.e., (not (null node-use this))
   (:method ((this join-node))
@@ -261,22 +261,63 @@
 	      (t
 	       (error* "Illegal op ~S" op)))))))
 
-(defgeneric report-sizes (instan)
-  (:method ((this instans))
-    (loop for store in (instans-stores this)
-	  sum (hash-table-count store) into sizes
-	  finally (inform "Store total size = ~D" sizes))
-    (loop for index in (instans-indices this)
-	  sum (hash-table-count (hash-token-index-table index)) into sizes
-	  finally (inform "Index total size = ~D" sizes))
-    (let ((queue (instans-rule-instance-queue this))
-	  (stream *error-output*))
-      (format stream "~&add-quad-count = ~S~%" (instans-add-quad-count this))
-      (format stream "remove-quad-count = ~S~%" (instans-remove-quad-count this))
-      (format stream "queue-add-count = ~S~%" (rule-instance-queue-add-count queue))
-      (format stream "queue-remove-count = ~S~%" (rule-instance-queue-remove-count queue))
-      (format stream "queue-select-count = ~S~%" (rule-instance-queue-select-count queue))
-      (format stream "queue-modify-count = ~S~%" (rule-instance-queue-modify-count queue)))))
+(defgeneric initialize-report-sizes (instans report-sizes-interval)
+  (:method ((this instans) report-sizes-interval)
+    (setf (instans-size-report-interval this) report-sizes-interval)
+    (setf (instans-size-report-counter this) 0)
+    (let ((store-sizes-alist (loop for (node . store) in (instans-stores this) collect (list node store (hash-table-count store)))))
+      (setf (instans-store-sizes-alist this) store-sizes-alist))
+    (let ((index-sizes-alist (loop for index in (instans-indices this) collect (list index (hash-table-count (hash-token-index-table index))))))
+      (setf (instans-index-sizes-alist this) index-sizes-alist))))
+
+(defgeneric report-sizes (instans)
+ (:method ((this instans))
+    (let ((stream (instans-default-output this)))
+      (loop for item in (instans-store-sizes-alist this)
+	    for count = (third item)
+	    for new-count = (hash-table-count (second item))
+	    for delta = (- new-count count)
+	    do (setf (third item) new-count)
+	    collect (list (first item) delta new-count) into store-sizes-delta-alist
+	    finally (progn
+		      (setf store-sizes-delta-alist (sort store-sizes-delta-alist #'> :key #'second))
+		      (cond ((zerop (second (first store-sizes-delta-alist)))
+			     (format stream "~%Store sizes did not grow"))
+			    (t
+			     (format stream "~%Largest gains in store sizes:")
+			     (loop for (node delta new-count) in store-sizes-delta-alist
+				   for i from 0
+				   while (and (< i 10) (> delta 0))
+				   do (format stream "~%  ~A: +~D now ~D" node delta new-count))))))
+      (loop for item in (instans-index-sizes-alist this)
+	    for count = (second item)
+	    for new-count = (hash-table-count (hash-token-index-table (first item)))
+	    for delta = (- new-count count)
+	    do (setf (second item) new-count)
+	    collect (list (first item) delta new-count) into index-sizes-delta-alist
+	    finally (when index-sizes-delta-alist
+		      (setf index-sizes-delta-alist (sort index-sizes-delta-alist #'> :key #'second))
+		      (cond ((zerop (second (first index-sizes-delta-alist)))
+			     (format stream "~%Index sizes did not grow"))
+			    (t
+			     (format stream "~%Largest gains in index sizes:")
+			     (loop for i from 0
+				   for (index delta new-count) in index-sizes-delta-alist
+				   while (and (< i 10) (> delta 0))
+				   do (format stream "~%  ~A: +~D now ~D" index delta new-count))))))
+      (loop for item in (instans-stores this)
+	    sum (hash-table-count (cdr item)) into sizes
+	    finally (inform "Store total size = ~D" sizes))
+      (loop for index in (instans-indices this)
+	    sum (hash-table-count (hash-token-index-table index)) into sizes
+	    finally (inform "Index total size = ~D" sizes))
+      (let ((queue (instans-rule-instance-queue this)))
+	(format stream "~&add-quad-count = ~S~%" (instans-add-quad-count this))
+	(format stream "remove-quad-count = ~S~%" (instans-remove-quad-count this))
+	(format stream "queue-add-count = ~S~%" (rule-instance-queue-add-count queue))
+	(format stream "queue-remove-count = ~S~%" (rule-instance-queue-remove-count queue))
+	(format stream "queue-select-count = ~S~%" (rule-instance-queue-select-count queue))
+	(format stream "queue-modify-count = ~S~%" (rule-instance-queue-modify-count queue))))))
 
 (defgeneric execute-rules (instans &optional policy)
   (:method ((this instans) &optional policy)

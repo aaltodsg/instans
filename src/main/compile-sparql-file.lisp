@@ -187,12 +187,14 @@
       )
     instans))
 
-(defun instans-run (instans-iri &key select-output-name (select-output-type :csv) construct-output-name (construct-output-type :trig))
+(defun instans-run (instans-iri &key select-output-name (select-output-type :csv) construct-output-name (construct-output-type :trig) report-sizes-interval)
   (let ((instans (get-instans instans-iri)))
     (unless (instans-select-output-processor instans)
       (setf (instans-select-output-processor instans) (create-select-output-processor select-output-name select-output-type)))
     (unless (instans-construct-output-processor instans)
       (setf (instans-construct-output-processor instans) (create-construct-output-processor construct-output-name construct-output-type)))
+    (when report-sizes-interval
+      (initialize-report-sizes instans report-sizes-interval))
     (run-query-input-processors instans)))
 
 (defun instans-parse-rdf-file (instans-iri input-iri &key subscribe base graph triple-callback block-callback document-callback)

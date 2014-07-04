@@ -145,6 +145,7 @@
 	   (construct-output-name nil)
 	   (construct-output-type :trig)
 	   (encode-prefixes-p nil)
+	   report-sizes-interval
 	   time-output-name
 	   time-output-stream
 	   start-time-sec
@@ -168,14 +169,17 @@
 		 (when (and construct-output-type (null (instans-construct-output-processor instans)))
 		   (setf (instans-construct-output-processor instans) (create-construct-output-processor construct-output-name construct-output-type)))
 		 )
+	       (execute ()
+		 (instans-run instans-iri
+			      :select-output-name select-output-name :select-output-type select-output-type
+			      :construct-output-name construct-output-name :construct-output-type construct-output-type
+			      :report-sizes-interval report-sizes-interval))
 	       (maybe-execute ()
 					;		 (inform "maybe-execute?")
 		 (when execute-immediately-p
 					;		   (inform "yes")
 		   (setf executedp t)
-		   (instans-run instans-iri
-				:select-output-name select-output-name :select-output-type select-output-type
-				:construct-output-name construct-output-name :construct-output-type construct-output-type)))
+		   (execute)))
 	       (output-time (fmt &rest args)
 		 (multiple-value-bind (time-sec time-usec) (sb-unix::get-time-of-day)
 		   (let* ((delta-sec (- time-sec start-time-sec))
@@ -430,8 +434,11 @@
 		  :usage "The kinds of rules you want to get reported; a ':' separated list of (select|construct|modify|all|rete-add|rete-remove|queue)."
 		  :hiddenp t
 		  (setf reporting (loop for kind in (parse-colon-separated-values value)
-					when (eq kind :all) append '(:select :construct :modify :all :rete-add :rete-remove :queue)
-					else append (list kind)))
+					when (eq kind :all)
+					append '(:select :construct :modify :all :rete-add :rete-remove :queue :statistics)
+					else when (eql 0 (search "MEMORY" (string kind)))
+					append (prog1 (list :memory) (setf report-sizes-interval (parse-integer (string kind) :start 6)))
+				        else append (list kind)))
 		  (setf (instans-report-operation-kinds instans) reporting))
 		 (prefix-encoding
 		  :options ("--prefix-encoding=BOOL")
@@ -447,7 +454,7 @@
 		  (setf time-output-stream
 			(if (string= value "-") *standard-output* (open value :direction :output :if-exists :supersede))))
 		 )
-	       (unless executedp (instans-run instans-iri))
+	       (unless executedp (execute))
 	       instans)
 	  (when time-output-stream
 	    (output-time "Done")

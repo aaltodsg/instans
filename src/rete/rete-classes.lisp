@@ -314,6 +314,8 @@
    (indices :accessor instans-indices :initform nil)
    (size-report-interval :accessor instans-size-report-interval :initform nil)
    (size-report-counter :accessor instans-size-report-counter :initform 0)
+   (store-sizes-alist :accessor instans-store-sizes-alist :initform 0)
+   (index-sizes-alist :accessor instans-index-sizes-alist :initform 0)
    (use-quad-store-p :accessor instans-use-quad-store-p :initarg :use-quad-store-p :initform nil)
 ;   (initial-data-ops :accessor instans-initial-data-ops :initform nil)
    (rule-instance-queue :accessor instans-rule-instance-queue)
