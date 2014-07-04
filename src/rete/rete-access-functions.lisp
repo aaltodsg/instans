@@ -551,7 +551,7 @@
     (call-next-method))
   (:method ((this stream-query-output-processor-mixin))
     (unless (member (query-output-processor-output-stream this) (list *standard-output* *error-output*))
-      (inform "close-query-output-processor : ~S, stream = ~S" this (query-output-processor-output-stream this))
+;      (inform "close-query-output-processor : ~S, stream = ~S" this (query-output-processor-output-stream this))
       (close (query-output-processor-output-stream this))))
   (:method ((this solution-set-output-processor))
     nil))
