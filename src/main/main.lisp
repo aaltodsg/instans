@@ -417,6 +417,9 @@
 			  "the possible states are \"parser\", which prints information on the generated SPARQL,"
 			  "TriG, Turtle, N-Quads, and N-Triples parsers, \"parse-operations\", which prints"
 			  "operations of the parser, and \"token\", which prints the recognized input tokens.")
+		  (loop for kind in debug
+		        unless (member kind '(:parser :token :parse-operations :phases :triples))
+		        do (usage))
 		  (setf debug (parse-colon-separated-values value)))
 		 (rete-html
 		  :options ("--rete-html=FILE")
@@ -431,7 +434,9 @@
 		  (setf (instans-name instans) value))
 		 (reporting
 		  :options ("--report=KINDS")
-		  :usage "The kinds of rules you want to get reported; a ':' separated list of (select|construct|modify|all|rete-add|rete-remove|queue)."
+		  :usage ("The kinds of rules you want to get reported; a ':' separated list of (select|construct|modify|all|rete-add|rete-remove|queue|memoryN)."
+			  "Here memoryN means a string like 'memory100' having an integer after 'memory'. This means that the interval of reporting is 100 rounds"
+			  "of execution.")
 		  :hiddenp t
 		  (setf reporting (loop for kind in (parse-colon-separated-values value)
 					when (eq kind :all)
@@ -439,6 +444,9 @@
 					else when (eql 0 (search "MEMORY" (string kind)))
 					append (prog1 (list :memory) (setf report-sizes-interval (parse-integer (string kind) :start 6)))
 				        else append (list kind)))
+		  (loop for kind in reporting
+		        unless (member kind '(:select :construct :modify :rete-add :rete-remove :queue :call-succ-nodes :all))
+		        do (usage))
 		  (setf (instans-report-operation-kinds instans) reporting))
 		 (prefix-encoding
 		  :options ("--prefix-encoding=BOOL")
