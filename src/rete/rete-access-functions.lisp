@@ -107,7 +107,7 @@
     (make-uniquely-named-object (instans-blank-node-factory this) name)))
 
 (defgeneric generate-rdf-blank-node (instans &optional name-prefix)
-  (:method ((this instans) &optional (name-prefix "_:!"))
+  (:method ((this instans) &optional (name-prefix "_:"))
     (generate-object-with-unique-name (instans-blank-node-factory this) :name-prefix name-prefix)))
 
 (defgeneric make-sparql-var (instans name)
