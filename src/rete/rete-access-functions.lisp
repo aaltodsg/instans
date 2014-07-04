@@ -478,7 +478,7 @@
 				       (cond ((null p-item)
 					      (push (list p o) (cdr s-item) ))
 					     (t
-					      (push o (cdr p-item)))))))))
+					      (pushnew o (cdr p-item)))))))))
 		   (loop for s-item in trie
 			 for s-sep = init-sep then (format nil "~%~V@T" indent)
 			 for s-string = (sparql-value-to-string (first s-item))
