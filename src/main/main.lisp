@@ -445,7 +445,7 @@
 					append (prog1 (list :memory) (setf report-sizes-interval (parse-integer (string kind) :start 6)))
 				        else append (list kind)))
 		  (loop for kind in reporting
-		        unless (member kind '(:select :construct :modify :rete-add :rete-remove :queue :call-succ-nodes :all))
+		        unless (member kind '(:select :construct :modify :rete-add :rete-remove :queue :call-succ-nodes :all :memory))
 		        do (usage))
 		  (setf (instans-report-operation-kinds instans) reporting))
 		 (prefix-encoding
