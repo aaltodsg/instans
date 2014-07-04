@@ -8,6 +8,7 @@ PREFIX ff: <http://factforge.net/>
 
 # Stateless filter (EPA 1): Only events generated during business hours
 
+# @name EPA1-Stateless
 INSERT { GRAPH <poststateless> {  # Forward outgoing events
       ?event ?p1 ?o1 .
       ?h2 ?p2 ?o2 } }
@@ -21,6 +22,7 @@ WHERE { GRAPH <source> {
 
 # Stateful filter (EPA 2): Only 1 event per hour
 
+# @name EPA2-Stateful
 DELETE { GRAPH <memory> { # Clear memory
     :stateful :prevHour ?prevhour } }
 INSERT { GRAPH <poststateful> { # Forward outgoing events
@@ -46,9 +48,7 @@ WHERE { GRAPH <poststateless> {
 # SERVICE-query replaced with BIND ( "Espoo" as ?label ) to avoid external lookup delay
 # and because SERVICE is not yet implemented in INSTANS
 
-PREFIX omgeo: <http://www.ontotext.com/owlim/geo#>
-PREFIX ff: <http://factforge.net/>
-
+# @name EPA3-Enrich
 INSERT { GRAPH <translated> { 
     ?event a ep:EventObject ; # Forward enriched event
          ssn:Sensor ?sensor ;

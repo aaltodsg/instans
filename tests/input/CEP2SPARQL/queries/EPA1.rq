@@ -8,8 +8,10 @@ PREFIX ff: <http://factforge.net/>
 
 # Stateless filter (EPA 1): Only events generated during business hours
 
-# Replace with CONSTRUCT when working
-# SELECT *
+# @name EPA1-Stateless
+# INSERT { GRAPH <poststateless> {  # Forward outgoing events
+#    ?event ?p1 ?o1 .
+#    ?h2 ?p2 ?o2 } }
 CONSTRUCT {
   ?event ?p1 ?o1 .
   ?h2 ?p2 ?o2
@@ -22,3 +24,6 @@ WHERE { GRAPH <source> {
               ?h2 ?p2 ?o2 }
    FILTER ( ( HOURS(?time) > 8 ) && ( HOURS(?time) < 17 ) ) 
 } } ;
+
+# SELECT *
+# WHERE { GRAPH <poststateless> { ?s ?p ?o } }
