@@ -218,7 +218,7 @@
 
 (defgeneric generate-object-with-unique-name (factory &rest keys &key name-prefix &allow-other-keys)
   (:method ((factory uniquely-named-object-factory) &rest keys &key name-prefix &allow-other-keys)
-    (let ((generated-name (format nil "~@[~A~]-~D" name-prefix (incf (slot-value factory 'name-counter)))))
+    (let ((generated-name (format nil "~@[~A~]~D" name-prefix (incf (slot-value factory 'name-counter)))))
       (cond ((null (gethash generated-name (slot-value factory 'objects-by-name)))
 	     (remf keys :name-prefix)
 	     (let ((object (apply #'make-instance (slot-value factory 'object-type) :name generated-name keys)))
