@@ -1,0 +1,24 @@
+BASE <http://instans.org/>
+PREFIX : <http:instans.org/default#>
+PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX ssn: <http://purl.oclc.org/NET/ssnx/ssn#>
+PREFIX ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
+PREFIX omgeo: <http://www.ontotext.com/owlim/geo#>
+PREFIX ff: <http://factforge.net/>
+
+# Stateless filter (EPA 1): Only events generated during business hours
+
+# Replace with CONSTRUCT when working
+# SELECT *
+CONSTRUCT {
+  ?event ?p1 ?o1 .
+  ?h2 ?p2 ?o2
+}
+WHERE { GRAPH <source> {
+   ?event a ep:EventObject ;    # Match incoming events
+         ?p1 ?o1 ;
+          ep:hasEventObjectSamplingTime ?time .
+          OPTIONAL { BIND ( IF (isBlank(?o1), ?o1, 0) as ?h2)
+              ?h2 ?p2 ?o2 }
+   FILTER ( ( HOURS(?time) > 8 ) && ( HOURS(?time) < 17 ) ) 
+} } ;

@@ -1,0 +1,913 @@
+@prefix : <http:instans.org/default#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix tl: <http://purl.org/NET/c4dm/timeline.owl#> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix event: <http://purl.org/NET/c4dm/event.owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ssn: <http://purl.oclc.org/NET/ssnx/ssn#> .
+@prefix ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sesame: <http://www.openrdf.org/schema/sesame#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix fn: <http://www.w3.org/2005/xpath-functions#> .
+
+_:node18rr5k20ax201 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax202 geo:lat "60.15922234475837"^^xsd:double ;
+	geo:long "24.87610729902513"^^xsd:double .
+
+_:node18rr5k20ax201 geo:Point _:node18rr5k20ax202 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:32:28"^^xsd:dateTime .
+
+_:node18rr5k20ax203 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax204 geo:lat "60.168418510496544"^^xsd:double ;
+	geo:long "24.857417412169575"^^xsd:double .
+
+_:node18rr5k20ax203 geo:Point _:node18rr5k20ax204 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:32:28"^^xsd:dateTime .
+
+_:node18rr5k20ax205 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax206 geo:lat "60.15915070274233"^^xsd:double ;
+	geo:long "24.876247290882866"^^xsd:double .
+
+_:node18rr5k20ax205 geo:Point _:node18rr5k20ax206 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:32:36"^^xsd:dateTime .
+
+_:node18rr5k20ax207 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax208 geo:lat "60.168319394466074"^^xsd:double ;
+	geo:long "24.857391909612712"^^xsd:double .
+
+_:node18rr5k20ax207 geo:Point _:node18rr5k20ax208 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:32:36"^^xsd:dateTime .
+
+_:node18rr5k20ax209 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax210 geo:lat "60.159121698855415"^^xsd:double ;
+	geo:long "24.876435822110494"^^xsd:double .
+
+_:node18rr5k20ax209 geo:Point _:node18rr5k20ax210 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:32:44"^^xsd:dateTime .
+
+_:node18rr5k20ax211 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax212 geo:lat "60.1682202784307"^^xsd:double ;
+	geo:long "24.857366407209696"^^xsd:double .
+
+_:node18rr5k20ax211 geo:Point _:node18rr5k20ax212 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:32:44"^^xsd:dateTime .
+
+_:node18rr5k20ax213 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax214 geo:lat "60.159098785871784"^^xsd:double ;
+	geo:long "24.87663128732738"^^xsd:double .
+
+_:node18rr5k20ax213 geo:Point _:node18rr5k20ax214 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:32:52"^^xsd:dateTime .
+
+_:node18rr5k20ax215 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax216 geo:lat "60.168120699241186"^^xsd:double ;
+	geo:long "24.85734971925526"^^xsd:double .
+
+_:node18rr5k20ax215 geo:Point _:node18rr5k20ax216 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:32:52"^^xsd:dateTime .
+
+_:node18rr5k20ax217 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax218 geo:lat "60.15907587260037"^^xsd:double ;
+	geo:long "24.87682675227178"^^xsd:double .
+
+_:node18rr5k20ax217 geo:Point _:node18rr5k20ax218 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:33:00"^^xsd:dateTime .
+
+_:node18rr5k20ax219 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax220 geo:lat "60.16802112004953"^^xsd:double ;
+	geo:long "24.85733303140199"^^xsd:double .
+
+_:node18rr5k20ax219 geo:Point _:node18rr5k20ax220 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:33:00"^^xsd:dateTime .
+
+_:node18rr5k20ax221 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax222 geo:lat "60.167921356982454"^^xsd:double ;
+	geo:long "24.857322112314982"^^xsd:double .
+
+_:node18rr5k20ax221 geo:Point _:node18rr5k20ax222 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:33:08"^^xsd:dateTime .
+
+_:node18rr5k20ax223 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax224 geo:lat "60.15897429040154"^^xsd:double ;
+	geo:long "24.876820072293462"^^xsd:double .
+
+_:node18rr5k20ax223 geo:Point _:node18rr5k20ax224 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:33:09"^^xsd:dateTime .
+
+_:node18rr5k20ax225 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax226 geo:lat "60.16782153262347"^^xsd:double ;
+	geo:long "24.857313116176833"^^xsd:double .
+
+_:node18rr5k20ax225 geo:Point _:node18rr5k20ax226 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:33:16"^^xsd:dateTime .
+
+_:node18rr5k20ax227 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax228 geo:lat "60.158875572374555"^^xsd:double ;
+	geo:long "24.87678895940316"^^xsd:double .
+
+_:node18rr5k20ax227 geo:Point _:node18rr5k20ax228 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:33:17"^^xsd:dateTime .
+
+_:node18rr5k20ax229 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax230 geo:lat "60.16772203524133"^^xsd:double ;
+	geo:long "24.857322949480434"^^xsd:double .
+
+_:node18rr5k20ax229 geo:Point _:node18rr5k20ax230 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:33:24"^^xsd:dateTime .
+
+_:node18rr5k20ax231 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax232 geo:lat "60.1587770921376"^^xsd:double ;
+	geo:long "24.876755011938307"^^xsd:double .
+
+_:node18rr5k20ax231 geo:Point _:node18rr5k20ax232 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:33:25"^^xsd:dateTime .
+
+_:node18rr5k20ax233 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax234 geo:lat "60.167623885892574"^^xsd:double ;
+	geo:long "24.857360574816475"^^xsd:double .
+
+_:node18rr5k20ax233 geo:Point _:node18rr5k20ax234 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:33:32"^^xsd:dateTime .
+
+_:node18rr5k20ax235 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax236 geo:lat "60.15867875456992"^^xsd:double ;
+	geo:long "24.87671936382493"^^xsd:double .
+
+_:node18rr5k20ax235 geo:Point _:node18rr5k20ax236 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:33:33"^^xsd:dateTime .
+
+_:node18rr5k20ax237 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax238 geo:lat "60.16752601662205"^^xsd:double ;
+	geo:long "24.85740110579411"^^xsd:double .
+
+_:node18rr5k20ax237 geo:Point _:node18rr5k20ax238 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:33:40"^^xsd:dateTime .
+
+_:node18rr5k20ax239 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax240 geo:lat "60.15858043398937"^^xsd:double ;
+	geo:long "24.876683527388586"^^xsd:double .
+
+_:node18rr5k20ax239 geo:Point _:node18rr5k20ax240 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:33:41"^^xsd:dateTime .
+
+_:node18rr5k20ax241 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax242 geo:lat "60.16742814733912"^^xsd:double ;
+	geo:long "24.857441636530293"^^xsd:double .
+
+_:node18rr5k20ax241 geo:Point _:node18rr5k20ax242 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:33:48"^^xsd:dateTime .
+
+_:node18rr5k20ax243 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax244 geo:lat "60.15848212303127"^^xsd:double ;
+	geo:long "24.87664758429575"^^xsd:double .
+
+_:node18rr5k20ax243 geo:Point _:node18rr5k20ax244 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:33:49"^^xsd:dateTime .
+
+_:node18rr5k20ax245 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax246 geo:lat "60.167330300840135"^^xsd:double ;
+	geo:long "24.85748238830992"^^xsd:double .
+
+_:node18rr5k20ax245 geo:Point _:node18rr5k20ax246 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:33:56"^^xsd:dateTime .
+
+_:node18rr5k20ax247 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax248 geo:lat "60.15838381323057"^^xsd:double ;
+	geo:long "24.876611628529556"^^xsd:double .
+
+_:node18rr5k20ax247 geo:Point _:node18rr5k20ax248 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:33:57"^^xsd:dateTime .
+
+_:node18rr5k20ax249 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax250 geo:lat "60.167232474801246"^^xsd:double ;
+	geo:long "24.85752333848567"^^xsd:double .
+
+_:node18rr5k20ax249 geo:Point _:node18rr5k20ax250 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:34:04"^^xsd:dateTime .
+
+_:node18rr5k20ax251 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax252 geo:lat "60.15828550423357"^^xsd:double ;
+	geo:long "24.876575663995347"^^xsd:double .
+
+_:node18rr5k20ax251 geo:Point _:node18rr5k20ax252 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:34:05"^^xsd:dateTime .
+
+_:node18rr5k20ax253 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax254 geo:lat "60.16713464874973"^^xsd:double ;
+	geo:long "24.857564288417596"^^xsd:double .
+
+_:node18rr5k20ax253 geo:Point _:node18rr5k20ax254 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:34:12"^^xsd:dateTime .
+
+_:node18rr5k20ax255 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax256 geo:lat "60.15819585379424"^^xsd:double ;
+	geo:long "24.87665434858533"^^xsd:double .
+
+_:node18rr5k20ax255 geo:Point _:node18rr5k20ax256 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:34:14"^^xsd:dateTime .
+
+_:node18rr5k20ax257 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax258 geo:lat "60.167036822685624"^^xsd:double ;
+	geo:long "24.857605238105684"^^xsd:double .
+
+_:node18rr5k20ax257 geo:Point _:node18rr5k20ax258 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:34:20"^^xsd:dateTime .
+
+_:node18rr5k20ax259 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax260 geo:lat "60.158112659818606"^^xsd:double ;
+	geo:long "24.876764458444597"^^xsd:double .
+
+_:node18rr5k20ax259 geo:Point _:node18rr5k20ax260 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:34:23"^^xsd:dateTime .
+
+_:node18rr5k20ax261 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax262 geo:lat "60.16693899660884"^^xsd:double ;
+	geo:long "24.857646187549943"^^xsd:double .
+
+_:node18rr5k20ax261 geo:Point _:node18rr5k20ax262 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:34:28"^^xsd:dateTime .
+
+_:node18rr5k20ax263 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax264 geo:lat "60.158064195170574"^^xsd:double ;
+	geo:long "24.876940068007983"^^xsd:double .
+
+_:node18rr5k20ax263 geo:Point _:node18rr5k20ax264 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:34:31"^^xsd:dateTime .
+
+_:node18rr5k20ax265 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax266 geo:lat "60.16684111531858"^^xsd:double ;
+	geo:long "24.857686600226238"^^xsd:double .
+
+_:node18rr5k20ax265 geo:Point _:node18rr5k20ax266 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:34:36"^^xsd:dateTime .
+
+_:node18rr5k20ax267 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax268 geo:lat "60.15797111756688"^^xsd:double ;
+	geo:long "24.877000991245488"^^xsd:double .
+
+_:node18rr5k20ax267 geo:Point _:node18rr5k20ax268 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:34:40"^^xsd:dateTime .
+
+_:node18rr5k20ax269 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax270 geo:lat "60.166743234015975"^^xsd:double ;
+	geo:long "24.857727012661748"^^xsd:double .
+
+_:node18rr5k20ax269 geo:Point _:node18rr5k20ax270 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:34:44"^^xsd:dateTime .
+
+_:node18rr5k20ax271 a ep:EventObject ;
+	ssn:Sensor :p4 .
+
+_:node18rr5k20ax272 geo:lat "60.15401548640943"^^xsd:double ;
+	geo:long "24.87969277974118"^^xsd:double .
+
+_:node18rr5k20ax271 geo:Point _:node18rr5k20ax272 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:34:47"^^xsd:dateTime .
+
+_:node18rr5k20ax273 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax274 geo:lat "60.15794076505101"^^xsd:double ;
+	geo:long "24.877172168847057"^^xsd:double .
+
+_:node18rr5k20ax273 geo:Point _:node18rr5k20ax274 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:34:48"^^xsd:dateTime .
+
+_:node18rr5k20ax275 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax276 geo:lat "60.166645352701124"^^xsd:double ;
+	geo:long "24.857767424856487"^^xsd:double .
+
+_:node18rr5k20ax275 geo:Point _:node18rr5k20ax276 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:34:52"^^xsd:dateTime .
+
+_:node18rr5k20ax277 a ep:EventObject ;
+	ssn:Sensor :p4 .
+
+_:node18rr5k20ax278 geo:lat "60.15408909635799"^^xsd:double ;
+	geo:long "24.87982856443174"^^xsd:double .
+
+_:node18rr5k20ax277 geo:Point _:node18rr5k20ax278 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:34:55"^^xsd:dateTime .
+
+_:node18rr5k20ax279 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax280 geo:lat "60.157920343483994"^^xsd:double ;
+	geo:long "24.87736873924885"^^xsd:double .
+
+_:node18rr5k20ax279 geo:Point _:node18rr5k20ax280 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:34:56"^^xsd:dateTime .
+
+_:node18rr5k20ax281 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax282 geo:lat "60.16654747137399"^^xsd:double ;
+	geo:long "24.85780783681046"^^xsd:double .
+
+_:node18rr5k20ax281 geo:Point _:node18rr5k20ax282 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:35:00"^^xsd:dateTime .
+
+_:node18rr5k20ax283 a ep:EventObject ;
+	ssn:Sensor :p4 .
+
+_:node18rr5k20ax284 geo:lat "60.15416270616763"^^xsd:double ;
+	geo:long "24.879964349730383"^^xsd:double .
+
+_:node18rr5k20ax283 geo:Point _:node18rr5k20ax284 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:35:03"^^xsd:dateTime .
+
+_:node18rr5k20ax285 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax286 geo:lat "60.15789992162586"^^xsd:double ;
+	geo:long "24.87756530940639"^^xsd:double .
+
+_:node18rr5k20ax285 geo:Point _:node18rr5k20ax286 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:35:04"^^xsd:dateTime .
+
+_:node18rr5k20ax287 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax288 geo:lat "60.16644959003448"^^xsd:double ;
+	geo:long "24.857848248523677"^^xsd:double .
+
+_:node18rr5k20ax287 geo:Point _:node18rr5k20ax288 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:35:08"^^xsd:dateTime .
+
+_:node18rr5k20ax289 a ep:EventObject ;
+	ssn:Sensor :p4 .
+
+_:node18rr5k20ax290 geo:lat "60.15423631583836"^^xsd:double ;
+	geo:long "24.880100135637104"^^xsd:double .
+
+_:node18rr5k20ax289 geo:Point _:node18rr5k20ax290 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:35:11"^^xsd:dateTime .
+
+_:node18rr5k20ax291 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax292 geo:lat "60.15787949947668"^^xsd:double ;
+	geo:long "24.877761879319678"^^xsd:double .
+
+_:node18rr5k20ax291 geo:Point _:node18rr5k20ax292 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:35:12"^^xsd:dateTime .
+
+_:node18rr5k20ax293 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax294 geo:lat "60.166351827603606"^^xsd:double ;
+	geo:long "24.857889804516685"^^xsd:double .
+
+_:node18rr5k20ax293 geo:Point _:node18rr5k20ax294 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:35:16"^^xsd:dateTime .
+
+_:node18rr5k20ax295 a ep:EventObject ;
+	ssn:Sensor :p4 .
+
+_:node18rr5k20ax296 geo:lat "60.154309925370185"^^xsd:double ;
+	geo:long "24.880235922151876"^^xsd:double .
+
+_:node18rr5k20ax295 geo:Point _:node18rr5k20ax296 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:35:19"^^xsd:dateTime .
+
+_:node18rr5k20ax297 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax298 geo:lat "60.15785907703639"^^xsd:double ;
+	geo:long "24.877958448988707"^^xsd:double .
+
+_:node18rr5k20ax297 geo:Point _:node18rr5k20ax298 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:35:20"^^xsd:dateTime .
+
+_:node18rr5k20ax299 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax300 geo:lat "60.16625409950672"^^xsd:double ;
+	geo:long "24.857931687643948"^^xsd:double .
+
+_:node18rr5k20ax299 geo:Point _:node18rr5k20ax300 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:35:24"^^xsd:dateTime .
+
+_:node18rr5k20ax301 a ep:EventObject ;
+	ssn:Sensor :p4 .
+
+_:node18rr5k20ax302 geo:lat "60.15438357311924"^^xsd:double ;
+	geo:long "24.880371625130262"^^xsd:double .
+
+_:node18rr5k20ax301 geo:Point _:node18rr5k20ax302 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:35:27"^^xsd:dateTime .
+
+_:node18rr5k20ax303 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax304 geo:lat "60.15783865430505"^^xsd:double ;
+	geo:long "24.878155018413484"^^xsd:double .
+
+_:node18rr5k20ax303 geo:Point _:node18rr5k20ax304 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:35:28"^^xsd:dateTime .
+
+_:node18rr5k20ax305 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax306 geo:lat "60.166156377922306"^^xsd:double ;
+	geo:long "24.857973632109818"^^xsd:double .
+
+_:node18rr5k20ax305 geo:Point _:node18rr5k20ax306 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:35:32"^^xsd:dateTime .
+
+_:node18rr5k20ax307 a ep:EventObject ;
+	ssn:Sensor :p4 .
+
+_:node18rr5k20ax308 geo:lat "60.15445741127326"^^xsd:double ;
+	geo:long "24.880506910081447"^^xsd:double .
+
+_:node18rr5k20ax307 geo:Point _:node18rr5k20ax308 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:35:35"^^xsd:dateTime .
+
+_:node18rr5k20ax309 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax310 geo:lat "60.15781823128261"^^xsd:double ;
+	geo:long "24.878351587593986"^^xsd:double .
+
+_:node18rr5k20ax309 geo:Point _:node18rr5k20ax310 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:35:36"^^xsd:dateTime .
+
+_:node18rr5k20ax311 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax312 geo:lat "60.16605865755727"^^xsd:double ;
+	geo:long "24.858015587928755"^^xsd:double .
+
+_:node18rr5k20ax311 geo:Point _:node18rr5k20ax312 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:35:40"^^xsd:dateTime .
+
+_:node18rr5k20ax313 a ep:EventObject ;
+	ssn:Sensor :p4 .
+
+_:node18rr5k20ax314 geo:lat "60.15453127444783"^^xsd:double ;
+	geo:long "24.880642140239704"^^xsd:double .
+
+_:node18rr5k20ax313 geo:Point _:node18rr5k20ax314 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:35:43"^^xsd:dateTime .
+
+_:node18rr5k20ax315 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax316 geo:lat "60.15779780796909"^^xsd:double ;
+	geo:long "24.878548156530222"^^xsd:double .
+
+_:node18rr5k20ax315 geo:Point _:node18rr5k20ax316 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:35:44"^^xsd:dateTime .
+
+_:node18rr5k20ax317 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax318 geo:lat "60.165960937179015"^^xsd:double ;
+	geo:long "24.858057543498155"^^xsd:double .
+
+_:node18rr5k20ax317 geo:Point _:node18rr5k20ax318 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:35:48"^^xsd:dateTime .
+
+_:node18rr5k20ax319 a ep:EventObject ;
+	ssn:Sensor :p4 .
+
+_:node18rr5k20ax320 geo:lat "60.15460513748459"^^xsd:double ;
+	geo:long "24.880777371005646"^^xsd:double .
+
+_:node18rr5k20ax319 geo:Point _:node18rr5k20ax320 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:35:51"^^xsd:dateTime .
+
+_:node18rr5k20ax321 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax322 geo:lat "60.15777738436448"^^xsd:double ;
+	geo:long "24.878744725222187"^^xsd:double .
+
+_:node18rr5k20ax321 geo:Point _:node18rr5k20ax322 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:35:52"^^xsd:dateTime .
+
+_:node18rr5k20ax323 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax324 geo:lat "60.16586321827005"^^xsd:double ;
+	geo:long "24.858099512766824"^^xsd:double .
+
+_:node18rr5k20ax323 geo:Point _:node18rr5k20ax324 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:35:56"^^xsd:dateTime .
+
+_:node18rr5k20ax325 a ep:EventObject ;
+	ssn:Sensor :p4 .
+
+_:node18rr5k20ax326 geo:lat "60.154679000383574"^^xsd:double ;
+	geo:long "24.88091260237926"^^xsd:double .
+
+_:node18rr5k20ax325 geo:Point _:node18rr5k20ax326 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:35:59"^^xsd:dateTime .
+
+_:node18rr5k20ax327 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax328 geo:lat "60.15775702627167"^^xsd:double ;
+	geo:long "24.878941320910343"^^xsd:double .
+
+_:node18rr5k20ax327 geo:Point _:node18rr5k20ax328 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:36:00"^^xsd:dateTime .
+
+_:node18rr5k20ax329 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax330 geo:lat "60.165765499841974"^^xsd:double ;
+	geo:long "24.85814148643545"^^xsd:double .
+
+_:node18rr5k20ax329 geo:Point _:node18rr5k20ax330 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:36:04"^^xsd:dateTime .
+
+_:node18rr5k20ax331 a ep:EventObject ;
+	ssn:Sensor :p4 .
+
+_:node18rr5k20ax332 geo:lat "60.15475286314481"^^xsd:double ;
+	geo:long "24.881047834360558"^^xsd:double .
+
+_:node18rr5k20ax331 geo:Point _:node18rr5k20ax332 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:36:07"^^xsd:dateTime .
+
+_:node18rr5k20ax333 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax334 geo:lat "60.157835895333655"^^xsd:double ;
+	geo:long "24.879040353109257"^^xsd:double .
+
+_:node18rr5k20ax333 geo:Point _:node18rr5k20ax334 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:36:09"^^xsd:dateTime .
+
+_:node18rr5k20ax335 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax336 geo:lat "60.16566772428175"^^xsd:double ;
+	geo:long "24.858182916691355"^^xsd:double .
+
+_:node18rr5k20ax335 geo:Point _:node18rr5k20ax336 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:36:12"^^xsd:dateTime .
+
+_:node18rr5k20ax337 a ep:EventObject ;
+	ssn:Sensor :p4 .
+
+_:node18rr5k20ax338 geo:lat "60.15482672576829"^^xsd:double ;
+	geo:long "24.88118306694955"^^xsd:double .
+
+_:node18rr5k20ax337 geo:Point _:node18rr5k20ax338 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:36:15"^^xsd:dateTime .
+
+_:node18rr5k20ax339 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax340 geo:lat "60.15793171642584"^^xsd:double ;
+	geo:long "24.87909730844222"^^xsd:double .
+
+_:node18rr5k20ax339 geo:Point _:node18rr5k20ax340 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:36:17"^^xsd:dateTime .
+
+_:node18rr5k20ax341 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax342 geo:lat "60.16556991443734"^^xsd:double ;
+	geo:long "24.85822402080377"^^xsd:double .
+
+_:node18rr5k20ax341 geo:Point _:node18rr5k20ax342 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:36:20"^^xsd:dateTime .
+
+_:node18rr5k20ax343 a ep:EventObject ;
+	ssn:Sensor :p4 .
+
+_:node18rr5k20ax344 geo:lat "60.154900588254016"^^xsd:double ;
+	geo:long "24.88131830014623"^^xsd:double .
+
+_:node18rr5k20ax343 geo:Point _:node18rr5k20ax344 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:36:23"^^xsd:dateTime .
+
+_:node18rr5k20ax345 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax346 geo:lat "60.15801807860633"^^xsd:double ;
+	geo:long "24.879205162959362"^^xsd:double .
+
+_:node18rr5k20ax345 geo:Point _:node18rr5k20ax346 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:36:27"^^xsd:dateTime .
+
+_:node18rr5k20ax347 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax348 geo:lat "60.165472104580246"^^xsd:double ;
+	geo:long "24.858265124671487"^^xsd:double .
+
+_:node18rr5k20ax347 geo:Point _:node18rr5k20ax348 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:36:28"^^xsd:dateTime .
+
+_:node18rr5k20ax349 a ep:EventObject ;
+	ssn:Sensor :p4 .
+
+_:node18rr5k20ax350 geo:lat "60.15497568206191"^^xsd:double ;
+	geo:long "24.881450600306966"^^xsd:double .
+
+_:node18rr5k20ax349 geo:Point _:node18rr5k20ax350 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:36:31"^^xsd:dateTime .
+
+_:node18rr5k20ax351 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax352 geo:lat "60.15811501862944"^^xsd:double ;
+	geo:long "24.87925387527264"^^xsd:double .
+
+_:node18rr5k20ax351 geo:Point _:node18rr5k20ax352 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:36:35"^^xsd:dateTime .
+
+_:node18rr5k20ax353 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax354 geo:lat "60.165374343159804"^^xsd:double ;
+	geo:long "24.858306673862153"^^xsd:double .
+
+_:node18rr5k20ax353 geo:Point _:node18rr5k20ax354 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:36:36"^^xsd:dateTime .
+
+_:node18rr5k20ax355 a ep:EventObject ;
+	ssn:Sensor :p4 .
+
+_:node18rr5k20ax356 geo:lat "60.15504935442721"^^xsd:double ;
+	geo:long "24.88158612042964"^^xsd:double .
+
+_:node18rr5k20ax355 geo:Point _:node18rr5k20ax356 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:36:39"^^xsd:dateTime .
+
+_:node18rr5k20ax357 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax358 geo:lat "60.15821195863463"^^xsd:double ;
+	geo:long "24.879302587873244"^^xsd:double .
+
+_:node18rr5k20ax357 geo:Point _:node18rr5k20ax358 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:36:43"^^xsd:dateTime .
+
+_:node18rr5k20ax359 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax360 geo:lat "60.1652764125314"^^xsd:double ;
+	geo:long "24.85834649622947"^^xsd:double .
+
+_:node18rr5k20ax359 geo:Point _:node18rr5k20ax360 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:36:44"^^xsd:dateTime .
+
+_:node18rr5k20ax361 a ep:EventObject ;
+	ssn:Sensor :p4 .
+
+_:node18rr5k20ax362 geo:lat "60.15512229583814"^^xsd:double ;
+	geo:long "24.88172335834523"^^xsd:double .
+
+_:node18rr5k20ax361 geo:Point _:node18rr5k20ax362 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:36:47"^^xsd:dateTime .
+
+_:node18rr5k20ax363 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax364 geo:lat "60.158308898621975"^^xsd:double ;
+	geo:long "24.879351300761176"^^xsd:double .
+
+_:node18rr5k20ax363 geo:Point _:node18rr5k20ax364 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:36:51"^^xsd:dateTime .
+
+_:node18rr5k20ax365 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax366 geo:lat "60.165178312444894"^^xsd:double ;
+	geo:long "24.858384703183848"^^xsd:double .
+
+_:node18rr5k20ax365 geo:Point _:node18rr5k20ax366 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:36:52"^^xsd:dateTime .
+
+_:node18rr5k20ax367 a ep:EventObject ;
+	ssn:Sensor :p4 .
+
+_:node18rr5k20ax368 geo:lat "60.15519523710718"^^xsd:double ;
+	geo:long "24.881860596869842"^^xsd:double .
+
+_:node18rr5k20ax367 geo:Point _:node18rr5k20ax368 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:36:55"^^xsd:dateTime .
+
+_:node18rr5k20ax369 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax370 geo:lat "60.158405838591406"^^xsd:double ;
+	geo:long "24.879400013936433"^^xsd:double .
+
+_:node18rr5k20ax369 geo:Point _:node18rr5k20ax370 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:36:59"^^xsd:dateTime .
+
+_:node18rr5k20ax371 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax372 geo:lat "60.165080212347355"^^xsd:double ;
+	geo:long "24.858422909910107"^^xsd:double .
+
+_:node18rr5k20ax371 geo:Point _:node18rr5k20ax372 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:37:00"^^xsd:dateTime .
+
+_:node18rr5k20ax373 a ep:EventObject ;
+	ssn:Sensor :p4 .
+
+_:node18rr5k20ax374 geo:lat "60.15526817823435"^^xsd:double ;
+	geo:long "24.881997836003492"^^xsd:double .
+
+_:node18rr5k20ax373 geo:Point _:node18rr5k20ax374 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:37:03"^^xsd:dateTime .
+
+_:node18rr5k20ax375 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax376 geo:lat "60.15850297016887"^^xsd:double ;
+	geo:long "24.879447143699057"^^xsd:double .
+
+_:node18rr5k20ax375 geo:Point _:node18rr5k20ax376 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:37:07"^^xsd:dateTime .
+
+_:node18rr5k20ax377 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax378 geo:lat "60.16498211223884"^^xsd:double ;
+	geo:long "24.858461116408247"^^xsd:double .
+
+_:node18rr5k20ax377 geo:Point _:node18rr5k20ax378 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:37:08"^^xsd:dateTime .
+
+_:node18rr5k20ax379 a ep:EventObject ;
+	ssn:Sensor :p4 .
+
+_:node18rr5k20ax380 geo:lat "60.155341119219635"^^xsd:double ;
+	geo:long "24.88213507574617"^^xsd:double .
+
+_:node18rr5k20ax379 geo:Point _:node18rr5k20ax380 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:37:11"^^xsd:dateTime .
+
+_:node18rr5k20ax381 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax382 geo:lat "60.158600216705466"^^xsd:double ;
+	geo:long "24.879493323517604"^^xsd:double .
+
+_:node18rr5k20ax381 geo:Point _:node18rr5k20ax382 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:37:15"^^xsd:dateTime .
+
+_:node18rr5k20ax383 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax384 geo:lat "60.164884361267156"^^xsd:double ;
+	geo:long "24.858502781662384"^^xsd:double .
+
+_:node18rr5k20ax383 geo:Point _:node18rr5k20ax384 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:37:16"^^xsd:dateTime .
+
+_:node18rr5k20ax385 a ep:EventObject ;
+	ssn:Sensor :p4 .
+
+_:node18rr5k20ax386 geo:lat "60.155414060063045"^^xsd:double ;
+	geo:long "24.882272316097882"^^xsd:double .
+
+_:node18rr5k20ax385 geo:Point _:node18rr5k20ax386 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:37:19"^^xsd:dateTime .
+
+_:node18rr5k20ax387 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax388 geo:lat "60.158697463226055"^^xsd:double ;
+	geo:long "24.879539503609383"^^xsd:double .
+
+_:node18rr5k20ax387 geo:Point _:node18rr5k20ax388 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:37:23"^^xsd:dateTime .
+
+_:node18rr5k20ax389 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax390 geo:lat "60.164786555852736"^^xsd:double ;
+	geo:long "24.858543923895443"^^xsd:double .
+
+_:node18rr5k20ax389 geo:Point _:node18rr5k20ax390 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:37:24"^^xsd:dateTime .
+
+_:node18rr5k20ax391 a ep:EventObject ;
+	ssn:Sensor :p4 .
+
+_:node18rr5k20ax392 geo:lat "60.15548700076452"^^xsd:double ;
+	geo:long "24.882409557058633"^^xsd:double .
+
+_:node18rr5k20ax391 geo:Point _:node18rr5k20ax392 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:37:27"^^xsd:dateTime .
+
+_:node18rr5k20ax393 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax394 geo:lat "60.15879510855885"^^xsd:double ;
+	geo:long "24.87958206859879"^^xsd:double .
+
+_:node18rr5k20ax393 geo:Point _:node18rr5k20ax394 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:37:31"^^xsd:dateTime .
+
+_:node18rr5k20ax395 a ep:EventObject ;
+	ssn:Sensor :p2 .
+
+_:node18rr5k20ax396 geo:lat "60.164688695996105"^^xsd:double ;
+	geo:long "24.85858454311187"^^xsd:double .
+
+_:node18rr5k20ax395 geo:Point _:node18rr5k20ax396 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:37:32"^^xsd:dateTime .
+
+_:node18rr5k20ax397 a ep:EventObject ;
+	ssn:Sensor :p4 .
+
+_:node18rr5k20ax398 geo:lat "60.15555994132408"^^xsd:double ;
+	geo:long "24.882546798628404"^^xsd:double .
+
+_:node18rr5k20ax397 geo:Point _:node18rr5k20ax398 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:37:35"^^xsd:dateTime .
+
+_:node18rr5k20ax399 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax400 geo:lat "60.15889255525268"^^xsd:double ;
+	geo:long "24.87962651213012"^^xsd:double .
+
+_:node18rr5k20ax399 geo:Point _:node18rr5k20ax400 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:37:39"^^xsd:dateTime .

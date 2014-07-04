@@ -1,0 +1,1 @@
+../../../../bin/instans --construct-output=/dev/null -r EPA1.rq -g http://instans.org/source --rdf-operations=add:execute-snapshot:remove:execute --time=- --input-blocks=../data/i5sensors100events.ttl

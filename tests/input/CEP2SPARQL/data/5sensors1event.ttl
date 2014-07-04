@@ -1,0 +1,23 @@
+@prefix : <http:instans.org/default#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix tl: <http://purl.org/NET/c4dm/timeline.owl#> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix event: <http://purl.org/NET/c4dm/event.owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ssn: <http://purl.oclc.org/NET/ssnx/ssn#> .
+@prefix ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sesame: <http://www.openrdf.org/schema/sesame#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix fn: <http://www.w3.org/2005/xpath-functions#> .
+
+_:node18rr5k20ax201 a ep:EventObject ;
+	ssn:Sensor :p1 .
+
+_:node18rr5k20ax202 geo:lat "60.15922234475837"^^xsd:double ;
+	geo:long "24.87610729902513"^^xsd:double .
+
+_:node18rr5k20ax201 geo:Point _:node18rr5k20ax202 ;
+	ep:hasEventObjectSamplingTime "2012-03-05T13:32:28"^^xsd:dateTime .
+
