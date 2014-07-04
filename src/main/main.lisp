@@ -458,7 +458,8 @@
 	       instans)
 	  (when time-output-stream
 	    (output-time "Done")
-	    (close time-output-stream))
+	    (unless (member time-output-stream (list *standard-output* *error-output*))
+	      (close time-output-stream)))
 	  (instans-close-open-streams instans))
 	))))
 
