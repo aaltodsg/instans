@@ -1,1 +1,1 @@
-../../../bin/instans -r ConvertCFEvents.rq --rdf-operations=add:execute:remove --input-blocks=data/5actors10000events.ttl >> data/i5sensors10000events.ttl
+../../../bin/instans --allow-rule-instance-removal=FALSE -r ConvertCFEvents.rq -t data/5actors100events.ttl

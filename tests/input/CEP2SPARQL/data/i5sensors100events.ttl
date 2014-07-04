@@ -797,3 +797,970 @@ _:bnode197 <http://www.w3.org/2003/01/geo/wgs84_pos#lat> 60.15555994132408;
 
 _:bnode199 <http://www.w3.org/2003/01/geo/wgs84_pos#lat> 60.15889255525268;
            <http://www.w3.org/2003/01/geo/wgs84_pos#long> 24.87962651213012 .
+
+Store sizes did not grow
+Index sizes did not grow
+add-quad-count = 1
+remove-quad-count = 0
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Store sizes did not grow
+Index sizes did not grow
+add-quad-count = 11
+remove-quad-count = 10
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Store sizes did not grow
+Index sizes did not grow
+add-quad-count = 21
+remove-quad-count = 20
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 11>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 12>: +1 now 1
+add-quad-count = 31
+remove-quad-count = 30
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 23>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 24>: +1 now 1
+add-quad-count = 41
+remove-quad-count = 40
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 27>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 28>: +1 now 1
+add-quad-count = 51
+remove-quad-count = 50
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 19>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 20>: +1 now 1
+add-quad-count = 61
+remove-quad-count = 60
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Store sizes did not grow
+Index sizes did not grow
+add-quad-count = 71
+remove-quad-count = 70
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<BETA-MEMORY 5>: +1 now 1
+  #<ALPHA-MEMORY 3>: +1 now 1
+Index sizes did not grow
+add-quad-count = 81
+remove-quad-count = 80
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 15>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 16>: +1 now 1
+add-quad-count = 91
+remove-quad-count = 90
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 7>: +1 now 1
+Index sizes did not grow
+add-quad-count = 101
+remove-quad-count = 100
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Store sizes did not grow
+Index sizes did not grow
+add-quad-count = 111
+remove-quad-count = 110
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 11>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 12>: +1 now 1
+add-quad-count = 121
+remove-quad-count = 120
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 23>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 24>: +1 now 1
+add-quad-count = 131
+remove-quad-count = 130
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 27>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 28>: +1 now 1
+add-quad-count = 141
+remove-quad-count = 140
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 19>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 20>: +1 now 1
+add-quad-count = 151
+remove-quad-count = 150
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Store sizes did not grow
+Index sizes did not grow
+add-quad-count = 161
+remove-quad-count = 160
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<BETA-MEMORY 5>: +1 now 1
+  #<ALPHA-MEMORY 3>: +1 now 1
+Index sizes did not grow
+add-quad-count = 171
+remove-quad-count = 170
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 15>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 16>: +1 now 1
+add-quad-count = 181
+remove-quad-count = 180
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 7>: +1 now 1
+Index sizes did not grow
+add-quad-count = 191
+remove-quad-count = 190
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Store sizes did not grow
+Index sizes did not grow
+add-quad-count = 201
+remove-quad-count = 200
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 11>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 12>: +1 now 1
+add-quad-count = 211
+remove-quad-count = 210
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 23>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 24>: +1 now 1
+add-quad-count = 221
+remove-quad-count = 220
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 27>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 28>: +1 now 1
+add-quad-count = 231
+remove-quad-count = 230
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 19>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 20>: +1 now 1
+add-quad-count = 241
+remove-quad-count = 240
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Store sizes did not grow
+Index sizes did not grow
+add-quad-count = 251
+remove-quad-count = 250
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<BETA-MEMORY 5>: +1 now 1
+  #<ALPHA-MEMORY 3>: +1 now 1
+Index sizes did not grow
+add-quad-count = 261
+remove-quad-count = 260
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 15>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 16>: +1 now 1
+add-quad-count = 271
+remove-quad-count = 270
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 7>: +1 now 1
+Index sizes did not grow
+add-quad-count = 281
+remove-quad-count = 280
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Store sizes did not grow
+Index sizes did not grow
+add-quad-count = 291
+remove-quad-count = 290
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 11>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 12>: +1 now 1
+add-quad-count = 301
+remove-quad-count = 300
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 23>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 24>: +1 now 1
+add-quad-count = 311
+remove-quad-count = 310
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 27>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 28>: +1 now 1
+add-quad-count = 321
+remove-quad-count = 320
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 19>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 20>: +1 now 1
+add-quad-count = 331
+remove-quad-count = 330
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Store sizes did not grow
+Index sizes did not grow
+add-quad-count = 341
+remove-quad-count = 340
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<BETA-MEMORY 5>: +1 now 1
+  #<ALPHA-MEMORY 3>: +1 now 1
+Index sizes did not grow
+add-quad-count = 351
+remove-quad-count = 350
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 15>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 16>: +1 now 1
+add-quad-count = 361
+remove-quad-count = 360
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 7>: +1 now 1
+Index sizes did not grow
+add-quad-count = 371
+remove-quad-count = 370
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Store sizes did not grow
+Index sizes did not grow
+add-quad-count = 381
+remove-quad-count = 380
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 11>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 12>: +1 now 1
+add-quad-count = 391
+remove-quad-count = 390
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 23>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 24>: +1 now 1
+add-quad-count = 401
+remove-quad-count = 400
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 27>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 28>: +1 now 1
+add-quad-count = 411
+remove-quad-count = 410
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 19>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 20>: +1 now 1
+add-quad-count = 421
+remove-quad-count = 420
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Store sizes did not grow
+Index sizes did not grow
+add-quad-count = 431
+remove-quad-count = 430
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<BETA-MEMORY 5>: +1 now 1
+  #<ALPHA-MEMORY 3>: +1 now 1
+Index sizes did not grow
+add-quad-count = 441
+remove-quad-count = 440
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 15>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 16>: +1 now 1
+add-quad-count = 451
+remove-quad-count = 450
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 7>: +1 now 1
+Index sizes did not grow
+add-quad-count = 461
+remove-quad-count = 460
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Store sizes did not grow
+Index sizes did not grow
+add-quad-count = 471
+remove-quad-count = 470
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 11>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 12>: +1 now 1
+add-quad-count = 481
+remove-quad-count = 480
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 23>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 24>: +1 now 1
+add-quad-count = 491
+remove-quad-count = 490
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 27>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 28>: +1 now 1
+add-quad-count = 501
+remove-quad-count = 500
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 19>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 20>: +1 now 1
+add-quad-count = 511
+remove-quad-count = 510
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Store sizes did not grow
+Index sizes did not grow
+add-quad-count = 521
+remove-quad-count = 520
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<BETA-MEMORY 5>: +1 now 1
+  #<ALPHA-MEMORY 3>: +1 now 1
+Index sizes did not grow
+add-quad-count = 531
+remove-quad-count = 530
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 15>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 16>: +1 now 1
+add-quad-count = 541
+remove-quad-count = 540
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 7>: +1 now 1
+Index sizes did not grow
+add-quad-count = 551
+remove-quad-count = 550
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Store sizes did not grow
+Index sizes did not grow
+add-quad-count = 561
+remove-quad-count = 560
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 11>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 12>: +1 now 1
+add-quad-count = 571
+remove-quad-count = 570
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 23>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 24>: +1 now 1
+add-quad-count = 581
+remove-quad-count = 580
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 27>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 28>: +1 now 1
+add-quad-count = 591
+remove-quad-count = 590
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 19>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 20>: +1 now 1
+add-quad-count = 601
+remove-quad-count = 600
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Store sizes did not grow
+Index sizes did not grow
+add-quad-count = 611
+remove-quad-count = 610
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<BETA-MEMORY 5>: +1 now 1
+  #<ALPHA-MEMORY 3>: +1 now 1
+Index sizes did not grow
+add-quad-count = 621
+remove-quad-count = 620
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 15>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 16>: +1 now 1
+add-quad-count = 631
+remove-quad-count = 630
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 7>: +1 now 1
+Index sizes did not grow
+add-quad-count = 641
+remove-quad-count = 640
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Store sizes did not grow
+Index sizes did not grow
+add-quad-count = 651
+remove-quad-count = 650
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 11>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 12>: +1 now 1
+add-quad-count = 661
+remove-quad-count = 660
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 23>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 24>: +1 now 1
+add-quad-count = 671
+remove-quad-count = 670
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 27>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 28>: +1 now 1
+add-quad-count = 681
+remove-quad-count = 680
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 19>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 20>: +1 now 1
+add-quad-count = 691
+remove-quad-count = 690
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Store sizes did not grow
+Index sizes did not grow
+add-quad-count = 701
+remove-quad-count = 700
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<BETA-MEMORY 5>: +1 now 1
+  #<ALPHA-MEMORY 3>: +1 now 1
+Index sizes did not grow
+add-quad-count = 711
+remove-quad-count = 710
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 15>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 16>: +1 now 1
+add-quad-count = 721
+remove-quad-count = 720
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 7>: +1 now 1
+Index sizes did not grow
+add-quad-count = 731
+remove-quad-count = 730
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Store sizes did not grow
+Index sizes did not grow
+add-quad-count = 741
+remove-quad-count = 740
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 11>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 12>: +1 now 1
+add-quad-count = 751
+remove-quad-count = 750
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 23>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 24>: +1 now 1
+add-quad-count = 761
+remove-quad-count = 760
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 27>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 28>: +1 now 1
+add-quad-count = 771
+remove-quad-count = 770
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 19>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 20>: +1 now 1
+add-quad-count = 781
+remove-quad-count = 780
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Store sizes did not grow
+Index sizes did not grow
+add-quad-count = 791
+remove-quad-count = 790
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<BETA-MEMORY 5>: +1 now 1
+  #<ALPHA-MEMORY 3>: +1 now 1
+Index sizes did not grow
+add-quad-count = 801
+remove-quad-count = 800
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 15>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 16>: +1 now 1
+add-quad-count = 811
+remove-quad-count = 810
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 7>: +1 now 1
+Index sizes did not grow
+add-quad-count = 821
+remove-quad-count = 820
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Store sizes did not grow
+Index sizes did not grow
+add-quad-count = 831
+remove-quad-count = 830
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 11>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 12>: +1 now 1
+add-quad-count = 841
+remove-quad-count = 840
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 23>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 24>: +1 now 1
+add-quad-count = 851
+remove-quad-count = 850
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 27>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 28>: +1 now 1
+add-quad-count = 861
+remove-quad-count = 860
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 19>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 20>: +1 now 1
+add-quad-count = 871
+remove-quad-count = 870
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Store sizes did not grow
+Index sizes did not grow
+add-quad-count = 881
+remove-quad-count = 880
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<BETA-MEMORY 5>: +1 now 1
+  #<ALPHA-MEMORY 3>: +1 now 1
+Index sizes did not grow
+add-quad-count = 891
+remove-quad-count = 890
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 15>: +1 now 1
+Largest gains in index sizes:
+  #<HASH-TOKEN-INDEX alpha-index 16>: +1 now 1
+add-quad-count = 901
+remove-quad-count = 900
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Largest gains in store sizes:
+  #<ALPHA-MEMORY 7>: +1 now 1
+Index sizes did not grow
+add-quad-count = 911
+remove-quad-count = 910
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
+
+Store sizes did not grow
+Index sizes did not grow
+add-quad-count = 921
+remove-quad-count = 920
+queue-add-count = 0
+queue-remove-count = 0
+queue-select-count = 0
+queue-modify-count = 0
