@@ -258,6 +258,9 @@
 	       (execute-rules this :repeat-snapshot))
 	      (:execute-repeat-first
 	       (execute-rules this :repeat-first))
+	      (:flush
+	       (flush-output-processor (instans-construct-output-processor this))
+	       (flush-output-processor (instans-select-output-processor this)))
 	      (t
 	       (error* "Illegal op ~S" op)))))))
 

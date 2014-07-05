@@ -72,3 +72,15 @@
 ;;; Shorthand for debugging
 (defmacro m (x) `(macroexpand-1 ',x))
 (defmacro mm (x) `(macroexpand-1 (macroexpand-1 ',x)))
+
+(defmacro tail-insert (new-item container head-access tail-access)
+  (let ((container-var (gensym "CONTAINER")))
+    `(let ((,container-var ,container))
+       (cond ((null (,head-access ,container-var))
+	      (setf (,head-access ,container-var) (list ,new-item))
+	      (setf (,tail-access ,container-var) (,head-access ,container-var)))
+	     (t
+	      (setf (cdr (,tail-access ,container-var)) (list ,new-item))
+	      (setf (,tail-access ,container-var) (cdr (,tail-access ,container-var))))))))
+
+  
