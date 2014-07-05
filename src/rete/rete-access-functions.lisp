@@ -397,7 +397,7 @@
     (:nq 
      (make-instance 'nq-output-processor :output-name output-name))
     (:mbox (make-instance 'mailbox-output-processor :output-name output-name))
-    (t (error* "Unknown select output processor type ~S" output-type))))
+    (t (error* "Unknown construct output processor type ~S" output-type))))
 
 (defun solution-bindings (node token)
   (let* ((vars (solution-modifiers-project-vars node))

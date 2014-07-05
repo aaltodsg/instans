@@ -238,31 +238,34 @@
       (setf ops (list ops)))
     (setf ops (loop for op in ops nconc (if (eq op :event) (list :add :execute :remove :execute) (list op))))
 ;    (inform "Ops = ~S" ops)
-    (let ((*instans* this))
+    (let ((*instans* this)
+	  (reportp (operation-report-p this :rdf-operations)))
       (declare (special *instans*))
       (loop for op in ops 
-	 do (case op
-	      (:add
-	       (loop for (subj pred obj . rest) in inputs
-		     do (rete-add this subj pred obj (if rest (first rest) graph))))
-	      (:remove
-	       (loop for (subj pred obj . rest) in inputs
-		     do (rete-remove this subj pred obj (if rest (first rest) graph))))
-	      (:execute
-	       (execute-rules this))
-	      (:execute-snapshot
-	       (execute-rules this :snapshot))
-	      (:execute-first
-	       (execute-rules this :first))
-	      (:execute-repeat-snapshot
-	       (execute-rules this :repeat-snapshot))
-	      (:execute-repeat-first
-	       (execute-rules this :repeat-first))
-	      (:flush
-	       (flush-output-processor (instans-construct-output-processor this))
-	       (flush-output-processor (instans-select-output-processor this)))
-	      (t
-	       (error* "Illegal op ~S" op)))))))
+	    when reportp
+	    do (format (instans-default-output this) "~%Running RDF-operation ~A~%" op)
+	    do (case op
+		 (:add
+		  (loop for (subj pred obj . rest) in inputs
+			do (rete-add this subj pred obj (if rest (first rest) graph))))
+		 (:remove
+		  (loop for (subj pred obj . rest) in inputs
+			do (rete-remove this subj pred obj (if rest (first rest) graph))))
+		 (:execute
+		  (execute-rules this))
+		 (:execute-snapshot
+		  (execute-rules this :snapshot))
+		 (:execute-first
+		  (execute-rules this :first))
+		 (:execute-repeat-snapshot
+		  (execute-rules this :repeat-snapshot))
+		 (:execute-repeat-first
+		  (execute-rules this :repeat-first))
+		 (:flush
+		  (flush-output-processor (instans-construct-output-processor this))
+		  (flush-output-processor (instans-select-output-processor this)))
+		 (t
+		  (error* "Illegal op ~S" op)))))))
 
 (defgeneric initialize-report-sizes (instans report-sizes-interval)
   (:method ((this instans) report-sizes-interval)
@@ -310,10 +313,10 @@
 				   do (format stream "~%  ~A: +~D now ~D" index delta new-count))))))
       (loop for item in (instans-stores this)
 	    sum (hash-table-count (cdr item)) into sizes
-	    finally (format stream "Store total size = ~D" sizes))
+	    finally (format stream "~%Store total size = ~D" sizes))
       (loop for index in (instans-indices this)
 	    sum (hash-table-count (hash-token-index-table index)) into sizes
-	    finally (format stream "Index total size = ~D" sizes))
+	    finally (format stream "~%Index total size = ~D" sizes))
       (let ((queue (instans-rule-instance-queue this)))
 	(format stream "~&add-quad-count = ~S~%" (instans-add-quad-count this))
 	(format stream "remove-quad-count = ~S~%" (instans-remove-quad-count this))

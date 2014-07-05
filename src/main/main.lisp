@@ -292,7 +292,8 @@
 		  :options ("--construct-output=FILE")
 		  :usage "Write CONSTRUCT results to FILE. Output format is based on the file name suffix."
 		  (setf construct-output-name value)
-		  (setf construct-output-type (intern-keyword (string-upcase (pathname-type (parse-namestring value))))))
+		  (setf construct-output-type (let ((type (pathname-type (parse-namestring value))))
+						(and type (intern-keyword (string-upcase type))))))
 		 (construct-output-trig
 		  :options ("--construct-output-trig=OUTPUT")
 		  :usage "Write CONSTRUCT results as TriG to OUTPUT."
@@ -435,18 +436,19 @@
 		  (setf (instans-name instans) value))
 		 (reporting
 		  :options ("--report=KINDS")
-		  :usage ("The kinds of rules you want to get reported; a ':' separated list of (select|construct|modify|all|rete-add|rete-remove|queue|memoryN)."
+		  :usage ("The kinds of rules you want to get reported; a ':' separated list of"
+			  "(select|construct|modify|all|rete-add|rete-remove|queue|rdf-operations|memoryN)."
 			  "Here memoryN means a string like 'memory100' having an integer after 'memory'. This means that the interval of reporting is 100 rounds"
 			  "of execution.")
 		  :hiddenp t
 		  (setf reporting (loop for kind in (parse-colon-separated-values value)
 					when (eq kind :all)
-					append '(:select :construct :modify :all :rete-add :rete-remove :queue :statistics)
+					append '(:select :construct :modify :all :rete-add :rete-remove :queue :rdf-operations)
 					else when (eql 0 (search "MEMORY" (string kind)))
 					append (prog1 (list :memory) (setf report-sizes-interval (parse-integer (string kind) :start 6)))
 				        else append (list kind)))
 		  (loop for kind in reporting
-		        unless (member kind '(:select :construct :modify :rete-add :rete-remove :queue :call-succ-nodes :all :memory))
+		        unless (member kind '(:select :construct :modify :rete-add :rete-remove :queue :call-succ-nodes :all :memory :rdf-operations))
 		        do (usage))
 		  (setf (instans-report-operation-kinds instans) reporting))
 		 (prefix-encoding

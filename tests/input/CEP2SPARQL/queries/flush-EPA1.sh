@@ -1,19 +1,15 @@
-echo '------------------------------'
-echo '100 event warm-up'
-../../../../bin/instans --construct-output-ttl=/dev/null -r EPA1.rq --rdf-operations=add:execute-snapshot:remove:execute:flush -g http://instans.org/source --time=- --input-blocks=../data/i5sensors100events.ttl
-echo '------------------------------'
-echo '1 Event'
-../../../../bin/instans -r EPA1.rq --rdf-operations=add:execute-snapshot:remove:execute:flush -g http://instans.org/source --time=- --input-blocks=../data/i5sensors1event.ttl
-echo
-echo '------------------------------'
-echo '100 Events'
-../../../../bin/instans -r EPA1.rq --rdf-operations=add:execute-snapshot:remove:execute:flush -g http://instans.org/source --time=- --input-blocks=../data/i5sensors100events.ttl
-echo
-echo '------------------------------'
-echo '1,000 Events'
-../../../../bin/instans -r EPA1.rq --rdf-operations=add:execute-snapshot:remove:execute:flush -g http://instans.org/source --time=- --input-blocks=../data/i5sensors1000events.ttl
-echo
-echo '------------------------------'
-echo '10,000 Events'
-../../../../bin/instans -r EPA1.rq --rdf-operations=add:execute-snapshot:remove:execute:flush -g http://instans.org/source --time=- --input-blocks=../data/i5sensors10000events.ttl
+#!/bin/sh
 
+runtest () {
+    echo '------------------------------'
+    echo $1
+    INPUT=$2
+    OUTPUT=$3
+    echo ../../../../bin/instans --rdf-operations=add:execute:flush --allow-rule-instance-removal=false --construct-output-ttl=${OUTPUT} -r flush-EPA1.rq -g http://instans.org/source --time=- --input-blocks=${INPUT}
+    ../../../../bin/instans --rdf-operations=add:execute:flush --allow-rule-instance-removal=false --construct-output-ttl=${OUTPUT} -r flush-EPA1.rq -g http://instans.org/source --time=- --input-blocks=${INPUT}
+}
+runtest '100 event warm-up' ../data/i5sensors100events.ttl /dev/null
+#runtest '1 Event' ../data/i5sensors1event.ttl ../data/o5sensors1event.ttl
+runtest '100 Events' ../data/i5sensors100events.ttl ../data/o5sensors100events.ttl
+runtest '1000 Events' ../data/i5sensors1000events.ttl ../data/o5sensors1000events.ttl
+runtest '10000 Events' ../data/i5sensors10000events.ttl ../data/o5sensors10000events.ttl
