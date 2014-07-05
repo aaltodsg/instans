@@ -5,8 +5,8 @@ runtest () {
     echo $1
     INPUT=$2
     OUTPUT=$3
-    echo ../../../../bin/instans --rdf-operations=add:execute:flush --allow-rule-instance-removal=false --construct-output-ttl=${OUTPUT} -r flush-EPA1.rq -g http://instans.org/source --time=- --input-blocks=${INPUT}
-    ../../../../bin/instans --rdf-operations=add:execute:flush --allow-rule-instance-removal=false --construct-output-ttl=${OUTPUT} -r flush-EPA1.rq -g http://instans.org/source --time=- --input-blocks=${INPUT}
+    echo ../../../../bin/instans --rdf-operations=add:execute:flush --allow-rule-instance-removal=false --construct-output-ttl=${OUTPUT} -r explicit-delete-EPA1.rq -g http://instans.org/source --time=- --input-blocks=${INPUT}
+    ../../../../bin/instans --rdf-operations=add:execute:flush --allow-rule-instance-removal=false --construct-output-ttl=${OUTPUT} -r explicit-delete-EPA1.rq -g http://instans.org/source --time=- --input-blocks=${INPUT}
 }
 runtest '100 event warm-up' ../data/i5sensors100events.ttl /dev/null
 #runtest '1 Event' ../data/i5sensors1event.ttl ../data/o5sensors1event.ttl
