@@ -1,0 +1,267 @@
+BASE <http://instans.org/>
+PREFIX : <http:instans.org/default#>
+PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX ssn: <http://purl.oclc.org/NET/ssnx/ssn#>
+PREFIX ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
+PREFIX omgeo: <http://www.ontotext.com/owlim/geo#>
+PREFIX ff: <http://factforge.net/>
+
+# Stateless filter (EPA 1): Only events generated during business hours
+
+# @name EPA1-Stateless
+INSERT { GRAPH <poststateless> {  # Forward outgoing events
+      ?event ?p1 ?o1 .
+      ?h2 ?p2 ?o2 } }
+WHERE { GRAPH <source> {
+    ?event a ep:EventObject ;    # Match incoming events
+           ?p1 ?o1 ;
+           ep:hasEventObjectSamplingTime ?time .
+           OPTIONAL { BIND ( IF (isBlank(?o1), ?o1, 0) as ?h2)
+                ?h2 ?p2 ?o2 }
+    FILTER ( ( HOURS(?time) > 8 ) && ( HOURS(?time) < 17 ) ) } } ;
+
+# Stateful filter (EPA 2): Only 1 event per hour
+
+# @name EPA2-Stateful
+DELETE { GRAPH <memory> { # Clear memory
+    :stateful :prevHour ?prevhour } }
+INSERT { GRAPH <poststateful> { # Forward outgoing events
+      ?event ?p1 ?o1 .
+      ?h2 ?p2 ?o2
+    }
+ GRAPH <memory> { # Write new value to memory
+     :stateful :prevHour ?hour }  
+}
+WHERE { GRAPH <poststateless> {
+    ?event a ep:EventObject ; # Match incoming events
+           ?p1 ?o1 ;
+           ep:hasEventObjectSamplingTime ?time .
+    OPTIONAL { BIND ( IF (isBlank(?o1), ?o1, 0) as ?h2)
+            ?h2 ?p2 ?o2 } }
+  GRAPH <memory> { # Retrieve value from memory, if available
+    OPTIONAL  { ?mem :prevHour ?prevhour } }
+  BIND ( HOURS(?time) as ?hour)
+  FILTER ( ?hour != COALESCE(?prevhour,-1) ) # Compare current hour with memory
+} ;
+
+# Enrich (EPA 3): Enrich events with the name of the closest location
+# SERVICE-query replaced with BIND ( "Espoo" as ?label ) to avoid external lookup delay
+# and because SERVICE is not yet implemented in INSTANS
+
+# @name EPA3-Enrich
+INSERT { GRAPH <translated> { 
+    ?event a ep:EventObject ; # Forward enriched event
+         ssn:Sensor ?sensor ;
+         geo:Point [ geo:lat ?lat ; geo:long ?long ; ] ;
+         ep:hasEventObjectSamplingTime ?time ;
+         :locationName ?label } }
+WHERE { GRAPH <poststateful> { 
+    ?event a ep:EventObject ; # Match incoming event
+           ssn:Sensor ?sensor ;
+           geo:Point [ geo:lat ?lat ; geo:long ?long ; ] ;
+           ep:hasEventObjectSamplingTime ?time .
+     BIND ( "Espoo" as ?label ) # Temporary replacement until SERVICE implemented
+#    SERVICE <http://factforge.net/sparql> { # Retrieve location label
+#       ?location omgeo:nearby(?lat ?long "1km"); 
+#                 ff:preferredLabel ?label }
+} } ; 
+
+# Project (EPA 4): Delete information from the incoming events
+
+INSERT {  GRAPH <projected> { 
+    ?event a ep:EventObject ; # Forward projected event
+         ssn:Sensor ?sensor ;
+         geo:Point [ geo:lat ?lat ; geo:long ?long ; ] ;
+         ep:hasEventObjectSamplingTime ?time } }
+WHERE {  GRAPH <translated> { 
+    ?event a ep:EventObject ; # Match wanted triples only
+         ssn:Sensor ?sensor ;
+         geo:Point [ geo:lat ?lat ; geo:long ?long ; ] ;
+         ep:hasEventObjectSamplingTime ?time } } ;
+
+# Split (EPA 5): Split into separate channels using original blank nodes.
+
+INSERT { GRAPH <geoevents> { # Insert GeoEvents
+    ?event a ep:EventObject ;
+           geo:Point [ geo:lat ?lat ; geo:long ?long ; ] }
+  GRAPH <timeevents> { # Insert TimeEvents
+    ?event a ep:EventObject ;
+           ssn:Sensor ?sensor ;
+           ep:hasEventObjectSamplingTime ?time } }
+WHERE { GRAPH <poststateful> { # Match incoming events
+    ?event a ep:EventObject ;
+           ssn:Sensor ?sensor ;
+           geo:Point [ geo:lat ?lat ; geo:long ?long ; ] ;
+           ep:hasEventObjectSamplingTime ?time } } ;
+
+# Aggregate (EPA 6): Create new events out of the number of events observed in each hour
+
+# Q6-1: Maintain counter of number of events per hour in memory
+
+DELETE { GRAPH <memory> { # Delete old entry from memory
+  ?hourIRI :hour ?memhour ;
+           :counter ?oldcount } }
+INSERT { GRAPH <memory> { # Insert new entry to memory
+  ?hourIRI :hour ?hour ;
+           :counter ?newcount } }
+WHERE { GRAPH <source> { # Match incoming event
+  ?event a ep:EventObject ;
+         ep:hasEventObjectSamplingTime ?time }
+  BIND ( HOURS(?time) as ?hour )
+  BIND ( IRI(concat("Counter",str(?hour))) AS ?hourIRI) # Create new IRI for memory entry
+  OPTIONAL { GRAPH <memory> { # Match previous memory entry, if one exists
+      ?hourIRI :hour ?memhour ;
+               :counter ?oldcount } }
+  BIND ( COALESCE(?oldcount,0)+1 AS ?newcount ) # Advance counter by 1
+} ;
+
+# Q6-2: Output result when latest event is higher than the hour in an existing entry
+# Delete memory entries
+
+DELETE { GRAPH <memory> { # Remove final counter entry
+  ?hourIRI :hour ?memhour ;
+           :counter ?count } }
+INSERT { GRAPH <eventcounts> { # Insert counter event
+   [] a ep:EventObject ;
+      :eventType :eventCount ;
+      :hour ?memhour ;
+      :count ?count } }
+WHERE { GRAPH <memory> { # Match entries in memory
+    ?hourIRI :hour ?memhour ;
+             :counter ?count }
+  GRAPH <source> { # Match time from incoming events
+    ?event ep:hasEventObjectSamplingTime ?time }
+  FILTER ( ?memhour < HOURS(?time) ) # Wait until incoming hour > memory hour
+} ;
+
+# Compose (EPA 7): Combine two event streams into one
+
+INSERT { GRAPH <combined> {
+    ?event a ep:EventObject ; # Forward re-combined events
+           ssn:Sensor ?sensor ;
+           geo:Point [ geo:lat ?lat ; geo:long ?long ; ] ;
+           ep:hasEventObjectSamplingTime ?time } }
+WHERE { 
+GRAPH <geoevents> { # Match GeoEvents
+    ?event a ep:EventObject ;
+           geo:Point [ geo:lat ?lat ; geo:long ?long ; ] }
+  GRAPH <timeevents> { # Match TimeEvents
+    ?event a ep:EventObject ;
+           ssn:Sensor ?sensor ;
+           ep:hasEventObjectSamplingTime ?time } } ;
+
+# Transform (auxiliary rule): Create directional events
+
+# @name EPA8-Transform
+DELETE {  GRAPH <memory> { # Delete previous memory entry
+  :transform ssn:Sensor ?sensor ;
+       :prevLat ?prevlat ;
+       :prevLong ?prevlong }
+  GRAPH <directions> { # Clean older directional entries
+    ?oldEvent a ep:EventObject ;
+              ssn:Sensor ?oldSensor ;
+	      :direction ?oldDir } }
+INSERT { GRAPH <memory> { # Write new entry to memory
+    :transform ssn:Sensor ?sensor ;
+       :prevLat ?lat ;
+       :prevLong ?long  }
+  GRAPH <directions> { # Output directional information
+    ?event a ep:EventObject ;
+           ssn:Sensor ?sensor ;
+	   :direction ?dir } }
+WHERE { GRAPH <source> {
+    ?event a ep:EventObject ; # Match incoming events
+           ssn:Sensor ?sensor ;
+           geo:Point [ geo:lat ?lat ; geo:long ?long ; ] . } 
+  OPTIONAL { GRAPH <memory> { # Retrieve coordinates of previous event from memory-graph
+    :transform ssn:Sensor ?sensor ;
+    	 :prevLat ?prevlat ;
+         :prevLong ?prevlong } }
+  BIND ( IF ( ?lat > ?prevlat, "N", "") as ?latdir1) # Test for directions
+  BIND ( IF ( ?lat < ?prevlat, "S", "") as ?latdir2)
+  BIND ( IF ( ?long > ?prevlong, "E", "") as ?longdir1)
+  BIND ( IF ( ?long < ?prevlong, "W", "") as ?longdir2) 
+  BIND ( concat(?latdir1, ?latdir2, ?longdir1, ?longdir2) as ?tdir ) # Concatenate result
+  BIND ( IF ( !bound(?tdir) || strlen(?tdir)=0, "0", ?tdir ) as ?dir )
+  OPTIONAL { GRAPH <directions> {
+    ?oldEvent a ep:EventObject ;
+              ssn:Sensor ?oldSensor ;
+	      :direction ?oldDir } }
+} ;
+
+# Pattern Detection (EPA 8-1): Compare incoming pattern with pattern in database, advance index in memory if a match
+
+# @name EPA8-1-Advance-Index
+DELETE {  GRAPH <memory> { # Clear old index from memory
+    :pattern ssn:Sensor ?sensor ;
+             :basedOnEvent ?oldEvent ;
+             :patternIndex ?memIndex } }
+INSERT { GRAPH <memory> { # Write new index to memory
+    :pattern ssn:Sensor ?sensor ;
+             :basedOnEvent ?event ;
+             :patternIndex ?newIndex } }
+WHERE { GRAPH <directions> {
+    ?event a ep:EventObject ; # Match directional input
+           ssn:Sensor ?sensor ;
+	   :direction ?dir }
+  FILTER ( ?dir != "0" )
+  OPTIONAL { GRAPH <memory> { # Retrieve index from memory
+      :pattern ssn:Sensor ?sensor ;
+               :basedOnEvent ?oldEvent ;
+               :patternIndex ?memIndex } }
+  FILTER ( !sameTerm(?event,?oldEvent) ) # Only once per event
+  GRAPH <pattern> { # Retrieve pattern index and value
+    ?pattern :index ?ptIndex ;
+             :value ?ptValue }
+  BIND ( COALESCE(?memIndex+1,1) as ?newIndex ) # COALESCE in case ?memIndex not bound
+  FILTER ( (?dir = ?ptValue) && (?newIndex = ?ptIndex) ) # Pass through if value and index match
+} ;
+
+# Pattern Detection (EPA 8-2): Reset index if the latest event does not match
+
+# @name EPA8-2-ResetIndex
+DELETE { GRAPH <memory> { # Remove index from memory
+    :pattern ssn:Sensor ?sensor ;
+             :basedOnEvent ?memEvent ;
+             :patternIndex ?memIndex } }
+WHERE { GRAPH <directions> { # Match directional input
+    ?event a ep:EventObject ;
+           ssn:Sensor ?sensor ;
+	   :direction ?dir }
+  FILTER ( ?dir != "0" )
+  GRAPH <memory> { # Retrieve index from memory
+    :pattern ssn:Sensor ?sensor ;
+             :basedOnEvent ?memEvent ;
+             :patternIndex ?memIndex }
+  FILTER ( !sameTerm(?event,?memEvent) ) # Must be different events
+  GRAPH <pattern> {
+    ?pattern :index ?ptIndex ;
+             :value ?ptValue }
+  FILTER ( (?dir != ?ptValue) && (?memIndex+1 = ?ptIndex) ) # Pass through if value and index do not match
+} ;
+
+# Pattern Detection (EPA 8-3): Insert an event into "patterndetect" channel, when the designated pattern is detected. Reset pattern index.
+
+# @name EPA8-3-Complete-Reset
+DELETE {  GRAPH <memory> { # Remove last index from memory
+    :pattern ssn:Sensor ?sensor ;
+             :basedOnEvent ?memEvent ;
+             :patternIndex ?memIndex } }
+INSERT { 
+  GRAPH <patterndetect> { # Create an event object to announce pattern match
+    [] a ep:EventObject ;
+       :patterndetected "BackAndForth!" }
+ }
+WHERE { GRAPH <pattern> { :pattern :length ?length }
+  GRAPH <memory> { # Check, when pattern index in memory matches pattern length.
+    :pattern ssn:Sensor ?sensor ;
+             :basedOnEvent ?memEvent ;
+             :patternIndex ?memIndex }
+  FILTER ( ?memIndex = ?length )
+} ;
+
+# Output everything
+
+# @name Output
+SELECT *
+WHERE { GRAPH ?g { ?s ?p ?o } }
