@@ -23,26 +23,26 @@ WHERE { GRAPH <source> {
 # Cleanup <source> when a newer event is available
 
 # @name Cleanup-Source
-# DELETE {
-#   GRAPH <source> {
-#     ?event1 ?p1 ?o1 .
-#     ?h2 ?p2 ?o2 .
-#   }
-# }
-# WHERE {
-#   GRAPH <source> {
-#     ?event1 a ep:EventObject ;    # Match incoming events
-#            ?p1 ?o1 ;
-#            ep:hasEventObjectSamplingTime ?time1 .
-#            OPTIONAL { BIND ( IF (isBlank(?o1), ?o1, 0) as ?h2)
-#                 ?h2 ?p2 ?o2 }
-#   }
-#   FILTER EXISTS { GRAPH <source> {
-#       ?event2 a ep:EventObject ;
-#               ep:hasEventObjectSamplingTime ?time2 .
-#       FILTER (?time1 < ?time2)
-#   }  }
-# } ;
+DELETE {
+  GRAPH <source> {
+    ?event1 ?p1 ?o1 .
+    ?h2 ?p2 ?o2 .
+  }
+}
+WHERE {
+  GRAPH <source> {
+    ?event1 a ep:EventObject ;    # Match incoming events
+           ?p1 ?o1 ;
+           ep:hasEventObjectSamplingTime ?time1 .
+           OPTIONAL { BIND ( IF (isBlank(?o1), ?o1, 0) as ?h2)
+                ?h2 ?p2 ?o2 }
+  }
+  FILTER EXISTS { GRAPH <source> {
+      ?event2 a ep:EventObject ;
+              ep:hasEventObjectSamplingTime ?time2 .
+      FILTER (?time1 < ?time2)
+  }  }
+} ;
 
 # Stateful filter (EPA 2): Only 1 event per hour
 
@@ -71,26 +71,26 @@ WHERE { GRAPH <poststateless> {
 # Cleanup <poststateless> when a newer event is available
 
 # @name Cleanup-Poststateless
-# DELETE {
-#   GRAPH <poststateless> {
-#     ?event1 ?p1 ?o1 .
-#     ?h2 ?p2 ?o2 .
-#   }
-# }
-# WHERE {
-#   GRAPH <poststateless> {
-#     ?event1 a ep:EventObject ;    # Match incoming events
-#            ?p1 ?o1 ;
-#            ep:hasEventObjectSamplingTime ?time1 .
-#            OPTIONAL { BIND ( IF (isBlank(?o1), ?o1, 0) as ?h2)
-#                 ?h2 ?p2 ?o2 }
-#   }
-#   FILTER EXISTS { GRAPH <poststateless> {
-#       ?event2 a ep:EventObject ;
-#               ep:hasEventObjectSamplingTime ?time2 .
-#       FILTER (?time1 < ?time2)
-#   }  }
-# } ;
+DELETE {
+  GRAPH <poststateless> {
+    ?event1 ?p1 ?o1 .
+    ?h2 ?p2 ?o2 .
+  }
+}
+WHERE {
+  GRAPH <poststateless> {
+    ?event1 a ep:EventObject ;    # Match incoming events
+           ?p1 ?o1 ;
+           ep:hasEventObjectSamplingTime ?time1 .
+           OPTIONAL { BIND ( IF (isBlank(?o1), ?o1, 0) as ?h2)
+                ?h2 ?p2 ?o2 }
+  }
+  FILTER EXISTS { GRAPH <poststateless> {
+      ?event2 a ep:EventObject ;
+              ep:hasEventObjectSamplingTime ?time2 .
+      FILTER (?time1 < ?time2)
+  }  }
+} ;
 
 # Enrich (EPA 3): Enrich events with the name of the closest location
 # SERVICE-query replaced with BIND ( "Espoo" as ?label ) to avoid external lookup delay
@@ -117,29 +117,29 @@ WHERE { GRAPH <poststateful> {
 # Cleanup <poststateful> when a newer event is available
 
 # @name Cleanup-Poststateful
-# DELETE {
-#   GRAPH <poststateful> {
-#     ?event1 a ep:EventObject ; # Match incoming event
-#             ssn:Sensor ?sensor ;
-#             ep:hasEventObjectSamplingTime ?time1 ;
-#             geo:Point ?point .
-#     ?point geo:lat ?lat ; geo:long ?long .
-#   }
-# }
-# WHERE {
-#   GRAPH <poststateful> {
-#     ?event1 a ep:EventObject ; # Match incoming event
-#             ssn:Sensor ?sensor ;
-#             ep:hasEventObjectSamplingTime ?time1 ;
-#             geo:Point ?point .
-#     ?point geo:lat ?lat ; geo:long ?long .
-#   }
-#   FILTER EXISTS { GRAPH <poststateful> {
-#       ?event2 a ep:EventObject ;
-#               ep:hasEventObjectSamplingTime ?time2 .
-#       FILTER (?time1 < ?time2)
-#   }  }
-# } ;
+DELETE {
+  GRAPH <poststateful> {
+    ?event1 a ep:EventObject ; # Match incoming event
+            ssn:Sensor ?sensor ;
+            ep:hasEventObjectSamplingTime ?time1 ;
+            geo:Point ?point .
+    ?point geo:lat ?lat ; geo:long ?long .
+  }
+}
+WHERE {
+  GRAPH <poststateful> {
+    ?event1 a ep:EventObject ; # Match incoming event
+            ssn:Sensor ?sensor ;
+            ep:hasEventObjectSamplingTime ?time1 ;
+            geo:Point ?point .
+    ?point geo:lat ?lat ; geo:long ?long .
+  }
+  FILTER EXISTS { GRAPH <poststateful> {
+      ?event2 a ep:EventObject ;
+              ep:hasEventObjectSamplingTime ?time2 .
+      FILTER (?time1 < ?time2)
+  }  }
+} ;
 
 # Project (EPA 4): Delete information from the incoming events
 
@@ -158,29 +158,29 @@ WHERE {  GRAPH <translated> {
 # Cleanup <translated> when a newer event is available
 
 # @name Cleanup-Translated
-# DELETE {
-#   GRAPH <translated> {
-#     ?event1 a ep:EventObject ;
-#          ssn:Sensor ?sensor ;
-#          ep:hasEventObjectSamplingTime ?time1 ;
-#          :locationName ?label ;
-#          geo:Point ?point .
-#     ?point geo:lat ?lat ; geo:long ?long }
-# }
-# WHERE {
-#   GRAPH <translated> {
-#     ?event1 a ep:EventObject ;
-#          ssn:Sensor ?sensor ;
-#          ep:hasEventObjectSamplingTime ?time1 ;
-#          :locationName ?label ;
-#          geo:Point ?point .
-#     ?point geo:lat ?lat ; geo:long ?long }
-#   FILTER EXISTS { GRAPH <translated> {
-#       ?event2 a ep:EventObject ;
-#               ep:hasEventObjectSamplingTime ?time2 .
-#       FILTER (?time1 < ?time2)
-#   }  }
-# } ;
+DELETE {
+  GRAPH <translated> {
+    ?event1 a ep:EventObject ;
+         ssn:Sensor ?sensor ;
+         ep:hasEventObjectSamplingTime ?time1 ;
+         :locationName ?label ;
+         geo:Point ?point .
+    ?point geo:lat ?lat ; geo:long ?long }
+}
+WHERE {
+  GRAPH <translated> {
+    ?event1 a ep:EventObject ;
+         ssn:Sensor ?sensor ;
+         ep:hasEventObjectSamplingTime ?time1 ;
+         :locationName ?label ;
+         geo:Point ?point .
+    ?point geo:lat ?lat ; geo:long ?long }
+  FILTER EXISTS { GRAPH <translated> {
+      ?event2 a ep:EventObject ;
+              ep:hasEventObjectSamplingTime ?time2 .
+      FILTER (?time1 < ?time2)
+  }  }
+} ;
 
 # Split (EPA 5): Split into separate channels using original blank nodes.
 
@@ -243,39 +243,39 @@ WHERE { GRAPH <memory> { # Match entries in memory
 # Cleanup <eventcounts> when a newer event is available
 
 # @name Cleanup-Eventcounts
-# DELETE {
-#   GRAPH <eventcounts> {
-#    ?event1 a ep:EventObject ;
-#       ep:hasEventObjectSamplingTime ?time1 ;
-#       :eventType :eventCount ;
-#       :hour ?memhour ;
-#       :count ?count }
-# }
-# WHERE {
-#   GRAPH <eventcounts> {
-#    ?event1 a ep:EventObject ;
-#       ep:hasEventObjectSamplingTime ?time1 ;
-#       :eventType :eventCount ;
-#       :hour ?memhour ;
-#       :count ?count }
-#   FILTER EXISTS { GRAPH <eventcounts> {
-#       ?event2 a ep:EventObject ;
-#               ep:hasEventObjectSamplingTime ?time2 .
-#       FILTER (?time1 < ?time2)
-#   }  }
-# } ;
+DELETE {
+  GRAPH <eventcounts> {
+   ?event1 a ep:EventObject ;
+      ep:hasEventObjectSamplingTime ?time1 ;
+      :eventType :eventCount ;
+      :hour ?memhour ;
+      :count ?count }
+}
+WHERE {
+  GRAPH <eventcounts> {
+   ?event1 a ep:EventObject ;
+      ep:hasEventObjectSamplingTime ?time1 ;
+      :eventType :eventCount ;
+      :hour ?memhour ;
+      :count ?count }
+  FILTER EXISTS { GRAPH <eventcounts> {
+      ?event2 a ep:EventObject ;
+              ep:hasEventObjectSamplingTime ?time2 .
+      FILTER (?time1 < ?time2)
+  }  }
+} ;
 
 # Compose (EPA 7): Combine two event streams into one
 
 # @name EPA7-Compose
-# DELETE { GRAPH <geoevents> { # Clean incoming events after processing
-#     ?event a ep:EventObject ;
-#            geo:Point ?point .
-#     ?point geo:lat ?lat ; geo:long ?long }
-#   GRAPH <timeevents> {
-#     ?event a ep:EventObject ;
-#            ssn:Sensor ?sensor ;
-#            ep:hasEventObjectSamplingTime ?time } }
+DELETE { GRAPH <geoevents> { # Clean incoming events after processing
+    ?event a ep:EventObject ;
+           geo:Point ?point .
+    ?point geo:lat ?lat ; geo:long ?long }
+  GRAPH <timeevents> {
+    ?event a ep:EventObject ;
+           ssn:Sensor ?sensor ;
+           ep:hasEventObjectSamplingTime ?time } }
 INSERT { GRAPH <combined> {
     ?event a ep:EventObject ; # Forward re-combined events
            ssn:Sensor ?sensor ;
