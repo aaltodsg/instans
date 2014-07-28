@@ -13,8 +13,7 @@ CONSTRUCT {
     ssn:Sensor ?person ;
     ep:hasEventObjectSamplingTime ?dttm ;
     geo:Point ?p .
-?p geo:lat ?lat ;
-    geo:long ?long .
+ ?p geo:lat ?lat ; geo:long ?long .
 }
 # SELECT *
 WHERE {
@@ -23,26 +22,26 @@ WHERE {
    	 event:time ?t ;
          event:place ?p .
    ?t tl:at ?dttm .
-   ?p  geo:lat ?lat ;
-       geo:long ?long 
+   ?p geo:lat ?lat ;
+      geo:long ?long 
 } ;
 
-DELETE {
-  ?event rdf:type event:Event ;
-   	 event:agent ?person ;
-   	 event:time ?t ;
-         event:place ?p .
-   ?t tl:at ?dttm .
-   ?p  geo:lat ?lat ;
-       geo:long ?long 
-}
-WHERE {
-  ?event rdf:type event:Event ;
-   	 event:agent ?person ;
-   	 event:time ?t ;
-         event:place ?p .
-   ?t tl:at ?dttm .
-   ?p  geo:lat ?lat ;
-       geo:long ?long 
-} ;
+# DELETE {
+#   ?event rdf:type event:Event ;
+#    	 event:agent ?person ;
+#    	 event:time ?t ;
+#          event:place ?p .
+#   ?t tl:at ?dttm .
+#   ?p geo:lat ?lat ;
+#      geo:long ?long 
+# }
+# WHERE {
+#   ?event rdf:type event:Event ;
+#    	 event:agent ?person ;
+#    	 event:time ?t ;
+#          event:place ?p .
+#   ?t tl:at ?dttm .
+#   ?p geo:lat ?lat ;
+#      geo:long ?long 
+# } ;
 
