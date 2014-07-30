@@ -1,0 +1,129 @@
+BASE <http://instans.org/>
+PREFIX :<http:instans.org/default#>
+PREFIX geo:<http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX ssn:<http://purl.oclc.org/NET/ssnx/ssn#>
+PREFIX ep:<http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
+PREFIX omgeo: <http://www.ontotext.com/owlim/geo#>
+PREFIX ff: <http://factforge.net/>
+
+# Transform (auxiliary rule): Create directional events
+
+# @name EPA8-Transform
+DELETE {  GRAPH <memory> { # Delete previous memory entry
+  :transform ssn:Sensor ?sensor ;
+       :prevLat ?prevlat ;
+       :prevLong ?prevlong }
+  GRAPH <directions> { # Clean older directional entries
+    ?oldEvent a ep:EventObject ;
+              ssn:Sensor ?oldSensor ;
+  	      :direction ?oldDir }
+}
+INSERT { GRAPH <memory> { # Write new entry to memory
+    :transform ssn:Sensor ?sensor ;
+       :prevLat ?lat ;
+       :prevLong ?long  }
+  GRAPH <directions> { # Output directional information
+    ?event a ep:EventObject ;
+           ssn:Sensor ?sensor ;
+	   :direction ?dir } }
+WHERE { GRAPH <source> {
+    ?event a ep:EventObject ; # Match incoming events
+           ssn:Sensor ?sensor ;
+           geo:Point [ geo:lat ?lat ; geo:long ?long ; ] . } 
+  OPTIONAL { GRAPH <memory> { # Retrieve coordinates of previous event from memory-graph
+    :transform ssn:Sensor ?sensor ;
+    	 :prevLat ?prevlat ;
+         :prevLong ?prevlong } }
+  BIND ( IF ( ?lat > ?prevlat, "N", "") as ?latdir1) # Test for directions
+  BIND ( IF ( ?lat < ?prevlat, "S", "") as ?latdir2)
+  BIND ( IF ( ?long > ?prevlong, "E", "") as ?longdir1)
+  BIND ( IF ( ?long < ?prevlong, "W", "") as ?longdir2) 
+  BIND ( concat(?latdir1, ?latdir2, ?longdir1, ?longdir2) as ?tdir ) # Concatenate result
+  BIND ( IF ( !bound(?tdir) || strlen(?tdir)=0, "0", ?tdir ) as ?dir )
+  OPTIONAL { GRAPH <directions> {
+    ?oldEvent a ep:EventObject ;
+              ssn:Sensor ?oldSensor ;
+  	      :direction ?oldDir } }
+} ;
+
+# Pattern Detection (EPA 8-1): Compare incoming pattern with pattern in database, advance index in memory if a match
+
+# @name EPA8-1-Advance-Index
+DELETE {  GRAPH <memory> { # Clear old index from memory
+    :pattern ssn:Sensor ?sensor ;
+             :basedOnEvent ?oldEvent ;
+             :patternIndex ?memIndex } }
+INSERT { GRAPH <memory> { # Write new index to memory
+    :pattern ssn:Sensor ?sensor ;
+             :basedOnEvent ?event ;
+             :patternIndex ?newIndex } }
+WHERE { GRAPH <directions> {
+    ?event a ep:EventObject ; # Match directional input
+           ssn:Sensor ?sensor ;
+	   :direction ?dir }
+  FILTER ( ?dir != "0" )
+  OPTIONAL { GRAPH <memory> { # Retrieve index from memory
+      :pattern ssn:Sensor ?sensor ;
+               :basedOnEvent ?oldEvent ;
+               :patternIndex ?memIndex } }
+  FILTER ( !sameTerm(?event,?oldEvent) ) # Only once per event
+  GRAPH <pattern> { # Retrieve pattern index and value
+    ?pattern :index ?ptIndex ;
+             :value ?ptValue }
+  BIND ( COALESCE(?memIndex+1,1) as ?newIndex ) # COALESCE in case ?memIndex not bound
+  FILTER ( (?dir = ?ptValue) && (?newIndex = ?ptIndex) ) # Pass through if value and index match
+} ;
+
+# Pattern Detection (EPA 8-2): Reset index if the latest event does not match
+
+# @name EPA8-2-ResetIndex
+DELETE { GRAPH <memory> { # Remove index from memory
+    :pattern ssn:Sensor ?sensor ;
+             :basedOnEvent ?memEvent ;
+             :patternIndex ?memIndex } }
+WHERE { GRAPH <directions> { # Match directional input
+    ?event a ep:EventObject ;
+           ssn:Sensor ?sensor ;
+	   :direction ?dir }
+  FILTER ( ?dir != "0" )
+  GRAPH <memory> { # Retrieve index from memory
+    :pattern ssn:Sensor ?sensor ;
+             :basedOnEvent ?memEvent ;
+             :patternIndex ?memIndex }
+  FILTER ( !sameTerm(?event,?memEvent) ) # Must be different events
+  GRAPH <pattern> {
+    ?pattern :index ?ptIndex ;
+             :value ?ptValue }
+  FILTER ( (?dir != ?ptValue) && (?memIndex+1 = ?ptIndex) ) # Pass through if value and index do not match
+} ;
+
+# Pattern Detection (EPA 8-3): Insert an event into "patterndetect" channel, when the designated pattern is detected. Reset pattern index.
+
+# @name EPA8-3-Complete-Reset
+DELETE {  GRAPH <memory> { # Remove last index from memory
+    :pattern ssn:Sensor ?sensor ;
+             :basedOnEvent ?memEvent ;
+             :patternIndex ?memIndex }
+  # GRAPH <directions> { # Delete old direction entries
+  #   ?oldEvent a ep:EventObject ;
+  #             ssn:Sensor ?oldSensor ;
+  # 	      :direction ?oldDir }
+}
+INSERT { 
+  GRAPH <patterndetect> { # Create an event object to announce pattern match
+    [] a ep:EventObject ;
+       :patterndetected "BackAndForth!" }
+ }
+WHERE { GRAPH <pattern> { :pattern :length ?length }
+  GRAPH <memory> { # Check, when pattern index in memory matches pattern length.
+    :pattern ssn:Sensor ?sensor ;
+             :basedOnEvent ?memEvent ;
+             :patternIndex ?memIndex }
+  FILTER ( ?memIndex = ?length )
+  # GRAPH <directions> { # Match old direction entries
+  #   ?oldEvent a ep:EventObject ;
+  #             ssn:Sensor ?oldSensor ;
+  # 	      :direction ?oldDir }
+} ;
+
+

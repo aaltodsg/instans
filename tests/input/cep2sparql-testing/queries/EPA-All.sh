@@ -1,0 +1,1 @@
+../../../bin/instans -r CEP2SPARQL_Queries_working.rq -g http://instans.org/pattern -t CEP2SPARQL_SamplePattern.ttl --rdf-operations=add:execute-snapshot:remove:execute:flush -g http://instans.org/source --time=- --input-blocks=CEP2SPARQL_SampleEvents.ttl
