@@ -23,26 +23,26 @@ WHERE {  GRAPH <translated> {
 # Cleanup <translated> when a newer event is available
 
 # @name Cleanup-Translated
-# DELETE {
-#   GRAPH <translated> {
-#     ?event1 a ep:EventObject ;
-#          ssn:Sensor ?sensor ;
-#          ep:hasEventObjectSamplingTime ?time1 ;
-#          :locationName ?label ;
-#          geo:Point ?point .
-#     ?point geo:lat ?lat ; geo:long ?long }
-# }
-# WHERE {
-#   GRAPH <translated> {
-#     ?event1 a ep:EventObject ;
-#          ssn:Sensor ?sensor ;
-#          ep:hasEventObjectSamplingTime ?time1 ;
-#          :locationName ?label ;
-#          geo:Point ?point .
-#     ?point geo:lat ?lat ; geo:long ?long }
-#   FILTER EXISTS { GRAPH <translated> {
-#       ?event2 a ep:EventObject ;
-#               ep:hasEventObjectSamplingTime ?time2 .
-#       FILTER (?time1 < ?time2)
-#   }  }
-# } ;
+DELETE {
+  GRAPH <translated> {
+    ?event1 a ep:EventObject ;
+         ssn:Sensor ?sensor ;
+         ep:hasEventObjectSamplingTime ?time1 ;
+         :locationName ?label ;
+         geo:Point ?point .
+    ?point geo:lat ?lat ; geo:long ?long }
+}
+WHERE {
+  GRAPH <translated> {
+    ?event1 a ep:EventObject ;
+         ssn:Sensor ?sensor ;
+         ep:hasEventObjectSamplingTime ?time1 ;
+         :locationName ?label ;
+         geo:Point ?point .
+    ?point geo:lat ?lat ; geo:long ?long }
+  FILTER EXISTS { GRAPH <translated> {
+      ?event2 a ep:EventObject ;
+              ep:hasEventObjectSamplingTime ?time2 .
+      FILTER (?time1 < ?time2)
+  }  }
+} ;
