@@ -620,19 +620,29 @@
   (:method ((this datablock-node) token &optional stack)
     (call-succ-nodes #'remove-token this token stack))
   ;;; (remove-token exists-start-node)
+  ;;; !!! This may be wrong, especially when kind != simple-(not-)exists!!!
   (:method ((this exists-start-node) token &optional stack)
     ;; (inform "remove-token ~A ~A" this token)
     (let ((stored-token (store-get-token this token)))
-      ;; (inform "remove-token ~A calls store-remove-token, token=~%~A~%stored-token=~%~A" this token stored-token)
-      (store-remove-token this stored-token)
-      (setf (token-value this stored-token (existence-active-p-var this)) t) ; Activate this node
-      (let ((next (car (node-succ this))))
-	(cond ((typep next 'join-node)
-	       (remove-beta-token next stored-token stack))
-	      (t
-	       (remove-token next stored-token stack))))
-      (setf (token-value this stored-token (existence-active-p-var this)) nil) ;;; Deactivate this node
-      (call-succ-nodes #'remove-token (subgraph-end-node this) stored-token stack)))
+      (unless (null stored-token) ;;; May be already removed?!
+	(let* ((counter-var (existence-counter-var this))
+	       (prev-counter-value (token-value this stored-token counter-var)))
+	  ;; (inform "remove-token ~A calls store-remove-token, token=~%~A~%stored-token=~%~A" this token stored-token)
+	  (store-remove-token this stored-token)
+	  (setf (token-value this stored-token (existence-active-p-var this)) t) ; Activate this node
+	  (let ((next (car (node-succ this))))
+	    (cond ((typep next 'join-node)
+		   (remove-beta-token next stored-token stack))
+		  (t
+		   (remove-token next stored-token stack))))
+	  (setf (token-value this stored-token (existence-active-p-var this)) nil) ;;; Deactivate this node
+	  (case (exists-kind this)
+	    (:simple-exists
+	     (when (plusp prev-counter-value) (call-succ-nodes #'remove-token (subgraph-end-node this) stored-token stack)))
+	    (:simple-not-exists
+	     (when (zerop prev-counter-value) (call-succ-nodes #'remove-token (subgraph-end-node this) stored-token stack)))
+	    (t
+	     (call-succ-nodes #'remove-token (subgraph-end-node this) stored-token stack)))))))
   (:method ((this exists-end-node) token &optional stack)
     (let* ((start-node (subgraph-start-node this))
 	   (active-p (token-value this token (existence-active-p-var start-node)))

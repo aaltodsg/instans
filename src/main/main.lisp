@@ -131,6 +131,8 @@
 				   (format *error-output* "~%Unrecognized option ~A~%" ,arg-var)
 				   (,usage)))))))))
 
+(defvar *default-main-dir* nil)
+
 (defun main (&rest args)
   (cond ((null args)
 	 (setf args sb-ext:*posix-argv*))
@@ -139,7 +141,7 @@
   (multiple-value-bind (instans instans-iri) (create-instans)
     (let* ((executedp nil)
 	   (execute-immediately-p t)
-	   (directory (parse-iri (format nil "file://~A" (expand-dirname "."))))
+	   (directory (parse-iri (format nil "file://~A" (expand-dirname (or *default-main-dir* ".")))))
 	   (select-output-name nil)
 	   (select-output-type :csv)
 	   (construct-output-name nil)
