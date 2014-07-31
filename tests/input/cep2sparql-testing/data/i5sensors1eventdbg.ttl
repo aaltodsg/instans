@@ -1,0 +1,12 @@
+PREFIX ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
+PREFIX ssn: <http://purl.oclc.org/NET/ssnx/ssn#>
+PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+
+<http://#e1> # a ep:EventObject;
+#             ssn:Sensor <http://#p1>;
+             ep:hasEventObjectSamplingTime "2012-03-05T13:32:28"^^xsd:dateTime;
+             geo:Point _:bnode1 .
+
+_:bnode1 geo:lat 60.15922234475837 . #;
+#         geo:long 24.87610729902513 .
+
