@@ -1,0 +1,54 @@
+;;; -*- Mode: Lisp; Syntax: COMMON-LISP; Base: 10; Package: INSTANS -*-
+;;;
+;;; Author: Esko Nuutila (esko.nuutila@aalto.fi)
+;;;
+
+(in-package #:instans)
+
+(defvar *sent* nil)
+(defvar *received1* nil)
+(defvar *received2* nil)
+
+(defun fib (n)
+  (if (< n 2) 1
+      (+ (fib (- n 1)) (fib (- n 2)))))
+
+(defun parallel-test (n func)
+  (let (sender receiver1 receiver2)
+    (setf *sent* nil)
+    (setf *received1* nil)
+    (setf *received2* nil)
+    (setf receiver1 (make-instance 'agent
+				   :name 'receiver1
+				   :function #'(lambda () 
+						 (loop for msg = (agent-receive receiver1)
+						       while msg
+						       do (push (list 'receiver1 (datetime-now) msg) *received1*)))))
+    (setf receiver2 (make-instance 'agent
+				   :name 'receiver2
+				   :function #'(lambda () 
+						 (loop for msg = (agent-receive receiver2)
+						       while msg
+						       do (push (list 'receiver2 (datetime-now) msg) *received2*)))))
+    (setf sender (make-instance 'agent
+				:name 'sender
+				:receivers (list receiver1 receiver2)
+				:function #'(lambda ()
+					      (loop for i from 0 below n
+						    for msg = (funcall func i)
+						    do (agent-send sender msg)
+						    do (push (list 'sender (datetime-now) msg) *sent*))
+					      (agent-send sender nil))))
+    (agent-start receiver1)
+    (agent-start receiver2)
+    (agent-start sender)
+    (sb-thread:join-thread (agent-thread sender))
+    (sb-thread:join-thread (agent-thread receiver1))
+    (sb-thread:join-thread (agent-thread receiver2))))
+
+(defun results ()
+  (inform "*sent* = ~A" *sent*)
+  (inform "*received1* = ~A" *received1*)
+  (inform "*received2* = ~A" *received2*)
+  (loop for (agent dt value) in (sort (append *sent* *received1* *received2*) #'datetime< :key #'second)
+        do (inform "~40A~12A ~A" (datetime-canonic-string dt) agent value)))
