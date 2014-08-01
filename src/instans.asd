@@ -39,6 +39,7 @@
 			:components ((:file "version")
 				     (:file "macros")
 				     (:file "misc" :depends-on ("macros"))
+				     (:file "trie" :depends-on ("macros"))
 				     (:file "char-ops")
 				     (:file "table-bindings" :depends-on ("macros"))
 				     (:file "mix")
