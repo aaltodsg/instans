@@ -17,5 +17,7 @@ INSTANS supports most parts of SPARQL 1.1 Query and SPARQL 1.1 Update
 specifications. The current version has been developed and tested on
 Mac OS X. 
 
-Please refer to Installation_and_use.pdf for instructions.
+Documentation is available in our github wiki:
+https://github.com/aaltodsg/instans/wiki
+
 
