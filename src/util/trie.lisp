@@ -13,17 +13,17 @@
   (cond ((null path) trie)
 	((null trie)
 	 (setf trie (make-instance 'trie))
-	 (setf (trie-level trie) (list (cons (car path) (add-path nil (cdr path)))))
+	 (setf (trie-level trie) (list (cons (car path) (trie-add-path nil (cdr path)))))
 	 (setf (trie-level-tail trie) (trie-level trie))
 	 trie)
 	(t
 	 (let ((item (assoc (first path) (trie-level trie) :test test)))
 	   (cond ((null item)
-		  (setf (cdr (trie-level-tail trie)) (list (cons (car path) (add-path nil (cdr path)))))
+		  (setf (cdr (trie-level-tail trie)) (list (cons (car path) (trie-add-path nil (cdr path)))))
 		  (setf (trie-level-tail trie) (cdr (trie-level-tail trie)))
 		  trie)
 		 (t
-		  (add-path (cdr item) (cdr path))
+		  (trie-add-path (cdr item) (cdr path))
 		  trie))))))
 
 (defun trie-paths (trie &optional result)
