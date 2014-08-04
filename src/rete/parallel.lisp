@@ -13,14 +13,14 @@
    (inputs :accessor event-processing-network-inputs :initarg :inputs)
    (outputs :accessor event-processing-network-outputs :initarg :outputs)))
 
-(define-class mailbox-output-processor (construct-output-processor)
-  ((mailboxes :accessor mailbox-output-processor-mailboxes :initarg :mailboxes :initform nil)
-   (quads :accessor mailbox-output-processor-quads :initform nil)
-   (quads-tail :accessor mailbox-output-processor-quads-tail :initform nil)))
+;; (define-class mailbox-output-processor (construct-output-processor)
+;;   ((mailboxes :accessor mailbox-output-processor-mailboxes :initarg :mailboxes :initform nil)
+;;    (quads :accessor mailbox-output-processor-quads :initform nil)
+;;    (quads-tail :accessor mailbox-output-processor-quads-tail :initform nil)))
 
-(defmethod write-construct-output ((this mailbox-output-processor) instans s p o &optional g)
-  (loop for mailbox in (mailbox-output-processor-mailboxes this)
-	do (sb-concurrency:send-message mailbox (list s p o g))))
+;; (defmethod write-construct-output ((this mailbox-output-processor) instans s p o &optional g)
+;;   (loop for mailbox in (mailbox-output-processor-mailboxes this)
+;; 	do (sb-concurrency:send-message mailbox (list s p o g))))
 
 (defmacro define-event-processing-network (name &body definitions)
   (declare (ignorable name definitions))
