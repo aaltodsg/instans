@@ -74,7 +74,7 @@
    (test-func :accessor filter-test-func)))
  
 (define-class bind-node (node)
- ((variable :accessor bind-variable :initarg :variable)
+  ((variable :accessor bind-variable :initarg :variable)
    (form :accessor bind-form :initarg :form)
    (form-parameters :accessor bind-form-parameters :initarg :form-parameters)
    (form-lambda :accessor bind-form-lambda :initarg :form-lambda)
