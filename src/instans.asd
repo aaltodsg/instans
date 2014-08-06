@@ -83,6 +83,7 @@
 				      (:file "tokens" :depends-on ("rete-classes"))
 				      (:file "rete-access-functions" :depends-on ("rete-classes" "variables-and-bindings" "quad-store" "tokens" "store" "indices"))
 				      (:file "lisp-compile" :depends-on ("rete-classes"))
+				      (:file "rete-io" :depends-on ("rete-classes"))
 				      (:file "interpreter" :depends-on ("rete-classes"))
 				      (:file "triple-pattern-matcher" :depends-on ("rete-classes"))
 				      (:file "json-functions" :depends-on ("rete-classes"))

@@ -72,7 +72,7 @@
    (test-parameters :accessor filter-test-parameters :initarg :test-parameters)
    (test-lambda :accessor filter-test-lambda :initarg :test-lambda)
    (test-func :accessor filter-test-func)))
- 
+
 (define-class bind-node (node)
   ((variable :accessor bind-variable :initarg :variable)
    (form :accessor bind-form :initarg :form)
