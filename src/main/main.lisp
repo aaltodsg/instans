@@ -235,7 +235,7 @@
 			  "(type '.ttl' or '.turtle'), N-Triples (type '.nt' or '.n-triples'), and N-Quads"
 			  "(type '.nt' or '.n-quads'). If INPUT does not have a file type, use the type"
 			  "specific input options below.")
-		  (instans-add-query-input-processor instans-iri (expand-iri directory value)
+		  (instans-add-stream-input-processor instans-iri (expand-iri directory value)
 						     :graph graph :base base :subscribe debug
 						     :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
 		  (maybe-execute))
@@ -246,25 +246,25 @@
 			  "or a URI. The content format should be of the specified type, e.g., for "
 			  "'--input-ttl' INPUT should contain TriG format input. Even if INPUT is a file"
 			  "with a specific type, the type is not considered when parsing the file.")
-		  (instans-add-query-input-processor instans-iri (expand-iri directory value)
+		  (instans-add-stream-input-processor instans-iri (expand-iri directory value)
 						     :graph graph :base base :input-type :trig)
 		  (maybe-execute))
 		 (input-turtle
 		  :options ("--input-turtle=INPUT" "--input-ttl=INPUT")
 		  :usage "Read RDF in Turtle format from INPUT."
-		  (instans-add-query-input-processor instans-iri (expand-iri directory value)
+		  (instans-add-stream-input-processor instans-iri (expand-iri directory value)
 						     :graph graph :base base :input-type :ttl)
 		  (maybe-execute))
 		 (input-nq
 		  :options ("--input-nq=INPUT" "--input-n-quads=INPUT")
 		  :usage "Read RDF in N-Quads format from INPUT."
-		  (instans-add-query-input-processor instans-iri (expand-iri directory value)
+		  (instans-add-stream-input-processor instans-iri (expand-iri directory value)
 						     :graph graph :base base :input-type :nq)
 		  (maybe-execute))
 		 (input-nt
 		  :options ("--input-nt=INPUT" "--input-n-triples=INPUT")
 		  :usage "Read RDF in N-Triples format from INPUT."
-		  (instans-add-query-input-processor instans-iri (expand-iri directory value)
+		  (instans-add-stream-input-processor instans-iri (expand-iri directory value)
 						     :graph graph :base base :input-type :nt)
 		  (maybe-execute))
 		 (base
@@ -379,7 +379,7 @@
 		  :options ("--input-triples=FILE")
 		  :usage "Same as '--rdf-input-unit=triple --input=FILE'"
 		  (setf (instans-rdf-input-unit instans) :triple)
-		  (instans-add-query-input-processor instans-iri (expand-iri directory value)
+		  (instans-add-stream-input-processor instans-iri (expand-iri directory value)
 						     :graph graph :base base
 						     :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
 		  (maybe-execute))
@@ -387,7 +387,7 @@
 		  :options ("--input-blocks=FILE")
 		  :usage "Same as '--rdf-input-unit=block --input=FILE'"
 		  (setf (instans-rdf-input-unit instans) :block)
-		  (instans-add-query-input-processor instans-iri (expand-iri directory value)
+		  (instans-add-stream-input-processor instans-iri (expand-iri directory value)
 						     :graph graph :base base
 						     :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
 		  (maybe-execute))
@@ -395,7 +395,7 @@
 		  :options ("--input-document=FILE")
 		  :usage "Same as '--rdf-input-unit=document --input=FILE'"
 		  (setf (instans-rdf-input-unit instans) :document)
-		  (instans-add-query-input-processor instans-iri (expand-iri directory value)
+		  (instans-add-stream-input-processor instans-iri (expand-iri directory value)
 						     :graph graph :base base
 						     :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
 		  (maybe-execute))
@@ -404,7 +404,7 @@
 		  :usage "Same as '--rdf-operations=event --rdf-input-unit=block --input=FILE'"
 		  (setf (instans-rdf-operations instans) :event)
 		  (setf (instans-rdf-input-unit instans) :block)
-		  (instans-add-query-input-processor instans-iri (expand-iri directory value)
+		  (instans-add-stream-input-processor instans-iri (expand-iri directory value)
 						     :graph graph :base base
 						     :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
 		  (maybe-execute))

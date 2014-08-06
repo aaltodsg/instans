@@ -19,11 +19,11 @@
    (parser :accessor rete-stream-input-processor-parser :initarg :parser)))
 
 (define-class rete-agent-input-processor (rete-input-processor)
-  ((agent :accessor rete-agent-input-agent :initarg :agent)))
+  ((source :accessor rete-agent-input-source :initarg :source)))
 
-(define-class rete-output-processor () 
+(define-class rete-output-processor ()
   ((output-name :accessor rete-output-processor-output-name :initarg :output-name :initform nil)
-   (output-writers :accessor rete-output-processor-output-writers :initarg :output-writers)))
+   (output-writer :accessor rete-output-processor-output-writer :initarg :output-writer)))
 
 (define-class rete-output-writer () ())
 
@@ -31,7 +31,7 @@
   ((stream :accessor rete-stream-output-writer-stream :initarg :stream :initform nil)))
 
 (define-class rete-agent-output-writer (rete-output-writer)
-  ((agents :accessor rete-agent-output-writer-agents :initarg :agents :initform nil)))
+  ((destinations :accessor rete-agent-output-writer-destinations :initarg :destinations :initform nil)))
 
 (define-class rete-construct-output-processor (rete-output-processor) ())
 
@@ -68,28 +68,26 @@
 
 (defgeneric flush-construct-output (rete-construct-output-processor)
   (:method ((this rete-n-statement-output-processor))
-    (loop for writer in (rete-output-processor-output-writers this)
-	  do (write-rete-output-statements writer (rete-n-statement-output-processor-statements this)))
+    (write-output-statements (rete-output-processor-output-writer this) (rete-n-statement-output-processor-statements this))
     (setf (rete-n-statement-output-processor-statements this) nil)
     (setf (rete-n-statement-output-processor-tail this) nil))
   (:method ((this rete-trig-output-processor))
-    (loop for writer in (rete-output-processor-output-writers this)
-	  do (write-rete-output-trie writer (rete-trig-output-processor-spol-trie this)))
+    (write-output-trie (rete-output-processor-output-writer this) (rete-trig-output-processor-spol-trie this))
     (setf (rete-trig-output-processor-spol-trie this) nil)))
 
-(defun agent-send (&rest args)
-  (declare (ignorable args))
-  nil)
+;; (defun agent-send (&rest args)
+;;   (declare (ignorable args))
+;;   nil)
 
-(defgeneric write-rete-output-statements (rete-output-writer statements)
+(defgeneric write-output-statements (rete-output-writer statements)
   (:method ((this rete-stream-output-writer) statements)
     (loop for (s p o g) in statements
 	 do (format (rete-stream-output-writer-stream this) "~&~A ~A ~A~@[ ~A~]~%" s p o g)))
   (:method ((this rete-agent-output-writer) statements)
-    (loop for agent in (rete-agent-output-writer-agents this)
+    (loop for agent in (rete-agent-output-writer-destinations this)
 	  do (agent-send agent statements))))
 
-(defgeneric write-rete-output-trie (rete-output-writer trie)
+(defgeneric write-output-trie (rete-output-writer trie)
   (:method ((this rete-stream-output-writer) trie)
     (let ((stream (rete-stream-output-writer-stream this))
 	  (indent 0)
@@ -121,7 +119,6 @@
     (let* ((msg (list nil))
 	   (tail msg))
       (trie-map trie #'(lambda (path) (setf (cdr tail) (list (second path) (third path) (fourth path) (first path)))))
-      (loop for agent in (rete-agent-output-writer-agents this)
+      (loop for agent in (rete-agent-output-writer-destinations this)
 	    do (agent-send agent msg)))))
 ;;; New version ends
-

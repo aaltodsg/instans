@@ -217,10 +217,6 @@
 	 finally (return t))))
 
 (defgeneric run-query-input-processor (query-input-processor)
-  (:method ((this rete-agent-input-processor))
-    (let* ((instans (rete-input-processor-instans this))
-	   (statements (agent-receive instans)))
-      (process-query-input instans statements)))
   (:method ((this query-input-processor))
     (parse (query-input-processor-parser this))))
 
@@ -351,7 +347,8 @@
 (defgeneric output-quad-or-triple (instans s p o &optional g)
   (:method ((this instans) s p o &optional g)
     (unless (null (instans-construct-output-processor this))
-      (write-construct-output (instans-construct-output-processor this) this s p o g))))
+;      (write-construct-output (instans-construct-output-processor this) this s p o g)
+      (add-statement (instans-construct-output-processor this) s p o g))))
 
 (defgeneric report-execution-status (instans &key stream)
   (:method ((this instans) &key (stream (instans-default-output this)))

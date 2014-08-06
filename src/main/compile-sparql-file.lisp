@@ -150,9 +150,9 @@
 ;; 						       :subscribe subscribe
 ;; 						       :parser #'(lambda ()
 
-(defun instans-add-query-input-processor (instans-iri input-iri &key graph base input-type subscribe)
+(defun instans-add-stream-input-processor (instans-iri input-iri &key graph base input-type subscribe)
   (let* ((instans (get-instans instans-iri)))
-    (instans-debug-message instans '(:parse-rdf :execute) "instans-add-query-input-processor ~S ~S :input-type ~S :graph ~S :base ~S" instans-iri input-iri input-type graph base)
+    (instans-debug-message instans '(:parse-rdf :execute) "instans-add-stream-input-processor ~S ~S :input-type ~S :graph ~S :base ~S" instans-iri input-iri input-type graph base)
     (let* ((input-policy (instans-rdf-input-unit instans))
 	   (processor (make-instance 'query-input-processor
 				     :instans instans
@@ -186,6 +186,18 @@
 ;      (push-to-end processor (instans-query-input-processors instans))
       )
     instans))
+
+(defun instans-add-agent-input-processor (instans-iri &key graph base input-type subscribe)
+  (let* ((instans (get-instans instans-iri)))
+    (instans-debug-message instans '(:parse-rdf :execute) "instans-add-agent-input-processor ~S :input-type ~S :graph ~S :base ~S" instans-iri input-type graph base)
+    (let ((processor (make-instance 'rete-agent-input-processor
+				    :instans instans
+				    :operations (instans-rdf-operations instans)
+				    :base base
+				    :graph graph
+				    :subscribe subscribe)))
+      (add-query-input-processor instans processor)
+      instans)))
 
 (defun instans-run (instans-iri &key select-output-name (select-output-type :csv) construct-output-name (construct-output-type :trig) report-sizes-interval)
   (let ((instans (get-instans instans-iri)))
