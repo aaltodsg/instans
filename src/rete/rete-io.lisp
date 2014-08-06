@@ -77,6 +77,10 @@
 	  do (write-rete-output-trie writer (rete-trig-output-processor-spol-trie this)))
     (setf (rete-trig-output-processor-spol-trie this) nil)))
 
+(defun agent-send (&rest args)
+  (declare (ignorable args))
+  nil)
+
 (defgeneric write-rete-output-statements (rete-output-writer statements)
   (:method ((this rete-stream-output-writer) statements)
     (loop for (s p o g) in statements
