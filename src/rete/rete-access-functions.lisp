@@ -388,30 +388,21 @@
     (:solution-set (make-instance 'solution-set-output-processor :output-name output-name))
     (t (error* "Unknown select output processor type ~S" output-type))))
 
-(defun create-construct-output-processor (output-name output-type)
-  (case output-type
-    ((:ttl :turtle)
-     (make-instance 'turtle-output-processor :output-name output-name))
-    (:trig (make-instance 'trig-output-processor :output-name output-name))
-    (:nt (make-instance 'nt-output-processor :output-name output-name))
-    (:nq 
-     (make-instance 'nq-output-processor :output-name output-name))
-    (:mbox (make-instance 'mailbox-output-processor :output-name output-name))
-    (t (error* "Unknown construct output processor type ~S" output-type))))
+(defvar *newio* nil)
 
-(defun create-construct-stream-output-processor (output-name output-type)
-  (let* ((stream (cond ((or (null output-name) (string= "-" output-name)) *standard-output*)
-		       (t
-			(open output-name :direction :output :if-exists :supersede))))
-	 (output-writer (make-instance 'rete-output-stream-writer :stream stream)))
-  (case output-type
-    ((:ttl :turtle)
-     (make-instance 'rete-turtle-output-processor :output-name output-name :output-writer output-writer))
-    (:trig (make-instance 'rete-trig-output-processor :output-name output-name :output-writer output-writer))
-    (:nt (make-instance 'rete-nt-output-processor :output-name output-name :output-writer output-writer))
-    (:nq 
-     (make-instance 'rete-nq-output-processor :output-name output-name :output-writer output-writer))
-    (t (error* "Unknown construct output processor type ~S" output-type)))))
+(defun create-construct-output-processor (output-name output-type)
+  (cond ((not *newio*)
+	 (case output-type
+	   ((:ttl :turtle)
+	    (make-instance 'turtle-output-processor :output-name output-name))
+	   (:trig (make-instance 'trig-output-processor :output-name output-name))
+	   (:nt (make-instance 'nt-output-processor :output-name output-name))
+	   (:nq 
+	    (make-instance 'nq-output-processor :output-name output-name))
+	   (:mbox (make-instance 'mailbox-output-processor :output-name output-name))
+	   (t (error* "Unknown construct output processor type ~S" output-type))))
+	(t
+	 (create-construct-stream-output-processor output-name output-type))))
 
 (defun solution-bindings (node token)
   (let* ((vars (solution-modifiers-project-vars node))
@@ -503,6 +494,9 @@
       )))
   
 (defgeneric write-construct-output (query-output-processor instans s p o &optional g)
+  (:method ((this rete-construct-output-processor) instans s p o &optional g)
+    (declare (ignorable instans))
+    (add-statement this s p o g))
   (:method ((this n-statement-output-processor) instans s p o &optional g)
     (let ((stream (query-output-processor-output-stream  this)))
       (if g
@@ -527,12 +521,17 @@
   	  do (sb-concurrency:send-message mailbox (list s p o g)))))
 
 (defgeneric flush-output-processor (query-output-processor)
+  (:method ((this rete-construct-output-processor))
+    (flush-construct-output this))
   (:method ((this trig-output-processor))
     (output-pending-graph this))
   (:method ((this query-output-processor))
     nil))
 
 (defgeneric close-query-output-processor (query-output-processor)
+  (:method ((this rete-output-processor))
+    (flush-output-processor this)
+    (close-rete-output-processor this))
   (:method ((this trig-output-processor))
     (output-pending-graph this)
     (call-next-method))
