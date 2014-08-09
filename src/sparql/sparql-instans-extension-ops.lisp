@@ -14,10 +14,16 @@
 (define-sparql-function "datetime:datetime_in_seconds" (:arguments ((x xsd-datetime-value)) :returns xsd-number-value)
   (:method ((x xsd-datetime-value)) (datetime-in-seconds x)))
 
+(define-sparql-function "instans:create_instans" (:arguments ((instans-iri rdf-iri)) :returns rdf-iri)
+  (:method ((instans-iri rdf-iri))
+    (create-instans instans-iri)
+    instans-iri))
+
 (define-sparql-function "instans:add_rules" (:arguments ((instans-iri rdf-iri) (rules iri-or-string)) :returns rdf-iri)
   (:method ((instans-iri rdf-iri) (rules rdf-iri))
-    (let ((instans (instans-add-rules instans-iri rules)))
-      (and instans (instans-find-status instans 'instans-rule-translation-succeeded) t))))
+    (let ((instans (get-or-create-instans instans-iri)))
+      (instans-add-rules instans rules)
+      (instans-find-status instans 'instans-rule-translation-succeeded) t)))
 
 (define-sparql-function "instans:status" (:arguments ((instans-iri rdf-iri)) :returns xsd-string)
   (:method ((instans-iri rdf-iri))
@@ -46,7 +52,7 @@
 							   &optional (graph-iri rdf-iri) (base rdf-iri))
 							  :returns xsd-boolean)
   (:method ((instans-iri rdf-iri) (input-iri iri-or-string) &optional (graph-iri rdf-iri) (base rdf-iri))
-    (instans-add-stream-input-processor instans-iri input-iri :graph graph-iri :base base :input-type (intern-keyword (string-upcase (file-type input-iri))))
+    (instans-add-stream-input-processor (get-or-create-instans instans-iri) input-iri :graph graph-iri :base base :input-type (intern-keyword (string-upcase (file-type input-iri))))
     t))
 
 (define-sparql-function "instans:execute_system" (:arguments ((rules iri-or-string) &optional (triples iri-or-string) (expected-results iri-or-string) (graph-iri iri-or-string) (base iri-or-string)) :returns xsd-boolean)
@@ -59,7 +65,7 @@
 
 (define-sparql-function "instans:execute" (:arguments ((instans-iri rdf-iri)))
   (:method ((instans-iri rdf-iri))
-    (instans-run instans-iri)))
+    (instans-run (get-instans instans-iri))))
 
 (define-sparql-function "instans:dynamic_call" (:arguments ((func rdf-iri) &rest args) :returns t)
   (:method ((func rdf-iri) &rest args)
@@ -76,13 +82,13 @@
 
 (define-sparql-function "instans:compare_rdf_files" (:arguments ((instans-iri rdf-iri) (input1 iri-or-string) (input2 t)) :returns xsd-boolean-value)
   (:method ((instans-iri rdf-iri) (input1 iri-or-string) (input2 t))
-    (instans-compare-rdf-files instans-iri input1 input2)))
+    (instans-compare-rdf-files (get-or-create-instans instans-iri) input1 input2)))
 
 (define-sparql-function "instans:parse_rdf_file" (:arguments ((instans-iri rdf-iri) (input-iri iri-or-string)) :returns xsd-boolean-value)
   (:method ((instans-iri rdf-iri) (input-iri iri-or-string))
-    (let ((instans (or (get-instans instans-iri) (create-instans instans-iri))))
-      (instans-parse-rdf-file instans-iri input-iri)
-	(instans-has-status instans 'instans-rdf-parsing-succeeded))))
+    (let ((instans (get-or-create-instans instans-iri)))
+      (instans-parse-rdf-file instans input-iri)
+      (instans-has-status instans 'instans-rdf-parsing-succeeded))))
 
 ;; outer-arg-spec ((instans-iri rdf-iri) (triples iri-or-string) &optional (graph-iri rdf-iri) base &rest args)
 ;; outer-lambda (instans-iri triples &optional graph-iri base &rest args)

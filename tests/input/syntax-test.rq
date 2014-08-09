@@ -18,6 +18,7 @@ SELECT ?parsed_ok ?translated_ok ?testtype ?queryfile_short ?error_msg WHERE {
        BIND(iri(strbefore(str(?queryfile),".")) AS ?instans)
        BIND(strafter(str(?queryfile), "instans/tests/data-") AS ?queryfile_short)
        BIND(strafter(str(?testtype_long),"#") AS ?testtype)
+       BIND(instans:create_instans(?instans) AS ?aux)
        BIND(instans:add_rules(?instans, ?queryfile) AS ?add)
        BIND(instans:has_status(?instans, "instans-rule-parsing-succeeded") AS ?parsed_ok) 
        BIND(instans:has_status(?instans, "instans-rule-translation-succeeded") AS ?translated_ok) 

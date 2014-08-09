@@ -358,7 +358,7 @@
 		 (t
 		  (format nil "\"~A\"" (rdf-literal-string x)))))
 	  ((rdf-iri-p x)
-	   (iri-to-string x (and instans (instans-encode-prefixes-p instans) (instans-prefixes instans))))
+	   (iri-to-string x (and instans (instans-encode-prefixes-p instans) (instans-prefixes-sorted instans))))
 	  ((rdf-blank-node-p x) (uniquely-named-object-name x))
 	  ((sparql-unbound-p x) "UNBOUND")
 	  (t (format nil "~A" x)))))

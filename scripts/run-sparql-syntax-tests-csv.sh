@@ -42,7 +42,7 @@ if test $# -eq 0 ; then
         MANIFEST=`pwd`/$i
 	x=${MANIFEST%manifest.ttl}
 	printf "%-35s" ${x#$TESTS/}
-#        ${ECHO} MANIFEST=${MANIFEST}
+#       ${ECHO} MANIFEST=${MANIFEST}
 #	${ECHO} '${INSTANS}' -b 'file://`dirname $MANIFEST`/' -r '${RULES}' -t '${MANIFEST}'
 #	${ECHO}
 	${INSTANS} -b file://`dirname $MANIFEST`/ -r ${RULES} -t ${MANIFEST} > ${TMPOUT1} 2>&1

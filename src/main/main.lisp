@@ -138,341 +138,340 @@
 	 (setf args sb-ext:*posix-argv*))
 	(t
 	 (setf args (cons "instans" (cons "--end-toplevel-options" (if (= 1 (length args)) (split-string (first args) " ") args))))))
-  (multiple-value-bind (instans instans-iri) (create-instans)
-    (let* ((executedp nil)
-	   (execute-immediately-p t)
-	   (directory (parse-iri (format nil "file://~A" (expand-dirname (or *default-main-dir* ".")))))
-	   (select-output-name nil)
-	   (select-output-type :csv)
-	   (construct-output-name nil)
-	   (construct-output-type :trig)
-	   (encode-prefixes-p nil)
-	   report-sizes-interval
-	   time-output-name
-	   time-output-stream
-	   start-time-sec
-	   start-time-usec
-	   base graph
-	   ;; expected
-	   debug
-	   reporting
-	   rete-html-file)
-      (labels ((valid-value-p (value accepted-values &key test)
-		 (or (funcall test value accepted-values)
-		     (error* "Value ~A not one of ~A" value accepted-values)))
+  (let* ((instans (create-instans))
+	 (executedp nil)
+	 (execute-immediately-p t)
+	 (directory (parse-iri (format nil "file://~A" (expand-dirname (or *default-main-dir* ".")))))
+	 (select-output-name nil)
+	 (select-output-type :csv)
+	 (construct-output-name nil)
+	 (construct-output-type :trig)
+	 (encode-prefixes-p nil)
+	 report-sizes-interval
+	 time-output-name
+	 time-output-stream
+	 start-time-sec
+	 start-time-usec
+	 base graph
+	 ;; expected
+	 debug
+	 reporting
+	 rete-html-file)
+    (labels ((valid-value-p (value accepted-values &key test)
+	       (or (funcall test value accepted-values)
+		   (error* "Value ~A not one of ~A" value accepted-values)))
 					;	       (expand-iri-or-file-path (base iri-or-file-path input-type)
-	       (parse-parameters (string &key colon-expand-fields)
-		 (loop for param in (parse-spec-string string)
-		       for (key value) = param
-		       collect (if (member key colon-expand-fields) (list key (parse-colon-separated-values value)) param)))
-	       (set-output-processors ()
-		 (when (and select-output-type (null (instans-select-output-processor instans)))
-		   (setf (instans-select-output-processor instans) (create-select-output-processor select-output-name select-output-type)))
-		 (when (and construct-output-type (null (instans-construct-output-processor instans)))
-		   (setf (instans-construct-output-processor instans) (create-construct-output-processor construct-output-name construct-output-type)))
-		 )
-	       (execute ()
-		 (instans-run instans-iri
-			      :select-output-name select-output-name :select-output-type select-output-type
-			      :construct-output-name construct-output-name :construct-output-type construct-output-type
-			      :report-sizes-interval report-sizes-interval))
-	       (maybe-execute ()
+	     (parse-parameters (string &key colon-expand-fields)
+	       (loop for param in (parse-spec-string string)
+		     for (key value) = param
+		     collect (if (member key colon-expand-fields) (list key (parse-colon-separated-values value)) param)))
+	     (set-output-processors ()
+	       (when (and select-output-type (null (instans-select-output-processor instans)))
+		 (setf (instans-select-output-processor instans) (create-select-output-processor instans select-output-name select-output-type)))
+	       (when (and construct-output-type (null (instans-construct-output-processor instans)))
+		 (setf (instans-construct-output-processor instans) (create-construct-output-processor instans construct-output-name construct-output-type))))
+	     (execute ()
+	       (instans-run instans
+			    :select-output-name select-output-name :select-output-type select-output-type
+			    :construct-output-name construct-output-name :construct-output-type construct-output-type
+			    :report-sizes-interval report-sizes-interval))
+	     (maybe-execute ()
 					;		 (inform "maybe-execute?")
-		 (when execute-immediately-p
+	       (when execute-immediately-p
 					;		   (inform "yes")
-		   (setf executedp t)
-		   (execute)))
-	       (output-time (fmt &rest args)
-		 (multiple-value-bind (time-sec time-usec) (sb-unix::get-time-of-day)
-		   (let* ((delta-sec (- time-sec start-time-sec))
-			  (delta-usec (- time-usec start-time-usec)))
-		     (when (< delta-usec 0)
-		       (decf delta-sec)
-		       (incf delta-usec 1000000))
-		     (format time-output-stream "~%At ~D.~6,'0D: ~A~%" delta-sec delta-usec  (apply #'format nil fmt args))))))
-	(setf *instanssi* instans)
-	(pop args) ; Program path
-	(when (equalp (first args) "--end-toplevel-options") (pop args)) ; Inserted by wrapper script
-	(unwind-protect
-	     (block command-loop
-	       (parsing-commands ((key value) args :program "instans" :html html :usage usage
-				  :before (when time-output-stream (output-time "Command: ~(~A~), Parameter: ~A" key value)))
-		 (t :usage ("" "Options are of form '-o', '-o PARAM', or '--option=PARAM'." ""
-		 	       "General options:" ""))
-		 (usage
-		  :options ("--help" "-h")
-		  :usage "Print help text."
-		  (usage))
-		 (version
-		  :options ("--version" "-v")
-		  :usage "Print version information and exit."
-		  (format t "INSTANS version ~A~%" (instans-version))
-		  (return-from command-loop))
-		 (commands
-		  :options ("--file=FILE" ("-f" "FILE"))
-		  :usage "Read options from FILE."
-		  (setf args (append (read-args-from-file value) args)))
-		 (t :usage ("" "Input options:" ""))
-		 (rules
-		  :options ("--rules=RULES" ("-r" "RULES"))
-		  :usage "Load SPARQL rules from a file or an URL."
-		  (let ((rules (expand-iri directory value)))
-		    (set-output-processors)
-		    (instans-add-rules instans-iri rules :create-instans-p nil :base base :encode-prefixes-p encode-prefixes-p)
-		    (cond ((instans-find-status instans 'instans-rule-translation-succeeded)
-			   (if rete-html-file (output-rete-html-page instans rules rete-html-file)))
-			  (t
-			   (let ((status (first (instans-status instans))))
-			     (cond ((null status)
-				    (inform "Something wrong!"))
-				   (t
-				    (inform "~%~A:~A~{~%~A~}~%" value (type-of status) (instans-status-messages status)))))
-			   (return-from command-loop nil)))))
-		 (input
-		  :options ("--input=INPUT" ("-i" "INPUT") ("-t" "INPUT") )
-		  :usage ("Read RDF from a file or an URL. The suffix of INPUT is used to determine the"
-			  "type of the input. The recognized file formats are TriG (type '.trig'), Turtle"
-			  "(type '.ttl' or '.turtle'), N-Triples (type '.nt' or '.n-triples'), and N-Quads"
-			  "(type '.nt' or '.n-quads'). If INPUT does not have a file type, use the type"
-			  "specific input options below.")
-		  (instans-add-stream-input-processor instans-iri (expand-iri directory value)
-						     :graph graph :base base :subscribe debug
-						     :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
-		  (maybe-execute))
-		 (input-trig
-		  :options ("--input-trig=INPUT")
-		  :usage ("Read RDF in TriG format from INPUT. The '--input-<type>' options take a"
-			  "parameter INPUT, which can be a real file, a pseudo file like /dev/stdint,"
-			  "or a URI. The content format should be of the specified type, e.g., for "
-			  "'--input-ttl' INPUT should contain TriG format input. Even if INPUT is a file"
-			  "with a specific type, the type is not considered when parsing the file.")
-		  (instans-add-stream-input-processor instans-iri (expand-iri directory value)
-						     :graph graph :base base :input-type :trig)
-		  (maybe-execute))
-		 (input-turtle
-		  :options ("--input-turtle=INPUT" "--input-ttl=INPUT")
-		  :usage "Read RDF in Turtle format from INPUT."
-		  (instans-add-stream-input-processor instans-iri (expand-iri directory value)
-						     :graph graph :base base :input-type :ttl)
-		  (maybe-execute))
-		 (input-nq
-		  :options ("--input-nq=INPUT" "--input-n-quads=INPUT")
-		  :usage "Read RDF in N-Quads format from INPUT."
-		  (instans-add-stream-input-processor instans-iri (expand-iri directory value)
-						     :graph graph :base base :input-type :nq)
-		  (maybe-execute))
-		 (input-nt
-		  :options ("--input-nt=INPUT" "--input-n-triples=INPUT")
-		  :usage "Read RDF in N-Triples format from INPUT."
-		  (instans-add-stream-input-processor instans-iri (expand-iri directory value)
-						     :graph graph :base base :input-type :nt)
-		  (maybe-execute))
-		 (base
-		  :options ("--base=URL" ("-b" "URL"))
-		  :usage "Use URL as the base."
-		  (setf base (parse-iri value)))
-		 (directory
-		  :options ("--directory=DIR" ("-d" "DIR"))
-		  :usage "Use DIR as the prefix for file lookup. You can use a file or an URL as DIR."
-		  (setf directory (parse-iri (if (http-or-file-iri-string-p value) value (format nil "file://~A" (expand-dirname value))))))
-		 (graph
-		  :options ("--graph=URL" ("-g" "URL"))
-		  :usage "Use URL as the graph."
-		  (if (string= (string-downcase value) "default") nil (setf graph (parse-iri value))))
-		 (t :usage ("" "Output options:" ""))
-		 (select-output
-		  :options ("--select-output=FILE")
-		  :usage "Write SELECT results to FILE. Output is based on the file name suffix."
-		  (setf select-output-name value)
-		  (setf select-output-type (intern-keyword (string-upcase (pathname-type (parse-namestring value))))))
-		 (select-output-csv
-		  :options ("--select-output-csv=OUTPUT")
-		  :usage "Write SELECT results as CSV to OUTPUT."
-		  (setf select-output-name value)
-		  (setf select-output-type :csv))
-		 (construct-output
-		  :options ("--construct-output=FILE")
-		  :usage "Write CONSTRUCT results to FILE. Output format is based on the file name suffix."
-		  (setf construct-output-name value)
-		  (setf construct-output-type (let ((type (pathname-type (parse-namestring value))))
-						(and type (intern-keyword (string-upcase type))))))
-		 (construct-output-trig
-		  :options ("--construct-output-trig=OUTPUT")
-		  :usage "Write CONSTRUCT results as TriG to OUTPUT."
-		  (setf construct-output-name value)
-		  (setf construct-output-type :trig))
-		 (construct-output-ttl
-		  :options ("--construct-output-ttl=OUTPUT" "--construct-output-turtle=OUTPUT")
-		  :usage "Write CONSTRUCT results as Turtle to OUTPUT."
-		  (setf construct-output-name value)
-		  (setf construct-output-type :ttl))
-		 (construct-output-nq
-		  :options ("--construct-output-nq=OUTPUT" "--construct-output-n-quads=OUTPUT")
-		  :usage "Write CONSTRUCT results as N-Quads to OUTPUT."
-		  (setf construct-output-name value)
-		  (setf construct-output-type :nq))
-		 (construct-output-nt
-		  :options ("--construct-output-nt=OUTPUT" "--construct-output-n-triples=OUTPUT")
-		  :usage "Write CONSTRUCT results as N-Triples to OUTPUT."
-		  (setf construct-output-name value)
-		  (setf construct-output-type :nt))
-		 (t :usage ("" "Execution control options:" ""))
-		 (execute
-		  :options ("--execute" "-e")
-		  :usage ("Changes the execution mode to immediate execution (the default). In the immediate"
-			  "execution mode RDF input is processed immediately after each input parameter."
-			  "If the mode was delayed execution, INSTANS processes the input parameters that"
-			  "have been read after the mode was changed from immediate to delayed execution.")
-		  (setf execute-immediately-p t)
-		  (maybe-execute))
-		 (noexecute
-		  :options ("--noexecute")
-		  :usage ("Changes the execution mode to delayed execution. In delayed execution mode"
-			  "the input parameters are not processed after read. Instead, INSTANS waits until"
-			  "the mode is switched back to immediate execution and only then processes these"
-			  "input parameters.")
-		  (setf execute-immediately-p nil)
-		  (maybe-execute))
-		 (rdf-input-unit
-		  :options ("--rdf-input-unit=UNIT")
-		  :usage ("Read RDF input in units of \"triple\", \"block\", or \"document\". \"Triple\" means"
-			  "that the input is read and processed one triple (or quad in TriG or N-Quads input)"
-			  "at a time. In N-Triples and N-Quads \"block\" has the same meaning as \"triple\"."
-			  "In TriG it means that the input is read and processed based on the grammar rule [2g]"
-			  "of the TriG grammar, and in Turtle it means that the input is read and processed"
-			  "based on the grammar rule [6] of the Turtle grammar. The default is \"block\".")
-		  (setf (instans-rdf-input-unit instans) (intern-keyword (string-upcase value))))
-		 (rdf-operations
-		  :options  ("--rdf-operations=LIST")
-		  :usage ("Apply a colon separated list of operations to the unit of RDF input. Operations are"
-			  "\"add\", \"remove\", \"flush\", \"execute\", \"execute-first\", \"execute-snapshot\","
-			  "\"execute-repeat-first\", and \"execute-repeat-snapshot\". The last four operations"
-			  "use the specified execution policy. \"First\" means to execute only the first rule"
-			  "instance in the queue, \"snapshot\" to execute the the instances currently in the"
-			  "queue, but not the new instances that are added to the queue during these instances."
-			  "\"Repeat\" before \"first\" or \"snapshot\" means to execute the system using that"
-			  "policy until the queue is empty. Operation \"execute\" is the a synonym to"
-			  "\"execute-repeat-first\". Operation \"flush\" flushes all pending output."
-			  "You can use \"event\" as a shorthand form \"add:execute:remove:execute\"."
-			  "The default operations list is \"add:execute\".")
-		  (setf (instans-rdf-operations instans) (parse-colon-separated-values value)))
-		 ;; (queue-execution-policy
-		 ;;  :options ("--queue-execution-policy=POLICY")
-		 ;;  :usage ("Execute the rules in the rule instance queue based on POLICY. Policies are \"first\","
-		 ;; 	  "\"snapshot\", \"repeat-first\" (the default), and \"repeat-snapshot\". \"First\" executes"
-		 ;; 	  "the first instance in the queue, \"repeat-first\" does this as long as the queue is not"
-		 ;; 	  "empty. \"Snapshot\" takes the rules currently in the queue and executes them;"
-		 ;; 	  "\"repeat-snapshot\" repeats this as long as the queue is not empty.")
-		 ;;  (setf (instans-queue-execution-policy instans) (intern-keyword (string-upcase value))))
-		 (allow-rule-instance-removal
-		  :options ("--allow-rule-instance-removal=BOOL")
-		  :usage ("If true (the default), adding or removing RDF input removes rule instances that have"
-			  "not been executed yet from the rule instance queue, if they cease to be satisfied;"
-			  "if false, rule instances are not removed from the queue even when they cease to be"
-			  "satisfied when adding or removing RDF input.")
-		  (setf (instans-allow-rule-instance-removal-p instans)
-			(cond ((string-equal value "true") t)
-			      ((string-equal value "false") nil)
-			      (t (usage)))))
-		 (t :usage ("" "Combos:" ""))
-		 (input-triples
-		  :options ("--input-triples=FILE")
-		  :usage "Same as '--rdf-input-unit=triple --input=FILE'"
-		  (setf (instans-rdf-input-unit instans) :triple)
-		  (instans-add-stream-input-processor instans-iri (expand-iri directory value)
-						     :graph graph :base base
-						     :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
-		  (maybe-execute))
-		 (input-blocks
-		  :options ("--input-blocks=FILE")
-		  :usage "Same as '--rdf-input-unit=block --input=FILE'"
-		  (setf (instans-rdf-input-unit instans) :block)
-		  (instans-add-stream-input-processor instans-iri (expand-iri directory value)
-						     :graph graph :base base
-						     :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
-		  (maybe-execute))
-		 (input-document
-		  :options ("--input-document=FILE")
-		  :usage "Same as '--rdf-input-unit=document --input=FILE'"
-		  (setf (instans-rdf-input-unit instans) :document)
-		  (instans-add-stream-input-processor instans-iri (expand-iri directory value)
-						     :graph graph :base base
-						     :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
-		  (maybe-execute))
-		 (input-events
-		  :options ("--input-events=FILE")
-		  :usage "Same as '--rdf-operations=event --rdf-input-unit=block --input=FILE'"
-		  (setf (instans-rdf-operations instans) :event)
-		  (setf (instans-rdf-input-unit instans) :block)
-		  (instans-add-stream-input-processor instans-iri (expand-iri directory value)
-						     :graph graph :base base
-						     :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
-		  (maybe-execute))
-		 (t :usage ("" "Miscelaneus debugging and testing options:" ""))
-		 (warnings
-		  :options ("--warn-on-errors=BOOL")
-		  :usage ("If true, prints warnings, when FILTER or BIND evaluation causes an error. If false (the default), produces no output.")
-		  (cond ((string-equal value "true") (sparql-inform-and-throw-on-errors))
-			((string-equal value "false") (sparql-throw-on-errors))
-			(t (usage))))
-		 (verbose
-		  :options ("--verbose=SITUATIONS")
-		  :usage ("Print lots of information based on a comma-separated list of situations. Currently"
-			  "the possible states are \"parser\", which prints information on the generated SPARQL,"
-			  "TriG, Turtle, N-Quads, and N-Triples parsers, \"parse-operations\", which prints"
-			  "operations of the parser, and \"token\", which prints the recognized input tokens.")
-		  (loop for kind in debug
-		        unless (member kind '(:parser :token :parse-operations :phases :triples))
-		        do (usage))
-		  (setf debug (parse-colon-separated-values value)))
-		 (rete-html
-		  :options ("--rete-html=FILE")
-		  :usage ("Create an HTML page about the Rete network. The HTML page contains the SPARQL query,"
-			  "a picture of the generate Rete network and other useful information.")
-		  (setf rete-html-file value))
-		 (name
-		  :options ("--name=NAME" ("-n" "NAME"))
-		  :usage ("Use NAME as the name of the system. The name of system is used in generating"
-			  "various outputs and names during the execution of INSTANS, but the name does"
-			  "not bear any actual semantics.")
-		  (setf (instans-name instans) value))
-		 (reporting
-		  :options ("--report=KINDS")
-		  :usage ("The kinds of rules you want to get reported; a ':' separated list of"
-			  "(select|construct|modify|all|rete-add|rete-remove|queue|rdf-operations|memoryN)."
-			  "Here memoryN means a string like 'memory100' having an integer after 'memory'. This means that the interval of reporting is 100 rounds"
-			  "of execution.")
-		  :hiddenp t
-		  (setf reporting (loop for kind in (parse-colon-separated-values value)
-					when (eq kind :all)
-					append '(:select :construct :modify :all :rete-add :rete-remove :queue :rdf-operations)
-					else when (eql 0 (search "MEMORY" (string kind)))
-					append (prog1 (list :memory) (setf report-sizes-interval (parse-integer (string kind) :start 6)))
-				        else append (list kind)))
-		  (loop for kind in reporting
-		        unless (member kind '(:select :construct :modify :rete-add :rete-remove :queue :call-succ-nodes :all :memory :rdf-operations))
-		        do (usage))
-		  (setf (instans-report-operation-kinds instans) reporting))
-		 (prefix-encoding
-		  :options ("--prefix-encoding=BOOL")
-		  :usage ("If true, use known prefixes when printing IRIs. If false (the default), print IRIs as such.")
-		  (setf encode-prefixes-p (cond ((string-equal value "true") t)
-						((string-equal value "false") nil)
-						(t (usage)))))
-		 (time
-		  :options ("--time=FILE")
-		  :usage "Output timing information to FILE. Use '-' for standard output."
-		  (setf time-output-name value)
-		  (multiple-value-setq (start-time-sec start-time-usec) (sb-unix::get-time-of-day))
-		  (setf time-output-stream
-			(if (string= value "-") *standard-output* (open value :direction :output :if-exists :supersede))))
-		 )
-	       (unless executedp (execute))
-	       instans)
-	  (when time-output-stream
-	    (output-time "Done")
-	    (unless (member time-output-stream (list *standard-output* *error-output*))
-	      (close time-output-stream)))
-	  (instans-close-open-streams instans))
-	))))
+		 (setf executedp t)
+		 (execute)))
+	     (output-time (fmt &rest args)
+	       (multiple-value-bind (time-sec time-usec) (sb-unix::get-time-of-day)
+		 (let* ((delta-sec (- time-sec start-time-sec))
+			(delta-usec (- time-usec start-time-usec)))
+		   (when (< delta-usec 0)
+		     (decf delta-sec)
+		     (incf delta-usec 1000000))
+		   (format time-output-stream "~%At ~D.~6,'0D: ~A~%" delta-sec delta-usec  (apply #'format nil fmt args))))))
+      (setf *instanssi* instans)
+      (pop args) ; Program path
+      (when (equalp (first args) "--end-toplevel-options") (pop args)) ; Inserted by wrapper script
+      (unwind-protect
+	   (block command-loop
+	     (parsing-commands ((key value) args :program "instans" :html html :usage usage
+				:before (when time-output-stream (output-time "Command: ~(~A~), Parameter: ~A" key value)))
+	       (t :usage ("" "Options are of form '-o', '-o PARAM', or '--option=PARAM'." ""
+			     "General options:" ""))
+	       (usage
+		:options ("--help" "-h")
+		:usage "Print help text."
+		(usage))
+	       (version
+		:options ("--version" "-v")
+		:usage "Print version information and exit."
+		(format t "INSTANS version ~A~%" (instans-version))
+		(return-from command-loop))
+	       (commands
+		:options ("--file=FILE" ("-f" "FILE"))
+		:usage "Read options from FILE."
+		(setf args (append (read-args-from-file value) args)))
+	       (t :usage ("" "Input options:" ""))
+	       (rules
+		:options ("--rules=RULES" ("-r" "RULES"))
+		:usage "Load SPARQL rules from a file or an URL."
+		(let ((rules (expand-iri directory value)))
+		  (set-output-processors)
+		  (instans-add-rules instans rules :base base :encode-prefixes-p encode-prefixes-p)
+		  (cond ((instans-find-status instans 'instans-rule-translation-succeeded)
+			 (if rete-html-file (output-rete-html-page instans rules rete-html-file)))
+			(t
+			 (let ((status (first (instans-status instans))))
+			   (cond ((null status)
+				  (inform "Something wrong!"))
+				 (t
+				  (inform "~%~A:~A~{~%~A~}~%" value (type-of status) (instans-status-messages status)))))
+			 (return-from command-loop nil)))))
+	       (input
+		:options ("--input=INPUT" ("-i" "INPUT") ("-t" "INPUT") )
+		:usage ("Read RDF from a file or an URL. The suffix of INPUT is used to determine the"
+			"type of the input. The recognized file formats are TriG (type '.trig'), Turtle"
+			"(type '.ttl' or '.turtle'), N-Triples (type '.nt' or '.n-triples'), and N-Quads"
+			"(type '.nt' or '.n-quads'). If INPUT does not have a file type, use the type"
+			"specific input options below.")
+		(instans-add-stream-input-processor instans (expand-iri directory value)
+						    :graph graph :base base :subscribe debug
+						    :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
+		(maybe-execute))
+	       (input-trig
+		:options ("--input-trig=INPUT")
+		:usage ("Read RDF in TriG format from INPUT. The '--input-<type>' options take a"
+			"parameter INPUT, which can be a real file, a pseudo file like /dev/stdint,"
+			"or a URI. The content format should be of the specified type, e.g., for "
+			"'--input-ttl' INPUT should contain TriG format input. Even if INPUT is a file"
+			"with a specific type, the type is not considered when parsing the file.")
+		(instans-add-stream-input-processor instans (expand-iri directory value)
+						    :graph graph :base base :input-type :trig)
+		(maybe-execute))
+	       (input-turtle
+		:options ("--input-turtle=INPUT" "--input-ttl=INPUT")
+		:usage "Read RDF in Turtle format from INPUT."
+		(instans-add-stream-input-processor instans (expand-iri directory value)
+						    :graph graph :base base :input-type :ttl)
+		(maybe-execute))
+	       (input-nq
+		:options ("--input-nq=INPUT" "--input-n-quads=INPUT")
+		:usage "Read RDF in N-Quads format from INPUT."
+		(instans-add-stream-input-processor instans (expand-iri directory value)
+						    :graph graph :base base :input-type :nq)
+		(maybe-execute))
+	       (input-nt
+		:options ("--input-nt=INPUT" "--input-n-triples=INPUT")
+		:usage "Read RDF in N-Triples format from INPUT."
+		(instans-add-stream-input-processor instans (expand-iri directory value)
+						    :graph graph :base base :input-type :nt)
+		(maybe-execute))
+	       (base
+		:options ("--base=URL" ("-b" "URL"))
+		:usage "Use URL as the base."
+		(setf base (parse-iri value)))
+	       (directory
+		:options ("--directory=DIR" ("-d" "DIR"))
+		:usage "Use DIR as the prefix for file lookup. You can use a file or an URL as DIR."
+		(setf directory (parse-iri (if (http-or-file-iri-string-p value) value (format nil "file://~A" (expand-dirname value))))))
+	       (graph
+		:options ("--graph=URL" ("-g" "URL"))
+		:usage "Use URL as the graph."
+		(if (string= (string-downcase value) "default") nil (setf graph (parse-iri value))))
+	       (t :usage ("" "Output options:" ""))
+	       (select-output
+		:options ("--select-output=FILE")
+		:usage "Write SELECT results to FILE. Output is based on the file name suffix."
+		(setf select-output-name value)
+		(setf select-output-type (intern-keyword (string-upcase (pathname-type (parse-namestring value))))))
+	       (select-output-csv
+		:options ("--select-output-csv=OUTPUT")
+		:usage "Write SELECT results as CSV to OUTPUT."
+		(setf select-output-name value)
+		(setf select-output-type :csv))
+	       (construct-output
+		:options ("--construct-output=FILE")
+		:usage "Write CONSTRUCT results to FILE. Output format is based on the file name suffix."
+		(setf construct-output-name value)
+		(setf construct-output-type (let ((type (pathname-type (parse-namestring value))))
+					      (and type (intern-keyword (string-upcase type))))))
+	       (construct-output-trig
+		:options ("--construct-output-trig=OUTPUT")
+		:usage "Write CONSTRUCT results as TriG to OUTPUT."
+		(setf construct-output-name value)
+		(setf construct-output-type :trig))
+	       (construct-output-ttl
+		:options ("--construct-output-ttl=OUTPUT" "--construct-output-turtle=OUTPUT")
+		:usage "Write CONSTRUCT results as Turtle to OUTPUT."
+		(setf construct-output-name value)
+		(setf construct-output-type :ttl))
+	       (construct-output-nq
+		:options ("--construct-output-nq=OUTPUT" "--construct-output-n-quads=OUTPUT")
+		:usage "Write CONSTRUCT results as N-Quads to OUTPUT."
+		(setf construct-output-name value)
+		(setf construct-output-type :nq))
+	       (construct-output-nt
+		:options ("--construct-output-nt=OUTPUT" "--construct-output-n-triples=OUTPUT")
+		:usage "Write CONSTRUCT results as N-Triples to OUTPUT."
+		(setf construct-output-name value)
+		(setf construct-output-type :nt))
+	       (t :usage ("" "Execution control options:" ""))
+	       (execute
+		:options ("--execute" "-e")
+		:usage ("Changes the execution mode to immediate execution (the default). In the immediate"
+			"execution mode RDF input is processed immediately after each input parameter."
+			"If the mode was delayed execution, INSTANS processes the input parameters that"
+			"have been read after the mode was changed from immediate to delayed execution.")
+		(setf execute-immediately-p t)
+		(maybe-execute))
+	       (noexecute
+		:options ("--noexecute")
+		:usage ("Changes the execution mode to delayed execution. In delayed execution mode"
+			"the input parameters are not processed after read. Instead, INSTANS waits until"
+			"the mode is switched back to immediate execution and only then processes these"
+			"input parameters.")
+		(setf execute-immediately-p nil)
+		(maybe-execute))
+	       (rdf-input-unit
+		:options ("--rdf-input-unit=UNIT")
+		:usage ("Read RDF input in units of \"triple\", \"block\", or \"document\". \"Triple\" means"
+			"that the input is read and processed one triple (or quad in TriG or N-Quads input)"
+			"at a time. In N-Triples and N-Quads \"block\" has the same meaning as \"triple\"."
+			"In TriG it means that the input is read and processed based on the grammar rule [2g]"
+			"of the TriG grammar, and in Turtle it means that the input is read and processed"
+			"based on the grammar rule [6] of the Turtle grammar. The default is \"block\".")
+		(setf (instans-rdf-input-unit instans) (intern-keyword (string-upcase value))))
+	       (rdf-operations
+		:options  ("--rdf-operations=LIST")
+		:usage ("Apply a colon separated list of operations to the unit of RDF input. Operations are"
+			"\"add\", \"remove\", \"flush\", \"execute\", \"execute-first\", \"execute-snapshot\","
+			"\"execute-repeat-first\", and \"execute-repeat-snapshot\". The last four operations"
+			"use the specified execution policy. \"First\" means to execute only the first rule"
+			"instance in the queue, \"snapshot\" to execute the the instances currently in the"
+			"queue, but not the new instances that are added to the queue during these instances."
+			"\"Repeat\" before \"first\" or \"snapshot\" means to execute the system using that"
+			"policy until the queue is empty. Operation \"execute\" is the a synonym to"
+			"\"execute-repeat-first\". Operation \"flush\" flushes all pending output."
+			"You can use \"event\" as a shorthand form \"add:execute:remove:execute\"."
+			"The default operations list is \"add:execute\".")
+		(setf (instans-rdf-operations instans) (parse-colon-separated-values value)))
+	       ;; (queue-execution-policy
+	       ;;  :options ("--queue-execution-policy=POLICY")
+	       ;;  :usage ("Execute the rules in the rule instance queue based on POLICY. Policies are \"first\","
+	       ;; 	  "\"snapshot\", \"repeat-first\" (the default), and \"repeat-snapshot\". \"First\" executes"
+	       ;; 	  "the first instance in the queue, \"repeat-first\" does this as long as the queue is not"
+	       ;; 	  "empty. \"Snapshot\" takes the rules currently in the queue and executes them;"
+	       ;; 	  "\"repeat-snapshot\" repeats this as long as the queue is not empty.")
+	       ;;  (setf (instans-queue-execution-policy instans) (intern-keyword (string-upcase value))))
+	       (allow-rule-instance-removal
+		:options ("--allow-rule-instance-removal=BOOL")
+		:usage ("If true (the default), adding or removing RDF input removes rule instances that have"
+			"not been executed yet from the rule instance queue, if they cease to be satisfied;"
+			"if false, rule instances are not removed from the queue even when they cease to be"
+			"satisfied when adding or removing RDF input.")
+		(setf (instans-allow-rule-instance-removal-p instans)
+		      (cond ((string-equal value "true") t)
+			    ((string-equal value "false") nil)
+			    (t (usage)))))
+	       (t :usage ("" "Combos:" ""))
+	       (input-triples
+		:options ("--input-triples=FILE")
+		:usage "Same as '--rdf-input-unit=triple --input=FILE'"
+		(setf (instans-rdf-input-unit instans) :triple)
+		(instans-add-stream-input-processor instans (expand-iri directory value)
+						    :graph graph :base base
+						    :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
+		(maybe-execute))
+	       (input-blocks
+		:options ("--input-blocks=FILE")
+		:usage "Same as '--rdf-input-unit=block --input=FILE'"
+		(setf (instans-rdf-input-unit instans) :block)
+		(instans-add-stream-input-processor instans (expand-iri directory value)
+						    :graph graph :base base
+						    :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
+		(maybe-execute))
+	       (input-document
+		:options ("--input-document=FILE")
+		:usage "Same as '--rdf-input-unit=document --input=FILE'"
+		(setf (instans-rdf-input-unit instans) :document)
+		(instans-add-stream-input-processor instans (expand-iri directory value)
+						    :graph graph :base base
+						    :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
+		(maybe-execute))
+	       (input-events
+		:options ("--input-events=FILE")
+		:usage "Same as '--rdf-operations=event --rdf-input-unit=block --input=FILE'"
+		(setf (instans-rdf-operations instans) :event)
+		(setf (instans-rdf-input-unit instans) :block)
+		(instans-add-stream-input-processor instans (expand-iri directory value)
+						    :graph graph :base base
+						    :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
+		(maybe-execute))
+	       (t :usage ("" "Miscelaneus debugging and testing options:" ""))
+	       (warnings
+		:options ("--warn-on-errors=BOOL")
+		:usage ("If true, prints warnings, when FILTER or BIND evaluation causes an error. If false (the default), produces no output.")
+		(cond ((string-equal value "true") (sparql-inform-and-throw-on-errors))
+		      ((string-equal value "false") (sparql-throw-on-errors))
+		      (t (usage))))
+	       (verbose
+		:options ("--verbose=SITUATIONS")
+		:usage ("Print lots of information based on a comma-separated list of situations. Currently"
+			"the possible states are \"parser\", which prints information on the generated SPARQL,"
+			"TriG, Turtle, N-Quads, and N-Triples parsers, \"parse-operations\", which prints"
+			"operations of the parser, and \"token\", which prints the recognized input tokens.")
+		(loop for kind in debug
+		      unless (member kind '(:parser :token :parse-operations :phases :triples))
+		      do (usage))
+		(setf debug (parse-colon-separated-values value)))
+	       (rete-html
+		:options ("--rete-html=FILE")
+		:usage ("Create an HTML page about the Rete network. The HTML page contains the SPARQL query,"
+			"a picture of the generate Rete network and other useful information.")
+		(setf rete-html-file value))
+	       (name
+		:options ("--name=NAME" ("-n" "NAME"))
+		:usage ("Use NAME as the name of the system. The name of system is used in generating"
+			"various outputs and names during the execution of INSTANS, but the name does"
+			"not bear any actual semantics.")
+		(setf (instans-name instans) value))
+	       (reporting
+		:options ("--report=KINDS")
+		:usage ("The kinds of rules you want to get reported; a ':' separated list of"
+			"(select|construct|modify|all|rete-add|rete-remove|queue|rdf-operations|memoryN)."
+			"Here memoryN means a string like 'memory100' having an integer after 'memory'. This means that the interval of reporting is 100 rounds"
+			"of execution.")
+		:hiddenp t
+		(setf reporting (loop for kind in (parse-colon-separated-values value)
+				      when (eq kind :all)
+				      append '(:select :construct :modify :all :rete-add :rete-remove :queue :rdf-operations)
+				      else when (eql 0 (search "MEMORY" (string kind)))
+				      append (prog1 (list :memory) (setf report-sizes-interval (parse-integer (string kind) :start 6)))
+				      else append (list kind)))
+		(loop for kind in reporting
+		      unless (member kind '(:select :construct :modify :rete-add :rete-remove :queue :call-succ-nodes :all :memory :rdf-operations))
+		      do (usage))
+		(setf (instans-report-operation-kinds instans) reporting))
+	       (prefix-encoding
+		:options ("--prefix-encoding=BOOL")
+		:usage ("If true, use known prefixes when printing IRIs. If false (the default), print IRIs as such.")
+		(setf encode-prefixes-p (cond ((string-equal value "true") t)
+					      ((string-equal value "false") nil)
+					      (t (usage)))))
+	       (time
+		:options ("--time=FILE")
+		:usage "Output timing information to FILE. Use '-' for standard output."
+		(setf time-output-name value)
+		(multiple-value-setq (start-time-sec start-time-usec) (sb-unix::get-time-of-day))
+		(setf time-output-stream
+		      (if (string= value "-") *standard-output* (open value :direction :output :if-exists :supersede))))
+	       )
+	     (unless executedp (execute))
+	     instans)
+	(when time-output-stream
+	  (output-time "Done")
+	  (unless (member time-output-stream (list *standard-output* *error-output*))
+	    (close time-output-stream)))
+	(instans-close-open-streams instans))
+      )))
 

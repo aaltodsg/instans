@@ -33,8 +33,3 @@ WHERE { GRAPH <source> {
 	     geo:Point ?point .
       ?point geo:lat ?lat ; geo:long ?long     
 } } ;
-
-
-
-
-

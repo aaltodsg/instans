@@ -382,15 +382,16 @@
   (:method ((this instans) processor)
     (push-to-end processor (instans-query-input-processors this))))
 
-(defun create-select-output-processor (output-name output-type)
+(defun create-select-output-processor (instans output-name output-type)
+  (declare (ignorable instans))
   (case output-type
     (:csv (make-instance 'csv-output-processor :output-name output-name))
     (:solution-set (make-instance 'solution-set-output-processor :output-name output-name))
     (t (error* "Unknown select output processor type ~S" output-type))))
 
-(defvar *newio* nil)
+(defvar *newio* t)
 
-(defun create-construct-output-processor (output-name output-type)
+(defun create-construct-output-processor (instans output-name output-type)
   (cond ((not *newio*)
 	 (case output-type
 	   ((:ttl :turtle)
@@ -402,7 +403,7 @@
 	   (:mbox (make-instance 'mailbox-output-processor :output-name output-name))
 	   (t (error* "Unknown construct output processor type ~S" output-type))))
 	(t
-	 (create-construct-stream-output-processor output-name output-type))))
+	 (create-construct-stream-output-processor instans output-name output-type))))
 
 (defun solution-bindings (node token)
   (let* ((vars (solution-modifiers-project-vars node))
@@ -692,6 +693,7 @@
 	  (expansion-string (iri-to-string expansion)))
       (setf expansion-string (subseq expansion-string 1 (- (length expansion-string) 1)))
       (cond ((null item)
-	     (push (cons prefix expansion-string) (instans-prefixes this)))
+	     (push-to-end (cons prefix expansion-string) (instans-prefixes this)))
 	    (t (setf (cdr item) expansion-string)))
-      (setf (instans-prefixes this) (sort (instans-prefixes this) #'(lambda (kv1 kv2) (> (length (cdr kv1)) (length (cdr kv2)))))))))
+      (setf (instans-prefixes-sorted this) (copy-list (instans-prefixes this)))
+      (setf (instans-prefixes-sorted this) (sort (instans-prefixes-sorted this) #'(lambda (kv1 kv2) (> (length (cdr kv1)) (length (cdr kv2)))))))))

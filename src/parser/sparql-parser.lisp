@@ -83,6 +83,8 @@
 	   (having (pop-property :having))
 	   (order-by (pop-property :order-by))
 	   (group-by (pop-property :group-by))
+	   (limit (pop-property :limit))
+	   (offset (pop-property :offset))
 	   (values (pop-property :values))
 	   (query-form (pop-property :query-form))
 	   (aggregate-op (find-sparql-op "aggregate"))
@@ -207,6 +209,9 @@
 	   else
 	   do (setf ggp (list 'EXTEND ggp var expr)))
 					;      (inform "haa")
+	(when (or limit offset)
+	  (setf (getf clauses :start) offset)
+	  (setf (getf clauses :length) limit))
 	(setf (getf clauses :where) ggp)
 	(append (list query-form :project-vars project-vars) clauses)))))
 

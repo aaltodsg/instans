@@ -50,6 +50,9 @@
   (let ((instans-name (rdf-iri-string instans-iri)))
     (gethash instans-name *instanses*)))
 
+(defun get-or-create-instans (instans-iri)
+  (or (get-instans instans-iri) (create-instans instans-iri)))
+
 (defun read-from-url-or-file (name)
   (cond ((rdf-iri-p name)
 	 (cond ((string= (rdf-iri-scheme name) "file")
@@ -73,13 +76,12 @@
 
 (defvar *instanssi*)
 
-(defun instans-add-rules (instans-iri rules &key (create-instans-p t) base encode-prefixes-p)
-  (let ((instans (if create-instans-p (create-instans instans-iri) (get-instans instans-iri))))
+(defun instans-add-rules (instans rules &key base encode-prefixes-p)
     (when encode-prefixes-p
       (setf (instans-encode-prefixes-p instans) t)
       (unless (instans-prefixes instans)
 	(setf (instans-prefixes instans) (create-initial-prefix-alist))))
-    (instans-debug-message instans :parse-rules "instans-add-rules ~S ~S :base ~S" instans-iri rules base)
+    (instans-debug-message instans :parse-rules "instans-add-rules ~S ~S :base ~S" (instans-name instans) rules base)
     (cond ((sparql-error-p instans) nil)
 	  ((file-or-uri-exists-p rules)
 	   (let ((string (read-from-url-or-file rules)))
@@ -93,7 +95,7 @@
 		      nil)))))
 	  (t
 	   (inform "Cannot read SPARQL from ~S" rules)
-	   nil))))
+	   nil)))
 
 (defun file-type (file)
   (cond ((pathnamep file) (pathname-type file))
@@ -102,7 +104,6 @@
 	((stringp file) (file-type (pathname file)))
 	(t
 	 nil)))
-
 
 (defun create-output-stream (spec)
   (cond ((listp spec)
@@ -135,84 +136,64 @@
 	 (values (open input) (file-type input)))
 	(t (values nil nil (format nil "Cannot create an input stream based on ~S" input)))))
 
-;; (defun instans-add-mailbox-input-processor (instans-iri input-iri &key graph base subscribe)
-;;   (let* ((instans (get-instans instans-iri))
-;; 	 (input-processors (instans-query-input-processors instans)))
-;;     (cond ((null input-processors)
-;; 	   (let ((mailbox (sb-concurrency:make-mailbox :name input-iri)))
-;; 	     (add-query-input-processor instans
-;; 					(make-instance 'query-input-processor
-;; 						       :instans instans
-;; 						       :input-policy input-policy
-;; 						       :operations (instans-rdf-operations instans)
-;; 						       :base base
-;; 						       :graph graph
-;; 						       :subscribe subscribe
-;; 						       :parser #'(lambda ()
-
-(defun instans-add-stream-input-processor (instans-iri input-iri &key graph base input-type subscribe)
-  (let* ((instans (get-instans instans-iri)))
-    (instans-debug-message instans '(:parse-rdf :execute) "instans-add-stream-input-processor ~S ~S :input-type ~S :graph ~S :base ~S" instans-iri input-iri input-type graph base)
-    (let* ((input-policy (instans-rdf-input-unit instans))
-	   (processor (make-instance 'query-input-processor
-				     :instans instans
-				     :input-policy input-policy
-				     :operations (instans-rdf-operations instans)
-				     :base base
-				     :graph graph
-				     :subscribe subscribe))
-	   (input-stream (create-input-stream input-iri))
-	   (parser-creator (case input-type (:trig #'make-trig-parser) (:ttl #'make-turtle-parser) (t (error* "Unknown input type ~S" input-type))))
-	   (parser nil)
-	   (callback (case input-policy
-		       (:single (list :triple-callback #'(lambda (&rest input)
-							   (process-query-input processor (list input))
-;							   (setf (ll-parser-print-snapshot-p parser) t)
-							   (ll-parser-yields)
-							   input
-							   )))
-		       (:block (list :block-callback #'(lambda (inputs)
-							 (process-query-input processor inputs)
+(defun instans-add-stream-input-processor (instans input-iri &key graph base input-type subscribe)
+  (instans-debug-message instans '(:parse-rdf :execute) "instans-add-stream-input-processor ~S ~S :input-type ~S :graph ~S :base ~S" (instans-name instans) input-iri input-type graph base)
+  (let* ((input-policy (instans-rdf-input-unit instans))
+	 (processor (make-instance 'query-input-processor
+				   :instans instans
+				   :input-policy input-policy
+				   :operations (instans-rdf-operations instans)
+				   :base base
+				   :graph graph
+				   :subscribe subscribe))
+	 (input-stream (create-input-stream input-iri))
+	 (parser-creator (case input-type (:trig #'make-trig-parser) (:ttl #'make-turtle-parser) (t (error* "Unknown input type ~S" input-type))))
+	 (parser nil)
+	 (callback (case input-policy
+		     (:single (list :triple-callback #'(lambda (&rest input)
+							 (process-query-input processor (list input))
+					;							   (setf (ll-parser-print-snapshot-p parser) t)
 							 (ll-parser-yields)
-							 inputs
-							       )))
-		       (:document (list :document-callback #'(lambda (inputs) (process-query-input processor inputs))))
-		       (t (error* "Illegal query input policy ~A" input-policy))))
-	   (prefix-callback (list :prefix-callback #'(lambda (prefix expansion) (instans-store-prefix-binding instans prefix expansion)))))
-      (setf parser (apply parser-creator instans input-stream :base base :graph graph :subscribe subscribe (append callback prefix-callback)))
-;      (make-turtle-parser )
-      (setf (query-input-processor-parser processor) parser)
-      (add-query-input-processor instans processor)
-;      (push-to-end processor (instans-query-input-processors instans))
-      )
+							 input
+							 )))
+		     (:block (list :block-callback #'(lambda (inputs)
+						       (process-query-input processor inputs)
+						       (ll-parser-yields)
+						       inputs
+						       )))
+		     (:document (list :document-callback #'(lambda (inputs) (process-query-input processor inputs))))
+		     (t (error* "Illegal query input policy ~A" input-policy))))
+	 (prefix-callback (list :prefix-callback #'(lambda (prefix expansion) (instans-store-prefix-binding instans prefix expansion)))))
+    (setf parser (apply parser-creator instans input-stream :base base :graph graph :subscribe subscribe (append callback prefix-callback)))
+					;      (make-turtle-parser )
+    (setf (query-input-processor-parser processor) parser)
+    (add-query-input-processor instans processor)
+					;      (push-to-end processor (instans-query-input-processors instans))
     instans))
 
-(defun instans-add-agent-input-processor (instans-iri &key graph base input-type subscribe)
-  (let* ((instans (get-instans instans-iri)))
-    (instans-debug-message instans '(:parse-rdf :execute) "instans-add-agent-input-processor ~S :input-type ~S :graph ~S :base ~S" instans-iri input-type graph base)
-    (let ((processor (make-instance 'rete-agent-input-processor
-				    :instans instans
-				    :operations (instans-rdf-operations instans)
-				    :base base
-				    :graph graph
-				    :subscribe subscribe)))
-      (add-query-input-processor instans processor)
-      instans)))
+(defun instans-add-agent-input-processor (instans &key graph base input-type subscribe)
+  (instans-debug-message instans '(:parse-rdf :execute) "instans-add-agent-input-processor ~S :input-type ~S :graph ~S :base ~S" (instans-name instans) input-type graph base)
+  (let ((processor (make-instance 'rete-agent-input-processor
+				  :instans instans
+				  :operations (instans-rdf-operations instans)
+				  :base base
+				  :graph graph
+				  :subscribe subscribe)))
+    (add-query-input-processor instans processor)
+    instans))
 
-(defun instans-run (instans-iri &key select-output-name (select-output-type :csv) construct-output-name (construct-output-type :trig) report-sizes-interval)
-  (let ((instans (get-instans instans-iri)))
-    (unless (instans-select-output-processor instans)
-      (setf (instans-select-output-processor instans) (create-select-output-processor select-output-name select-output-type)))
-    (unless (instans-construct-output-processor instans)
-      (setf (instans-construct-output-processor instans) (create-construct-output-processor construct-output-name construct-output-type)))
-    (when report-sizes-interval
-      (initialize-report-sizes instans report-sizes-interval))
-    (run-query-input-processors instans)))
+(defun instans-run (instans &key select-output-name (select-output-type :csv) construct-output-name (construct-output-type :trig) report-sizes-interval)
+  (unless (instans-select-output-processor instans)
+    (setf (instans-select-output-processor instans) (create-select-output-processor instans select-output-name select-output-type)))
+  (unless (instans-construct-output-processor instans)
+    (setf (instans-construct-output-processor instans) (create-construct-output-processor instans construct-output-name construct-output-type)))
+  (when report-sizes-interval
+    (initialize-report-sizes instans report-sizes-interval))
+  (run-query-input-processors instans))
 
-(defun instans-parse-rdf-file (instans-iri input-iri &key subscribe base graph triple-callback block-callback document-callback)
-  (let ((instans (create-instans instans-iri))
-	input-stream file-type error-msg)
-    (instans-debug-message instans '(:parse-rdf :execute) "instans-parse-rdf-file ~S ~S" instans-iri input-iri)
+(defun instans-parse-rdf-file (instans input-iri &key subscribe base graph triple-callback block-callback document-callback)
+  (let (input-stream file-type error-msg)
+    (instans-debug-message instans '(:parse-rdf :execute) "instans-parse-rdf-file ~S ~S" (instans-name instans) input-iri)
     (unwind-protect
 	 (progn
 	   (multiple-value-setq (input-stream file-type error-msg) (create-input-stream input-iri))
@@ -231,13 +212,12 @@
       (when input-stream (close input-stream)))
     instans))
 
-(defun instans-compare-rdf-files (instans-iri input1-iri input2-iri &key base)
-  (let* ((instans (or (get-instans instans-iri) (create-instans instans-iri)))
-	 (result1 nil)
-	 (result2 nil))
-      (instans-parse-rdf-file instans-iri input1-iri :base base :document-callback #'(lambda (result) (setf result1 result)))
+(defun instans-compare-rdf-files (instans input1-iri input2-iri &key base)
+  (let ((result1 nil)
+	(result2 nil))
+      (instans-parse-rdf-file instans input1-iri :base base :document-callback #'(lambda (result) (setf result1 result)))
       (cond ((and input2-iri (not (sparql-unbound-p input2-iri)))
-	     (instans-parse-rdf-file instans-iri input2-iri :base base :document-callback #'(lambda (result) (setf result2 result)))
+	     (instans-parse-rdf-file instans input2-iri :base base :document-callback #'(lambda (result) (setf result2 result)))
 	     (cond ((instans-has-status instans 'instans-rdf-parsing-failed)
 		    nil)
 		   ((rdf-graphs-isomorphic-p result1 result2)
@@ -248,10 +228,9 @@
 		    nil)))
 	    (t t))))
 
-(defun instans-add-triples (instans-iri input-iri &key graph base)
-  (let* ((instans (get-instans instans-iri))
-	 input-stream file-type error-msg)
-    (instans-debug-message instans '(:parse-rdf :execute) "instans-add-triples ~S ~S :graph ~S :base ~S" instans-iri input-iri graph base)
+(defun instans-add-triples (instans input-iri &key graph base)
+  (let (input-stream file-type error-msg)
+    (instans-debug-message instans '(:parse-rdf :execute) "instans-add-triples ~S ~S :graph ~S :base ~S" (instans-name instans) input-iri graph base)
     (unwind-protect
 	 (progn
 	   (multiple-value-setq (input-stream file-type error-msg) (create-input-stream input-iri))
@@ -304,12 +283,12 @@
   (when (rdf-iri-equal triples *rdf-nil*) (setf triples nil))
   (when (rdf-iri-equal expected-results *rdf-nil*) (setf expected-results nil))
 					;  (handler-case 
-  (multiple-value-bind (instans instans-iri) (create-instans)
+  (let ((instans (create-instans)))
     (format (instans-default-output instans) "~%execute_system rules=~A, triples=~A, expected_results=~A, graph=~A,base=~A~&" rules triples expected-results graph base)
-    (or (instans-add-rules instans-iri rules :base base)
+    (or (instans-add-rules instans rules :base base)
 	(return-from instans-execute-system nil))
     (if triples
-	(instans-add-triples instans-iri triples :graph graph :base base))))
+	(instans-add-triples instans triples :graph graph :base base))))
 
 (defun execute-prev ()
   (instans-execute-system nil :use-previous-args-p t))
