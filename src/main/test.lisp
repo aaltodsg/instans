@@ -19,12 +19,6 @@
 	 (p (instans-select-output-processor instans)))
     (declare (ignorable p))
     nil))
-    ;; (cond ((solution-set-output-processor-p p)
-    ;; 	   (if (slot-boundp p 'variables)
-    ;; 	       (values (solution-set-output-processor-variables p)
-    ;; 		       (solution-set-output-processor-bindings p))
-    ;; 	       (values nil nil)))
-    ;; 	  (t nil))))
 
 (defun manifest-tests-pretty (kind &optional query)
   (let ((root (namestring (find-instans-root-directory))))

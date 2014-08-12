@@ -246,50 +246,6 @@
   ((node :accessor rule-instance-node :initarg :node)
    (token :accessor rule-instance-token :initarg :token)))
 
-(define-class csv-output ()
-  ((stream :accessor csv-output-stream :initarg :stream)
-   (separator :accessor csv-output-separator :initarg :separator :initform (format nil "~C" #\linefeed))
-   (headers :accessor csv-output-headers)
-   (require-headers-p :accessor csv-output-require-headers-p :initarg :require-headers-p :initform t)))
-
-;;; Query input processor
-
-;;; Select/ask/describe/construct ... processors
-(define-class query-output-processor () 
-  ((output-name :accessor query-output-processor-output-name :initarg :output-name)))
-
-(define-class stream-query-output-processor-mixin ()
-  ((output-stream :accessor query-output-processor-output-stream)))
-
-(define-class select-output-processor (query-output-processor) ())
-
-(define-class construct-output-processor (query-output-processor) ())
-
-(define-class csv-output-processor (select-output-processor stream-query-output-processor-mixin)
-  ((csv-output :accessor csv-output-processor-csv-output :initarg :csv-output)))
-
-(define-class solution-set-output-processor (query-output-processor)
-  ((query-results :accessor solution-set-output-processor-query-results :initarg :query-results)))
-
-(define-class n-statement-output-processor (construct-output-processor stream-query-output-processor-mixin) ())
-(define-class nt-output-processor (n-statement-output-processor) ())
-(define-class nq-output-processor (n-statement-output-processor) ())
-
-(define-class trig-output-processor (construct-output-processor stream-query-output-processor-mixin)
-  ((batchp :accessor trig-output-processor-batch-p :initarg :batchp :initform nil)
-   (current-graph :accessor trig-output-processor-current-graph :initform nil)
-   (subject-predicate-object-list-form-p :accessor trig-output-processor-subject-predicate-object-list-form-p :initarg :subject-predicate-object-list-form-p :initform t)
-   (triplesp :accessor trig-output-processor-triples-p :initarg :triplesp :initform nil)
-   (quads/triples :accessor trig-output-processor-quads/triples :initform nil)
-   (quads/triples-tail :accessor trig-output-processor-quads/triples-tail :initform nil)))
-
-(define-class turtle-output-processor (trig-output-processor) ())
-
-(define-class mailbox-output-processor (construct-output-processor)
-  ((mailboxes :accessor mailbox-output-processor-mailboxes :initarg :mailboxes :initform nil)
-   (quads :accessor mailbox-output-processor-quads :initform nil)
-   (quads-tail :accessor mailbox-output-processor-quads-tail :initform nil)))
-
 ;;; System
 (define-class instans ()
   ((name :accessor instans-name :initarg :name)

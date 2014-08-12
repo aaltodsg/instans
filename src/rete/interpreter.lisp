@@ -351,7 +351,7 @@
 (defgeneric output-quad-or-triple (instans s p o &optional g)
   (:method ((this instans) s p o &optional g)
     (unless (null (instans-construct-output-processor this))
-      (write-construct-output (instans-construct-output-processor this) this s p o g))))
+      (construct-output (instans-construct-output-processor this) this s p o g))))
 
 (defgeneric report-execution-status (instans &key stream)
   (:method ((this instans) &key (stream (instans-default-output this)))
@@ -903,15 +903,15 @@
     (let ((instans (node-instans this)))
 ;      (inform "execute-rule-node ~A, ~A, processor = ~A" this token (instans-select-output-processor instans))
       (unless (null (instans-select-output-processor instans))
-	(write-select-output (instans-select-output-processor instans) this token))))
+	(select-output (instans-select-output-processor instans) this token))))
   (:method ((this ask-node) token)
     (let ((instans (node-instans this)))
       (unless (null (instans-select-output-processor instans))
-	(write-select-output (instans-select-output-processor instans) this token))))
+	(select-output (instans-select-output-processor instans) this token))))
   (:method ((this describe-node) token)
     (let ((instans (node-instans this)))
       (unless (null (instans-select-output-processor instans))
-	(write-select-output (instans-select-output-processor instans) this token))))
+	(select-output (instans-select-output-processor instans) this token))))
   (:method ((this modify-node) token)
     ;; (let* ((instans (node-instans this))
     ;; 	   (modify-function (instans-modify-function instans)))
@@ -948,5 +948,5 @@
 	 rete-add rete-remove add-token remove-token add-alpha-token add-beta-token remove-alpha-token remove-beta-token match-quad
 	 join-beta-key join-alpha-key
 	 token-value make-token call-succ-nodes rete-add-rule-instance execute-rules rule-instance-queue-execute-instance execute-rule-node
-	 write-select-output store-put-token store-get-token store-remove-token store-tokens index-put-token index-get-tokens index-remove-token
+	 select-output store-put-token store-get-token store-remove-token store-tokens index-put-token index-get-tokens index-remove-token
 	 aggregate-get-value aggregate-add-value aggregate-remove-value))
