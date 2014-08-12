@@ -220,7 +220,7 @@
   (:method ((this instans-agent-input-processor))
     (let* ((instans (instans-input-processor-instans this))
 	   (statements (agent-receive instans)))
-      (process-query-input instans statements)))
+      (process-query-input this statements)))
   (:method ((this instans-stream-input-processor))
     (parse (instans-stream-input-processor-parser this))))
 
@@ -233,43 +233,39 @@
     (when (instans-construct-output-processor this)
       (close-output-processor (instans-construct-output-processor this)))))
 
-(defgeneric process-query-input (instans-or-instans-input-processor inputs &key graph ops)
-  (:method ((this instans-input-processor) input &key graph ops)
-    (process-query-input (instans-input-processor-instans this) input :graph graph :ops (or ops (instans-input-processor-operations this))))
-  (:method ((this instans) inputs &key graph ops)
-    (setf ops (or ops (instans-rdf-operations this)))
-    (when (symbolp ops)
-      (setf ops (list ops)))
-    (setf ops (loop for op in ops nconc (if (eq op :event) (list :add :execute :remove :execute) (list op))))
+(defgeneric process-query-input (instans-input-processor inputs &key graph ops)
+  (:method ((this instans-input-processor) inputs &key graph ops)
+    (let ((instans (instans-input-processor-instans this)))
+      (setf ops (or ops (instans-rdf-operations instans)))
 ;    (inform "Ops = ~S" ops)
-    (let ((*instans* this)
-	  (reportp (operation-report-p this :rdf-operations)))
+      (let ((*instans* instans)
+	    (reportp (operation-report-p instans :rdf-operations)))
       (declare (special *instans*))
       (loop for op in ops 
 	    when reportp
-	    do (format (instans-default-output this) "~%Running RDF-operation ~A~%" op)
+	    do (format (instans-default-output instans) "~%Running RDF-operation ~A~%" op)
 	    do (case op
 		 (:add
 		  (loop for (subj pred obj . rest) in inputs
-			do (rete-add this subj pred obj (if rest (first rest) graph))))
+			do (rete-add instans subj pred obj (if rest (first rest) graph))))
 		 (:remove
 		  (loop for (subj pred obj . rest) in inputs
-			do (rete-remove this subj pred obj (if rest (first rest) graph))))
+			do (rete-remove instans subj pred obj (if rest (first rest) graph))))
 		 (:execute
-		  (execute-rules this))
+		  (execute-rules instans))
 		 (:execute-snapshot
-		  (execute-rules this :snapshot))
+		  (execute-rules instans :snapshot))
 		 (:execute-first
-		  (execute-rules this :first))
+		  (execute-rules instans :first))
 		 (:execute-repeat-snapshot
-		  (execute-rules this :repeat-snapshot))
+		  (execute-rules instans :repeat-snapshot))
 		 (:execute-repeat-first
-		  (execute-rules this :repeat-first))
+		  (execute-rules instans :repeat-first))
 		 (:flush
-		  (flush-output-processor (instans-construct-output-processor this))
-		  (flush-output-processor (instans-select-output-processor this)))
+		  (flush-output-processor (instans-construct-output-processor instans))
+		  (flush-output-processor (instans-select-output-processor instans)))
 		 (t
-		  (error* "Illegal op ~S" op)))))))
+		  (error* "Illegal op ~S" op))))))))
 
 (defgeneric initialize-report-sizes (instans report-sizes-interval)
   (:method ((this instans) report-sizes-interval)

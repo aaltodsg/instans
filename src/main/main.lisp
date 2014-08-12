@@ -354,15 +354,11 @@
 			"\"execute-repeat-first\". Operation \"flush\" flushes all pending output."
 			"You can use \"event\" as a shorthand form \"add:execute:remove:execute\"."
 			"The default operations list is \"add:execute\".")
-		(setf (instans-rdf-operations instans) (parse-colon-separated-values value)))
-	       ;; (queue-execution-policy
-	       ;;  :options ("--queue-execution-policy=POLICY")
-	       ;;  :usage ("Execute the rules in the rule instance queue based on POLICY. Policies are \"first\","
-	       ;; 	  "\"snapshot\", \"repeat-first\" (the default), and \"repeat-snapshot\". \"First\" executes"
-	       ;; 	  "the first instance in the queue, \"repeat-first\" does this as long as the queue is not"
-	       ;; 	  "empty. \"Snapshot\" takes the rules currently in the queue and executes them;"
-	       ;; 	  "\"repeat-snapshot\" repeats this as long as the queue is not empty.")
-	       ;;  (setf (instans-queue-execution-policy instans) (intern-keyword (string-upcase value))))
+		(let ((ops (parse-colon-separated-values value)))
+		  (when (symbolp ops)
+		    (setf ops (list ops)))
+		  (setf ops (loop for op in ops nconc (if (eq op :event) (list :add :execute :remove :execute) (list op))))
+		  (setf (instans-rdf-operations instans) ops)))
 	       (allow-rule-instance-removal
 		:options ("--allow-rule-instance-removal=BOOL")
 		:usage ("If true (the default), adding or removing RDF input removes rule instances that have"

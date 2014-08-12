@@ -152,3 +152,71 @@
 	       (inform "~A:~A" input (ll-parser-error-messages triples-parser))))
 	(report-execution-status instans)))
     instans))
+
+(defvar *instans-execute-system-previous-rules* nil)
+(defvar *instans-execute-system-previous-triples* nil)
+(defvar *instans-execute-system-previous-expected-results* nil)
+(defvar *instans-execute-system-previous-graph* nil)
+(defvar *instans-execute-system-previous-base* nil)
+
+(defun instans-execute-system (rules &key triples expected-results graph base (use-previous-args-p nil))
+  (cond ((not use-previous-args-p)
+	 (setf *instans-execute-system-previous-rules* rules)
+	 (setf *instans-execute-system-previous-triples* triples)
+	 (setf *instans-execute-system-previous-expected-results* expected-results)
+	 (setf *instans-execute-system-previous-graph* graph)
+	 (setf *instans-execute-system-previous-base* base))
+	(t
+	 (setf rules *instans-execute-system-previous-rules*)
+	 (setf triples *instans-execute-system-previous-triples*)
+	 (setf expected-results *instans-execute-system-previous-expected-results*)
+	 (setf graph *instans-execute-system-previous-graph*)
+	 (setf base *instans-execute-system-previous-base*)))
+  (when (or (equalp graph "DEFAULT") (rdf-iri-equal graph *rdf-nil*)) (setf graph nil))
+  (when (rdf-iri-equal base *rdf-nil*) (setf base nil))
+  (when (rdf-iri-equal triples *rdf-nil*) (setf triples nil))
+  (when (rdf-iri-equal expected-results *rdf-nil*) (setf expected-results nil))
+					;  (handler-case 
+  (let ((instans (create-instans)))
+    (format (instans-default-output instans) "~%execute_system rules=~A, triples=~A, expected_results=~A, graph=~A,base=~A~&" rules triples expected-results graph base)
+    (or (instans-add-rules instans rules :base base)
+	(return-from instans-execute-system nil))
+    (if triples
+	(instans-add-triples instans triples :graph graph :base base))))
+
+(defun execute-prev ()
+  (instans-execute-system nil :use-previous-args-p t))
+
+(defun metasuite ()
+  (sparql-call "instans:execute_system" "/Users/enu/instans/tests/input/metasuite.rq"  "/Users/enu/instans/tests/input/manifest-all.ttl" nil nil (parse-iri "file:///Users/enu/Sparql/sparql11-test-suite/")))
+
+(defun instans-add-triples (instans input-iri &key graph base)
+  (let (input-stream file-type error-msg)
+    (instans-debug-message instans '(:parse-rdf :execute) "instans-add-triples ~S ~S :graph ~S :base ~S" (instans-name instans) input-iri graph base)
+    (unwind-protect
+	 (progn
+	   (multiple-value-setq (input-stream file-type error-msg) (create-input-stream input-iri))
+	   (unless input-stream (error* error-msg))
+	   (flet ((handle-triples (triples)
+		    (instans-debug-message instans :execute "~%Event callback: ~D triples~%~{ ~S~%~}"
+					   (length triples) triples)
+		    (process-query-input instans triples :ops '(:add :execute)
+					 :graph (if (and graph (rdf-iri-equal graph *rdf-nil*)) nil graph))))
+	     (let* ((kind (intern-keyword (string-upcase file-type)))
+		    (rdf-parser (apply #'make-rdf-parser instans input-stream file-type
+				       :base base
+				       :graph graph
+				       (if (member kind '(:trig :turtle))
+					 (list :block-callback #'handle-triples)
+					 (list :triple-callback #'(lambda (&rest triple) (handle-triples (list triple))))))))
+	       (instans-debug-message instans '(:execute :parse-rdf) "~%Processing triples:~%")
+	       (parse rdf-parser)
+	       (parse rdf-parser)
+	       (cond ((ll-parser-succeeded-p rdf-parser)
+		      (instans-add-status instans 'instans-rdf-parsing-succeeded))
+		     (t
+		      (instans-add-status instans 'instans-rdf-parsing-failed (ll-parser-error-messages rdf-parser))
+		      (inform "~A:~A~%~%" input-iri (ll-parser-error-messages rdf-parser))
+		      )))))
+      (when input-stream (close input-stream)))
+    instans))

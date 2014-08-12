@@ -12,6 +12,7 @@
    (operations :accessor instans-input-processor-operations :initarg :operations)
    (base :accessor instans-input-processor-base :initarg :base)
    (graph :accessor instans-input-processor-graph :initarg :graph)
+   (blank-node-mapping :accessor instans-input-processor-blank-node-mapping :initform (make-hash-table :test #'equal))
    (subscribe :accessor instans-input-processor-subscribe :initarg :subscribe :initform nil)))
 
 (define-class instans-stream-input-processor (instans-input-processor)

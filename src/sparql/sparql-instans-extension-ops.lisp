@@ -41,27 +41,12 @@
 	   (instans (get-instans instans-iri)))
       (and instans (instans-has-status instans key)))))
 
-;; (define-sparql-function "instans:add_triples" (:arguments ((instans-iri rdf-iri) (triples iri-or-string)
-;; 							   &optional (graph-iri rdf-iri) (base rdf-iri))
-;; 							  :returns xsd-boolean)
-;;   (:method ((instans-iri rdf-iri) (triples iri-or-string) &optional (graph-iri rdf-iri) (base rdf-iri))
-;;     (let ((instans (instans-add-triples instans-iri triples :graph graph-iri :base base)))
-;;       (and instans (instans-find-status instans 'instans-execution-succeeded)))))
-
 (define-sparql-function "instans:add_query_input_processor" (:arguments ((instans-iri rdf-iri) (input-iri iri-or-string)
 							   &optional (graph-iri rdf-iri) (base rdf-iri))
 							  :returns xsd-boolean)
   (:method ((instans-iri rdf-iri) (input-iri iri-or-string) &optional (graph-iri rdf-iri) (base rdf-iri))
     (instans-add-stream-input-processor (get-or-create-instans instans-iri) input-iri :graph graph-iri :base base :input-type (intern-keyword (string-upcase (file-type input-iri))))
     t))
-
-(define-sparql-function "instans:execute_system" (:arguments ((rules iri-or-string) &optional (triples iri-or-string) (expected-results iri-or-string) (graph-iri iri-or-string) (base iri-or-string)) :returns xsd-boolean)
-  (:method ((rules iri-or-string) &optional (triples iri-or-string) (expected-results iri-or-string) (graph-iri rdf-iri) (base rdf-iri))
-;    (error-safe
-    (let ((instans (instans-execute-system rules :triples triples :expected-results expected-results :graph graph-iri :base base)))
-      (if instans (parse-iri (instans-name instans)) (signal-sparql-error "Execution failed"))
-;)
-)))
 
 (define-sparql-function "instans:execute" (:arguments ((instans-iri rdf-iri)))
   (:method ((instans-iri rdf-iri))
