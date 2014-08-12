@@ -229,9 +229,9 @@
     (loop for ip in (instans-input-processors this)
 	  do (close (lexer-input-stream (ll-parser-lexer (instans-stream-input-processor-parser ip)))))
     (when (instans-select-output-processor this)
-      (close-query-output-processor (instans-select-output-processor this)))
+      (close-output-processor (instans-select-output-processor this)))
     (when (instans-construct-output-processor this)
-      (close-query-output-processor (instans-construct-output-processor this)))))
+      (close-output-processor (instans-construct-output-processor this)))))
 
 (defgeneric process-query-input (instans-or-instans-input-processor inputs &key graph ops)
   (:method ((this instans-input-processor) input &key graph ops)
@@ -351,7 +351,7 @@
 (defgeneric output-quad-or-triple (instans s p o &optional g)
   (:method ((this instans) s p o &optional g)
     (unless (null (instans-construct-output-processor this))
-      (construct-output (instans-construct-output-processor this) this s p o g))))
+      (construct-output (instans-construct-output-processor this) s p o g))))
 
 (defgeneric report-execution-status (instans &key stream)
   (:method ((this instans) &key (stream (instans-default-output this)))
