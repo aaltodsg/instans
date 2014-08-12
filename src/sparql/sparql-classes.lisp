@@ -53,6 +53,10 @@
 
 (define-class rdf-blank-node (rdf-term uniquely-named-object) ())
 
+(define-class rdf-anonymous-blank-node (rdf-blank-node) ())
+
+(define-class rdf-named-blank-node (rdf-blank-node) ())
+
 (define-class sparql-var (uniquely-named-object hashkeyed) ())
 
 (define-class internal-var (sparql-var) ())

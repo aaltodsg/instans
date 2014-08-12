@@ -233,43 +233,49 @@
     (when (instans-construct-output-processor this)
       (close-output-processor (instans-construct-output-processor this)))))
 
-(defun translate-input-blank (x) x)
-
 (defgeneric process-query-input (instans-input-processor inputs &key graph ops)
   (:method ((this instans-input-processor) inputs &key graph ops)
     (let ((instans (instans-input-processor-instans this)))
-      (setf ops (or ops (instans-rdf-operations instans)))
-;    (inform "Ops = ~S" ops)
-      (let ((*instans* instans)
-	    (reportp (operation-report-p instans :rdf-operations)))
-      (declare (special *instans*))
-      (loop for op in ops 
-	    when reportp
-	    do (format (instans-default-output instans) "~%Running RDF-operation ~A~%" op)
-	    do (case op
-		 (:add
-		  (loop for (subj pred obj . rest) in inputs
-			do (rete-add instans (translate-input-blank subj) (translate-input-blank pred) (translate-input-blank obj)
-				     (if rest (first rest) (translate-input-blank graph)))))
-		 (:remove
-		  (loop for (subj pred obj . rest) in inputs
-			do (rete-remove instans (translate-input-blank subj) (translate-input-blank pred) (translate-input-blank obj)
-					(if rest (first rest) (translate-input-blank graph)))))
-		 (:execute
-		  (execute-rules instans))
-		 (:execute-snapshot
-		  (execute-rules instans :snapshot))
-		 (:execute-first
-		  (execute-rules instans :first))
-		 (:execute-repeat-snapshot
-		  (execute-rules instans :repeat-snapshot))
-		 (:execute-repeat-first
-		  (execute-rules instans :repeat-first))
-		 (:flush
-		  (flush-output-processor (instans-construct-output-processor instans))
-		  (flush-output-processor (instans-select-output-processor instans)))
-		 (t
-		  (error* "Illegal op ~S" op))))))))
+      (labels ((map-named-blank-node (x)
+		 (cond ((rdf-named-blank-node-p x)
+			(let ((tr (gethash (uniquely-named-object-name x) (instans-input-processor-blank-node-mapping this))))
+			  (when (null tr)
+			    (setf tr (generate-anonymous-blank-node instans))
+			    (setf (gethash (uniquely-named-object-name x) (instans-input-processor-blank-node-mapping this)) tr))
+			  tr))
+		       (t x))))
+	(setf ops (or ops (instans-rdf-operations instans)))
+					;    (inform "Ops = ~S" ops)
+	(let ((*instans* instans)
+	      (reportp (operation-report-p instans :rdf-operations)))
+	  (declare (special *instans*))
+	  (loop for op in ops 
+		when reportp
+		do (format (instans-default-output instans) "~%Running RDF-operation ~A~%" op)
+		do (case op
+		     (:add
+		      (loop for (subj pred obj . rest) in inputs
+			    do (rete-add instans (map-named-blank-node subj) (map-named-blank-node pred) (map-named-blank-node obj)
+					 (if rest (first rest) (map-named-blank-node graph)))))
+		     (:remove
+		      (loop for (subj pred obj . rest) in inputs
+			    do (rete-remove instans (map-named-blank-node subj) (map-named-blank-node pred) (map-named-blank-node obj)
+					    (if rest (first rest) (map-named-blank-node graph)))))
+		     (:execute
+		      (execute-rules instans))
+		     (:execute-snapshot
+		      (execute-rules instans :snapshot))
+		     (:execute-first
+		      (execute-rules instans :first))
+		     (:execute-repeat-snapshot
+		      (execute-rules instans :repeat-snapshot))
+		     (:execute-repeat-first
+		      (execute-rules instans :repeat-first))
+		     (:flush
+		      (flush-output-processor (instans-construct-output-processor instans))
+		      (flush-output-processor (instans-select-output-processor instans)))
+		     (t
+		      (error* "Illegal op ~S" op)))))))))
 
 (defgeneric initialize-report-sizes (instans report-sizes-interval)
   (:method ((this instans) report-sizes-interval)

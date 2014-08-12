@@ -390,7 +390,10 @@
 ;; blank node  BNODE(simple literal)
 ;; blank node  BNODE(xsd:string)
 (define-sparql-function "bnode" (:arguments (&optional (x xsd-string-value)) :returns rdf-blank-node)
-  (:method (&optional (x xsd-string-value)) (make-rdf-blank-node (current-instans) x)))
+  (:method (&optional (x xsd-string-value))
+    (if x
+	(make-named-blank-node (current-instans) x)
+	(generate-anonymous-blank-node (current-instans)))))
 
 ;; 17.4.2.10 STRDT
 ;; ---------------

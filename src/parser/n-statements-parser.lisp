@@ -36,7 +36,7 @@
 		      (subject    ::= (:OR IRIREF-TERMINAL BlankNode))
 		      (predicate  ::= (IRIREF-TERMINAL))
 		      (object     ::= (:OR IRIREF-TERMINAL BlankNode literal))
-		      (BlankNode  ::= (BLANK_NODE_LABEL-TERMINAL :RESULT (make-rdf-blank-node instans $0)))
+		      (BlankNode  ::= (BLANK_NODE_LABEL-TERMINAL :RESULT (make-named-blank-node instans $0)))
 		      (literal    ::= (STRING_LITERAL_QUOTE-TERMINAL
 				       (:OPT (:OR (LANGTAG-TERMINAL :RESULT #'(lambda (s) (create-rdf-literal-with-lang s (subseq $0 1))))
 						  (^^-TERMINAL IRIREF-TERMINAL :RESULT #'(lambda (s) (nth-value 0 (create-rdf-literal-with-type s $1))))))

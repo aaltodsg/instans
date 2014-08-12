@@ -84,13 +84,13 @@
 
 ;;; Var and blank creationg
 
-(defgeneric make-rdf-blank-node (instans name)
+(defgeneric make-named-blank-node (instans name)
   (:method ((this instans) name)
-    (make-uniquely-named-object (instans-blank-node-factory this) name)))
+    (make-uniquely-named-object (instans-named-blank-node-factory this) name)))
 
-(defgeneric generate-rdf-blank-node (instans &optional name-prefix)
-  (:method ((this instans) &optional (name-prefix "_:"))
-    (generate-object-with-unique-name (instans-blank-node-factory this) :name-prefix name-prefix)))
+(defgeneric generate-anonymous-blank-node (instans)
+  (:method ((this instans))
+    (generate-object-with-unique-name (instans-anonymous-blank-node-factory this) :name-prefix "_:")))
 
 (defgeneric make-sparql-var (instans name)
   (:method ((this instans) name)

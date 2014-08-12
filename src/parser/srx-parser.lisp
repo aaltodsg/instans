@@ -62,7 +62,7 @@
 		   (t
 		    value))))
 	  ((equal type "bnode")
-	   (make-rdf-blank-node instans (concatenate 'string "_:" value)))
+	   (make-named-blank-node instans (concatenate 'string "_:" value)))
 	  (t
 	   (error* "Cannot transform ~S to a Sparql object" jo)))))
 

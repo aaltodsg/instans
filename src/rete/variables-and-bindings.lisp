@@ -34,7 +34,7 @@
   (loop for var in to-vars collect (reverse-resolve-binding instans var)))
 
 (defun add-binding (instans from to-name &optional blankp)
-  (let ((to (if blankp (make-rdf-blank-node instans to-name) (make-sparql-var instans to-name))))
+  (let ((to (if blankp (make-named-blank-node instans to-name) (make-sparql-var instans to-name))))
     (push-to-end (cons from to) (instans-bindings instans))
   to))
 

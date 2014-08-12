@@ -44,8 +44,8 @@
 		  (when prefix-callback (funcall prefix-callback "BASE" b)))
 		(pname2iri (prefix suffix)
 		  (or (pname-to-iri lexer prefix suffix) (ll-parser-failure "Unbound prefix ~S" prefix)))
-		(make-blank (name) (make-rdf-blank-node instans name))
-		(generate-blank () (generate-rdf-blank-node instans))
+		(make-blank (name) (make-named-blank-node instans name))
+		(generate-blank () (generate-anonymous-blank-node instans))
 		(clear-block-triples ()
 		  (when block-callback
 		    (setf block-triples (list nil))

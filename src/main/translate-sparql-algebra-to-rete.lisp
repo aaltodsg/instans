@@ -305,7 +305,7 @@
 	    (t
 	     `(,@(if specials `((declare (special ,@specials))))
 		 ,@(cond ((null blanks) triple-op-forms)
-			 (t `((let (,@(loop for (blank . var) in blank-var-alist collect `(,var (generate-rdf-blank-node ,instans-var))))
+			 (t `((let (,@(loop for (blank . var) in blank-var-alist collect `(,var (generate-anonymous-blank-node ,instans-var))))
 				,@triple-op-forms))))))))))
 
 
