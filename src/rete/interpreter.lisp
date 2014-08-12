@@ -233,6 +233,8 @@
     (when (instans-construct-output-processor this)
       (close-output-processor (instans-construct-output-processor this)))))
 
+(defun translate-input-blank (x) x)
+
 (defgeneric process-query-input (instans-input-processor inputs &key graph ops)
   (:method ((this instans-input-processor) inputs &key graph ops)
     (let ((instans (instans-input-processor-instans this)))
@@ -247,10 +249,12 @@
 	    do (case op
 		 (:add
 		  (loop for (subj pred obj . rest) in inputs
-			do (rete-add instans subj pred obj (if rest (first rest) graph))))
+			do (rete-add instans (translate-input-blank subj) (translate-input-blank pred) (translate-input-blank obj)
+				     (if rest (first rest) (translate-input-blank graph)))))
 		 (:remove
 		  (loop for (subj pred obj . rest) in inputs
-			do (rete-remove instans subj pred obj (if rest (first rest) graph))))
+			do (rete-remove instans (translate-input-blank subj) (translate-input-blank pred) (translate-input-blank obj)
+					(if rest (first rest) (translate-input-blank graph)))))
 		 (:execute
 		  (execute-rules instans))
 		 (:execute-snapshot
