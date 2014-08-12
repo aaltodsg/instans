@@ -254,15 +254,6 @@
 
 ;;; Query input processor
 
-(define-class query-input-processor ()
-  ((instans :accessor query-input-processor-instans :initarg :instans)
-   (input-policy :accessor query-input-processor-input-policy :initarg :input-policy)
-   (operations :accessor query-input-processor-operations :initarg :operations)
-   (base :accessor query-input-processor-base :initarg :base)
-   (graph :accessor query-input-processor-graph :initarg :graph)
-   (parser :accessor query-input-processor-parser :initarg :parser)
-   (subscribe :accessor query-input-processor-subscribe :initarg :subscribe :initform nil)))
-
 ;;; Select/ask/describe/construct ... processors
 (define-class query-output-processor () 
   ((output-name :accessor query-output-processor-output-name :initarg :output-name)))
@@ -319,7 +310,7 @@
    (use-quad-store-p :accessor instans-use-quad-store-p :initarg :use-quad-store-p :initform nil)
 					;   (initial-data-ops :accessor instans-initial-data-ops :initform nil)
    (rule-instance-queue :accessor instans-rule-instance-queue)
-   (query-input-processors :accessor instans-query-input-processors :initarg :query-input-processors :initform nil)
+   (input-processors :accessor instans-input-processors :initarg :input-processors :initform nil)
    (rdf-input-unit :accessor instans-rdf-input-unit :initarg :rdf-input-unit :initform :single)
    (allowed-rdf-input-units :accessor instans-allowed-rdf-input-units :allocation :class :initform '(:triple :quad :block :document))
    (rdf-operations :accessor instans-rdf-operations :initarg :rdf-operations :initform '(:add :execute))

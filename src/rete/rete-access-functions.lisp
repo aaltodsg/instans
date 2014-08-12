@@ -378,9 +378,9 @@
 			(princ field stream)))))
       (princ (csv-output-separator this) stream))))
 
-(defgeneric add-query-input-processor (instans processor)
+(defgeneric add-input-processor (instans processor)
   (:method ((this instans) processor)
-    (push-to-end processor (instans-query-input-processors this))))
+    (push-to-end processor (instans-input-processors this))))
 
 (defun create-select-output-processor (instans output-name output-type)
   (declare (ignorable instans))
