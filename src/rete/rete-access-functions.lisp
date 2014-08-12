@@ -495,7 +495,7 @@
       )))
   
 (defgeneric write-construct-output (query-output-processor instans s p o &optional g)
-  (:method ((this rete-construct-output-processor) instans s p o &optional g)
+  (:method ((this instans-construct-output-processor) instans s p o &optional g)
     (declare (ignorable instans))
     (add-statement this s p o g))
   (:method ((this n-statement-output-processor) instans s p o &optional g)
@@ -522,7 +522,7 @@
   	  do (sb-concurrency:send-message mailbox (list s p o g)))))
 
 (defgeneric flush-output-processor (query-output-processor)
-  (:method ((this rete-construct-output-processor))
+  (:method ((this instans-construct-output-processor))
     (flush-construct-output this))
   (:method ((this trig-output-processor))
     (output-pending-graph this))
@@ -530,9 +530,9 @@
     nil))
 
 (defgeneric close-query-output-processor (query-output-processor)
-  (:method ((this rete-output-processor))
+  (:method ((this instans-output-processor))
     (flush-output-processor this)
-    (close-rete-output-processor this))
+    (close-instans-output-processor this))
   (:method ((this trig-output-processor))
     (output-pending-graph this)
     (call-next-method))
