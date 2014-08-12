@@ -138,38 +138,43 @@
 
 (defun instans-add-stream-input-processor (instans input-iri &key graph base input-type subscribe)
   (instans-debug-message instans '(:parse-rdf :execute) "instans-add-stream-input-processor ~S ~S :input-type ~S :graph ~S :base ~S" (instans-name instans) input-iri input-type graph base)
-  (let* ((input-unit (instans-rdf-input-unit instans))
-	 (processor (make-instance 'instans-stream-input-processor
-				   :instans instans
-				   :input-unit input-unit
-				   :operations (instans-rdf-operations instans)
-				   :base base
-				   :graph graph
-				   :subscribe subscribe))
-	 (input-stream (create-input-stream input-iri))
-	 (parser-creator (case input-type (:trig #'make-trig-parser) (:ttl #'make-turtle-parser) (t (error* "Unknown input type ~S" input-type))))
-	 (parser nil)
-	 (callback (case input-unit
-		     (:single (list :triple-callback #'(lambda (&rest input)
-							 (process-query-input processor (list input))
+  (multiple-value-bind (processor-type parser-creator)
+      (case input-type
+	(:trig (values 'instans-trig-input-processor #'make-trig-parser))
+	(:ttl (values 'instans-turtle-input-processor #'make-turtle-parser))
+	(:nt (values 'instans-nt-input-processor #'make-n-triples-parser))
+	(:nq (values 'instans-nq-input-processor #'make-n-quads-parser))
+	(t (error* "Unknown input type ~S" input-type)))
+    (let* ((input-unit (instans-rdf-input-unit instans))
+	   (processor (make-instance processor-type
+				     :instans instans
+				     :input-unit input-unit
+				     :operations (instans-rdf-operations instans)
+				     :base base
+				     :graph graph
+				     :subscribe subscribe))
+	   (input-stream (create-input-stream input-iri))
+	   (parser nil)
+	   (callback (case input-unit
+		       (:single (list :triple-callback #'(lambda (&rest input)
+							   (process-query-input processor (list input))
 					;							   (setf (ll-parser-print-snapshot-p parser) t)
+							   (ll-parser-yields)
+							   input
+							   )))
+		       (:block (list :block-callback #'(lambda (inputs)
+							 (process-query-input processor inputs)
 							 (ll-parser-yields)
-							 input
+							 inputs
 							 )))
-		     (:block (list :block-callback #'(lambda (inputs)
-						       (process-query-input processor inputs)
-						       (ll-parser-yields)
-						       inputs
-						       )))
-		     (:document (list :document-callback #'(lambda (inputs) (process-query-input processor inputs))))
-		     (t (error* "Illegal query input unit ~A" input-unit))))
-	 (prefix-callback (list :prefix-callback #'(lambda (prefix expansion) (instans-store-prefix-binding instans prefix expansion)))))
-    (setf parser (apply parser-creator instans input-stream :base base :graph graph :subscribe subscribe (append callback prefix-callback)))
+		       (:document (list :document-callback #'(lambda (inputs) (process-query-input processor inputs))))
+		       (t (error* "Illegal query input unit ~A" input-unit))))
+	   (prefix-callback (list :prefix-callback #'(lambda (prefix expansion) (instans-store-prefix-binding instans prefix expansion)))))
+      (setf parser (apply parser-creator instans input-stream :base base :graph graph :subscribe subscribe (append callback prefix-callback)))
 					;      (make-turtle-parser )
-    (setf (instans-stream-input-processor-parser processor) parser)
-    (add-input-processor instans processor)
-					;      (push-to-end processor (instans-input-processors instans))
-    instans))
+      (setf (instans-stream-input-processor-parser processor) parser)
+      (add-input-processor instans processor)
+      instans)))
 
 (defun instans-add-agent-input-processor (instans &key graph base input-type subscribe)
   (instans-debug-message instans '(:parse-rdf :execute) "instans-add-agent-input-processor ~S :input-type ~S :graph ~S :base ~S" (instans-name instans) input-type graph base)
