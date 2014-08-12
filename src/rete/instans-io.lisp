@@ -273,7 +273,9 @@
 					 do (format stream "~A ~A" o-sep (sparql-value-to-string o :instans instans)))
 				do (incf indent (- (length p-string))))
 			 do (incf indent (- (length s-string)))
-			 do (format stream " .~%"))))))
+			 do (format stream " .~%"))
+		 (when g
+		   (format stream "}~%"))))))
   (:method ((this instans-agent-writer) (instans instans) trie)
     (let* ((msg (list nil))
 	   (tail msg))

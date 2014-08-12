@@ -1,0 +1,35 @@
+BASE <http://instans.org/>
+PREFIX : <http:instans.org/default#>
+PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX ssn: <http://purl.oclc.org/NET/ssnx/ssn#>
+PREFIX ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
+PREFIX omgeo: <http://www.ontotext.com/owlim/geo#>
+PREFIX ff: <http://factforge.net/>
+
+# Split (EPA 5): Split into separate channels using original blank nodes.
+
+CONSTRUCT {
+  GRAPH <geoevents> { # Insert GeoEvents
+  	?event a ep:EventObject ;
+	       geo:Point [ geo:lat ?lat ; geo:long ?long ; ]
+  }  
+} WHERE {
+  GRAPH <poststateful> {
+  	?event a ep:EventObject ;
+	       geo:Point [ geo:lat ?lat ; geo:long ?long ; ]
+  }
+};
+
+CONSTRUCT {
+  GRAPH <timeevents> { # Insert TimeEvents
+  	?event a ep:EventObject ;
+	       ssn:Sensor ?sensor ;
+	       ep:hasEventObjectSamplingTime ?time
+  }
+} WHERE {
+  GRAPH <poststateful> { # Match incoming events
+  	?event a ep:EventObject ;
+	       ssn:Sensor ?sensor ;
+	       ep:hasEventObjectSamplingTime ?time
+  }
+};

@@ -1,0 +1,48 @@
+BASE <http://instans.org/>
+PREFIX : <http:instans.org/default#>
+PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX ssn: <http://purl.oclc.org/NET/ssnx/ssn#>
+PREFIX ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
+PREFIX omgeo: <http://www.ontotext.com/owlim/geo#>
+PREFIX ff: <http://factforge.net/>
+
+# Project (EPA 4): Delete information from the incoming events
+
+# @name EPA4-Project
+INSERT {  GRAPH <projected> { 
+    ?event a ep:EventObject ; # Forward projected event
+         ssn:Sensor ?sensor ;
+         geo:Point [ geo:lat ?lat ; geo:long ?long ; ] ;
+         ep:hasEventObjectSamplingTime ?time } }
+WHERE {  GRAPH <translated> { 
+    ?event a ep:EventObject ; # Match wanted triples only
+         ssn:Sensor ?sensor ;
+         geo:Point [ geo:lat ?lat ; geo:long ?long ; ] ;
+         ep:hasEventObjectSamplingTime ?time } } ;
+
+# Cleanup <translated> when a newer event is available
+
+# @name Cleanup-Translated
+DELETE {
+  GRAPH <translated> {
+    ?event1 a ep:EventObject ;
+         ssn:Sensor ?sensor ;
+         ep:hasEventObjectSamplingTime ?time1 ;
+         :locationName ?label ;
+         geo:Point ?point .
+    ?point geo:lat ?lat ; geo:long ?long }
+}
+WHERE {
+  GRAPH <translated> {
+    ?event1 a ep:EventObject ;
+         ssn:Sensor ?sensor ;
+         ep:hasEventObjectSamplingTime ?time1 ;
+         :locationName ?label ;
+         geo:Point ?point .
+    ?point geo:lat ?lat ; geo:long ?long }
+  FILTER EXISTS { GRAPH <translated> {
+      ?event2 a ep:EventObject ;
+              ep:hasEventObjectSamplingTime ?time2 .
+      FILTER (?time1 < ?time2)
+  }  }
+} ;

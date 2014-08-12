@@ -1,0 +1,28 @@
+BASE <http://instans.org/>
+PREFIX : <http:instans.org/default#>
+PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX ssn: <http://purl.oclc.org/NET/ssnx/ssn#>
+PREFIX ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
+PREFIX omgeo: <http://www.ontotext.com/owlim/geo#>
+PREFIX ff: <http://factforge.net/>
+
+# Enrich (EPA 3): Enrich events with the name of the closest location
+# SERVICE-query replaced with BIND ( "Espoo" as ?label ) to avoid external lookup delay
+# and because SERVICE is not yet implemented in INSTANS
+
+# @name EPA3-pass-all-through
+CONSTRUCT { GRAPH <translated> { ?s ?p ?o } }
+WHERE { GRAPH <poststateful> { 
+    ?event a ep:EventObject . # Match incoming event
+    ?s ?p ?o
+} } ; 
+
+# @name EPA3-enrich
+CONSTRUCT { GRAPH <translated> { ?event :locationName ?label } }
+WHERE { GRAPH <poststateful> { 
+    ?event geo:Point [ geo:lat ?lat ; geo:long ?long ; ]
+    BIND ( "Espoo" as ?label ) # Temporary replacement until SERVICE implemented
+#    SERVICE <http://factforge.net/sparql> { # Retrieve location label
+#       ?location omgeo:nearby(?lat ?long "1km"); 
+#                 ff:preferredLabel ?label }
+} } ; 

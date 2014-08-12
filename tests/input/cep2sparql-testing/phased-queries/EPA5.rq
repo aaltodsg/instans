@@ -6,30 +6,20 @@ PREFIX ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
 PREFIX omgeo: <http://www.ontotext.com/owlim/geo#>
 PREFIX ff: <http://factforge.net/>
 
-# Enrich (EPA 3): Enrich events with the name of the closest location
-# SERVICE-query replaced with BIND ( "Espoo" as ?label ) to avoid external lookup delay
-# and because SERVICE is not yet implemented in INSTANS
+# Split (EPA 5): Split into separate channels using original blank nodes.
 
-PREFIX omgeo: <http://www.ontotext.com/owlim/geo#>
-PREFIX ff: <http://factforge.net/>
-
-# @name EPA3-Enrich
-INSERT { GRAPH <translated> { 
-    ?event a ep:EventObject ; # Forward enriched event
-         ssn:Sensor ?sensor ;
-         geo:Point [ geo:lat ?lat ; geo:long ?long ; ] ;
-         ep:hasEventObjectSamplingTime ?time ;
-         :locationName ?label } }
-WHERE { GRAPH <poststateful> { 
-    ?event a ep:EventObject ; # Match incoming event
+INSERT { GRAPH <geoevents> { # Insert GeoEvents
+    ?event a ep:EventObject ;
+           geo:Point [ geo:lat ?lat ; geo:long ?long ; ] }
+  GRAPH <timeevents> { # Insert TimeEvents
+    ?event a ep:EventObject ;
+           ssn:Sensor ?sensor ;
+           ep:hasEventObjectSamplingTime ?time } }
+WHERE { GRAPH <poststateful> { # Match incoming events
+    ?event a ep:EventObject ;
            ssn:Sensor ?sensor ;
            geo:Point [ geo:lat ?lat ; geo:long ?long ; ] ;
-           ep:hasEventObjectSamplingTime ?time .
-     BIND ( "Espoo" as ?label ) # Temporary replacement until SERVICE implemented
-#    SERVICE <http://factforge.net/sparql> { # Retrieve location label
-#       ?location omgeo:nearby(?lat ?long "1km"); 
-#                 ff:preferredLabel ?label }
-} } ; 
+           ep:hasEventObjectSamplingTime ?time } } ;
 
 # Cleanup <poststateful> when a newer event is available
 

@@ -334,9 +334,9 @@
 		(maybe-execute))
 	       (rdf-input-unit
 		:options ("--rdf-input-unit=UNIT")
-		:usage ("Read RDF input in units of \"triple\", \"block\", or \"document\". \"Triple\" means"
+		:usage ("Read RDF input in units of \"single\", \"block\", or \"document\". \"Single\" means"
 			"that the input is read and processed one triple (or quad in TriG or N-Quads input)"
-			"at a time. In N-Triples and N-Quads \"block\" has the same meaning as \"triple\"."
+			"at a time. In N-Triples and N-Quads \"block\" has the same meaning as \"single\"."
 			"In TriG it means that the input is read and processed based on the grammar rule [2g]"
 			"of the TriG grammar, and in Turtle it means that the input is read and processed"
 			"based on the grammar rule [6] of the Turtle grammar. The default is \"block\".")
@@ -371,9 +371,9 @@
 			    (t (usage)))))
 	       (t :usage ("" "Combos:" ""))
 	       (input-triples
-		:options ("--input-triples=FILE")
+		:options ("--input-single=FILE")
 		:usage "Same as '--rdf-input-unit=triple --input=FILE'"
-		(setf (instans-rdf-input-unit instans) :triple)
+		(setf (instans-rdf-input-unit instans) :single)
 		(instans-add-stream-input-processor instans (expand-iri directory value)
 						    :graph graph :base base
 						    :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))

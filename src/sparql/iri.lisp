@@ -188,5 +188,8 @@
 ;		 do (inform "testing, k = ~S, v = ~S, str = ~S" k v str)
 		 do (when (and (<= (length v) (length str)) (every #'char= v str))
 ;		      (inform "Hit: k = ~S, v = ~S, str = ~S" k v str)
-		      (return-from iri-to-string (format nil "~A:~A" k (subseq str (length v)))))
+		      (cond ((string-equal k "BASE")
+			     (return-from iri-to-string (format nil "<~A>" (subseq str (length v)))))
+			    (t
+			     (return-from iri-to-string (format nil "~A:~A" k (subseq str (length v)))))))
 		 finally (return (format nil "<~A>" str)))))))

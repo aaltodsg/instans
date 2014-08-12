@@ -1,0 +1,75 @@
+BASE <http://instans.org/>
+PREFIX : <http:instans.org/default#>
+PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX ssn: <http://purl.oclc.org/NET/ssnx/ssn#>
+PREFIX ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
+PREFIX omgeo: <http://www.ontotext.com/owlim/geo#>
+PREFIX ff: <http://factforge.net/>
+
+# Aggregate (EPA 6): Create new events out of the number of events observed in each hour
+
+# Q6-1: Maintain counter of number of events per hour in memory
+
+# @name EPA6-1-MaintainEventCounter
+DELETE { GRAPH <memory> { # Delete old entry from memory
+  ?hourIRI :hour ?memhour ;
+           :counter ?oldcount } }
+INSERT { GRAPH <memory> { # Insert new entry to memory
+  ?hourIRI :hour ?hour ;
+           :counter ?newcount } }
+WHERE { GRAPH <source> { # Match incoming event
+  ?event a ep:EventObject ;
+         ep:hasEventObjectSamplingTime ?time }
+  BIND ( HOURS(?time) as ?hour )
+  BIND ( IRI(concat("Counter",str(?hour))) AS ?hourIRI) # Create new IRI for memory entry
+  OPTIONAL { GRAPH <memory> { # Match previous memory entry, if one exists
+      ?hourIRI :hour ?memhour ;
+               :counter ?oldcount } }
+  BIND ( COALESCE(?oldcount,0)+1 AS ?newcount ) # Advance counter by 1
+} ;
+
+# Q6-2: Output result when latest event is higher than the hour in an existing entry
+# Delete memory entries
+
+# @name EPA6-2-OutputEventCounts
+DELETE { GRAPH <memory> { # Remove final counter entry
+  ?hourIRI :hour ?memhour ;
+           :counter ?count } }
+INSERT { GRAPH <eventcounts> { # Insert counter event
+   [] a ep:EventObject ;
+      ep:hasEventObjectSamplingTime ?time ;
+      :eventType :eventCount ;
+      :hour ?memhour ;
+      :count ?count } }
+WHERE { GRAPH <memory> { # Match entries in memory
+    ?hourIRI :hour ?memhour ;
+             :counter ?count }
+  GRAPH <source> { # Match time from incoming events
+    ?event ep:hasEventObjectSamplingTime ?time }
+  FILTER ( ?memhour < HOURS(?time) ) # Wait until incoming hour > memory hour
+} ;
+
+# Cleanup <eventcounts> when a newer event is available
+
+# @name Cleanup-Eventcounts
+# DELETE {
+#   GRAPH <eventcounts> {
+#    ?event1 a ep:EventObject ;
+#       ep:hasEventObjectSamplingTime ?time1 ;
+#       :eventType :eventCount ;
+#       :hour ?memhour ;
+#       :count ?count }
+# }
+# WHERE {
+#   GRAPH <eventcounts> {
+#    ?event1 a ep:EventObject ;
+#       ep:hasEventObjectSamplingTime ?time1 ;
+#       :eventType :eventCount ;
+#       :hour ?memhour ;
+#       :count ?count }
+#   FILTER EXISTS { GRAPH <eventcounts> {
+#       ?event2 a ep:EventObject ;
+#               ep:hasEventObjectSamplingTime ?time2 .
+#       FILTER (?time1 < ?time2)
+#   }  }
+# } ;

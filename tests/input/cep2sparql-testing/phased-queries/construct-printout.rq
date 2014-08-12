@@ -1,0 +1,6 @@
+# Output named graphs
+
+# This query is included in testing / debugging executions to print triples written into named graphs
+
+# @name Output
+CONSTRUCT { GRAPH ?g { ?s ?p ?o } } WHERE { GRAPH ?g { ?s ?p ?o } }
