@@ -314,6 +314,16 @@
 			    ;; (inform "Created ~S" var)
 			    (push var blanks)
 			    var)))))
+	     (replace-blank-nodes-by-vars (expr)
+	       (cond ((consp expr)
+		      (cons (replace-blank-nodes-by-vars (car expr)) (replace-blank-nodes-by-vars (cdr expr))))
+		     ((rdf-blank-node-p expr)
+		      (or (find-if #'(lambda (var) (string= (uniquely-named-object-name var) (uniquely-named-object-name expr)) blanks)
+			  (let ((var (generate-sparql-var instans)))
+			    ;; (inform "Created ~S" var)
+			    (push var blanks)
+			    var))))
+		     (t expr)))
 	     (generate-anonymous-blank-node-or-var ()
 	       (cond ((not blank-nodes-allowed-p)
 		      (sparql-parse-error "Blank node not allowed here"))
@@ -475,16 +485,19 @@
 						 (|*-TERMINAL| :RESULT '*))
 					    :RESULT (append $0 $1 (list :project $2))))
 	 ;;; Note: blanks should be reinstantiated when running the template. See 16.2.1 Templates with Blank Nodes in the SPecs
-	 (ConstructQuery ::= ((CONSTRUCT-TERMINAL :RESULT (get-preceding-comment))
+	 (ConstructQuery ::= ((CONSTRUCT-TERMINAL :RESULT (progn  (blank-translation-settings :allowedp t :replacep nil) (get-preceding-comment)))
 			      (:OR ((; ConstructTemplate
 				     QuadPattern
-				     :RESULT (list :construct-template $0)) ((:REP0 DatasetClause) :RESULT (and $0 (list :dataset $0))) WhereClause SolutionModifier 
+				     :RESULT (progn  (blank-translation-settings :allowedp t :replacep t) (list :construct-template $0)))
+				    ((:REP0 DatasetClause) :RESULT (and $0 (list :dataset $0))) WhereClause SolutionModifier
 				    :RESULT (append '(:query-form CONSTRUCT) $0 $1 $2 $3))
 				   (((:REP0 DatasetClause) :RESULT (and $0 (list :dataset $0)))
 				    WHERE-TERMINAL |{-TERMINAL|
 				    (:OPT (TriplesTemplate :RESULT (list (cons 'BGP (get-triples)))))
 				    |}-TERMINAL| SolutionModifier
-				    :RESULT (append '(:query-form CONSTRUCT) (list :where (translate-group-graph-pattern (opt-value $3)) :construct-template (opt-value $3)) $0 $5)))
+				    :RESULT (progn (blank-translation-settings :allowedp t :replacep t)
+						   (append '(:query-form CONSTRUCT) (list :where (translate-group-graph-pattern (replace-blank-nodes-by-vars (opt-value $3)))
+											  :construct-template (opt-value $3)) $0 $5))))
 			      :RESULT (append $0 $1)))
 	 (DescribeQuery ::= ((DESCRIBE-TERMINAL :RESULT (get-preceding-comment))
 			     ((:OR (:REP1 VarOrIri) (|*-TERMINAL| :RESULT '*)) :RESULT (list :var-or-iri-list $0))
@@ -596,7 +609,8 @@
 			   (|(-TERMINAL| (:OPT DISTINCT-TERMINAL) (Expression (:REP0 (|,-TERMINAL| Expression :RESULT $1)) :RESULT (cons $0 $1)) |)-TERMINAL|
 					 :RESULT (if (opt-yes-p $1) (cons (sparql-distinct) $2) $2))))
 	 (ExpressionList ::= (:OR (NIL-TERMINAL :RESULT (progn nil)) (|(-TERMINAL| (Expression (:REP0 (|,-TERMINAL| Expression :RESULT $1)) :RESULT (cons $0 $1)) |)-TERMINAL| :RESULT $1)))
-	 (ConstructTemplate ::= (|{-TERMINAL| (:OPT ConstructTriples) |}-TERMINAL| :RESULT (list (cons 'BGP (get-triples)))))
+	 (ConstructTemplate ::= ((|{-TERMINAL| :RESULT (blank-translation-settings :allowedp t :replacep nil)) (:OPT ConstructTriples) |}-TERMINAL|
+				 :RESULT (progn (blank-translation-settings :allowedp t :replacep t) (list (cons 'BGP (get-triples))))))
 	 (ConstructTriples ::= (TriplesSameSubject (:OPT (|.-TERMINAL| (:OPT ConstructTriples)))))
 	 (TriplesSameSubject ::= (:OR (VarOrTerm PropertyListNotEmpty :RESULT (emit-subj-pred-obj-list $0 $1))
 				      (TriplesNode PropertyList :RESULT (emit-subj-pred-obj-list $0 (opt-value $1)))))

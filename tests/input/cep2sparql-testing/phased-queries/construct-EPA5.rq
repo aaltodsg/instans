@@ -11,25 +11,47 @@ PREFIX ff: <http://factforge.net/>
 CONSTRUCT {
   GRAPH <geoevents> { # Insert GeoEvents
   	?event a ep:EventObject ;
-	       geo:Point [ geo:lat ?lat ; geo:long ?long ; ]
+	       geo:Point [ geo:lat ?lat ; geo:long ?long ]
   }  
-} WHERE {
-  GRAPH <poststateful> {
-  	?event a ep:EventObject ;
-	       geo:Point [ geo:lat ?lat ; geo:long ?long ; ]
-  }
-};
-
-CONSTRUCT {
   GRAPH <timeevents> { # Insert TimeEvents
   	?event a ep:EventObject ;
 	       ssn:Sensor ?sensor ;
 	       ep:hasEventObjectSamplingTime ?time
   }
 } WHERE {
-  GRAPH <poststateful> { # Match incoming events
+  GRAPH <poststateful> {
   	?event a ep:EventObject ;
+	       geo:Point [ geo:lat ?lat ; geo:long ?long ] ;
 	       ssn:Sensor ?sensor ;
 	       ep:hasEventObjectSamplingTime ?time
   }
 };
+
+CONSTRUCT {
+} WHERE {
+};
+# CONSTRUCT {
+#   GRAPH <geoevents> { # Insert GeoEvents
+#   	?event a ep:EventObject ;
+# 	       geo:Point [ geo:lat ?lat ; geo:long ?long ]
+#   }  
+# } WHERE {
+#   GRAPH <poststateful> {
+#   	?event a ep:EventObject ;
+# 	       geo:Point [ geo:lat ?lat ; geo:long ?long ]
+#   }
+# };
+
+# CONSTRUCT {
+#   GRAPH <timeevents> { # Insert TimeEvents
+#   	?event a ep:EventObject ;
+# 	       ssn:Sensor ?sensor ;
+# 	       ep:hasEventObjectSamplingTime ?time
+#   }
+# } WHERE {
+#   GRAPH <poststateful> { # Match incoming events
+#   	?event a ep:EventObject ;
+# 	       ssn:Sensor ?sensor ;
+# 	       ep:hasEventObjectSamplingTime ?time
+#   }
+# };

@@ -20,27 +20,29 @@ WHERE { GRAPH <source> {
                 ?h2 ?p2 ?o2 }
     FILTER ( ( HOURS(?time) > 8 ) && ( HOURS(?time) < 17 ) ) } } ;
 
-# Cleanup <source> when a newer event is available
+#@name Cleanup-Source
+DELETE {
+  GRAPH <source> {
+    ?event1 ?p1 ?o1 .
+    ?h2 ?p2 ?o2 .
+  }
+}
+WHERE {
+  GRAPH <source> {
+    ?event1 a ep:EventObject ;    # Match incoming events
+           ?p1 ?o1 ;
+           ep:hasEventObjectSamplingTime ?time1 .
+           OPTIONAL { BIND ( IF (isBlank(?o1), ?o1, 0) as ?h2)
+                ?h2 ?p2 ?o2 }
+  }
+  FILTER EXISTS { GRAPH <source> {
+      ?event2 a ep:EventObject ;
+              ep:hasEventObjectSamplingTime ?time2 .
+      FILTER (?time1 < ?time2)
+  }  }
+};
 
-# @name Cleanup-Source
-# DELETE {
-#   GRAPH <source> {
-#     ?event1 ?p1 ?o1 .
-#     ?h2 ?p2 ?o2 .
-#   }
-# }
-# WHERE {
-#   GRAPH <source> {
-#     ?event1 a ep:EventObject ;    # Match incoming events
-#            ?p1 ?o1 ;
-#            ep:hasEventObjectSamplingTime ?time1 .
-#            OPTIONAL { BIND ( IF (isBlank(?o1), ?o1, 0) as ?h2)
-#                 ?h2 ?p2 ?o2 }
-#   }
-#   FILTER EXISTS { GRAPH <source> {
-#       ?event2 a ep:EventObject ;
-#               ep:hasEventObjectSamplingTime ?time2 .
-#       FILTER (?time1 < ?time2)
-#   }  }
-# } ;
+# @name Output
+CONSTRUCT { GRAPH <poststateless> { ?s ?p ?o } } WHERE { GRAPH <poststateless> { ?s ?p ?o } };
+
 

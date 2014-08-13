@@ -209,7 +209,7 @@
 				     (construct-parameters (collect-expression-variables construct-clause))
 				     (instans-var (gensym "INSTANS"))
 				     (construct-lambda `(lambda (,instans-var ,@(mapcar #'sparql-var-lisp-name construct-parameters))
-							  ,@(translate-template instans construct-clause 'output-quad-or-triple instans-var nil))))
+							  ,@(translate-template instans construct-clause 'output-quad-or-triple instans-var t))))
 				(make-or-share-instance 'construct-node :prev (translate where-clause prev dataset)
 							:comment comment
 							:construct-template construct-clause

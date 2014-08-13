@@ -54,4 +54,9 @@ WHERE {
   }  }
 } ;
 
+# Output named graphs
 
+# This query is included in testing / debugging executions to print triples written into named graphs
+
+# @name Output
+CONSTRUCT { GRAPH <poststateful> { ?s ?p ?o } } WHERE { GRAPH <poststateful> { ?s ?p ?o } }

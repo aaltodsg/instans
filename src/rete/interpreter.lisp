@@ -241,9 +241,9 @@
 			(let ((tr (gethash (uniquely-named-object-name x) (instans-input-processor-blank-node-mapping this))))
 			  (when (null tr)
 			    (setf tr (generate-anonymous-blank-node instans))
-			    (inform "map ~S to ~S~%" x tr)
+;			    (inform "map ~S to ~S~%" x tr)
 			    (setf (gethash (uniquely-named-object-name x) (instans-input-processor-blank-node-mapping this)) tr))
-			  (inform "map-named-blank-node (~S) -> ~S~%" x tr)
+;			  (inform "map-named-blank-node (~S) -> ~S~%" x tr)
 			  tr))
 		       (t x))))
 	(setf ops (or ops (instans-rdf-operations instans)))
@@ -872,30 +872,26 @@
   (:method ((this rule-node))
     (if (rule-node-rule-name this) (format nil "~A (~(~A~))" (rule-node-rule-name this) (node-name this)) (node-name this))))
 
-(defun node-token-bindings-for-reporting (node token &key (variables :project))
-  (let ((instans (node-instans node)))
-    (unless (typep node 'query-node)
-      (when (eq variables :project)
-	(setf variables :visible)))
-    (loop for var in (funcall (case variables
-				(:all #'node-all-vars-out)
-				(:visible #'node-visible-vars-out)
-				(:project #'solution-modifiers-project-vars ))
-			      node)
+(defun node-token-bindings-for-reporting (node token)
+  (let ((instans (node-instans node))
+	(variables (cond ((typep node 'construct-node) (construct-parameters node))
+			 ((typep node 'select-node) (solution-modifiers-project-vars node))
+			 (t (node-visible-vars-out node)))))
+    (loop for var in variables
 	  unless (null var)
 	  collect (list (uniquely-named-object-name (reverse-resolve-binding instans var))
 			(sparql-value-to-string (token-value node token var) :instans instans)))))
 
-(defun report-rule-op (queue op rule-instance &key stream (variables :project))
+(defun report-rule-op (queue op rule-instance &key stream)
   (let ((instans (rule-instance-queue-instans queue)))
     (when (null stream) (setf stream  (instans-default-output instans)))
     (format stream "~&~A in ~A~%Rule ~A~%~{~{     ~A = ~A~}~^~%~}~%"
 	    op (instans-name instans) (rule-node-name-pretty (rule-instance-node rule-instance))
-	    (node-token-bindings-for-reporting (rule-instance-node rule-instance) (rule-instance-token rule-instance) :variables variables))
-    (report-queue queue :variables variables)
+	    (node-token-bindings-for-reporting (rule-instance-node rule-instance) (rule-instance-token rule-instance)))
+    (report-queue queue)
     (format stream "~%")))
  
-(defun report-queue (queue &key stream (variables :project))
+(defun report-queue (queue &key stream)
   (let ((instans (rule-instance-queue-instans queue))
 	(rule-instances (rule-instance-queue-head queue)))
     (when (null stream) (setf stream  (instans-default-output instans)))
@@ -903,7 +899,7 @@
     (loop for ri in rule-instances do
 	 (format stream "~%     Rule ~A~%~{~{          ~A = ~A~}~^~%~}"
 		 (rule-node-name-pretty (rule-instance-node ri))
-		 (node-token-bindings-for-reporting (rule-instance-node ri) (rule-instance-token ri) :variables variables)))
+		 (node-token-bindings-for-reporting (rule-instance-node ri) (rule-instance-token ri))))
   (format stream "~%")))
 
 (defgeneric execute-rule-node (node token)
