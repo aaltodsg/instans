@@ -689,18 +689,19 @@
       (call-succ-nodes #'add-token this (group-token group) stack)))
   (:method ((this optional-start-node) token &optional stack)
     (let ((stored-token (store-get-token this token)))
-      (store-remove-token this stored-token)
-      (let ((counter (token-value this stored-token (existence-counter-var this))))
-	(cond ((zerop counter) ; no matches of optional
-	       (call-succ-nodes #'remove-token (subgraph-end-node this) token stack)) ; we take care of removing all matches after optional-end
-	      (t
-	       (setf (token-value this stored-token (existence-active-p-var this)) t) ; Activate this node
-	       (let ((next (car (node-succ this))))
-		 (cond ((typep next 'join-node)
-			(remove-beta-token next stored-token stack))
-		       (t
-			(remove-token next stored-token stack)))) ; optional-end node takes care of removing all matches further down
-	       (setf (token-value this stored-token (existence-active-p-var this)) nil)))))) ;;; Deactivate this node
+      (unless (null stored-token)
+	(store-remove-token this stored-token)
+	(let ((counter (token-value this stored-token (existence-counter-var this))))
+	  (cond ((zerop counter) ; no matches of optional
+		 (call-succ-nodes #'remove-token (subgraph-end-node this) token stack)) ; we take care of removing all matches after optional-end
+		(t
+		 (setf (token-value this stored-token (existence-active-p-var this)) t) ; Activate this node
+		 (let ((next (car (node-succ this))))
+		   (cond ((typep next 'join-node)
+			  (remove-beta-token next stored-token stack))
+			 (t
+			  (remove-token next stored-token stack)))) ; optional-end node takes care of removing all matches further down
+		 (setf (token-value this stored-token (existence-active-p-var this)) nil))))))) ;;; Deactivate this node
   (:method ((this optional-end-node) token &optional stack)
     (let* ((start-node (subgraph-start-node this))
 	   (active-p (token-value this token (existence-active-p-var start-node)))

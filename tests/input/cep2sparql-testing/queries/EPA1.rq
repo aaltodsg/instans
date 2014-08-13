@@ -41,8 +41,3 @@ WHERE {
       FILTER (?time1 < ?time2)
   }  }
 };
-
-# @name Output
-CONSTRUCT { GRAPH <poststateless> { ?s ?p ?o } } WHERE { GRAPH <poststateless> { ?s ?p ?o } };
-
-
