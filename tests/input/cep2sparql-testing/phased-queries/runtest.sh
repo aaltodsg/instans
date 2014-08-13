@@ -1,28 +1,33 @@
-#!/bin/sh
+#!/bin/sh -v
 
 INSTANS=../../../../bin/instans
 PHOUTDIR=phase-output-files
 mkdir -p $PHOUTDIR
 
-INPUT1=$1
-INPUT2=$PHOUTDIR/`basename $INPUT1 .ttl`-output1.trig
-INPUT3=$PHOUTDIR/`basename $INPUT1 .ttl`-output2.trig
-INPUT4=$PHOUTDIR/`basename $INPUT1 .ttl`-output3.trig
-INPUT5=$PHOUTDIR/`basename $INPUT1 .ttl`-output4.trig
-INPUT6=$PHOUTDIR/`basename $INPUT1 .ttl`-output5.trig
+SOURCE=$1
+POSTSTATELESS=$PHOUTDIR/`basename $SOURCE .ttl`-poststateless.trig
+POSTSTATEFUL=$PHOUTDIR/`basename $SOURCE .ttl`-poststateful.trig
+TRANSLATED=$PHOUTDIR/`basename $SOURCE .ttl`-translated.trig
+PROJECTED=$PHOUTDIR/`basename $SOURCE .ttl`-projected.trig
+GEOEVENTSTIMEEVENTS=$PHOUTDIR/`basename $SOURCE .ttl`-geoeventstimeevents.trig
+EVENTCOUNTS=$PHOUTDIR/`basename $SOURCE .ttl`-eventcounts.trig
 
-echo $INSTANS --prefix-encoding=true --construct-output=$INPUT2 -r construct-EPA1.rq --rdf-operations=add:execute:flush -g http://instans.org/source --time=- --input-blocks=$INPUT1
-$INSTANS --prefix-encoding=true --construct-output=$INPUT2 -r construct-EPA1.rq --rdf-operations=add:execute:flush -g http://instans.org/source --time=- --input-blocks=$INPUT1
+$INSTANS --prefix-encoding=true --construct-output=$POSTSTATELESS \
+         -r construct-EPA1.rq --rdf-operations=add:execute:flush -g http://instans.org/source --time=- --input-blocks=$SOURCE
 
-echo $INSTANS --prefix-encoding=true --construct-output=$INPUT3 -r construct-EPA2.rq --rdf-operations=add:execute:remove:execute:flush --time=- --input-blocks=$INPUT2
-$INSTANS --prefix-encoding=true --construct-output=$INPUT3 -r construct-EPA2.rq --rdf-operations=add:execute:remove:execute:flush --time=- --input-blocks=$INPUT2
+$INSTANS --prefix-encoding=true --construct-output=$POSTSTATEFUL \
+         -r construct-EPA2.rq --rdf-operations=add:execute:remove:execute:flush --time=- --input-blocks=$POSTSTATELESS
 
-echo $INSTANS --prefix-encoding=true --construct-output=$INPUT4 -r construct-EPA3.rq --rdf-operations=add:execute:remove:execute:flush --time=- --input-blocks=$INPUT3
-$INSTANS --prefix-encoding=true --construct-output=$INPUT4 -r construct-EPA3.rq --rdf-operations=add:execute:remove:execute:flush --time=- --input-blocks=$INPUT3
+$INSTANS --prefix-encoding=true --construct-output=$TRANSLATED \
+         -r construct-EPA3.rq --rdf-operations=add:execute:remove:execute:flush --time=- --input-blocks=$POSTSTATEFUL
 
-echo $INSTANS --prefix-encoding=true --construct-output=$INPUT5 -r construct-EPA4.rq --rdf-operations=add:execute:remove:execute:flush --time=- --input-blocks=$INPUT4
-$INSTANS --prefix-encoding=true --construct-output=$INPUT5 -r construct-EPA4.rq --rdf-operations=add:execute:remove:execute:flush --time=- --input-blocks=$INPUT4
+$INSTANS --prefix-encoding=true --construct-output=$PROJECTED \
+         -r construct-EPA4.rq --rdf-operations=add:execute:remove:execute:flush --time=- --input-blocks=$TRANSLATED
 
-echo $INSTANS --prefix-encoding=true --construct-output=$INPUT6 -r construct-EPA5.rq --rdf-operations=add:execute:remove:execute:flush --time=- --input-blocks=$INPUT3
-$INSTANS --prefix-encoding=true --construct-output=$INPUT6 -r construct-EPA5.rq --rdf-operations=add:execute:remove:execute:flush --time=- --input-blocks=$INPUT3
+$INSTANS --prefix-encoding=true --construct-output=$GEOEVENTSTIMEEVENTS \
+         -r construct-EPA5.rq --rdf-operations=add:execute:remove:execute:flush --time=- --input-blocks=$POSTSTATEFUL
+
+$INSTANS --prefix-encoding=true --construct-output=$EVENTCOUNTS \
+         -r construct-EPA6.rq --rdf-operations=add:execute:remove:execute:flush --time=- --input-blocks=$SOURCE
+
 
