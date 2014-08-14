@@ -345,6 +345,8 @@
 	(when (zerop (mod (instans-size-report-counter this) (instans-size-report-interval this)))
 	  (report-sizes this))
 	(incf (instans-size-report-counter this)))
+      (if (operation-report-p this :execute) 
+	  (format (instans-default-output this) "~&Execute rules with policy ~A~%~%" policy))
       (case policy
 	(:first
 	 (rule-instance-queue-execute-first queue))

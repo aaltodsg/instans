@@ -12,7 +12,7 @@ PREFIX ff: <http://factforge.net/>
 
 # @name EPA6-1-MaintainEventCounter
 DELETE { GRAPH <memory> { # Delete old entry from memory
-  ?hourIRI :hour ?memhour ;
+  ?hourIRI # :hour ?memhour ;
            :counter ?oldcount } }
 INSERT { GRAPH <memory> { # Insert new entry to memory
   ?hourIRI :hour ?hour ;
