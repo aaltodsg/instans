@@ -1,17 +1,21 @@
-add {type: counter, count: -1, hour: -1}
-
-input json from args[1] to rete;
-
-rete match {
-    ?e: {type: event, time: ?time, *};
-    ?c: {type: counter, count: ?count, hour: ?ch}
+rule eventCounts(unit, extractor)
+when {
+     ?e: {"@type": "event", "time": ?time, *};
+     ?c: {"@type": "counter", "count": ?count = -1, unit: ?unitValue = -1} = none
 } do {
-    remove ?e;
-    if (hour(?time) == ?time) {
-	?c.count = ?count+1;
-    } else {
-	add {type: eventCount, time: ?time, hour: ?ch, count: ?count};
+      remove ?e;
+      ?newUnitValue = extractor(?time)
+      if (?newUnitValue == ?unitValue) {
+      	 ?c.count = ?count+1;
+      } else {
+      	add {"@type": "eventCount", "time": ?time, unit: ?unitValue, "count": ?count};
 	remove ?c;
-	add {type: counter, count: 0, hour: ?hour};
+	add {"@type": counter, "count": 1, unit: ?newUnitValue }
     }
+  }
 }
+
+input json from args[1];
+eventCounts("hour", dateTime.hour);
+
+
