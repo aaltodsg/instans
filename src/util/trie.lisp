@@ -18,7 +18,7 @@
 	   (setf (cdr (trie-level-tail trie)) tail)
 	   (setf (trie-level-tail trie) tail)))))
 
-(defun trie-add-path (trie path &optional (test #'eql))
+(defun trie-add-path (trie path &optional (test #'equal))
   (unless (null path)
     (cond ((null (rest path))
 	   (unless (assoc (first path) (trie-level trie) :test test)
