@@ -5,6 +5,7 @@
                 <http://purl.oclc.org/NET/ssnx/ssn#Sensor> <http:instans.org/default#loc1>;
                 <http://www.w3.org/2003/01/geo/wgs84_pos#Point> _:6;
                 <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#hasEventObjectSamplingTime> "2014-01-07T09:18:21"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+}
 <Eve2> { _:7 <http://www.w3.org/2003/01/geo/wgs84_pos#lat> 60.158775;
                       <http://www.w3.org/2003/01/geo/wgs84_pos#long> 24.88149 .
 
@@ -12,6 +13,7 @@
                          <http://purl.oclc.org/NET/ssnx/ssn#Sensor> <http:instans.org/default#loc1>;
                          <http://www.w3.org/2003/01/geo/wgs84_pos#Point> _:7;
                          <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#hasEventObjectSamplingTime> "2014-01-07T09:18:21"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+}
 <Eve3> { _:12 <http://www.w3.org/2003/01/geo/wgs84_pos#lat> 60.187458;
                                 <http://www.w3.org/2003/01/geo/wgs84_pos#long> 24.821272 .
 
@@ -19,6 +21,7 @@
                                   <http://purl.oclc.org/NET/ssnx/ssn#Sensor> <http:instans.org/default#loc1>;
                                   <http://www.w3.org/2003/01/geo/wgs84_pos#Point> _:12;
                                   <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#hasEventObjectSamplingTime> "2014-01-07T09:42:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+}
 <Eve4> { _:13 <http://www.w3.org/2003/01/geo/wgs84_pos#lat> 60.187458;
                                          <http://www.w3.org/2003/01/geo/wgs84_pos#long> 24.821272 .
 
@@ -26,6 +29,7 @@
                                            <http://purl.oclc.org/NET/ssnx/ssn#Sensor> <http:instans.org/default#loc1>;
                                            <http://www.w3.org/2003/01/geo/wgs84_pos#Point> _:13;
                                            <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#hasEventObjectSamplingTime> "2014-01-07T09:42:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+}
 <Eve5> { _:18 <http://www.w3.org/2003/01/geo/wgs84_pos#lat> 60.187634;
                                                   <http://www.w3.org/2003/01/geo/wgs84_pos#long> 24.821491 .
 
@@ -33,6 +37,7 @@
                                                     <http://purl.oclc.org/NET/ssnx/ssn#Sensor> <http:instans.org/default#loc1>;
                                                     <http://www.w3.org/2003/01/geo/wgs84_pos#Point> _:18;
                                                     <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#hasEventObjectSamplingTime> "2014-01-07T10:18:21"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+}
 <Eve6> { _:19 <http://www.w3.org/2003/01/geo/wgs84_pos#lat> 60.187634;
                                                            <http://www.w3.org/2003/01/geo/wgs84_pos#long> 24.821491 .
 
@@ -40,6 +45,7 @@
                                                              <http://purl.oclc.org/NET/ssnx/ssn#Sensor> <http:instans.org/default#loc1>;
                                                              <http://www.w3.org/2003/01/geo/wgs84_pos#Point> _:19;
                                                              <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#hasEventObjectSamplingTime> "2014-01-07T10:18:21"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+}
 <Eve7> { _:24 <http://www.w3.org/2003/01/geo/wgs84_pos#lat> 60.187595;
                                                                     <http://www.w3.org/2003/01/geo/wgs84_pos#long> 24.821255 .
 
@@ -47,6 +53,7 @@
                                                                       <http://purl.oclc.org/NET/ssnx/ssn#Sensor> <http:instans.org/default#loc1>;
                                                                       <http://www.w3.org/2003/01/geo/wgs84_pos#Point> _:24;
                                                                       <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#hasEventObjectSamplingTime> "2014-01-07T11:32:34"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+}
 <Eve8> { _:25 <http://www.w3.org/2003/01/geo/wgs84_pos#lat> 60.187595;
                                                                              <http://www.w3.org/2003/01/geo/wgs84_pos#long> 24.821255 .
 
@@ -54,6 +61,7 @@
                                                                                <http://purl.oclc.org/NET/ssnx/ssn#Sensor> <http:instans.org/default#loc1>;
                                                                                <http://www.w3.org/2003/01/geo/wgs84_pos#Point> _:25;
                                                                                <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#hasEventObjectSamplingTime> "2014-01-07T11:32:34"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+}
 <Eve9> { _:30 <http://www.w3.org/2003/01/geo/wgs84_pos#lat> 60.187595;
                                                                                       <http://www.w3.org/2003/01/geo/wgs84_pos#long> 24.821255 .
 
@@ -61,6 +69,7 @@
                                                                                         <http://purl.oclc.org/NET/ssnx/ssn#Sensor> <http:instans.org/default#loc1>;
                                                                                         <http://www.w3.org/2003/01/geo/wgs84_pos#Point> _:30;
                                                                                         <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#hasEventObjectSamplingTime> "2014-01-07T21:12:32"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+}
 <Eve10> { _:31 <http://www.w3.org/2003/01/geo/wgs84_pos#lat> 60.187595;
                                                                                                 <http://www.w3.org/2003/01/geo/wgs84_pos#long> 24.821255 .
 
@@ -68,6 +77,7 @@
                                                                                                    <http://purl.oclc.org/NET/ssnx/ssn#Sensor> <http:instans.org/default#loc1>;
                                                                                                    <http://www.w3.org/2003/01/geo/wgs84_pos#Point> _:31;
                                                                                                    <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#hasEventObjectSamplingTime> "2014-01-07T21:12:32"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+}
 <Eve11> { _:36 <http://www.w3.org/2003/01/geo/wgs84_pos#lat> 60.186623;
                                                                                                           <http://www.w3.org/2003/01/geo/wgs84_pos#long> 24.820017 .
 
@@ -75,6 +85,7 @@
                                                                                                              <http://purl.oclc.org/NET/ssnx/ssn#Sensor> <http:instans.org/default#loc1>;
                                                                                                              <http://www.w3.org/2003/01/geo/wgs84_pos#Point> _:36;
                                                                                                              <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#hasEventObjectSamplingTime> "2014-01-08T04:02:11"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+}
 <Eve12> { _:37 <http://www.w3.org/2003/01/geo/wgs84_pos#lat> 60.186623;
                                                                                                                     <http://www.w3.org/2003/01/geo/wgs84_pos#long> 24.820017 .
 
@@ -82,6 +93,7 @@
                                                                                                                        <http://purl.oclc.org/NET/ssnx/ssn#Sensor> <http:instans.org/default#loc1>;
                                                                                                                        <http://www.w3.org/2003/01/geo/wgs84_pos#Point> _:37;
                                                                                                                        <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#hasEventObjectSamplingTime> "2014-01-08T04:02:11"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+}
 <Eve13> { _:42 <http://www.w3.org/2003/01/geo/wgs84_pos#lat> 60.158775;
                                                                                                                               <http://www.w3.org/2003/01/geo/wgs84_pos#long> 24.88149 .
 
@@ -89,6 +101,7 @@
                                                                                                                                  <http://purl.oclc.org/NET/ssnx/ssn#Sensor> <http:instans.org/default#loc1>;
                                                                                                                                  <http://www.w3.org/2003/01/geo/wgs84_pos#Point> _:42;
                                                                                                                                  <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#hasEventObjectSamplingTime> "2014-01-07T09:18:21"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+}
 <Eve14> { _:43 <http://www.w3.org/2003/01/geo/wgs84_pos#lat> 60.158775;
                                                                                                                                         <http://www.w3.org/2003/01/geo/wgs84_pos#long> 24.88149 .
 
@@ -96,6 +109,7 @@
                                                                                                                                            <http://purl.oclc.org/NET/ssnx/ssn#Sensor> <http:instans.org/default#loc1>;
                                                                                                                                            <http://www.w3.org/2003/01/geo/wgs84_pos#Point> _:43;
                                                                                                                                            <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#hasEventObjectSamplingTime> "2014-01-07T09:18:21"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+}
 <Eve15> { _:48 <http://www.w3.org/2003/01/geo/wgs84_pos#lat> 60.187458;
                                                                                                                                                   <http://www.w3.org/2003/01/geo/wgs84_pos#long> 24.821272 .
 
@@ -103,6 +117,7 @@
                                                                                                                                                      <http://purl.oclc.org/NET/ssnx/ssn#Sensor> <http:instans.org/default#loc1>;
                                                                                                                                                      <http://www.w3.org/2003/01/geo/wgs84_pos#Point> _:48;
                                                                                                                                                      <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#hasEventObjectSamplingTime> "2014-01-07T09:42:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+}
 <Eve16> { _:49 <http://www.w3.org/2003/01/geo/wgs84_pos#lat> 60.187458;
                                                                                                                                                             <http://www.w3.org/2003/01/geo/wgs84_pos#long> 24.821272 .
 
@@ -110,6 +125,7 @@
                                                                                                                                                                <http://purl.oclc.org/NET/ssnx/ssn#Sensor> <http:instans.org/default#loc1>;
                                                                                                                                                                <http://www.w3.org/2003/01/geo/wgs84_pos#Point> _:49;
                                                                                                                                                                <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#hasEventObjectSamplingTime> "2014-01-07T09:42:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+}
 <Eve17> { _:54 <http://www.w3.org/2003/01/geo/wgs84_pos#lat> 60.187634;
                                                                                                                                                                       <http://www.w3.org/2003/01/geo/wgs84_pos#long> 24.821491 .
 
@@ -117,6 +133,7 @@
                                                                                                                                                                          <http://purl.oclc.org/NET/ssnx/ssn#Sensor> <http:instans.org/default#loc1>;
                                                                                                                                                                          <http://www.w3.org/2003/01/geo/wgs84_pos#Point> _:54;
                                                                                                                                                                          <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#hasEventObjectSamplingTime> "2014-01-07T10:18:21"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+}
 <Eve18> { _:55 <http://www.w3.org/2003/01/geo/wgs84_pos#lat> 60.187634;
                                                                                                                                                                                 <http://www.w3.org/2003/01/geo/wgs84_pos#long> 24.821491 .
 
@@ -124,6 +141,7 @@
                                                                                                                                                                                    <http://purl.oclc.org/NET/ssnx/ssn#Sensor> <http:instans.org/default#loc1>;
                                                                                                                                                                                    <http://www.w3.org/2003/01/geo/wgs84_pos#Point> _:55;
                                                                                                                                                                                    <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#hasEventObjectSamplingTime> "2014-01-07T10:18:21"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+}
 <Eve19> { _:60 <http://www.w3.org/2003/01/geo/wgs84_pos#lat> 60.187595;
                                                                                                                                                                                           <http://www.w3.org/2003/01/geo/wgs84_pos#long> 24.821255 .
 
@@ -131,6 +149,7 @@
                                                                                                                                                                                              <http://purl.oclc.org/NET/ssnx/ssn#Sensor> <http:instans.org/default#loc1>;
                                                                                                                                                                                              <http://www.w3.org/2003/01/geo/wgs84_pos#Point> _:60;
                                                                                                                                                                                              <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#hasEventObjectSamplingTime> "2014-01-07T11:32:34"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+}
 <Eve20> { _:61 <http://www.w3.org/2003/01/geo/wgs84_pos#lat> 60.187595;
                                                                                                                                                                                                     <http://www.w3.org/2003/01/geo/wgs84_pos#long> 24.821255 .
 
@@ -138,6 +157,7 @@
                                                                                                                                                                                                        <http://purl.oclc.org/NET/ssnx/ssn#Sensor> <http:instans.org/default#loc1>;
                                                                                                                                                                                                        <http://www.w3.org/2003/01/geo/wgs84_pos#Point> _:61;
                                                                                                                                                                                                        <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#hasEventObjectSamplingTime> "2014-01-07T11:32:34"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+}
 <Eve21> { _:66 <http://www.w3.org/2003/01/geo/wgs84_pos#lat> 60.187595;
                                                                                                                                                                                                               <http://www.w3.org/2003/01/geo/wgs84_pos#long> 24.821255 .
 
@@ -145,6 +165,7 @@
                                                                                                                                                                                                                  <http://purl.oclc.org/NET/ssnx/ssn#Sensor> <http:instans.org/default#loc1>;
                                                                                                                                                                                                                  <http://www.w3.org/2003/01/geo/wgs84_pos#Point> _:66;
                                                                                                                                                                                                                  <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#hasEventObjectSamplingTime> "2014-01-07T21:12:32"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+}
 <Eve22> { _:67 <http://www.w3.org/2003/01/geo/wgs84_pos#lat> 60.187595;
                                                                                                                                                                                                                         <http://www.w3.org/2003/01/geo/wgs84_pos#long> 24.821255 .
 
@@ -152,6 +173,7 @@
                                                                                                                                                                                                                            <http://purl.oclc.org/NET/ssnx/ssn#Sensor> <http:instans.org/default#loc1>;
                                                                                                                                                                                                                            <http://www.w3.org/2003/01/geo/wgs84_pos#Point> _:67;
                                                                                                                                                                                                                            <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#hasEventObjectSamplingTime> "2014-01-07T21:12:32"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+}
 <Eve23> { _:72 <http://www.w3.org/2003/01/geo/wgs84_pos#lat> 60.186623;
                                                                                                                                                                                                                                   <http://www.w3.org/2003/01/geo/wgs84_pos#long> 24.820017 .
 
@@ -159,6 +181,7 @@
                                                                                                                                                                                                                                      <http://purl.oclc.org/NET/ssnx/ssn#Sensor> <http:instans.org/default#loc1>;
                                                                                                                                                                                                                                      <http://www.w3.org/2003/01/geo/wgs84_pos#Point> _:72;
                                                                                                                                                                                                                                      <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#hasEventObjectSamplingTime> "2014-01-08T04:02:11"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+}
 <Eve24> { _:73 <http://www.w3.org/2003/01/geo/wgs84_pos#lat> 60.186623;
                                                                                                                                                                                                                                             <http://www.w3.org/2003/01/geo/wgs84_pos#long> 24.820017 .
 
@@ -166,3 +189,4 @@
                                                                                                                                                                                                                                                <http://purl.oclc.org/NET/ssnx/ssn#Sensor> <http:instans.org/default#loc1>;
                                                                                                                                                                                                                                                <http://www.w3.org/2003/01/geo/wgs84_pos#Point> _:73;
                                                                                                                                                                                                                                                <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#hasEventObjectSamplingTime> "2014-01-08T04:02:11"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+}
