@@ -244,6 +244,7 @@
 
 (defgeneric write-graph-subject-predicate-object-trie (instans-writer instans trie &optional wrap-default-p)
   (:method ((this instans-stream-writer) (instans instans) trie &optional (wrap-default-p t))
+;    (trie-print trie *error-output*)
     (let ((stream (instans-stream-writer-stream this))
 	  (indent 0)
 	  (init-sep ""))

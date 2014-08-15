@@ -27,7 +27,7 @@ WHERE { GRAPH <source> {
 # Cleanup <source> when a newer event is available
 
 # @name Cleanup-Source
-DELETE {
+DELETE WHERE {
   GRAPH <source> {
     ?event a ep:EventObject ;    # Match incoming events
     	   geo:Point ?point ;
@@ -35,18 +35,4 @@ DELETE {
 	   ep:hasEventObjectSamplingTime ?time .
     ?point geo:lat ?lat ; geo:long ?long
   }
-}
-WHERE {
-  GRAPH <source> {
-    ?event a ep:EventObject ;    # Match incoming events
-    	   geo:Point ?point ;
-	   ssn:Sensor ?sensor ;
-	   ep:hasEventObjectSamplingTime ?time .
-    ?point geo:lat ?lat ; geo:long ?long
-  }
-  FILTER EXISTS { GRAPH <source> {
-      ?event2 ep:hasEventObjectSamplingTime ?time2 .
-      FILTER (?time1 < ?time2)
-  }  }
-} ;
-
+};
