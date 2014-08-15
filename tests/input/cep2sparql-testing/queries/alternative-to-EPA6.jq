@@ -1,4 +1,3 @@
-
 rule eventCounts(unit, unitDefault, extractor) {
      var unitValue = unitDefault;
      var count = 0;
@@ -28,5 +27,6 @@ rule deleteOldEvents() {
 }
 
 input json from args[1];
-eventCounts("hour", -1, dateTime.hour);
+new eventCounts("hour", -1, dateTime.hour);
+new deleteOldEvents();
 execute();

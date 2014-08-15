@@ -278,8 +278,12 @@
 				do (incf indent (- (length p-string))))
 			 do (incf indent (- (length s-string)))
 			 do (format stream " .~%"))
-		 (when (or g wrap-default-p)
-		   (format stream "}~%"))))))
+		 (cond (g
+			(format stream "}~%")
+			(decf indent (+ (length g-string) 3)))
+		       (wrap-default-p
+			(format stream "}~%")
+			(decf indent 2)))))))
   (:method ((this instans-agent-writer) (instans instans) trie &optional wrap-default-p)
     (declare (ignorable wrap-default-p))
     (let* ((msg (list nil))
