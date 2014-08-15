@@ -230,7 +230,7 @@
   (:method ((this instans-trig-output-processor) s p o &optional g)
     (when (typep this 'instans-turtle-output-processor)
       (assert* (null g) "Non-null graph in Turtle output: ~A" g))
-    (trie-add-path (instans-trig-output-processor-graph-subject-predicate-object-trie this) (list g s p o))
+    (trie-add-path (instans-trig-output-processor-graph-subject-predicate-object-trie this) (list g s p o) #'sparql-value-equal)
 ;    (inform "~&~A~%" (trie-paths (instans-trig-output-processor-graph-subject-predicate-object-trie this)))
 ))
 
