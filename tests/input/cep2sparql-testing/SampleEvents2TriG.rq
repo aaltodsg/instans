@@ -1,0 +1,53 @@
+BASE <http://instans.org/>
+PREFIX : <http:instans.org/default#>
+PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX ssn: <http://purl.oclc.org/NET/ssnx/ssn#>
+PREFIX ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
+PREFIX omgeo: <http://www.ontotext.com/owlim/geo#>
+PREFIX ff: <http://factforge.net/>
+
+# Convert the original sample events to TriG
+
+# Originally written in Turtle
+
+# Initialize memory
+
+# @name InitCounter
+INSERT DATA {
+  :memory :counter 0
+} ;
+
+# Create a (non-blank) URI for the event
+
+# @name AddEventURI
+DELETE { :memory :counter ?count }
+INSERT { 
+  :memory :counter ?newcount .
+  GRAPH <processed> {  # Forward outgoing events
+    ?eventIRI a ep:EventObject ; # Match incoming event
+              ssn:Sensor ?sensor ;
+              geo:Point [ geo:lat ?lat ; geo:long ?long ; ] ;
+              ep:hasEventObjectSamplingTime ?time } }
+WHERE { 
+    ?event a ep:EventObject ; # Match incoming event
+           ssn:Sensor ?sensor ;
+           geo:Point [ geo:lat ?lat ; geo:long ?long ; ] ;
+           ep:hasEventObjectSamplingTime ?time .
+    :memory :counter ?count
+    BIND (?count+1 AS ?newcount)
+    BIND (IRI(concat("Eve",str(?newcount))) AS ?eventIRI)
+} ;
+
+# @name ContructTriG
+CONSTRUCT { GRAPH ?eventIRI {  # Forward outgoing events
+    ?eventIRI a ep:EventObject ; # Match incoming event
+              ssn:Sensor ?sensor ;
+              geo:Point [ geo:lat ?lat ; geo:long ?long ; ] ;
+              ep:hasEventObjectSamplingTime ?time } }
+WHERE { GRAPH <processed> {
+    ?eventIRI a ep:EventObject ; # Match incoming event
+              ssn:Sensor ?sensor ;
+              geo:Point [ geo:lat ?lat ; geo:long ?long ; ] ;
+              ep:hasEventObjectSamplingTime ?time
+} } ;
+

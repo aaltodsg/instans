@@ -52,24 +52,24 @@ WHERE { GRAPH <memory> { # Match entries in memory
 # Cleanup <eventcounts> when a newer event is available
 
 # @name Cleanup-Eventcounts
-# DELETE {
-#   GRAPH <eventcounts> {
-#    ?event1 a ep:EventObject ;
-#       ep:hasEventObjectSamplingTime ?time1 ;
-#       :eventType :eventCount ;
-#       :hour ?memhour ;
-#       :count ?count }
-# }
-# WHERE {
-#   GRAPH <eventcounts> {
-#    ?event1 a ep:EventObject ;
-#       ep:hasEventObjectSamplingTime ?time1 ;
-#       :eventType :eventCount ;
-#       :hour ?memhour ;
-#       :count ?count }
-#   FILTER EXISTS { GRAPH <eventcounts> {
-#       ?event2 a ep:EventObject ;
-#               ep:hasEventObjectSamplingTime ?time2 .
-#       FILTER (?time1 < ?time2)
-#   }  }
-# } ;
+DELETE {
+  GRAPH <eventcounts> {
+   ?event1 a ep:EventObject ;
+      ep:hasEventObjectSamplingTime ?time1 ;
+      :eventType :eventCount ;
+      :hour ?memhour ;
+      :count ?count }
+}
+WHERE {
+  GRAPH <eventcounts> {
+   ?event1 a ep:EventObject ;
+      ep:hasEventObjectSamplingTime ?time1 ;
+      :eventType :eventCount ;
+      :hour ?memhour ;
+      :count ?count }
+  FILTER EXISTS { GRAPH <eventcounts> {
+      ?event2 a ep:EventObject ;
+              ep:hasEventObjectSamplingTime ?time2 .
+      FILTER (?time1 < ?time2)
+  }  }
+} ;
