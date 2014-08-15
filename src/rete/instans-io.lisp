@@ -248,7 +248,7 @@
 	  (indent 0)
 	  (init-sep ""))
       (loop for (g . s-trie) in (trie-level trie)
-;	    do (inform "g = ~S, s-trie = ~S" g s-trie)
+	    do (inform "g = ~S, s-trie = ~S" g s-trie)
 	    do (let (g-string)
 		 (cond (g
 			(setf g-string (sparql-value-to-string g :instans instans))

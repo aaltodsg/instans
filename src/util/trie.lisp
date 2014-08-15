@@ -42,3 +42,13 @@
 	else
 	do (trie-map subtrie function (cons item result))))
 
+(defun trie-print (trie &optional (stream *standard-output*) (indent 0))
+  (format stream "~%~VT~A { " indent trie)
+  (loop for (key . value) in (trie-level trie)
+        do (format stream "~A:" key)
+        when value
+        do (trie-print value stream (+ indent 2 (length (format nil "~A" key))))
+	else do (format stream ",~%~VT" indent))
+  (format stream "~VT}~%" indent))
+  
+
