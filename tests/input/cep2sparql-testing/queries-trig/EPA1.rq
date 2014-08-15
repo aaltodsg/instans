@@ -9,10 +9,10 @@ PREFIX ff: <http://factforge.net/>
 # Stateless filter (EPA 1): Only events generated during business hours
 
 # @name EPA1-Stateless
-CONSTRUCT { GRAPH ?g {  # Forward outgoing events
+CONSTRUCT { GRAPH ?event {  # Forward outgoing events
       ?s ?p ?o } }
 WHERE { GRAPH ?g {
-    FILTER ( strStarts(str(?g),"http:///Eve") )
+    FILTER ( strStarts(str(?g),"http://instans.org/Eve") )
     ?s ?p ?o .    # Whole content
     ?event ep:hasEventObjectSamplingTime ?time .
 #    FILTER ( ( HOURS(?time) > 8 ) && ( HOURS(?time) < 17 ) )
