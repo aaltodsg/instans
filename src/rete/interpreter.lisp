@@ -12,7 +12,8 @@
 (defgeneric rete-add (instans subj pred obj graph)
   (:method ((this instans) subj pred obj graph)
     (if (operation-report-p this :rete-add)	
-	(format (instans-default-output this) "~&Rete add to ~A ~A ~A ~A~%~%"
+	(format (instans-default-output this) "~&~A: Rete add to ~A ~A ~A ~A~%~%"
+		(instans-name this)
 		(if graph (sparql-value-to-string graph :instans this) "DEFAULT")
 		 (sparql-value-to-string subj :instans this)
 		 (sparql-value-to-string pred :instans this)
@@ -30,11 +31,12 @@
 (defgeneric rete-remove (instans subj pred obj graph)
   (:method ((this instans) subj pred obj graph)
     (if (operation-report-p this :rete-remove)
-	(format (instans-default-output this) "~&Rete remove from ~A ~A ~A ~A~%~%"
-		 (if graph (sparql-value-to-string graph :instans this) "DEFAULT")
-		 (sparql-value-to-string subj :instans this)
-		 (sparql-value-to-string pred :instans this)
-		 (sparql-value-to-string obj :instans this)))
+	(format (instans-default-output this) "~&~A: Rete remove from ~A ~A ~A ~A~%~%"
+		(instans-name this)
+		(if graph (sparql-value-to-string graph :instans this) "DEFAULT")
+		(sparql-value-to-string subj :instans this)
+		(sparql-value-to-string pred :instans this)
+		(sparql-value-to-string obj :instans this)))
     (let ((quad-store (instans-quad-store this)))
       (when quad-store (remove-quad quad-store (list subj pred obj graph))))
     (incf (instans-remove-quad-count this))
@@ -43,7 +45,7 @@
 	  do (setf (instans-current-op this) (list :rete-remove subj pred obj graph))
 	  do (remove-token alpha args)
 	  do (setf (instans-current-op this) nil)
-)))
+	 )))
 
 ;;; ---------------
 ;;; Rule add/remove
@@ -197,37 +199,85 @@
 ;;; Execution
 ;;; ---------
 
-(defvar *seen-threads* nil)
+;; (defgeneric run-input-processors (instans)
+;;   (:method ((this instans))
+;;     (loop with continuep = t
+;; 	  while continuep
+;; 	  do (setf continuep nil)
+;; 	  do (loop for processor in (instans-input-processors this)
+;; 		   for ll-parser = (run-input-processor processor)
+;; 		   do (cond ((ll-parser-failed-p ll-parser)
+;; 			     (instans-add-status this 'instans-rdf-parsing-failed (ll-parser-error-messages ll-parser))
+;; 			     (return nil))
+;; 			    ((ll-parser-succeeded-p ll-parser)
+;; 			     (instans-add-status this 'instans-rdf-parsing-succeeded))
+;; 			    (t
+;; 			     (setf continuep t))))
+;; 	 finally (return t))))
 
-(defgeneric run-input-processors (instans)
+;; (defgeneric run-input-processor (instans-input-processor)
+;;   (:method ((this instans-agent-input-processor))
+;;     (let* ((instans (instans-input-processor-instans this))
+;; 	   (statements (agent-receive instans)))
+;;       (process-query-input this statements)))
+;;   (:method ((this instans-stream-input-processor))
+;;     (parse (instans-stream-input-processor-parser this))))
+
+
+(defun run-instanses (instanses)
+  (loop for runnable = (filter #'instans-runnable-p instanses)
+        while runnable
+        do (loop for instans in runnable do (run-input-processors instans nil))))
+
+(defgeneric instans-runnable-input-processors (instans)
   (:method ((this instans))
-    (push (list sb-thread:*current-thread* :run-input-processors) *seen-threads*)
-    (loop with continuep = t
+    (filter #'instans-input-processor-runnable-p (instans-input-processors this))))
+
+(defgeneric run-input-processors (instans continuouslyp)
+  (:method ((this instans) continuouslyp)
+    (loop for runnable = (instans-runnable-input-processors this)
+	  for continuep = t then (and continuouslyp runnable)
 	  while continuep
-	  do (setf continuep nil)
-	  do (loop for processor in (instans-input-processors this)
-		   for ll-parser = (run-input-processor processor)
-		   do (cond ((ll-parser-failed-p ll-parser)
-			     (instans-add-status this 'instans-rdf-parsing-failed (ll-parser-error-messages ll-parser))
-			     (return nil))
-			    ((ll-parser-succeeded-p ll-parser)
-			     (instans-add-status this 'instans-rdf-parsing-succeeded))
-			    (t
-			     (setf continuep t))))
-	 finally (return t))))
+	  do (loop for processor in runnable do (run-input-processor processor)))))
+
+(defgeneric check-instans-runnable (instans)
+  (:method ((this instans))
+    (unless (instans-runnable-p this)
+      (instans-close-open-streams this))))
 
 (defgeneric run-input-processor (instans-input-processor)
   (:method ((this instans-agent-input-processor))
-    (let* ((instans (instans-input-processor-instans this))
-	   (statements (agent-receive instans)))
-      (process-query-input this statements)))
+    (let ((instans (instans-input-processor-instans this)))
+      (multiple-value-bind (statements receivedp)
+	  (agent-receive instans nil)
+	(cond ((eq statements :eof)
+	       (setf (instans-input-processor-status this) :succeeded)
+	       (check-instans-runnable instans))
+	      ((not receivedp)
+	       (setf (instans-input-processor-status this) :runnable))
+	      (t
+	       (process-query-input this statements)
+	       (setf (instans-input-processor-status this) :runnable))))))
   (:method ((this instans-stream-input-processor))
-    (parse (instans-stream-input-processor-parser this))))
+    (let ((ll-parser (parse (instans-stream-input-processor-parser this)))
+	  (instans (instans-input-processor-instans this)))
+      (cond ((ll-parser-failed-p ll-parser)
+	     (instans-add-status instans 'instans-rdf-parsing-failed (ll-parser-error-messages ll-parser))
+	     (setf (instans-input-processor-status this) :failed)
+	     (unless (instans-runnable-p instans)
+	       (instans-close-open-streams instans)))
+	    ((ll-parser-succeeded-p ll-parser)
+	     (instans-add-status instans 'instans-rdf-parsing-succeeded)
+	     (setf (instans-input-processor-status this) :succeeded)
+	     (check-instans-runnable instans))
+	    (t
+	     (setf (instans-input-processor-status this) :runnable))))))
 
 (defgeneric instans-close-open-streams (instans)
   (:method ((this instans))
     (loop for ip in (instans-input-processors this)
-	  do (close (lexer-input-stream (ll-parser-lexer (instans-stream-input-processor-parser ip)))))
+	  do (when (instans-stream-input-processor-p ip)
+	       (close (lexer-input-stream (ll-parser-lexer (instans-stream-input-processor-parser ip))))))
     (when (instans-select-output-processor this)
       (close-output-processor (instans-select-output-processor this)))
     (when (instans-construct-output-processor this)
@@ -253,7 +303,7 @@
 	  (declare (special *instans*))
 	  (loop for op in ops 
 		when reportp
-		do (format (instans-default-output instans) "~%Running RDF-operation ~A~%" op)
+		do (format (instans-default-output instans) "~%~A: Running RDF-operation ~A~%" (instans-name instans) op)
 		do (case op
 		     (:add
 		      (loop for (subj pred obj . rest) in inputs
@@ -274,8 +324,10 @@
 		     (:execute-repeat-first
 		      (execute-rules instans :repeat-first))
 		     (:flush
-		      (flush-output-processor (instans-construct-output-processor instans))
-		      (flush-output-processor (instans-select-output-processor instans)))
+		      (if (instans-construct-output-processor instans)
+			  (flush-output-processor (instans-construct-output-processor instans)))
+		      (if (instans-select-output-processor instans)
+			  (flush-output-processor (instans-select-output-processor instans))))
 		     (t
 		      (error* "Illegal op ~S" op)))))))))
 
@@ -346,7 +398,7 @@
 	  (report-sizes this))
 	(incf (instans-size-report-counter this)))
       (if (operation-report-p this :execute) 
-	  (format (instans-default-output this) "~&Execute rules with policy ~A~%~%" policy))
+	  (format (instans-default-output this) "~&~A: Execute rules with policy ~A~%~%" (instans-name this) policy))
       (case policy
 	(:first
 	 (rule-instance-queue-execute-first queue))
@@ -367,7 +419,7 @@
   (:method ((this instans) &key (stream (instans-default-output this)))
     (let ((queue (instans-rule-instance-queue this)))
       (when (operation-report-p this :statistics)
-	(format stream "~&add-quad-count = ~S~%" (instans-add-quad-count this))
+	(format stream "~&~A:~%add-quad-count = ~S~%" (instans-name this) (instans-add-quad-count this))
 	(format stream "remove-quad-count = ~S~%" (instans-remove-quad-count this))
 	(format stream "queue-add-count = ~S~%" (rule-instance-queue-add-count queue))
 	(format stream "queue-remove-count = ~S~%" (rule-instance-queue-remove-count queue))
@@ -391,11 +443,11 @@
 			  ((eq func #'add-beta-token) :add-beta-token)
 			  ((eq func #'remove-beta-token) :remove-beta-token)
 			  (t (error* "Unknown function ~S here" func)))))
-	   (when reportp (format output "~&calling successors of ~A using function ~A~%" node func))
+	   (when reportp (format output "~&~A: calling successors of ~A using function ~A~%" (instans-name instans) node func))
 	   (loop for succ in (node-succ node)
 		 when reportp do (format output "~%  ~(~A~) ~A~%" op succ)
 		 do (funcall func succ token nil))
-	   (when reportp (format output "~%called successors of ~A using function ~A~%~%" node func))))
+	   (when reportp (format output "~%~A: called successors of ~A using function ~A~%~%" (instans-name instans) node func))))
 	(t
 	 (funcall func (car stack) token (cdr stack)))))
 
@@ -404,7 +456,7 @@
     (assert (null stack))
     (let ((dataset (triple-pattern-node-dataset this))
 	  (graph (first values)))
-;      (inform "add-token ~S" values)
+      ;; (inform "add-token ~S (dataset = ~S)" values dataset)
       (cond ((rdf-iri-p dataset)
 	     (when (and (rdf-iri-p graph) (rdf-iri= dataset graph))
 	       (add-token (car (node-succ this)) (make-token this nil (alpha-node-variables this) (cdr values)))))
@@ -809,8 +861,8 @@
 	     (return :found))
 	finally (let ((instans (rule-instance-queue-instans queue)))
 		  (when (operation-report-p instans :queue)
-		    (format (instans-default-output instans) "Tried to remove non-existing rule-instance in ~A~%Rule ~A~%~{~{     ~A = ~A~}~^~%~}~%"
-			    (instans-name instans) (rule-node-name-pretty node) (node-token-bindings-for-reporting node token))
+		    ;; (format (instans-default-output instans) "~A: Tried to remove non-existing rule-instance.~%Rule ~A~%~{~{     ~A = ~A~}~^~%~}~%"
+		    ;; 	    (instans-name instans) (rule-node-name-pretty node) (node-token-bindings-for-reporting node token))
 		    (report-queue queue))
 		  (return :not-found))))
 
@@ -888,8 +940,8 @@
 (defun report-rule-op (queue op rule-instance &key stream)
   (let ((instans (rule-instance-queue-instans queue)))
     (when (null stream) (setf stream  (instans-default-output instans)))
-    (format stream "~&~A in ~A~%Rule ~A~%~{~{     ~A = ~A~}~^~%~}~%"
-	    op (instans-name instans) (rule-node-name-pretty (rule-instance-node rule-instance))
+    (format stream "~&~A: operation ~A~%Rule ~A~%~{~{     ~A = ~A~}~^~%~}~%"
+	    (instans-name instans) op (rule-node-name-pretty (rule-instance-node rule-instance))
 	    (node-token-bindings-for-reporting (rule-instance-node rule-instance) (rule-instance-token rule-instance)))
     (report-queue queue)
     (format stream "~%")))

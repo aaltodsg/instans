@@ -9,6 +9,8 @@
 
 (define-class instans-input-processor ()
   ((instans :accessor instans-input-processor-instans :initarg :instans)
+   (name :accessor instans-input-processor-name :initarg :name)
+   (status :accessor instans-input-processor-status :initform :runnable)
    (operations :accessor instans-input-processor-operations :initarg :operations)
    (base :accessor instans-input-processor-base :initarg :base)
    (graph :accessor instans-input-processor-graph :initarg :graph)
@@ -30,7 +32,8 @@
 
 ;;; Writers do the actual writing of output to streams and agent mailboxes.
 
-(define-class instans-writer () ())
+(define-class instans-writer ()
+  ((name :accessor instans-writer-name :initarg :name)))
 
 ;; Select writers
 
@@ -83,7 +86,26 @@
 
 (define-class instans-turtle-output-processor (instans-trig-output-processor) ())
 
+;;; Print-object
+
+(defmethod print-object ((this instans-input-processor) stream)
+  (format stream "#<~A ~S>" (type-of this) (instans-input-processor-name this)))
+
+(defmethod print-object ((this instans-writer) stream)
+  (format stream "#<~A ~S>" (type-of this) (instans-writer-name this)))
+
+(defmethod print-object ((this instans-output-processor) stream)
+  (format stream "#<~A ~S>" (type-of this) (instans-output-processor-output-name this)))
+
 ;;; Input processing is mostly defined in instan/src/parser/*.lisp files.
+
+(defgeneric instans-input-processor-runnable-p (input-processor)
+  (:method ((this instans-input-processor))
+    (eq (instans-input-processor-status this) :runnable)))
+
+(defgeneric instans-runnable-p (instans)
+  (:method ((this instans))
+    (some #'instans-input-processor-runnable-p (instans-input-processors this))))
 
 ;;; Creating output processors
 
@@ -95,6 +117,7 @@
 	   :output-name output-name
 	   :writer (make-instance
 		    'instans-csv-writer
+		    :name output-name
 		    :csv-output (make-instance
 				 'csv-output
 				 :stream (if (or (null output-name) (string= "-" output-name))
@@ -111,7 +134,7 @@
   (let* ((stream (cond ((or (null output-name) (string= "-" output-name)) *standard-output*)
 		       (t
 			(open output-name :direction :output :if-exists :supersede))))
-	 (writer (make-instance 'instans-stream-writer :stream stream)))
+	 (writer (make-instance 'instans-stream-writer :name output-name :stream stream)))
     (case output-type
       ((:ttl :turtle) (make-instance 'instans-turtle-output-processor :instans instans :output-name output-name :writer writer))
       (:trig (make-instance 'instans-trig-output-processor :instans instans :output-name output-name :writer writer))
@@ -120,7 +143,7 @@
       (t (error* "Unknown construct output processor type ~S" output-type)))))
 
 (defun create-construct-agent-output-processor (instans output-name output-type destinations)
-  (let ((writer (make-instance 'instans-agent-writer :destinations destinations)))
+  (let ((writer (make-instance 'instans-agent-writer :name output-name :destinations destinations)))
     (case output-type
       ((:ttl :turtle) (make-instance 'instans-turtle-output-processor :instans instans :output-name output-name :writer writer))
       (:trig (make-instance 'instans-trig-output-processor :instans instans :output-name output-name :writer writer))
@@ -154,8 +177,12 @@
 
 (defgeneric close-output-processor (instans-output-processor)
   (:method ((this instans-output-processor))
-    (flush-output-processor this)
-    (close-writer (instans-output-processor-writer this))))
+    (let ((writer (instans-output-processor-writer this)))
+      (flush-output-processor this)
+      (when (typep writer 'instans-agent-writer)
+	(loop for agent in (instans-agent-writer-destinations writer)
+	      do (agent-send agent :eof)))
+      (close-writer writer))))
 
 (defgeneric close-writer (instans-writer)
   (:method ((this instans-stream-writer))
@@ -248,6 +275,7 @@
     (let ((stream (instans-stream-writer-stream this))
 	  (indent 0)
 	  (init-sep ""))
+;      (inform "stream = ~S~%" stream)
       (loop for (g . s-trie) in (trie-level trie)
 ;	    do (inform "g = ~S, s-trie = ~S" g s-trie)
 	    do (let (g-string)
@@ -284,12 +312,20 @@
 			(decf indent (+ (length g-string) 3)))
 		       (wrap-default-p
 			(format stream "}~%")
-			(decf indent 2)))))))
+			(decf indent 2)))
+;		 (finish-output stream)
+		 ))))
   (:method ((this instans-agent-writer) (instans instans) trie &optional wrap-default-p)
     (declare (ignorable wrap-default-p))
     (let* ((msg (list nil))
 	   (tail msg))
-      (trie-map trie #'(lambda (path) (setf (cdr tail) (list (second path) (third path) (fourth path) (first path)))))
+      (trie-map trie #'(lambda (path)
+			 (setf (cdr tail) (list (list (second path) (third path) (fourth path) (first path))))
+			 (setf tail (cdr tail))))
+      ;; (trie-print trie)
+      ;; (inform "trie paths = ~S" (trie-paths trie))
+      (pop msg)
+      ;; (inform "About to send ~S~%" msg)
       (loop for agent in (instans-agent-writer-destinations this)
 	    do (agent-send agent msg)))))
 

@@ -1,0 +1,39 @@
+BASE <http://instans.org/>
+PREFIX : <http:instans.org/default#>
+PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX ssn: <http://purl.oclc.org/NET/ssnx/ssn#>
+PREFIX ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
+PREFIX omgeo: <http://www.ontotext.com/owlim/geo#>
+PREFIX ff: <http://factforge.net/>
+
+# Running: --rdf-operations=add:execute --allow-rule-instance-removal=false --rdf-input-unit=single
+
+# Stateless filter (EPA 0): Constructs events from possibly unstructured input.
+
+# @name EPA0-Stateless
+CONSTRUCT { GRAPH <source> { 
+    ?event a ep:EventObject ;
+    	   geo:Point [ geo:lat ?lat ; geo:long ?long ] ;
+	   ssn:Sensor ?sensor ;
+	   ep:hasEventObjectSamplingTime ?time .
+    }
+}
+WHERE {
+    ?event a ep:EventObject ;
+    	   geo:Point [ geo:lat ?lat ; geo:long ?long ] ;
+	   ssn:Sensor ?sensor ;
+	   ep:hasEventObjectSamplingTime ?time .
+};
+
+# Cleanup <source> when a newer event is available
+
+# @name EPA0-purge-input is needed to remove triples that are no longer needed.
+DELETE WHERE {
+  GRAPH <source> {
+    ?event a ep:EventObject ;
+    	   geo:Point ?point ;
+	   ssn:Sensor ?sensor ;
+	   ep:hasEventObjectSamplingTime ?time .
+    ?point geo:lat ?lat ; geo:long ?long
+  }
+};

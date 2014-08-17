@@ -176,10 +176,12 @@
       (add-input-processor instans processor)
       instans)))
 
-(defun instans-add-agent-input-processor (instans &key graph base input-type subscribe)
-  (instans-debug-message instans '(:parse-rdf :execute) "instans-add-agent-input-processor ~S :input-type ~S :graph ~S :base ~S" (instans-name instans) input-type graph base)
+(defun instans-add-agent-input-processor (instans &key graph name base input-type subscribe)
+  (instans-debug-message instans '(:parse-rdf :execute) "instans-add-agent-input-processor ~S :input-type ~S :name ~S :graph ~S :base ~S" (instans-name instans)
+			 input-type name graph base)
   (let ((processor (make-instance 'instans-agent-input-processor
 				  :instans instans
+				  :name name
 				  :operations (instans-rdf-operations instans)
 				  :base base
 				  :graph graph
@@ -194,7 +196,7 @@
     (setf (instans-construct-output-processor instans) (create-construct-output-processor instans construct-output-name construct-output-type)))
   (when report-sizes-interval
     (initialize-report-sizes instans report-sizes-interval))
-  (run-input-processors instans))
+  (run-input-processors instans t))
 
 (defun instans-parse-rdf-file (instans input-iri &key subscribe base graph triple-callback block-callback document-callback)
   (let (input-stream file-type error-msg)

@@ -11,9 +11,7 @@ PREFIX ff: <http://factforge.net/>
 # @name EPA6-0-Init adds initial state to <memory>
 INSERT DATA { GRAPH <memory> {  :initHour :hour -1 ; :counter -1 } };
 
-# Q6-1: Maintain counter of number of events per hour in memory
-
-# @name EPA6-1-MaintainEventCounter
+# @name EPA6-1-MaintainEventCounter maintains counter of number of events per hour in memory
 DELETE { GRAPH <source> { ?event ep:hasEventObjectSamplingTime ?time }
        	 GRAPH <memory> { ?x :counter ?oldcount} }
 INSERT { GRAPH <memory> { ?x :counter ?newcount} }
@@ -24,10 +22,7 @@ WHERE  { GRAPH <memory> { ?x :hour ?memhour ; :counter ?oldcount }
 	 BIND ( ?oldcount + 1 AS ?newcount )
 };
 
-# Q6-2: Output result when latest event is higher than the hour in an existing entry
-# Delete memory entries
-
-# @name EPA6-2-OutputEventCounts
+# @name EPA6-2-OutputEventCounts outputs result when latest event is higher than the hour in an existing entry
 CONSTRUCT { GRAPH <eventcounts> { # Insert counter event
 	    [] a ep:EventObject ;
 	       ep:hasEventObjectSamplingTime ?time ;
@@ -41,6 +36,7 @@ WHERE { GRAPH <memory> { ?px :hour ?memhour ; :counter ?count }
 	FILTER ( ?memhour != -1 && ?memhour != ?hour)
 };
 
+#@name EPA6-change-counter changes to a new counter
 DELETE { GRAPH <memory> { ?px :hour ?memhour ; :counter ?count } } # Remove final counter entry
 INSERT { GRAPH <memory> { [] :hour ?hour ; :counter 0 } }
 WHERE { GRAPH <memory> { ?px :hour ?memhour ; :counter ?count }
@@ -48,51 +44,3 @@ WHERE { GRAPH <memory> { ?px :hour ?memhour ; :counter ?count }
 	BIND ( HOURS(?time) as ?hour )
 	FILTER ( ?memhour != ?hour )
 };
-
-# # @name EPA6-2-OutputEventCounts
-# DELETE { GRAPH <memory> { ?px :hour ?memhour ; :counter ?count } } # Remove final counter entry
-# INSERT { GRAPH <eventcounts> { # Insert counter event
-# 	    [] a ep:EventObject ;
-# 	       ep:hasEventObjectSamplingTime ?time ;
-# 	       :eventType :eventCount ;
-# 	       :hour ?memhour ;
-# 	       :count ?count }
-# 	 GRAPH <memory> { [] :hour ?hour ; :counter 0 }
-# }
-# WHERE { GRAPH <memory> { ?px :hour ?memhour ; :counter ?count }
-#         GRAPH <source> { ?event ep:hasEventObjectSamplingTime ?time }
-# 	BIND ( HOURS(?time) as ?hour )
-# 	FILTER ( ?memhour != ?hour )
-# } ;
-
-# # Cleanup <eventcounts> when a newer event is available
-
-# # @name Cleanup-Eventcounts
-# DELETE {
-#   GRAPH <eventcounts> {
-#    ?event1 a ep:EventObject ;
-#       ep:hasEventObjectSamplingTime ?time1 ;
-#       :eventType :eventCount ;
-#       :hour ?memhour ;
-#       :count ?count }
-# }
-# WHERE {
-#   GRAPH <eventcounts> {
-#    ?event1 a ep:EventObject ;
-#       ep:hasEventObjectSamplingTime ?time1 ;
-#       :eventType :eventCount ;
-#       :hour ?memhour ;
-#       :count ?count }
-#   FILTER EXISTS { GRAPH <eventcounts> {
-#       ?event2 a ep:EventObject ;
-#               ep:hasEventObjectSamplingTime ?time2 .
-#       FILTER (?time1 < ?time2)
-#   }  }
-# } ;
-
-# # Output named graphs
-
-# # This query is included in testing / debugging executions to print triples written into named graphs
-
-# # @name Output
-# CONSTRUCT { GRAPH ?g { ?s ?p ?o } } WHERE { GRAPH ?g { ?s ?p ?o } FILTER(?g = <eventcounts>) }

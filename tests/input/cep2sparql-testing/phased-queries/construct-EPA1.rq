@@ -23,16 +23,3 @@ WHERE { GRAPH <source> {
 	   ep:hasEventObjectSamplingTime ?time .
     FILTER ( ( HOURS(?time) > 8 ) && ( HOURS(?time) < 17 ) ) }
 };
-
-# Cleanup <source> when a newer event is available
-
-# @name Cleanup-Source
-DELETE WHERE {
-  GRAPH <source> {
-    ?event a ep:EventObject ;    # Match incoming events
-    	   geo:Point ?point ;
-	   ssn:Sensor ?sensor ;
-	   ep:hasEventObjectSamplingTime ?time .
-    ?point geo:lat ?lat ; geo:long ?long
-  }
-};

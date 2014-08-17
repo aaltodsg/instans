@@ -8,25 +8,22 @@ PREFIX ff: <http://factforge.net/>
 
 # Stateful filter (EPA 2): Only 1 event per hour
 
+# @name EPA2-Init adds initial state to <memory>
+INSERT DATA { GRAPH <memory> {  :stateful :hour -1 ; :prevEvent [] } };
+
 # @name EPA2-Stateful-update-memory
-DELETE { GRAPH <memory> { # Clear memory
-    :stateful :prevHour ?prevhour; :prevEvent ?prevEvent} }
-INSERT { GRAPH <memory> { # Write new value to memory
-           :stateful :prevHour ?hour; :prevEvent ?event }  
-}
+DELETE { GRAPH <memory> { :stateful :prevHour ?prevhour; :prevEvent ?prevEvent} }
+INSERT { GRAPH <memory> { :stateful :prevHour ?hour; :prevEvent ?event } }
 WHERE {
       GRAPH <poststateless> { ?event ep:hasEventObjectSamplingTime ?time }
-      GRAPH <memory> { OPTIONAL  { ?mem :prevHour ?prevhour; :prevEvent ?prevEvent } }
+      GRAPH <memory> { :stateful :prevHour ?prevhour; :prevEvent ?prevEvent }
       BIND ( HOURS(?time) as ?hour)
-      FILTER ( ?hour != COALESCE(?prevhour,-1) ) # Compare current hour with memory
+      FILTER ( ?hour != ?prevhour )
 } ;
 
 # @name EPA2-Stateful-pass-one-event-per-hour
 CONSTRUCT { GRAPH <poststateful> { ?s ?p ?o }}
 WHERE {
       GRAPH <memory> { :stateful :prevEvent ?event }
-      GRAPH <poststateless> {
-      	    ?event a ep:EventObject .
-	    ?s ?p ?o
-      }
+      GRAPH <poststateless> { ?event ep:hasEventObjectSamplingTime ?time  . ?s ?p ?o }
 }
