@@ -14,8 +14,8 @@ WHERE { GRAPH ?g {
     FILTER ( strStarts(str(?g),concat(str(<>),"Eve")) )
     ?s ?p ?o .
     ?event ep:hasEventObjectSamplingTime ?time
-    FILTER ( ( HOURS(?time) > 8 ) && ( HOURS(?time) < 17 ) ) }
-  BIND (IRI(concat("Poststateless-",strAfter(str(?event),str(<>)))) AS ?newgraph) } ;
+    FILTER ( ( HOURS(?time) > 8 ) && ( HOURS(?time) < 17 ) )
+  BIND (IRI(concat("Poststateless-",strAfter(str(?event),str(<>)))) AS ?newgraph) } } ;
 
 #@name Cleanup-Input
 # DELETE { GRAPH ?g { ?s ?p ?o } }
