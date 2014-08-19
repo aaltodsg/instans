@@ -13,15 +13,15 @@ CONSTRUCT { GRAPH ?newgraph { ?s ?p ?o } }
 WHERE { GRAPH ?g {
     FILTER ( strStarts(str(?g),concat(str(<>),"Eve")) )
     ?s ?p ?o .
-    ?event ep:hasEventObjectSamplingTime ?time
-    FILTER ( ( HOURS(?time) > 8 ) && ( HOURS(?time) < 17 ) )
-  BIND (IRI(concat("Poststateless-",strAfter(str(?event),str(<>)))) AS ?newgraph) } } ;
+    ?event ep:hasEventObjectSamplingTime ?time }
+  FILTER ( ( HOURS(?time) > 8 ) && ( HOURS(?time) < 17 ) )
+  BIND (IRI(concat("Poststateless-",strAfter(str(?event),str(<>)))) AS ?newgraph) } ;
 
 #@name Cleanup-Input
-# DELETE { GRAPH ?g { ?s ?p ?o } }
+# DELETE { GRAPH ?g1 { ?s ?p ?o } }
 # WHERE {
-#   GRAPH ?g {
-#     FILTER ( strStarts(str(?g),concat(str(<>),"Eve")) )
+#   GRAPH ?g1 {
+#     FILTER ( strStarts(str(?g1),concat(str(<>),"Eve")) )
 #     ?s ?p ?o .
 #     ?event ep:hasEventObjectSamplingTime ?time1 }
 #   FILTER EXISTS { GRAPH ?g2 {

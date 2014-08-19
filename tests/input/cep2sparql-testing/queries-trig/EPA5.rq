@@ -1,0 +1,55 @@
+BASE <http://instans.org/>
+PREFIX : <http:instans.org/default#>
+PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX ssn: <http://purl.oclc.org/NET/ssnx/ssn#>
+PREFIX ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
+PREFIX omgeo: <http://www.ontotext.com/owlim/geo#>
+PREFIX ff: <http://factforge.net/>
+
+# Split (EPA 5): Split into separate channels using original blank nodes.
+
+CONSTRUCT { GRAPH ?geograph { # Insert GeoEvents
+    ?event a ep:EventObject ;
+           geo:Point [ geo:lat ?lat ; geo:long ?long ; ] }
+  GRAPH <timeevents> { # Insert TimeEvents
+    ?event a ep:EventObject ;
+           ssn:Sensor ?sensor ;
+           ep:hasEventObjectSamplingTime ?time } }
+WHERE { GRAPH ?g { # Match incoming events
+    FILTER ( strStarts(str(?g),concat(str(<>),"Eve")) )
+    ?event a ep:EventObject ;
+           ssn:Sensor ?sensor ;
+           geo:Point [ geo:lat ?lat ; geo:long ?long ; ] ;
+           ep:hasEventObjectSamplingTime ?time }
+  BIND (IRI(concat("GeoEvents-",strAfter(str(?event),str(<>)))) AS ?geograph) } ;
+  BIND (IRI(concat("Poststateless-",strAfter(str(?event),str(<>)))) AS ?newgraph) } ;
+} ;
+
+# Cleanup <poststateful> when a newer event is available
+
+# Not updated yet!
+
+# @name Cleanup-Poststateful
+# DELETE {
+#   GRAPH <poststateful> {
+#     ?event1 a ep:EventObject ; # Match incoming event
+#             ssn:Sensor ?sensor ;
+#             ep:hasEventObjectSamplingTime ?time1 ;
+#             geo:Point ?point .
+#     ?point geo:lat ?lat ; geo:long ?long .
+#   }
+# }
+# WHERE {
+#   GRAPH <poststateful> {
+#     ?event1 a ep:EventObject ; # Match incoming event
+#             ssn:Sensor ?sensor ;
+#             ep:hasEventObjectSamplingTime ?time1 ;
+#             geo:Point ?point .
+#     ?point geo:lat ?lat ; geo:long ?long .
+#   }
+#   FILTER EXISTS { GRAPH <poststateful> {
+#       ?event2 a ep:EventObject ;
+#               ep:hasEventObjectSamplingTime ?time2 .
+#       FILTER (?time1 < ?time2)
+#   }  }
+# } ;
