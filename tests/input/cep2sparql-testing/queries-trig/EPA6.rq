@@ -21,7 +21,7 @@ WHERE  { GRAPH ?g {
 DELETE { GRAPH <memory> { :init :aggregate :epa6 } }
 INSERT { GRAPH <memory> { :initHour :hour ?hour ; :counter 0 } }
 WHERE { GRAPH <memory> { :init :aggregate :epa6 .
-                       ?event ep:hasEventObjectSamplingTime ?time }
+                         ?event ep:hasEventObjectSamplingTime ?time }
   BIND ( HOURS(?time) as ?hour ) } ;
 
 # Q6-4: Maintain counter of number of events per hour in memory
