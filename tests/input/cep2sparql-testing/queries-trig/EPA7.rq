@@ -1,0 +1,29 @@
+BASE <http://instans.org/>
+PREFIX : <http:instans.org/default#>
+PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX ssn: <http://purl.oclc.org/NET/ssnx/ssn#>
+PREFIX ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
+PREFIX omgeo: <http://www.ontotext.com/owlim/geo#>
+PREFIX ff: <http://factforge.net/>
+
+# Compose (EPA 7): Combine two event streams into one
+
+# @name EPA7-Compose
+CONSTRUCT { GRAPH ?combined {
+    ?event a ep:EventObject ; # Forward re-combined events
+           ssn:Sensor ?sensor ;
+           geo:Point [ geo:lat ?lat ; geo:long ?long ; ] ;
+           ep:hasEventObjectSamplingTime ?time } }
+WHERE { 
+  GRAPH ?g1 { FILTER(strStarts(str(?g1),concat(str(<>),"GeoEvents-")))
+    ?event a ep:EventObject ;
+           geo:Point [ geo:lat ?lat ; geo:long ?long ; ] }
+  GRAPH ?g2 { FILTER(strStarts(str(?g2),concat(str(<>),"TimeEvents-")))
+    ?event a ep:EventObject ;
+           ssn:Sensor ?sensor ;
+           ep:hasEventObjectSamplingTime ?time }
+  BIND (IRI(concat("Combined-",strAfter(str(?event),str(<>)))) AS ?combined)
+} ;
+
+# SELECT *
+# WHERE { GRAPH ?g { ?s ?p ?o } }
