@@ -61,7 +61,7 @@ PREFIX ff: <http://factforge.net/>
          <Eve7> rdf:type ep:EventObject;
                 ssn:Sensor :loc1;
                 geo:Point _:29;
-                ep:hasEventObjectSamplingTime "2014-01-07T09:18:21"^^xsd:dateTime .
+                ep:hasEventObjectSamplingTime "2014-01-08T09:18:21"^^xsd:dateTime .
 }
 <Eve8> { _:33 geo:lat 60.187458;
               geo:long 24.821272 .
@@ -69,7 +69,7 @@ PREFIX ff: <http://factforge.net/>
          <Eve8> rdf:type ep:EventObject;
                 ssn:Sensor :loc1;
                 geo:Point _:33;
-                ep:hasEventObjectSamplingTime "2014-01-07T09:42:00"^^xsd:dateTime .
+                ep:hasEventObjectSamplingTime "2014-01-08T09:42:00"^^xsd:dateTime .
 }
 <Eve9> { _:37 geo:lat 60.187634;
               geo:long 24.821491 .
@@ -77,7 +77,7 @@ PREFIX ff: <http://factforge.net/>
          <Eve9> rdf:type ep:EventObject;
                 ssn:Sensor :loc1;
                 geo:Point _:37;
-                ep:hasEventObjectSamplingTime "2014-01-07T10:18:21"^^xsd:dateTime .
+                ep:hasEventObjectSamplingTime "2014-01-08T10:18:21"^^xsd:dateTime .
 }
 <Eve10> { _:41 geo:lat 60.187595;
                geo:long 24.821255 .
@@ -85,7 +85,7 @@ PREFIX ff: <http://factforge.net/>
           <Eve10> rdf:type ep:EventObject;
                   ssn:Sensor :loc1;
                   geo:Point _:41;
-                  ep:hasEventObjectSamplingTime "2014-01-07T11:32:34"^^xsd:dateTime .
+                  ep:hasEventObjectSamplingTime "2014-01-08T11:32:34"^^xsd:dateTime .
 }
 <Eve11> { _:45 geo:lat 60.187595;
                geo:long 24.821255 .
@@ -93,7 +93,7 @@ PREFIX ff: <http://factforge.net/>
           <Eve11> rdf:type ep:EventObject;
                   ssn:Sensor :loc1;
                   geo:Point _:45;
-                  ep:hasEventObjectSamplingTime "2014-01-07T21:12:32"^^xsd:dateTime .
+                  ep:hasEventObjectSamplingTime "2014-01-08T21:12:32"^^xsd:dateTime .
 }
 <Eve12> { _:49 geo:lat 60.186623;
                geo:long 24.820017 .
@@ -101,5 +101,5 @@ PREFIX ff: <http://factforge.net/>
           <Eve12> rdf:type ep:EventObject;
                   ssn:Sensor :loc1;
                   geo:Point _:49;
-                  ep:hasEventObjectSamplingTime "2014-01-08T04:02:11"^^xsd:dateTime .
+                  ep:hasEventObjectSamplingTime "2014-01-09T04:02:11"^^xsd:dateTime .
 }

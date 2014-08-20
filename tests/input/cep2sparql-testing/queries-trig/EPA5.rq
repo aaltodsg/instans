@@ -8,10 +8,10 @@ PREFIX ff: <http://factforge.net/>
 
 # Split (EPA 5): Split into separate channels using original blank nodes.
 
-CONSTRUCT { GRAPH ?geograph { # Insert GeoEvents
+CONSTRUCT { GRAPH ?geograph {
     ?event a ep:EventObject ;
            geo:Point [ geo:lat ?lat ; geo:long ?long ; ] }
-  GRAPH <timeevents> { # Insert TimeEvents
+  GRAPH ?timegraph {
     ?event a ep:EventObject ;
            ssn:Sensor ?sensor ;
            ep:hasEventObjectSamplingTime ?time } }
@@ -21,9 +21,8 @@ WHERE { GRAPH ?g { # Match incoming events
            ssn:Sensor ?sensor ;
            geo:Point [ geo:lat ?lat ; geo:long ?long ; ] ;
            ep:hasEventObjectSamplingTime ?time }
-  BIND (IRI(concat("GeoEvents-",strAfter(str(?event),str(<>)))) AS ?geograph) } ;
-  BIND (IRI(concat("Poststateless-",strAfter(str(?event),str(<>)))) AS ?newgraph) } ;
-} ;
+  BIND (IRI(concat("GeoEvents-",strAfter(str(?event),str(<>)))) AS ?geograph)
+  BIND (IRI(concat("TimeEvents-",strAfter(str(?event),str(<>)))) AS ?timegraph) } ;
 
 # Cleanup <poststateful> when a newer event is available
 

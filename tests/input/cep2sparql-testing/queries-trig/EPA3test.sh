@@ -1,1 +1,1 @@
-../../../../bin/instans --prefix-encoding=true -r EPA3.rq --rdf-operations=add:execute-snapshot:remove:execute:flush --time=- --input-blocks=../CEP2SPARQL_SampleEvents.trig
+../../../../bin/instans --prefix-encoding=true -r EPA3.rq --allow-rule-instance-removal=false --rdf-operations=add:execute:remove:execute:flush --time=- --input-blocks=../CEP2SPARQL_SampleEvents.trig
