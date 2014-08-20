@@ -11,24 +11,20 @@ PREFIX ff: <http://factforge.net/>
 # @name EPA6-1-Init
 INSERT DATA { GRAPH <memory> { :initHour :hour -1 ; :counter -1 } } ;
 
-# @name EPA6-2-ExtractTime
-INSERT { GRAPH <memory> { ?event ep:hasEventObjectSamplingTime ?time } }
-WHERE  { GRAPH ?g {
-    FILTER ( strStarts(str(?g),concat(str(<>),"Eve")) )
-    ?event ep:hasEventObjectSamplingTime ?time } } ;
-
-# @name EPA6-3-IncreaseEventCounter
-DELETE { GRAPH <memory> { ?x :counter ?oldcount .
-  ?event ep:hasEventObjectSamplingTime ?time } }
+# @name EPA6-2-IncreaseEventCounter
+DELETE { GRAPH <memory> { ?x :counter ?oldcount }
+  GRAPH ?g { ?event ep:hasEventObjectSamplingTime ?time } }
 INSERT { GRAPH <memory> { ?x :counter ?newcount} }
-WHERE  { GRAPH <memory> { ?x :hour ?memhour ; :counter ?oldcount .
+WHERE  { GRAPH <memory> { ?x :hour ?memhour ; :counter ?oldcount }
+  GRAPH ?g {
+    FILTER ( strStarts(str(?g),concat(str(<>),"Eve")) )
     ?event ep:hasEventObjectSamplingTime ?time }
   BIND ( HOURS(?time) as ?hour )
   FILTER(?hour = ?memhour)
   BIND ( ?oldcount + 1 AS ?newcount )
 } ;
 
-# @name EPA6-4-OutputEventCounts
+# @name EPA6-3-OutputEventCounts
 CONSTRUCT { GRAPH <eventcounts> { # Insert counter event
     [] a ep:EventObject ;
        :eventType :eventCount ;
@@ -43,7 +39,7 @@ WHERE { GRAPH <memory> { # Match entries in memory
   FILTER ( ?memhour != -1 && ?memhour != ?hour )
 } ;
 
-# @name EPA6-5-ResetMemory
+# @name EPA6-4-ResetMemory
 DELETE { GRAPH <memory> { # Remove final counter entry
   ?x :hour ?memhour ; :counter ?count } }
 INSERT { GRAPH <memory> { [] :hour ?hour ; :counter 0 } }
