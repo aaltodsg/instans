@@ -61,7 +61,7 @@ WHERE { GRAPH <memory> { # Match entries in memory
 
 # Cleanup <eventcounts> when a newer event is available
 
-# @name Cleanup-Eventcounts
+# @name EPA6-6-Cleanup-Eventcounts
 DELETE {
   GRAPH <eventcounts> {
    ?event1 a ep:EventObject ;
@@ -84,7 +84,7 @@ WHERE {
   }  }
 } ;
 
-# @name Eventcounts-Output
+# @name EPA6-7-Eventcounts-Output
 CONSTRUCT { GRAPH <eventcounts> { ?s ?p ?o } }
 WHERE { GRAPH <eventcounts> { ?s ?p ?o } } ;
 
