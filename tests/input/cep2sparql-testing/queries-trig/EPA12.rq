@@ -10,8 +10,7 @@ PREFIX ff: <http://factforge.net/>
 
 # @name EPA1-Stateless
 INSERT { GRAPH ?newgraph { ?s ?p ?o } }
-WHERE { GRAPH ?g {
-    FILTER ( strStarts(str(?g),concat(str(<>),"Eve")) )
+WHERE { GRAPH ?g { FILTER (strStarts(str(?g),concat(str(<>),"Eve")))
     ?s ?p ?o .
     ?event ep:hasEventObjectSamplingTime ?time }
   FILTER ( ( HOURS(?time) > 8 ) && ( HOURS(?time) < 17 ) )

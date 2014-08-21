@@ -1,0 +1,147 @@
+BASE <http://instans.org/>
+PREFIX :<http:instans.org/default#>
+PREFIX geo:<http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX ssn:<http://purl.oclc.org/NET/ssnx/ssn#>
+PREFIX ep:<http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
+PREFIX omgeo: <http://www.ontotext.com/owlim/geo#>
+PREFIX ff: <http://factforge.net/>
+
+# @name EPA8-Transform-Initialize memory for previous point
+INSERT { GRAPH <memory> {
+    [] a :transformPrevPoint ;
+       ssn:Sensor ?sensor ;
+       geo:Point  [ geo:lat ?lat ; geo:long ?long ; ]  } }
+WHERE { GRAPH ?g { FILTER (strStarts(str(?g),concat(str(<>),"Eve")))
+    ?event a ep:EventObject ;
+           ssn:Sensor ?sensor ;
+           geo:Point [ geo:lat ?lat ; geo:long ?long ; ] }
+  FILTER NOT EXISTS {
+    GRAPH <memory> { ?x a :transformPrevPoint ; ssn:Sensor ?sensor } } } ;
+
+# @name EPA8-Transform points to compass directions
+DELETE {  GRAPH <memory> { # Delete previous point
+  ?mem geo:Point ?blnk . ?blnk geo:lat ?prevlat ; geo:long ?prevlong } }
+INSERT { GRAPH <memory> { # Write new point
+    ?mem geo:Point [ geo:lat ?lat ; geo:long ?long ; ] }
+  GRAPH <directions> { # Output direction
+    ?event a ep:EventObject ;
+           ssn:Sensor ?sensor ;
+           ep:hasEventObjectSamplingTime ?time ;
+	   :direction ?dir } }
+WHERE { GRAPH ?g { FILTER (strStarts(str(?g),concat(str(<>),"Eve")))
+    ?event a ep:EventObject ;
+           ssn:Sensor ?sensor ;
+           ep:hasEventObjectSamplingTime ?time ;
+           geo:Point [ geo:lat ?lat ; geo:long ?long ; ] . } 
+  GRAPH <memory> { # Retrieve previous point
+    ?mem a :transformPrevPoint ;
+         ssn:Sensor ?sensor ;
+         geo:Point ?blnk . ?blnk geo:lat ?prevlat ; geo:long ?prevlong }
+  BIND ( IF ( ?lat > ?prevlat, "N", "") as ?latdir1) # Test for directions
+  BIND ( IF ( ?lat < ?prevlat, "S", "") as ?latdir2)
+  BIND ( IF ( ?long > ?prevlong, "E", "") as ?longdir1)
+  BIND ( IF ( ?long < ?prevlong, "W", "") as ?longdir2) 
+  BIND ( concat(?latdir1, ?latdir2, ?longdir1, ?longdir2) as ?tdir ) # Concatenate result
+  BIND ( IF ( !bound(?tdir) || strlen(?tdir)=0, "0", ?tdir ) as ?dir ) } ;
+
+# @name EPA8-Transform-Directions-Cleanup
+DELETE { GRAPH <directions> { 
+    ?event a ep:EventObject ;
+           ssn:Sensor ?sensor ;
+           ep:hasEventObjectSamplingTime ?time1 ;
+	   :direction ?dir } }
+WHERE { GRAPH <directions> {
+    ?event a ep:EventObject ;
+           ssn:Sensor ?sensor ;
+           ep:hasEventObjectSamplingTime ?time1 ;
+	   :direction ?dir }
+  FILTER EXISTS { GRAPH <directions> {
+    ?event2 ep:hasEventObjectSamplingTime ?time2 .
+      FILTER (?time1 < ?time2) } } } ;
+
+# @name EPA8-1-Pattern-Initialize
+INSERT { GRAPH <memory> { # Initialize a new entry to memory
+      [] a :patternIndexEntry ;
+           ssn:Sensor ?sensor ;
+           :basedOnEvent 0 ;
+           :patternIndex 0 } }
+WHERE { GRAPH <directions> {
+    ?event a ep:EventObject ;
+           ssn:Sensor ?sensor }
+  FILTER NOT EXISTS { GRAPH <memory> { ?mem a :patternIndexEntry ; ssn:Sensor ?sensor } } } ;
+
+# @name EPA8-2-Advance-Index when direction matches with pattern
+DELETE {  GRAPH <memory> { # Clear old index from memory
+    ?mem :basedOnEvent ?oldEvent ;
+         :patternIndex ?oldIndex } }
+INSERT { GRAPH <memory> { # Write new index to memory
+    ?mem :basedOnEvent ?event ; :patternIndex ?newIndex } }
+WHERE { GRAPH <directions> {
+    ?event a ep:EventObject ; # Match directional input
+           ssn:Sensor ?sensor ;
+	   :direction ?dir }
+  FILTER ( ?dir != "0" )
+  GRAPH <memory> { # Retrieve index from memory
+      ?mem a :patternIndexEntry ;
+           ssn:Sensor ?sensor ;
+           :basedOnEvent ?oldEvent ;
+           :patternIndex ?oldIndex }
+  FILTER ( !sameTerm(?event,?oldEvent) ) # Only once per event
+  GRAPH <pattern> { # Retrieve pattern index and value
+    ?pattern :index ?ptIndex ;
+             :value ?ptValue }
+  BIND ( ?oldIndex+1 as ?newIndex )
+  FILTER ( (?dir = ?ptValue) && (?newIndex = ?ptIndex) ) # Pass through if value and index match
+} ;
+
+# @name EPA8-3-ResetIndex when latest event does not match with pattern
+DELETE { GRAPH <memory> { # Remove index from memory
+    ?mem a :patternIndexEntry ;
+         ssn:Sensor ?sensor ;
+         :basedOnEvent ?oldEvent ;
+         :patternIndex ?oldIndex } }
+WHERE { GRAPH <directions> { # Match directional input
+    ?event a ep:EventObject ;
+           ssn:Sensor ?sensor ;
+	   :direction ?dir }
+  GRAPH <memory> { # Retrieve index from memory
+      ?mem a :patternIndexEntry ;
+           ssn:Sensor ?sensor ;
+           :basedOnEvent ?oldEvent ;
+           :patternIndex ?oldIndex }
+  FILTER ( !sameTerm(?event,?oldEvent) ) # Must be different events
+  GRAPH <pattern> {
+    ?pattern :index ?ptIndex ;
+             :value ?ptValue }
+ FILTER ( (?dir != ?ptValue) && (?oldIndex+1 = ?ptIndex) && (?oldIndex>0) ) # Pass if value and index do not match
+} ;
+
+# @name EPA8-4-Complete-Reset index when pattern is complete
+DELETE {  GRAPH <memory> { # Remove last index from memory
+    ?mem a :patternIndexEntry ; ssn:Sensor ?sensor ;
+         :basedOnEvent ?oldEvent ; :patternIndex ?oldIndex } }
+WHERE { GRAPH <pattern> { :pattern :length ?length }
+  GRAPH <memory> { # Check, when pattern index in memory matches pattern length.
+      ?mem a :patternIndexEntry ; ssn:Sensor ?sensor ;
+           :basedOnEvent ?oldEvent ; :patternIndex ?oldIndex }
+  FILTER ( ?oldIndex = ?length ) } ;
+
+# @name EPA8-5-Output-Result
+CONSTRUCT { GRAPH <PatternDetect> {
+    [] a ep:EventObject ; :patterndetected "BackAndForth!" ;
+       ssn:Sensor ?sensor ; :lastEvent ?oldEvent } }
+WHERE { GRAPH <pattern> { :pattern :length ?length }
+  GRAPH <memory> { # Check, when pattern index in memory matches pattern length.
+      ?mem a :patternIndexEntry ;
+           ssn:Sensor ?sensor ;
+           :basedOnEvent ?oldEvent ;
+           :patternIndex ?oldIndex }
+  FILTER ( ?oldIndex = ?length ) } ;
+
+# Debug output queries below this point
+
+# SELECT *
+# WHERE { GRAPH <directions> { ?s ?p ?o } } ;
+
+# SELECT ?index
+# WHERE { GRAPH <memory> { ?x :patternIndex ?index } } ;

@@ -11,9 +11,7 @@
 :pattern :length 2 . 
 
 [] :index 1 ;
-#     :value "NW" .
      :value "NW" .
 
 [] :index 2 ;
-#     :value "NE" .
      :value "NE" .

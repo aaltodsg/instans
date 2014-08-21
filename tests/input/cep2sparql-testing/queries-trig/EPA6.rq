@@ -6,85 +6,38 @@ PREFIX ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
 PREFIX omgeo: <http://www.ontotext.com/owlim/geo#>
 PREFIX ff: <http://factforge.net/>
 
-# Aggregate (EPA 6): Create new events out of the number of events observed in each hour
+# Aggregate (EPA 6): Count events per hour
 
-# @name EPA6-1-Start
-INSERT DATA { GRAPH <memory> { :init :aggregate :epa6 } } ;
+# @name EPA6-1-Initialize
+INSERT DATA { GRAPH <memory> { :initHour :hour -1 ; :counter -1 } } ;
 
-# @name EPA6-2-ExtractTime
-INSERT { GRAPH <memory> { ?event ep:hasEventObjectSamplingTime ?time } }
+# @name EPA6-2-ExtractIncomingHour
+INSERT { GRAPH <memory> { ?event :hasAggrHour ?hour } }
 WHERE  { GRAPH ?g {
     FILTER ( strStarts(str(?g),concat(str(<>),"Eve")) )
-    ?event ep:hasEventObjectSamplingTime ?time } } ;
-
-# @name EPA6-3-Init adds initial state to <memory>
-DELETE { GRAPH <memory> { :init :aggregate :epa6 } }
-INSERT { GRAPH <memory> { :initHour :hour ?hour ; :counter 0 } }
-WHERE { GRAPH <memory> { :init :aggregate :epa6 .
-                         ?event ep:hasEventObjectSamplingTime ?time }
+    ?event ep:hasEventObjectSamplingTime ?time }
   BIND ( HOURS(?time) as ?hour ) } ;
 
-# Q6-4: Maintain counter of number of events per hour in memory
-
-# @name EPA6-4-MaintainEventCounter
+# @name EPA6-3-IncreaseEventCounter
 DELETE { GRAPH <memory> { ?x :counter ?oldcount .
-  ?event ep:hasEventObjectSamplingTime ?time } }
+                          ?event :hasAggrHour ?hour } }
 INSERT { GRAPH <memory> { ?x :counter ?newcount} }
-WHERE  { GRAPH <memory> { ?x :hour ?memhour ; :counter ?oldcount .
-    ?event ep:hasEventObjectSamplingTime ?time }
-  BIND ( HOURS(?time) as ?hour )
+WHERE  { GRAPH <memory> { ?x :hour ?memhour ;
+    :counter ?oldcount . ?event :hasAggrHour ?hour }
   FILTER(?hour = ?memhour)
-  BIND ( ?oldcount + 1 AS ?newcount )
-} ;
+  BIND ( ?oldcount + 1 AS ?newcount ) } ;
 
-# Q6-5: Output result when latest event is higher than the hour in an existing entry
-# Reset counter, delete memory entries
+# @name EPA6-4-OutputEventCounts
+CONSTRUCT { GRAPH <eventcounts> { # Insert counter event
+    [] a ep:EventObject ; :eventType :eventCount ;
+       :hour ?memhour ; :count ?count } }
+WHERE { GRAPH <memory> { ?x :hour ?memhour ; :counter ?count .
+    ?event :hasAggrHour ?hour }
+  FILTER ( ?memhour != -1 && ?memhour != ?hour ) } ;
 
-# @name EPA6-5-OutputEventCounts
-DELETE { GRAPH <memory> { # Remove final counter entry
-  ?x :hour ?memhour ; :counter ?count } }
-INSERT { GRAPH <eventcounts> { # Insert counter event
-    [] a ep:EventObject ;
-       ep:hasEventObjectSamplingTime ?time ;
-       :eventType :eventCount ;
-       :hour ?memhour ;
-       :count ?count }
-  GRAPH <memory> { [] :hour ?hour ; :counter 0 } }
-WHERE { GRAPH <memory> { # Match entries in memory
-    ?x :hour ?memhour ; :counter ?count }
-  GRAPH ?g { # Match time from incoming events
-    FILTER ( strStarts(str(?g),concat(str(<>),"Eve")) )
-    ?event ep:hasEventObjectSamplingTime ?time }
-  BIND ( HOURS(?time) as ?hour )
-  FILTER ( ?memhour != ?hour )
-} ;
-
-# Cleanup <eventcounts> when a newer event is available
-
-# @name EPA6-6-Cleanup-Eventcounts
-DELETE {
-  GRAPH <eventcounts> {
-   ?event1 a ep:EventObject ;
-      ep:hasEventObjectSamplingTime ?time1 ;
-      :eventType :eventCount ;
-      :hour ?memhour ;
-      :count ?count }
-}
-WHERE {
-  GRAPH <eventcounts> {
-   ?event1 a ep:EventObject ;
-      ep:hasEventObjectSamplingTime ?time1 ;
-      :eventType :eventCount ;
-      :hour ?memhour ;
-      :count ?count }
-  FILTER EXISTS { GRAPH <eventcounts> {
-      ?event2 a ep:EventObject ;
-              ep:hasEventObjectSamplingTime ?time2 .
-      FILTER (?time1 < ?time2)
-  }  }
-} ;
-
-# @name EPA6-7-Eventcounts-Output
-CONSTRUCT { GRAPH <eventcounts> { ?s ?p ?o } }
-WHERE { GRAPH <eventcounts> { ?s ?p ?o } } ;
-
+# @name EPA6-5-ResetMemory
+DELETE { GRAPH <memory> { ?x :hour ?memhour ; :counter ?count } }
+INSERT { GRAPH <memory> { [] :hour ?hour ; :counter 0 } }
+WHERE  { GRAPH <memory> { ?x :hour ?memhour ; :counter ?count .
+    ?event :hasAggrHour ?hour }
+  FILTER ( ?memhour != ?hour ) } ;

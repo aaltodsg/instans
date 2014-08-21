@@ -25,5 +25,4 @@ WHERE {
   BIND (IRI(concat("Combined-",strAfter(str(?event),str(<>)))) AS ?combined)
 } ;
 
-# SELECT *
-# WHERE { GRAPH ?g { ?s ?p ?o } }
+# Note: Does not work with a "remove"-policy, so input cleanup has to be eventually handled by other means.
