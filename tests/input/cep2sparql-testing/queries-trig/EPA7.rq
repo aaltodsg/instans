@@ -18,11 +18,39 @@ WHERE {
   GRAPH ?g1 { FILTER(strStarts(str(?g1),concat(str(<>),"GeoEvents-")))
     ?event a ep:EventObject ;
            geo:Point [ geo:lat ?lat ; geo:long ?long ; ] }
-  GRAPH ?g2 { FILTER(strStarts(str(?g2),concat(str(<>),"TimeEvents-")))
+  GRAPH ?g2 { FILTER(strStarts(str(?g2),concat(str(<>),"SensorEvents-")))
     ?event a ep:EventObject ;
            ssn:Sensor ?sensor ;
            ep:hasEventObjectSamplingTime ?time }
   BIND (IRI(concat("Combined-",strAfter(str(?event),str(<>)))) AS ?combined)
 } ;
 
-# Note: Does not work with a "remove"-policy, so input cleanup has to be eventually handled by other means.
+# Note: Does not work with an automatic "remove"-policy, so input cleanup is handled manually:
+
+# @name Cleanup-SensorEvents
+DELETE { GRAPH ?g1 { ?s ?p ?o } }
+WHERE { GRAPH ?g1 {
+    FILTER ( strStarts(str(?g1),"SensorEvents-Eve") )
+    ?event1 ep:hasEventObjectSamplingTime ?time1 .
+    ?s ?p ?o }
+  FILTER EXISTS { GRAPH ?g2 {
+    FILTER ( strStarts(str(?g2),"SensorEvents-Eve") )
+    ?event2 ep:hasEventObjectSamplingTime ?time2 .
+      FILTER (?time1 < ?time2)
+  }  }
+} ;
+
+# @name Cleanup-GeoEvents
+DELETE { GRAPH ?g1 { ?s ?p ?o } }
+WHERE { GRAPH ?g1 {
+    FILTER ( strStarts(str(?g1),"GeoEvents-Eve") )
+    ?event1 ep:hasEventObjectSamplingTime ?time1 .
+    ?s ?p ?o }
+  FILTER EXISTS { GRAPH ?g2 {
+    FILTER ( strStarts(str(?g2),"GeoEvents-Eve") )
+    ?event2 ep:hasEventObjectSamplingTime ?time2 .
+      FILTER (?time1 < ?time2)
+  }  }
+} ;
+
+

@@ -7,8 +7,6 @@ PREFIX omgeo: <http://www.ontotext.com/owlim/geo#>
 PREFIX ff: <http://factforge.net/>
 
 # Enrich (EPA 3): Enrich events with the name of the closest location
-# SERVICE-query replaced with BIND ( "Espoo" as ?label ) to avoid external lookup delay
-# and because SERVICE is not yet implemented in INSTANS
 
 # @name EPA3-Enrich
 CONSTRUCT { GRAPH ?newgraph { 
@@ -23,31 +21,5 @@ WHERE { GRAPH ?g {
 #                 ff:preferredLabel ?label }
   BIND (IRI(concat("Translated-",strAfter(str(?event),str(<>)))) AS ?newgraph) } } ;
 
-# Cleanup <poststateful> when a newer event is available
-
-# Not updated yet!
-
-# @name Cleanup-Poststateful
-# DELETE {
-#   GRAPH <poststateful> {
-#     ?event1 a ep:EventObject ; # Match incoming event
-#             ssn:Sensor ?sensor ;
-#             ep:hasEventObjectSamplingTime ?time1 ;
-#             geo:Point ?point .
-#     ?point geo:lat ?lat ; geo:long ?long .
-#   }
-# }
-# WHERE {
-#   GRAPH <poststateful> {
-#     ?event1 a ep:EventObject ; # Match incoming event
-#             ssn:Sensor ?sensor ;
-#             ep:hasEventObjectSamplingTime ?time1 ;
-#             geo:Point ?point .
-#     ?point geo:lat ?lat ; geo:long ?long .
-#   }
-#   FILTER EXISTS { GRAPH <poststateful> {
-#       ?event2 a ep:EventObject ;
-#               ep:hasEventObjectSamplingTime ?time2 .
-#       FILTER (?time1 < ?time2)
-#   }  }
-# } ;
+# SERVICE-query replaced with BIND ( "Espoo" as ?label ) to avoid external lookup delay
+# and because SERVICE is not yet implemented in INSTANS

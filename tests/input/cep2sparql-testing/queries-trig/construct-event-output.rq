@@ -6,14 +6,9 @@ PREFIX ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
 PREFIX omgeo: <http://www.ontotext.com/owlim/geo#>
 PREFIX ff: <http://factforge.net/>
 
-# Project (EPA 4): Delete information from the incoming events
-
-# @name EPA4-Project
-CONSTRUCT { GRAPH ?newgraph { ?s ?p ?o } }
+# @name Construct-Output
+CONSTRUCT { GRAPH ?g { ?s ?p ?o } }
 WHERE { GRAPH ?g { 
-    FILTER ( strStarts(str(?g),concat(str(<>),"Eve")) )
-    ?event a ep:EventObject .
-    ?s ?p ?o }
-  FILTER (?p != :locationName)
-  BIND (IRI(concat("Projected-",strAfter(str(?event),str(<>)))) AS ?newgraph) } ;
+    FILTER ( contains(str(?g),"Eve") )
+    ?s ?p ?o } } ;
 
