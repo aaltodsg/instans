@@ -1,0 +1,14 @@
+# The pattern to compare with incoming events in EPA 8
+
+BASE <http://instans.org/>
+PREFIX : <http:instans.org/default#>
+
+<pattern> {  :pattern :length 2 . 
+
+[] :index 1 ;
+     :value "NW" .
+
+[] :index 2 ;
+     :value "NE" .
+
+}
