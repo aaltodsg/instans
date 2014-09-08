@@ -272,7 +272,7 @@
    (allowed-rdf-input-units :accessor instans-allowed-rdf-input-units :allocation :class :initform '(:triple :quad :block :document))
    (rdf-operations :accessor instans-rdf-operations :initarg :rdf-operations :initform '(:add :execute))
    (allowed-rdf-operations :accessor instans-allowed-rdf-operations :allocation :class
-			   :initform '(:add :remove :execute :execute-first :execute-snapshot :execute-repeat-first :execute-repeat-snapshot))
+			   :initform '(:add :remove :execute :execute-first :execute-snapshot :execute-repeat-first :execute-repeat-snapshot :flush))
    (allow-rule-instance-removal-p :accessor instans-allow-rule-instance-removal-p :initarg :allow-rule-instance-removal-p :initform :remove)
    (allowed-rule-instance-removal-policies :accessor instans-allowed-rule-instance-removal-policies :allocation :class :initform '(:remove :keep))
    (queue-execution-policy :accessor instans-queue-execution-policy :initarg :queue-execution-policy :initform :repeat-first)

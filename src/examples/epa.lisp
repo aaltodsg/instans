@@ -6,41 +6,29 @@
 (in-package #:instans)
 
 (defun epa (rdf-source-file &key (report '(:select :construct :modify :all :rete-add :rete-remove :queue :rdf-operations :execute)))
-  (let* ((encode-prefixes-p t)
-	 (epa0 (make-instance 'event-processing-engine :name 'epa0 :rdf-operations '(:add :execute :flush) :allow-rule-instance-removal-p nil))
-	 (epa1 (make-instance 'event-processing-engine :name 'epa1 :rdf-operations '(:add :execute :remove :execute :flush) :allow-rule-instance-removal-p nil))
-	 (epa2 (make-instance 'event-processing-engine :name 'epa2 :rdf-operations '(:add :execute :remove :execute :flush) :allow-rule-instance-removal-p nil))
-	 (epa3 (make-instance 'event-processing-engine :name 'epa3 :rdf-operations '(:add :execute :remove :execute :flush)))
-	 (epa4 (make-instance 'event-processing-engine :name 'epa4 :rdf-operations '(:add :execute :remove :execute :flush)))
-	 (epa5 (make-instance 'event-processing-engine :name 'epa5 :rdf-operations '(:add :execute :remove :execute :flush)))
-	 (epa6 (make-instance 'event-processing-engine :name 'epa6 :rdf-operations '(:add :execute :remove :execute :flush)))
+  (let* ((epn (create-sequential-event-processing-network))
+	 (epa0 (create-agent epn
+			     :configuration (append (list :report report)
+						    `(:name :epa0 :rdf-operations (:add :execute :flush) :allow-rule-instance-removal-p nil
+						      :rules "../tests/input/cep2sparql-testing/phased-queries/construct-EPA0.rq"
+						      :input-blocks ,rdf-source-file
+						      :construct-agent-output (:name :source :type :trig :destinations (:epa1))))))
+	 (common-configuration (append (list :report report)
+				       '(:encode-prefixes-p t :rdf-operations (:add :execute :remove :execute :flush) :allow-rule-instance-removal-p nil)))
+	 (epa1 (create-agent epn :configuration (append common-configuration
+							'(:name :epa1
+							  :rules "../tests/input/cep2sparql-testing/phased-queries/construct-EPA1.rq"
+							  :agent-input :epa1-input
+							  :construct-agent-output (:name :poststateless :type :trig :destinations (:epa2))))))
+	 (epa2 (create-agent epn :configuration (append common-configuration
+							'(:name :epa2
+							  :rules "../tests/input/cep2sparql-testing/phased-queries/construct-EPA2.rq"
+							  :agent-input :epa2-input
+							  :construct-output "../tests/input/cep2sparql-testing/phased-queries/poststateful.trig"))))
 	 (agents (list epa0 epa1 epa2 ; epa3 epa4 epa5 epa6
 		       ))
 	 )
-    (loop for agent in agents do (setf (instans-report-operation-kinds agent) report))
-    (instans-add-rules epa0 "../tests/input/cep2sparql-testing/phased-queries/construct-EPA0.rq" :encode-prefixes-p encode-prefixes-p)
-    (instans-add-rules epa1 "../tests/input/cep2sparql-testing/phased-queries/construct-EPA1.rq" :encode-prefixes-p encode-prefixes-p)
-    (instans-add-rules epa2 "../tests/input/cep2sparql-testing/phased-queries/construct-EPA2.rq" :encode-prefixes-p encode-prefixes-p)
-    (instans-add-rules epa3 "../tests/input/cep2sparql-testing/phased-queries/construct-EPA3.rq" :encode-prefixes-p encode-prefixes-p)
-    (instans-add-rules epa4 "../tests/input/cep2sparql-testing/phased-queries/construct-EPA4.rq" :encode-prefixes-p encode-prefixes-p)
-    (instans-add-rules epa5 "../tests/input/cep2sparql-testing/phased-queries/construct-EPA5.rq" :encode-prefixes-p encode-prefixes-p)
-    (instans-add-rules epa6 "../tests/input/cep2sparql-testing/phased-queries/construct-EPA6.rq" :encode-prefixes-p encode-prefixes-p)
-    (loop for agent in agents
-	  unless (instans-find-status agent 'instans-rule-translation-succeeded)
-	  do (let ((status (first (instans-status agent))))
-	       (inform "Adding rules to ~A failed: ~A~{~%~A~}~%" agent (type-of status) (instans-status-messages status))
-	       (return-from epa nil)))
-
-    (instans-add-stream-input-processor epa0 rdf-source-file :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring rdf-source-file)))))
-    (setf (instans-construct-output-processor epa0) (create-construct-agent-output-processor epa0 :source :trig (list epa1 epa6)))
-
-    (instans-add-agent-input-processor epa1 :name 'epa1)
-    (setf (instans-construct-output-processor epa1) (create-construct-agent-output-processor epa1 :poststateless :trig (list epa2)))
-;    (setf (instans-construct-output-processor epa1) (create-construct-stream-output-processor epa1 "poststateless.trig" :trig))
-
-    (instans-add-agent-input-processor epa2 :name 'epa2)
 ;    (setf (instans-construct-output-processor epa2) (create-construct-agent-output-processor epa2 :poststateful :trig (list epa3 epa5)))
-    (setf (instans-construct-output-processor epa2) (create-construct-stream-output-processor epa2 "poststateful.trig" :trig))
 
     ;; (instans-add-agent-input-processor epa3 :name 'epa3)
     ;; (setf (instans-construct-output-processor epa3) (create-construct-agent-output-processor epa3 :translated :trig (list epa4)))
