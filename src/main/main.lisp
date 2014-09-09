@@ -131,8 +131,6 @@
 				   (format *error-output* "~%Unrecognized option ~A~%" ,arg-var)
 				   (,usage)))))))))
 
-(defvar *default-main-dir* nil)
-
 (defun main (&rest args)
   (cond ((null args)
 	 (setf args sb-ext:*posix-argv*))
@@ -146,7 +144,6 @@
 	 (select-output-type :csv)
 	 (construct-output-name nil)
 	 (construct-output-type :trig)
-	 (encode-prefixes-p nil)
 	 report-sizes-interval
 	 time-output-name
 	 time-output-stream
@@ -217,7 +214,7 @@
 		:usage "Load SPARQL rules from a file or an URL."
 		(let ((rules (expand-iri directory value)))
 		  (set-output-processors)
-		  (instans-add-rules instans rules :base base :encode-prefixes-p encode-prefixes-p)
+		  (instans-add-rules instans rules :base base)
 		  (cond ((instans-find-status instans 'instans-rule-translation-succeeded)
 			 (if rete-html-file (output-rete-html-page instans rules rete-html-file)))
 			(t
@@ -354,11 +351,7 @@
 			"\"execute-repeat-first\". Operation \"flush\" flushes all pending output."
 			"You can use \"event\" as a shorthand form \"add:execute:remove:execute\"."
 			"The default operations list is \"add:execute\".")
-		(let ((ops (parse-colon-separated-values value)))
-		  (when (symbolp ops)
-		    (setf ops (list ops)))
-		  (setf ops (loop for op in ops nconc (if (eq op :event) (list :add :execute :remove :execute) (list op))))
-		  (setf (instans-rdf-operations instans) ops)))
+		(set-instans-rdf-operations instans (parse-colon-separated-values value)))
 	       (allow-rule-instance-removal
 		:options ("--allow-rule-instance-removal=BOOL")
 		:usage ("If true (the default), adding or removing RDF input removes rule instances that have"
@@ -397,7 +390,7 @@
 	       (input-events
 		:options ("--input-events=FILE")
 		:usage "Same as '--rdf-operations=event --rdf-input-unit=block --input=FILE'"
-		(setf (instans-rdf-operations instans) :event)
+		(set-instans-rdf-operations instans :event)
 		(setf (instans-rdf-input-unit instans) :block)
 		(instans-add-stream-input-processor instans (expand-iri directory value)
 						    :graph graph :base base
@@ -451,9 +444,9 @@
 	       (prefix-encoding
 		:options ("--prefix-encoding=BOOL")
 		:usage ("If true, use known prefixes when printing IRIs. If false (the default), print IRIs as such.")
-		(setf encode-prefixes-p (cond ((string-equal value "true") t)
-					      ((string-equal value "false") nil)
-					      (t (usage)))))
+		(instans-encode-prefixes instans (cond ((string-equal value "true") t)
+						       ((string-equal value "false") nil)
+						       (t (usage)))))
 	       (time
 		:options ("--time=FILE")
 		:usage "Output timing information to FILE. Use '-' for standard output."

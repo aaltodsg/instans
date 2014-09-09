@@ -76,11 +76,7 @@
 
 (defvar *instanssi*)
 
-(defun instans-add-rules (instans rules &key base encode-prefixes-p)
-    (when encode-prefixes-p
-      (setf (instans-encode-prefixes-p instans) t)
-      (unless (instans-prefixes instans)
-	(setf (instans-prefixes instans) (create-initial-prefix-alist))))
+(defun instans-add-rules (instans rules &key base)
     (instans-debug-message instans :parse-rules "instans-add-rules ~S ~S :base ~S" (instans-name instans) rules base)
     (cond ((sparql-error-p instans) nil)
 	  ((file-or-uri-exists-p rules)
@@ -176,16 +172,12 @@
       (add-input-processor instans processor)
       instans)))
 
-(defun instans-add-agent-input-processor (instans &key graph name base input-type subscribe)
-  (instans-debug-message instans '(:parse-rdf :execute) "instans-add-agent-input-processor ~S :input-type ~S :name ~S :graph ~S :base ~S" (instans-name instans)
-			 input-type name graph base)
+(defun instans-add-agent-input-processor (instans &key name)
+  (instans-debug-message instans '(:parse-rdf :execute) "instans-add-agent-input-processor ~S :name ~S" (instans-name instans) name)
   (let ((processor (make-instance 'instans-agent-input-processor
 				  :instans instans
 				  :name name
-				  :operations (instans-rdf-operations instans)
-				  :base base
-				  :graph graph
-				  :subscribe subscribe)))
+				  :operations (instans-rdf-operations instans))))
     (add-input-processor instans processor)
     instans))
 

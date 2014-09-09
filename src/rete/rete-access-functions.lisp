@@ -482,3 +482,114 @@
 	    (t (setf (cdr item) expansion-string)))
       (setf (instans-prefixes-sorted this) (copy-list (instans-prefixes this)))
       (setf (instans-prefixes-sorted this) (sort (instans-prefixes-sorted this) #'(lambda (kv1 kv2) (> (length (cdr kv1)) (length (cdr kv2)))))))))
+
+;;;
+
+(defvar *default-main-dir* nil)
+
+(defun instans-encode-prefixes (instans encode-prefixes-p)
+  (setf (instans-encode-prefixes-p instans) encode-prefixes-p)
+  (when encode-prefixes-p
+    (unless (instans-prefixes instans)
+      (setf (instans-prefixes instans) (create-initial-prefix-alist)))))
+
+(defgeneric set-instans-rdf-operations (instans ops)
+  (:method ((this instans) ops)
+    (when (symbolp ops)
+      (setf ops (list ops)))
+    (setf ops (loop for op in ops
+		    unless (member op (instans-allowed-rdf-operations this))
+		    do (error* "Illegal rdf operations ~A" op)
+		    else
+		    nconc (if (eq op :event) (list :add :execute :remove :execute) (list op))))
+    (setf (instans-rdf-operations this) ops)))
+
+(defun pathname-type-as-keyword (pathname)
+  (let ((type (pathname-type (parse-namestring pathname))))
+    (and type (intern-keyword (string-upcase type)))))
+
+(defgeneric instans-configure (instans configuration)
+  (:method ((this instans) configuration)
+    (let ((base nil)
+	  (directory (parse-iri (format nil "file://~A" (expand-dirname (or *default-main-dir* "."))))))
+      (loop for (key value) in configuration
+	    do (case key
+		 (:directory (setf directory (parse-iri (if (http-or-file-iri-string-p value) value (format nil "file://~A" (expand-dirname value))))))
+		 (:base (setf base (parse-iri value)))
+		 (:rules
+		  (instans-add-rules this value :base base)
+		  (unless (instans-find-status this 'instans-rule-translation-succeeded)
+		    (let ((status (first (instans-status this))))
+		      (error* "Adding rules to ~A failed: ~A~{~%~A~}~%" this (type-of status) (instans-status-messages status)))))
+		 (:rdf-input-unit
+		  (let ((unit (intern-keyword (string-upcase value))))
+		    (unless (member unit (instans-allowed-rdf-input-units this))
+		      (error* "Illegal input unit ~A" value))
+		    (setf (instans-rdf-input-unit this) unit)))
+		 (:input (instans-add-stream-input-processor this (expand-iri directory value)
+							     :base base
+							     :input-type (pathname-type-as-keyword value)))
+		 (:agent-input (instans-add-agent-input-processor this :name value))
+		 (:input-trig
+		  (instans-add-stream-input-processor this (expand-iri directory value) :base base :input-type :trig))
+		 (:input-turtle
+		  (instans-add-stream-input-processor this (expand-iri directory value) :base base :input-type :ttl))
+		 (:input-nq
+		  (instans-add-stream-input-processor this (expand-iri directory value) :base base :input-type :nq))
+		 (:input-nt
+		  (instans-add-stream-input-processor this (expand-iri directory value) :base base :input-type :nt))
+		 (:input-triples
+		  (setf (instans-rdf-input-unit this) :single)
+		  (instans-add-stream-input-processor this (expand-iri directory value)
+						      :base base :input-type (pathname-type-as-keyword value)))
+		 (:input-blocks
+		  (setf (instans-rdf-input-unit this) :block)
+		  (instans-add-stream-input-processor this (expand-iri directory value)
+						      :base base :input-type (pathname-type-as-keyword value)))
+		 (:input-document
+		  (setf (instans-rdf-input-unit this) :document)
+		  (instans-add-stream-input-processor this (expand-iri directory value)
+						      :base base :input-type (pathname-type-as-keyword value)))
+		 (:input-events
+		  (set-instans-rdf-operations this :event)
+		  (setf (instans-rdf-input-unit this) :block)
+		  (instans-add-stream-input-processor this (expand-iri directory value)
+						      ::base base
+						      :input-type (pathname-type-as-keyword value)))
+
+		 (:rdf-operations
+		  (set-instans-rdf-operations this value))
+		 (:allow-rule-instance-removal
+		  (setf (instans-allow-rule-instance-removal-p this) value))
+		 (:prefix-encoding
+		  (instans-encode-prefixes this value))
+		 (:select-output
+		  (setf (instans-select-output-processor this) (create-select-output-processor this value (pathname-type-as-keyword value))))
+		 (:select-output-csv
+		  (setf (instans-select-output-processor this) (create-select-output-processor this value :csv)))
+		 (:construct-agent-output
+		  (setf (instans-construct-output-processor this)
+			(create-construct-agent-output-processor this (getf value :name) (getf value :type) (getf value :destinations))))
+		 (:construct-output
+		  (setf (instans-construct-output-processor this) (create-construct-output-processor this value (pathname-type-as-keyword value))))
+		 (:construct-output-trig
+		  (setf (instans-construct-output-processor this) (create-construct-output-processor this value :trig)))
+		 (:construct-output-ttl
+		  (setf (instans-construct-output-processor this) (create-construct-output-processor this value :ttl)))
+		 (:construct-output-nq
+		  (setf (instans-construct-output-processor this) (create-construct-output-processor this value :nq)))
+		 (:construct-output-nt
+		  (setf (instans-construct-output-processor this) (create-construct-output-processor this value :nt)))
+		 (:reporting
+		  (let ((reporting (loop for kind in value
+					 when (eq kind :all)
+					 append '(:select :construct :modify :all :rete-add :rete-remove :queue :rdf-operations :execute)
+					 else when (eql 0 (search "MEMORY" (string kind)))
+					 append (prog1 (list :memory) (setf (instans-size-report-interval this) (parse-integer (string kind) :start 6)))
+					 else append (list kind))))
+		    (loop for kind in reporting
+			  unless (member kind '(:select :construct :modify :rete-add :rete-remove :queue :call-succ-nodes :all :memory :rdf-operations :execute))
+			  do (error* "Illegal recording tag ~A" kind))
+		    (setf (instans-report-operation-kinds this) reporting))))))
+    this))
+
