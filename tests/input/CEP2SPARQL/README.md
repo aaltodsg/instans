@@ -14,13 +14,13 @@ The example does not run a remote service query in EPA 3, but uses a
 fixed local binding instead.
 
 The following files are involved:
-EPA-All.rq: SPARQL implementation of eight types of event processing agents (EPA), interconnected.
-cep2sparql.sh: The command line to run a verbose version with a small
+* _EPA-All.rq:_ SPARQL implementation of eight types of event processing agents (EPA), interconnected.
+* _cep2sparql.sh:_ The command line to run a verbose version with a small
 number of test events.
-construct-event-output.rq: An auxiliary SPARQL query to CONSTRUCT
+* _construct-event-output.rq:_ An auxiliary SPARQL query to CONSTRUCT
 output of events passing between different EPAs.
-CEP2SPARQL_SampleEvents.trig: The sample events in TriG format.
-CEP2SPARQL_SamplePattern.trig: A sample pattern for pattern detection
+* _CEP2SPARQL_SampleEvents.trig:_ The sample events in TriG format.
+* _CEP2SPARQL_SamplePattern.trig:_ A sample pattern for pattern detection
 (EPA 8) in TriG format.
 
 The background article is scheduled for publication in ODBASE 2014:
