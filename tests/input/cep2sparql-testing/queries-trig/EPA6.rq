@@ -9,7 +9,7 @@ PREFIX ff: <http://factforge.net/>
 # Aggregate (EPA 6): Count events per hour
 
 # @name EPA6-1-Initialize
-INSERT DATA { GRAPH <memory> { :initHour :hour -1 ; :counter -1 } } ;
+INSERT DATA { GRAPH <memory> { :aggrHour :hour -1 ; :counter 0 } } ;
 
 # @name EPA6-2-ExtractIncomingHour
 INSERT { GRAPH <memory> { ?event :hasAggrHour ?hour } }
