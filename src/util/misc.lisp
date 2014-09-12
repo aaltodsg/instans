@@ -174,7 +174,7 @@
 	   (char= (char dn (1- (length dn))) #\/)))))
 
 (defun close-stream-not-stdout-stderr (stream)
-  (unless (or (eq stream *standard-output*) (eq stream *error-output*))
+  (unless (or (eq stream *standard-output*) (eq stream *error-output*) (not (open-stream-p stream)))
     (close stream)))
 
 ;;;

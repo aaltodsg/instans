@@ -283,9 +283,14 @@
 		(setf select-output-type (intern-keyword (string-upcase (pathname-type (parse-namestring value))))))
 	       (select-output-csv
 		:options ("--select-output-csv=OUTPUT")
-		:usage "Write SELECT results as CSV to OUTPUT."
+		:usage "Write SELECT results in CSV format to OUTPUT."
 		(setf select-output-name value)
 		(setf select-output-type :csv))
+	       (select-output-srx
+		:options ("--select-output-srx=OUTPUT")
+		:usage "Write SELECT results in SPARQL XML result set format to OUTPUT."
+		(setf select-output-name value)
+		(setf select-output-type :srx))
 	       (construct-output
 		:options ("--construct-output=FILE")
 		:usage "Write CONSTRUCT results to FILE. Output format is based on the file name suffix."
@@ -462,4 +467,3 @@
 	    (close-stream-not-stdout-stderr time-output-stream))
 	(instans-close-open-streams instans))
       )))
-

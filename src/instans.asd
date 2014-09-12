@@ -9,6 +9,7 @@
 (ql:quickload "html-entities")
 (ql:quickload "drakma")
 (ql:quickload "xmls")
+(ql:quickload "xml-emitter")
 (ql:quickload "yason")
 (ql:quickload "uuid")
 (ql:quickload "percent-encoding")

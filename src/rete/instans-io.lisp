@@ -42,6 +42,12 @@
 (define-class instans-csv-writer (instans-select-writer)
   ((csv-output :accessor instans-csv-writer-csv-output :initarg :csv-output)))
 
+(define-class instans-sparql-query-results-writer (instans-select-writer)
+  ((results :accessor instans-sparql-query-results-writer-results :initarg :results)))
+
+(define-class instans-srx-writer (instans-sparql-query-results-writer)
+  ((stream :accessor instans-srx-writer-stream :initarg :stream)))
+
 ;; Construct writers
 
 (define-class instans-construct-writer (instans-writer) ())
@@ -110,20 +116,31 @@
 ;;; Creating output processors
 
 (defun create-select-output-processor (instans output-name output-type)
-  (case output-type
-    (:csv (make-instance
-	   'instans-select-output-processor
-	   :instans instans
-	   :output-name output-name
-	   :writer (make-instance
-		    'instans-csv-writer
-		    :name output-name
-		    :csv-output (make-instance
-				 'csv-output
-				 :stream (if (or (null output-name) (string= "-" output-name))
-					     *standard-output*
-					     (open output-name :direction :output :if-exists :supersede))))))
-    (t (error* "Unknown select output processor type ~S" output-type))))
+  (let ((writer (case output-type
+		  (:csv
+		   (make-instance 'instans-csv-writer
+				  :name output-name
+				  :csv-output (make-instance
+					       'csv-output
+					       :stream (if (or (null output-name) (string= "-" output-name))
+							   *standard-output*
+							   (open output-name :direction :output :if-exists :supersede)))))
+		  (:sparql-results
+		   (make-instance 'instans-sparql-query-results-writer
+		  		  :name output-name
+		  		  :results (make-instance 'sparql-query-results)))
+		  (:srx
+		   (make-instance 'instans-srx-writer
+				  :name output-name
+		  		  :results (make-instance 'sparql-query-results)
+				  :stream (if (or (null output-name) (string= "-" output-name))
+					      *standard-output*
+					      (open output-name :direction :output :if-exists :supersede))))
+		  (t (error* "Unknown select output writer type ~S" output-type)))))
+    (make-instance 'instans-select-output-processor
+		   :instans instans
+		   :output-name output-name
+		   :writer writer)))
 
 ;;; !!! Clean this !!!
 
@@ -189,6 +206,10 @@
     (close-stream-not-stdout-stderr (instans-stream-writer-stream this)))
   (:method ((this instans-csv-writer))
     (close-stream-not-stdout-stderr (csv-output-stream (instans-csv-writer-csv-output this))))
+  (:method ((this instans-srx-writer))
+    (when (open-stream-p (instans-srx-writer-stream this))
+      (output-srx (instans-sparql-query-results-writer-results this) (instans-srx-writer-stream this))
+      (close-stream-not-stdout-stderr (instans-srx-writer-stream this))))
   (:method ((this instans-writer))
     (declare (ignore this))
     nil))
@@ -214,7 +235,9 @@
     (write-csv-headers (instans-csv-writer-csv-output this)
 		       (mapcar #'(lambda (var)
 				   (format nil "~(~A~)" (subseq (uniquely-named-object-name var) 1)))
-			       variables))))
+			       variables)))
+  (:method ((this instans-sparql-query-results-writer) variables)
+    (set-query-variables (instans-sparql-query-results-writer-results this) variables)))
 
 (defgeneric write-solution (instans-writer values)
   (:method ((this instans-csv-writer) values)
@@ -224,7 +247,9 @@
 					((typep value 'xsd-boolean-value) (if value "true" "false"))
 					((typep value 'xsd-datetime-value) (datetime-canonic-string value))
 					(t value)))
-			      values))))
+			      values)))
+  (:method ((this instans-sparql-query-results-writer) values)
+    (add-sparql-result (instans-sparql-query-results-writer-results this) :values values)))
 
 (defun solution-bindings (node token)
   (let* ((vars (solution-modifiers-project-vars node))
