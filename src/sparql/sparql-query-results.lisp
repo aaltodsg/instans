@@ -6,11 +6,27 @@
 (in-package #:instans)
 
 (define-class sparql-query-results ()
-  ((variables :accessor sparql-query-results-variables)
-   (links :accessor sparql-query-results-links)
-   (results :accessor sparql-query-results-results)
+  ((variables :accessor sparql-query-results-variables :initarg :variables)
+   (links :accessor sparql-query-results-links :initarg :links)
    (tail :accessor sparql-query-results-tail)
-   (boolean :accessor sparql-query-results-boolean)))
+   (results :accessor sparql-query-results-results :initarg :results)
+   (boolean :accessor sparql-query-results-boolean :initarg :boolean)))
+
+(define-class sparql-abstract-result ()
+  ((rule :accessor sparql-result-rule :initarg :rule :initform nil)))
+
+(define-class sparql-result (sparql-abstract-result)
+  ((bindings :accessor sparql-result-bindings :initarg :bindings)))
+
+(define-class sparql-binding ()
+  ((variable :accessor sparql-binding-variable :initarg :variable)
+   (value :accessor sparql-binding-value :initarg :value)))
+
+(define-class sparql-link (sparql-abstract-result)
+  ((href :accessor sparql-link-href :initarg :href)))
+
+(define-class sparql-boolean-result (sparql-abstract-result)
+  ((value :accessor sparql-boolean-result-value :initarg :value)))
 
 (defgeneric set-query-variables (query-results variables)
   (:method ((this sparql-query-results) variables)
