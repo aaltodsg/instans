@@ -22,6 +22,10 @@ output of events passing between different EPAs.
 * _CEP2SPARQL_SampleEvents.trig:_ The sample events in TriG format.
 * _CEP2SPARQL_SamplePattern.trig:_ A sample pattern for pattern detection
 (EPA 8) in TriG format.
+* _running\_sample.txt:_ Sample output produced by running
+  _cep2sparql.sh_. The format is otherwise TriG, but since it also
+  includes the execution timer outputs - which are not
+  TriG-compliant - it is listed here as .txt.
 
 The background article is scheduled for publication in ODBASE 2014:
 http://onthemove-conferences.org/index.php/otm-program-2013/program-odbase2014

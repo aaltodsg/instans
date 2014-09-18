@@ -1,0 +1,492 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+BASE <http://instans.org/>
+PREFIX : <http:instans.org/default#>
+PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX ssn: <http://purl.oclc.org/NET/ssnx/ssn#>
+PREFIX ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
+PREFIX omgeo: <http://www.ontotext.com/owlim/geo#>
+PREFIX ff: <http://factforge.net/>
+
+At 0.000028: Command: input-blocks, Parameter: CEP2SPARQL_SampleEvents.trig
+<Eve1> { _:13 geo:lat 60.158775;
+              geo:long 24.88149 .
+
+         <Eve1> rdf:type ep:EventObject;
+                ssn:Sensor :loc1;
+                geo:Point _:13;
+                ep:hasEventObjectSamplingTime "2014-01-07T09:18:21"^^xsd:dateTime .
+}
+<Poststateless-Eve1> { <Eve1> geo:Point _:13;
+                              ssn:Sensor :loc1;
+                              rdf:type ep:EventObject;
+                              ep:hasEventObjectSamplingTime "2014-01-07T09:18:21"^^xsd:dateTime .
+
+                       _:13 geo:long 24.88149;
+                            geo:lat 60.158775 .
+}
+<Poststateful-Eve1> { <Eve1> ep:hasEventObjectSamplingTime "2014-01-07T09:18:21"^^xsd:dateTime;
+                             geo:Point _:13;
+                             ssn:Sensor :loc1;
+                             rdf:type ep:EventObject .
+
+                      _:13 geo:long 24.88149;
+                           geo:lat 60.158775 .
+}
+<Translated-Eve1> { <Eve1> :locationName "Espoo";
+                           ssn:Sensor :loc1;
+                           geo:Point _:13;
+                           ep:hasEventObjectSamplingTime "2014-01-07T09:18:21"^^xsd:dateTime;
+                           rdf:type ep:EventObject .
+
+                    _:13 geo:long 24.88149;
+                         geo:lat 60.158775 .
+}
+<GeoEvents-Eve1> { _:19 geo:lat 60.158775;
+                        geo:long 24.88149 .
+
+                   <Eve1> rdf:type ep:EventObject;
+                          ep:hasEventObjectSamplingTime "2014-01-07T09:18:21"^^xsd:dateTime;
+                          geo:Point _:19 .
+}
+<SensorEvents-Eve1> { <Eve1> rdf:type ep:EventObject;
+                             ssn:Sensor :loc1;
+                             ep:hasEventObjectSamplingTime "2014-01-07T09:18:21"^^xsd:dateTime .
+}
+<Projected-Eve1> { <Eve1> ep:hasEventObjectSamplingTime "2014-01-07T09:18:21"^^xsd:dateTime;
+                          geo:Point _:13;
+                          ssn:Sensor :loc1;
+                          rdf:type ep:EventObject .
+
+                   _:13 geo:long 24.88149;
+                        geo:lat 60.158775 .
+}
+<Combined-Eve1> { _:20 geo:lat 60.158775;
+                       geo:long 24.88149 .
+
+                  <Eve1> rdf:type ep:EventObject;
+                         ssn:Sensor :loc1;
+                         geo:Point _:20;
+                         ep:hasEventObjectSamplingTime "2014-01-07T09:18:21"^^xsd:dateTime .
+}
+<Eve2> { _:21 geo:lat 60.187458;
+              geo:long 24.821272 .
+
+         <Eve2> rdf:type ep:EventObject;
+                ssn:Sensor :loc1;
+                geo:Point _:21;
+                ep:hasEventObjectSamplingTime "2014-01-07T09:42:00"^^xsd:dateTime .
+}
+<Poststateless-Eve2> { <Eve2> geo:Point _:21;
+                              ssn:Sensor :loc1;
+                              rdf:type ep:EventObject;
+                              ep:hasEventObjectSamplingTime "2014-01-07T09:42:00"^^xsd:dateTime .
+
+                       _:21 geo:long 24.821272;
+                            geo:lat 60.187458 .
+}
+<Eve3> { _:24 geo:lat 60.187634;
+              geo:long 24.821491 .
+
+         <Eve3> rdf:type ep:EventObject;
+                ssn:Sensor :loc1;
+                geo:Point _:24;
+                ep:hasEventObjectSamplingTime "2014-01-07T10:18:21"^^xsd:dateTime .
+}
+<Poststateless-Eve3> { <Eve3> geo:Point _:24;
+                              ssn:Sensor :loc1;
+                              rdf:type ep:EventObject;
+                              ep:hasEventObjectSamplingTime "2014-01-07T10:18:21"^^xsd:dateTime .
+
+                       _:24 geo:long 24.821491;
+                            geo:lat 60.187634 .
+}
+<eventcounts> { _:26 rdf:type ep:EventObject;
+                     :eventType :eventCount;
+                     :hour 9;
+                     :count 2 .
+}
+<PatternDetect> { _:29 rdf:type ep:EventObject;
+                       :patterndetected "Pattern detected!";
+                       ssn:Sensor :loc1;
+                       :lastEvent <Eve3> .
+}
+<Poststateful-Eve3> { <Eve3> ep:hasEventObjectSamplingTime "2014-01-07T10:18:21"^^xsd:dateTime;
+                             geo:Point _:24;
+                             ssn:Sensor :loc1;
+                             rdf:type ep:EventObject .
+
+                      _:24 geo:long 24.821491;
+                           geo:lat 60.187634 .
+}
+<Translated-Eve3> { <Eve3> :locationName "Espoo";
+                           ssn:Sensor :loc1;
+                           geo:Point _:24;
+                           ep:hasEventObjectSamplingTime "2014-01-07T10:18:21"^^xsd:dateTime;
+                           rdf:type ep:EventObject .
+
+                    _:24 geo:long 24.821491;
+                         geo:lat 60.187634 .
+}
+<GeoEvents-Eve3> { _:31 geo:lat 60.187634;
+                        geo:long 24.821491 .
+
+                   <Eve3> rdf:type ep:EventObject;
+                          ep:hasEventObjectSamplingTime "2014-01-07T10:18:21"^^xsd:dateTime;
+                          geo:Point _:31 .
+}
+<SensorEvents-Eve3> { <Eve3> rdf:type ep:EventObject;
+                             ssn:Sensor :loc1;
+                             ep:hasEventObjectSamplingTime "2014-01-07T10:18:21"^^xsd:dateTime .
+}
+<Projected-Eve3> { <Eve3> ep:hasEventObjectSamplingTime "2014-01-07T10:18:21"^^xsd:dateTime;
+                          geo:Point _:24;
+                          ssn:Sensor :loc1;
+                          rdf:type ep:EventObject .
+
+                   _:24 geo:long 24.821491;
+                        geo:lat 60.187634 .
+}
+<Combined-Eve3> { _:32 geo:lat 60.187634;
+                       geo:long 24.821491 .
+
+                  <Eve3> rdf:type ep:EventObject;
+                         ssn:Sensor :loc1;
+                         geo:Point _:32;
+                         ep:hasEventObjectSamplingTime "2014-01-07T10:18:21"^^xsd:dateTime .
+}
+<Eve4> { _:33 geo:lat 60.187595;
+              geo:long 24.821255 .
+
+         <Eve4> rdf:type ep:EventObject;
+                ssn:Sensor :loc1;
+                geo:Point _:33;
+                ep:hasEventObjectSamplingTime "2014-01-07T11:32:34"^^xsd:dateTime .
+}
+<Poststateless-Eve4> { <Eve4> geo:Point _:33;
+                              ssn:Sensor :loc1;
+                              rdf:type ep:EventObject;
+                              ep:hasEventObjectSamplingTime "2014-01-07T11:32:34"^^xsd:dateTime .
+
+                       _:33 geo:long 24.821255;
+                            geo:lat 60.187595 .
+}
+<eventcounts> { _:35 rdf:type ep:EventObject;
+                     :eventType :eventCount;
+                     :hour 10;
+                     :count 1 .
+}
+<Poststateful-Eve4> { <Eve4> ep:hasEventObjectSamplingTime "2014-01-07T11:32:34"^^xsd:dateTime;
+                             geo:Point _:33;
+                             ssn:Sensor :loc1;
+                             rdf:type ep:EventObject .
+
+                      _:33 geo:long 24.821255;
+                           geo:lat 60.187595 .
+}
+<Translated-Eve4> { <Eve4> :locationName "Espoo";
+                           ssn:Sensor :loc1;
+                           geo:Point _:33;
+                           ep:hasEventObjectSamplingTime "2014-01-07T11:32:34"^^xsd:dateTime;
+                           rdf:type ep:EventObject .
+
+                    _:33 geo:long 24.821255;
+                         geo:lat 60.187595 .
+}
+<GeoEvents-Eve4> { _:38 geo:lat 60.187595;
+                        geo:long 24.821255 .
+
+                   <Eve4> rdf:type ep:EventObject;
+                          ep:hasEventObjectSamplingTime "2014-01-07T11:32:34"^^xsd:dateTime;
+                          geo:Point _:38 .
+}
+<SensorEvents-Eve4> { <Eve4> rdf:type ep:EventObject;
+                             ssn:Sensor :loc1;
+                             ep:hasEventObjectSamplingTime "2014-01-07T11:32:34"^^xsd:dateTime .
+}
+<Projected-Eve4> { <Eve4> ep:hasEventObjectSamplingTime "2014-01-07T11:32:34"^^xsd:dateTime;
+                          geo:Point _:33;
+                          ssn:Sensor :loc1;
+                          rdf:type ep:EventObject .
+
+                   _:33 geo:long 24.821255;
+                        geo:lat 60.187595 .
+}
+<Combined-Eve4> { _:39 geo:lat 60.187595;
+                       geo:long 24.821255 .
+
+                  <Eve4> rdf:type ep:EventObject;
+                         ssn:Sensor :loc1;
+                         geo:Point _:39;
+                         ep:hasEventObjectSamplingTime "2014-01-07T11:32:34"^^xsd:dateTime .
+}
+<Eve5> { _:40 geo:lat 60.187595;
+              geo:long 24.821255 .
+
+         <Eve5> rdf:type ep:EventObject;
+                ssn:Sensor :loc1;
+                geo:Point _:40;
+                ep:hasEventObjectSamplingTime "2014-01-07T21:12:32"^^xsd:dateTime .
+}
+<eventcounts> { _:42 rdf:type ep:EventObject;
+                     :eventType :eventCount;
+                     :hour 11;
+                     :count 1 .
+}
+<Eve6> { _:45 geo:lat 60.186623;
+              geo:long 24.820017 .
+
+         <Eve6> rdf:type ep:EventObject;
+                ssn:Sensor :loc1;
+                geo:Point _:45;
+                ep:hasEventObjectSamplingTime "2014-01-08T04:02:11"^^xsd:dateTime .
+}
+<eventcounts> { _:47 rdf:type ep:EventObject;
+                     :eventType :eventCount;
+                     :hour 21;
+                     :count 1 .
+}
+<Eve7> { _:50 geo:lat 60.158775;
+              geo:long 24.88149 .
+
+         <Eve7> rdf:type ep:EventObject;
+                ssn:Sensor :loc1;
+                geo:Point _:50;
+                ep:hasEventObjectSamplingTime "2014-01-08T09:18:21"^^xsd:dateTime .
+}
+<Poststateless-Eve7> { <Eve7> geo:Point _:50;
+                              ssn:Sensor :loc1;
+                              rdf:type ep:EventObject;
+                              ep:hasEventObjectSamplingTime "2014-01-08T09:18:21"^^xsd:dateTime .
+
+                       _:50 geo:long 24.88149;
+                            geo:lat 60.158775 .
+}
+<eventcounts> { _:52 rdf:type ep:EventObject;
+                     :eventType :eventCount;
+                     :hour 4;
+                     :count 1 .
+}
+<Poststateful-Eve7> { <Eve7> ep:hasEventObjectSamplingTime "2014-01-08T09:18:21"^^xsd:dateTime;
+                             geo:Point _:50;
+                             ssn:Sensor :loc1;
+                             rdf:type ep:EventObject .
+
+                      _:50 geo:long 24.88149;
+                           geo:lat 60.158775 .
+}
+<Translated-Eve7> { <Eve7> :locationName "Espoo";
+                           ssn:Sensor :loc1;
+                           geo:Point _:50;
+                           ep:hasEventObjectSamplingTime "2014-01-08T09:18:21"^^xsd:dateTime;
+                           rdf:type ep:EventObject .
+
+                    _:50 geo:long 24.88149;
+                         geo:lat 60.158775 .
+}
+<GeoEvents-Eve7> { _:55 geo:lat 60.158775;
+                        geo:long 24.88149 .
+
+                   <Eve7> rdf:type ep:EventObject;
+                          ep:hasEventObjectSamplingTime "2014-01-08T09:18:21"^^xsd:dateTime;
+                          geo:Point _:55 .
+}
+<SensorEvents-Eve7> { <Eve7> rdf:type ep:EventObject;
+                             ssn:Sensor :loc1;
+                             ep:hasEventObjectSamplingTime "2014-01-08T09:18:21"^^xsd:dateTime .
+}
+<Projected-Eve7> { <Eve7> ep:hasEventObjectSamplingTime "2014-01-08T09:18:21"^^xsd:dateTime;
+                          geo:Point _:50;
+                          ssn:Sensor :loc1;
+                          rdf:type ep:EventObject .
+
+                   _:50 geo:long 24.88149;
+                        geo:lat 60.158775 .
+}
+<Combined-Eve7> { _:56 geo:lat 60.158775;
+                       geo:long 24.88149 .
+
+                  <Eve7> rdf:type ep:EventObject;
+                         ssn:Sensor :loc1;
+                         geo:Point _:56;
+                         ep:hasEventObjectSamplingTime "2014-01-08T09:18:21"^^xsd:dateTime .
+}
+<Eve8> { _:57 geo:lat 60.187458;
+              geo:long 24.821272 .
+
+         <Eve8> rdf:type ep:EventObject;
+                ssn:Sensor :loc1;
+                geo:Point _:57;
+                ep:hasEventObjectSamplingTime "2014-01-08T09:42:00"^^xsd:dateTime .
+}
+<Poststateless-Eve8> { <Eve8> geo:Point _:57;
+                              ssn:Sensor :loc1;
+                              rdf:type ep:EventObject;
+                              ep:hasEventObjectSamplingTime "2014-01-08T09:42:00"^^xsd:dateTime .
+
+                       _:57 geo:long 24.821272;
+                            geo:lat 60.187458 .
+}
+<Eve9> { _:60 geo:lat 60.187634;
+              geo:long 24.821491 .
+
+         <Eve9> rdf:type ep:EventObject;
+                ssn:Sensor :loc1;
+                geo:Point _:60;
+                ep:hasEventObjectSamplingTime "2014-01-08T10:18:21"^^xsd:dateTime .
+}
+<Poststateless-Eve9> { <Eve9> geo:Point _:60;
+                              ssn:Sensor :loc1;
+                              rdf:type ep:EventObject;
+                              ep:hasEventObjectSamplingTime "2014-01-08T10:18:21"^^xsd:dateTime .
+
+                       _:60 geo:long 24.821491;
+                            geo:lat 60.187634 .
+}
+<eventcounts> { _:62 rdf:type ep:EventObject;
+                     :eventType :eventCount;
+                     :hour 9;
+                     :count 2 .
+}
+<PatternDetect> { _:65 rdf:type ep:EventObject;
+                       :patterndetected "Pattern detected!";
+                       ssn:Sensor :loc1;
+                       :lastEvent <Eve9> .
+}
+<Poststateful-Eve9> { <Eve9> ep:hasEventObjectSamplingTime "2014-01-08T10:18:21"^^xsd:dateTime;
+                             geo:Point _:60;
+                             ssn:Sensor :loc1;
+                             rdf:type ep:EventObject .
+
+                      _:60 geo:long 24.821491;
+                           geo:lat 60.187634 .
+}
+<Translated-Eve9> { <Eve9> :locationName "Espoo";
+                           ssn:Sensor :loc1;
+                           geo:Point _:60;
+                           ep:hasEventObjectSamplingTime "2014-01-08T10:18:21"^^xsd:dateTime;
+                           rdf:type ep:EventObject .
+
+                    _:60 geo:long 24.821491;
+                         geo:lat 60.187634 .
+}
+<GeoEvents-Eve9> { _:67 geo:lat 60.187634;
+                        geo:long 24.821491 .
+
+                   <Eve9> rdf:type ep:EventObject;
+                          ep:hasEventObjectSamplingTime "2014-01-08T10:18:21"^^xsd:dateTime;
+                          geo:Point _:67 .
+}
+<SensorEvents-Eve9> { <Eve9> rdf:type ep:EventObject;
+                             ssn:Sensor :loc1;
+                             ep:hasEventObjectSamplingTime "2014-01-08T10:18:21"^^xsd:dateTime .
+}
+<Projected-Eve9> { <Eve9> ep:hasEventObjectSamplingTime "2014-01-08T10:18:21"^^xsd:dateTime;
+                          geo:Point _:60;
+                          ssn:Sensor :loc1;
+                          rdf:type ep:EventObject .
+
+                   _:60 geo:long 24.821491;
+                        geo:lat 60.187634 .
+}
+<Combined-Eve9> { _:68 geo:lat 60.187634;
+                       geo:long 24.821491 .
+
+                  <Eve9> rdf:type ep:EventObject;
+                         ssn:Sensor :loc1;
+                         geo:Point _:68;
+                         ep:hasEventObjectSamplingTime "2014-01-08T10:18:21"^^xsd:dateTime .
+}
+<Eve10> { _:69 geo:lat 60.187595;
+               geo:long 24.821255 .
+
+          <Eve10> rdf:type ep:EventObject;
+                  ssn:Sensor :loc1;
+                  geo:Point _:69;
+                  ep:hasEventObjectSamplingTime "2014-01-08T11:32:34"^^xsd:dateTime .
+}
+<Poststateless-Eve10> { <Eve10> geo:Point _:69;
+                                ssn:Sensor :loc1;
+                                rdf:type ep:EventObject;
+                                ep:hasEventObjectSamplingTime "2014-01-08T11:32:34"^^xsd:dateTime .
+
+                        _:69 geo:long 24.821255;
+                             geo:lat 60.187595 .
+}
+<eventcounts> { _:71 rdf:type ep:EventObject;
+                     :eventType :eventCount;
+                     :hour 10;
+                     :count 1 .
+}
+<Poststateful-Eve10> { <Eve10> ep:hasEventObjectSamplingTime "2014-01-08T11:32:34"^^xsd:dateTime;
+                               geo:Point _:69;
+                               ssn:Sensor :loc1;
+                               rdf:type ep:EventObject .
+
+                       _:69 geo:long 24.821255;
+                            geo:lat 60.187595 .
+}
+<Translated-Eve10> { <Eve10> :locationName "Espoo";
+                             ssn:Sensor :loc1;
+                             geo:Point _:69;
+                             ep:hasEventObjectSamplingTime "2014-01-08T11:32:34"^^xsd:dateTime;
+                             rdf:type ep:EventObject .
+
+                     _:69 geo:long 24.821255;
+                          geo:lat 60.187595 .
+}
+<GeoEvents-Eve10> { _:74 geo:lat 60.187595;
+                         geo:long 24.821255 .
+
+                    <Eve10> rdf:type ep:EventObject;
+                            ep:hasEventObjectSamplingTime "2014-01-08T11:32:34"^^xsd:dateTime;
+                            geo:Point _:74 .
+}
+<SensorEvents-Eve10> { <Eve10> rdf:type ep:EventObject;
+                               ssn:Sensor :loc1;
+                               ep:hasEventObjectSamplingTime "2014-01-08T11:32:34"^^xsd:dateTime .
+}
+<Projected-Eve10> { <Eve10> ep:hasEventObjectSamplingTime "2014-01-08T11:32:34"^^xsd:dateTime;
+                            geo:Point _:69;
+                            ssn:Sensor :loc1;
+                            rdf:type ep:EventObject .
+
+                    _:69 geo:long 24.821255;
+                         geo:lat 60.187595 .
+}
+<Combined-Eve10> { _:75 geo:lat 60.187595;
+                        geo:long 24.821255 .
+
+                   <Eve10> rdf:type ep:EventObject;
+                           ssn:Sensor :loc1;
+                           geo:Point _:75;
+                           ep:hasEventObjectSamplingTime "2014-01-08T11:32:34"^^xsd:dateTime .
+}
+<Eve11> { _:76 geo:lat 60.187595;
+               geo:long 24.821255 .
+
+          <Eve11> rdf:type ep:EventObject;
+                  ssn:Sensor :loc1;
+                  geo:Point _:76;
+                  ep:hasEventObjectSamplingTime "2014-01-08T21:12:32"^^xsd:dateTime .
+}
+<eventcounts> { _:78 rdf:type ep:EventObject;
+                     :eventType :eventCount;
+                     :hour 11;
+                     :count 1 .
+}
+<Eve12> { _:81 geo:lat 60.186623;
+               geo:long 24.820017 .
+
+          <Eve12> rdf:type ep:EventObject;
+                  ssn:Sensor :loc1;
+                  geo:Point _:81;
+                  ep:hasEventObjectSamplingTime "2014-01-09T04:02:11"^^xsd:dateTime .
+}
+<eventcounts> { _:83 rdf:type ep:EventObject;
+                     :eventType :eventCount;
+                     :hour 21;
+                     :count 1 .
+}
+
+At 0.477017: Done
