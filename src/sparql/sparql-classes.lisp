@@ -126,10 +126,10 @@
 
 (defmethod print-object ((this rdf-literal) stream)
   (format stream "#<~A \"~A\"" (type-of this) (rdf-literal-string this))
-  (when (rdf-literal-type this)
-    (format stream "^^~A" (rdf-iri-string (rdf-literal-type this))))
   (when (rdf-literal-lang this)
     (format stream "@\"~A\"" (rdf-literal-lang this)))
+  (when (rdf-literal-type this)
+    (format stream "^^~A" (rdf-iri-string (rdf-literal-type this))))
   (format stream ">"))
 
 (defmethod print-object ((this uniquely-named-object) stream)
@@ -310,6 +310,11 @@
 ;  (inform "v1 = ~S (of type ~S), v2 = ~S (of type ~S), (eq (type-of v1) (type-of v2)) = ~S" v1 (type-of v1) v2 (type-of v2) (eq (type-of v1) (type-of v2)))
   (and (equal (type-of v1) (type-of v2))
        (sparql-call "=" v1 v2)))
+
+(defun sparql-value-same-term (v1 v2)
+;  (inform "v1 = ~S (of type ~S), v2 = ~S (of type ~S), (eq (type-of v1) (type-of v2)) = ~S" v1 (type-of v1) v2 (type-of v2) (eq (type-of v1) (type-of v2)))
+  (and (equal (type-of v1) (type-of v2))
+       (sparql-call "sameTerm" v1 v2)))
 
 (defun equal-triples (tr1 tr2)
   (and (consp tr1) (consp tr2)
