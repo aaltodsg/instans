@@ -29,6 +29,7 @@
 	     (comma (code-char #x2C))
 	     (escape-chars (list cr lf dquote comma))
 	     (stream (csv-output-stream this)))
+	(format stream "~&")
 	(loop for field in record
 	      for separator = nil then comma
 	      do (progn

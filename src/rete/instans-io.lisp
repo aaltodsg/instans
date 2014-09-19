@@ -249,7 +249,7 @@
 					(t value)))
 			      values)))
   (:method ((this instans-sparql-query-results-writer) values)
-    (add-sparql-result (instans-sparql-query-results-writer-results this) :values values)))
+    (add-sparql-result-values (instans-sparql-query-results-writer-results this) values)))
 
 (defun solution-bindings (node token)
   (let* ((vars (solution-modifiers-project-vars node))

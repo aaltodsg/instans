@@ -21,9 +21,12 @@
 
 (define-sparql-function "instans:add_rules" (:arguments ((instans-iri rdf-iri) (rules iri-or-string)) :returns rdf-iri)
   (:method ((instans-iri rdf-iri) (rules rdf-iri))
-    (let ((instans (get-or-create-instans instans-iri)))
-      (instans-add-rules instans rules)
-      (instans-find-status instans 'instans-rule-translation-succeeded) t)))
+    (let ((instans (get-instans instans-iri)))
+      (cond ((null instans) nil)
+	    (t
+	     (instans-add-rules instans rules)
+	     (instans-find-status instans 'instans-rule-translation-succeeded)
+	     t)))))
 
 (define-sparql-function "instans:status" (:arguments ((instans-iri rdf-iri)) :returns xsd-string)
   (:method ((instans-iri rdf-iri))
@@ -45,12 +48,36 @@
 							   &optional (graph-iri rdf-iri) (base rdf-iri))
 							  :returns xsd-boolean)
   (:method ((instans-iri rdf-iri) (input-iri iri-or-string) &optional (graph-iri rdf-iri) (base rdf-iri))
-    (instans-add-stream-input-processor (get-or-create-instans instans-iri) input-iri :graph graph-iri :base base :input-type (intern-keyword (string-upcase (file-type input-iri))))
-    t))
+    (let ((instans (get-instans instans-iri)))
+      (cond ((null instans) nil)
+	    (t
+	     (instans-add-stream-input-processor instans input-iri :graph graph-iri :base base :input-type (intern-keyword (string-upcase (file-type input-iri))))
+	     t)))))
+
+(define-sparql-function "instans:add_select_output_processor" (:arguments ((instans-iri rdf-iri) (output-iri iri-or-string)) :returns xsd-boolean)
+  (:method ((instans-iri rdf-iri) (output-iri iri-or-string))
+    (let ((instans (get-instans instans-iri))
+	  (select-output-name (file-iri-or-filename-as-string output-iri))
+	  (select-output-type (intern-keyword (string-upcase (file-type output-iri)))))
+      (cond ((null instans) nil)
+	    ((null select-output-name) nil)
+	    (t
+	     (setf (instans-select-output-processor instans) (create-select-output-processor instans select-output-name select-output-type))
+	     t)))))
 
 (define-sparql-function "instans:execute" (:arguments ((instans-iri rdf-iri)))
   (:method ((instans-iri rdf-iri))
-    (instans-run (get-instans instans-iri))))
+    (instans-run (get-instans instans-iri))
+    t))
+
+(define-sparql-function "instans:create_directory" (:arguments ((dir iri-or-string)))
+  (:method ((dir iri-or-string))
+    (block inner
+      (unless (setf dir (file-iri-or-filename-as-string dir))
+	(return-from inner nil))
+      (if (eql (position #\/ dir :from-end t) (length dir))
+	  (ensure-directories-exist dir)
+	  (ensure-directories-exist (format nil "~A/" dir))))))
 
 (define-sparql-function "instans:dynamic_call" (:arguments ((func rdf-iri) &rest args) :returns t)
   (:method ((func rdf-iri) &rest args)
@@ -68,6 +95,12 @@
 (define-sparql-function "instans:compare_rdf_files" (:arguments ((instans-iri rdf-iri) (input1 iri-or-string) (input2 t)) :returns xsd-boolean-value)
   (:method ((instans-iri rdf-iri) (input1 iri-or-string) (input2 t))
     (instans-compare-rdf-files (get-or-create-instans instans-iri) input1 input2)))
+
+(define-sparql-function "instans:compare_srx_files" (:arguments ((input1 iri-or-string) (input2 iri-or-string)) :returns xsd-boolean-value)
+  (:method ((input1 iri-or-string) (input2 iri-or-string))
+    (let ((name1 (file-iri-or-filename-as-string input1))
+	  (name2 (file-iri-or-filename-as-string input2)))
+      (sparql-compare-srx-files name1 name2))))
 
 (define-sparql-function "instans:parse_rdf_file" (:arguments ((instans-iri rdf-iri) (input-iri iri-or-string)) :returns xsd-boolean-value)
   (:method ((instans-iri rdf-iri) (input-iri iri-or-string))

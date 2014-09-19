@@ -87,6 +87,19 @@
 (defun http-or-file-iri-string-p (str)
   (or (http-iri-string-p str) (file-iri-string-p str)))
 
+(defun file-iri-or-filename-as-string (x)
+  (cond ((pathnamep x)
+	 (namestring x))
+	((rdf-iri-p x)
+	 (cond ((equal (rdf-iri-scheme x) "file")
+		(rdf-iri-path x))
+	       (t
+		nil)))
+	((file-iri-string-p x)
+	 (file-iri-string-path x))
+	((stringp x) x)
+	(t nil)))
+
 ;;; Char ops accepting nil
 (defun char-code* (char-or-code) (if (characterp char-or-code) (char-code char-or-code) char-or-code))
 

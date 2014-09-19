@@ -50,15 +50,22 @@
 	(error* "Trying to set different variables ~S to ~S; variables were ~S" variables this (sparql-query-results-variables this))))
     (setf (sparql-query-results-variables this) variables)))
 
-(defgeneric add-sparql-result (query-results &key variables values)
-  (:method ((this sparql-query-results) &key (variables nil variables-present-p) values)
-    (when variables-present-p (set-query-variables this variables))
+(defgeneric add-sparql-result (query-results result)
+  (:method ((this sparql-query-results) result)
     (cond ((and (slot-boundp this 'results) (sparql-query-results-results this))
-	   (setf (cdr (sparql-query-results-tail this)) (list values))
+	   (setf (cdr (sparql-query-results-tail this)) (list result))
 	   (setf (sparql-query-results-tail this) (cdr (sparql-query-results-tail this))))
 	  (t
-	   (setf (sparql-query-results-results this) (list values))
+	   (setf (sparql-query-results-results this) (list result))
 	   (setf (sparql-query-results-tail this) (sparql-query-results-results this))))))
+
+(defgeneric add-sparql-result-values (query-results values)
+  (:method ((this sparql-query-results) values)
+    (let ((result (loop for var in (sparql-query-results-variables this)
+		        for value in values
+		        collect (create-sparql-binding var value) into bindings
+		        finally (return (create-sparql-result bindings)))))
+      (add-sparql-result this result))))
 
 (defgeneric output-srx (query-results stream)
   (:method ((this sparql-query-results) stream)
@@ -115,15 +122,16 @@
 						;(inform "writing literal value ~A~%" (sparql-value-to-string value))
 						(xml-emitter:with-simple-tag ("literal") (xml-emitter:xml-as-is value))))))))))))))))
 
-(defgeneric sparql-results-compare (query-results1 query-results2 &key verbosep output-stream result-label1 result-label2 handle-error-values-p)
-  (:method ((query-results1 sparql-query-results) (query-results2 sparql-query-results) &key verbosep (output-stream *standard-output*) (result-label1 "") (result-label2 "") (handle-error-values-p t))
+(defgeneric sparql-results-compare (query-results1 query-results2 &key order-dependent-p verbosep output-stream result-label1 result-label2 handle-error-values-p)
+  (:method ((query-results1 sparql-query-results) (query-results2 sparql-query-results) &key order-dependent-p verbosep (output-stream *standard-output*) (result-label1 "") (result-label2 "") (handle-error-values-p t))
+    (inform "sparql-results-compare ~A ~A~%" result-label1 result-label2)
     (cond ((and (slot-boundp query-results1 'boolean) (slot-boundp query-results2 'boolean))
 	   (cond ((eq (sparql-boolean-result-value (sparql-query-results-boolean query-results1))
 		      (sparql-boolean-result-value (sparql-query-results-boolean query-results2)))
-		  (when verbosep (format output-stream "~%~:(~A~) solutions ~S and ~(~A~) solutions ~S are equal" result-label1 query-results1 result-label2 query-results2))
+		  (when verbosep (format output-stream "~%Compare SPARQL results: Equal solutions in ~A and ~A" result-label1 result-label2))
 		  (values t t))
 		 (t
-		  (when verbosep (format output-stream "~%~:(~A~) solutions ~S and ~(~A~) solutions ~S are not equal" result-label1 query-results1 result-label2 query-results2))
+		  (when verbosep (format output-stream "~%Compare SPARQL resultsNot equal solutions in ~A and ~A" result-label1 result-label2))
 		  (values nil nil))))
 	  ;; ((and (slot-boundp query-results1 'triples) (slot-boundp query-results2 'triples))
 	  ;;  (let ((triple-list1 (sparql-query-results-triples query-results1))
@@ -160,10 +168,10 @@
 		   (result-list2 (sparql-query-results-results query-results2)))
 	       (cond ((and (= (length result-list1) (length result-list2))
 			   (every #'(lambda (r1 r2) (sparql-result-equal-extended r1 r2)) result-list1 result-list2))
-		      (when verbosep (format output-stream "~%~:(~A~) solutions and ~(~A~) solutions are equal" result-label1 result-label2))
+		      (when verbosep (format output-stream "~%Compare SPARQL results: Equal solutions in ~A and ~A" result-label1 result-label2))
 		      (values t t))
 		     ((not (= (length result-list1) (length result-list2)))
-		      (when verbosep (format output-stream "~%~D ~:(~A~) solutions, ~(~A~) ~D solutions" result-label1 (length result-list1) result-label2 (length result-list2)))
+		      (when verbosep (format output-stream "~%Compare SPARQL results: Different number of solutions in ~A (~D) and ~A (~D)" result-label1 (length result-list1) result-label2 (length result-list2)))
 		      (values nil nil))
 		     (verbosep
 		      (flet ((show-solutions (sl) (loop for s in sl
@@ -172,22 +180,27 @@
 			(let ((observed-minus-expected (set-difference result-list1 result-list2 :test #'sparql-result-equal-extended))
 			      (expected-minus-observed (set-difference result-list2 result-list1 :test #'sparql-result-equal-extended)))
 			  (cond ((and (null observed-minus-expected) (null expected-minus-observed))
-				 (when verbosep
-				   (format output-stream "~%~A solutions and ~A solutions are same, but in a different order~%" result-label1 result-label2)
-				   (format output-stream "~%~A:" result-label1)
-				   (show-solutions result-list1)
-				   (format output-stream "~%~A:" result-label2)
-				   (show-solutions result-list2)
-				   (values t nil)))
+				 (cond ((not order-dependent-p)
+					(format output-stream "~%Compare SPARQL results: Equal solutions* in ~A and ~A~%" result-label1 result-label2)
+					(values t t))
+				       (t
+					(when verbosep
+					  (format output-stream "~%Compare SPARQL results: Different order of solutions in ~A and ~A~%" result-label1 result-label2)
+					  (format output-stream "~%~A:" result-label1)
+					  (show-solutions result-list1)
+					  (format output-stream "~%~A:" result-label2)
+					  (show-solutions result-list2))
+					(values t nil))))
 				(t
-				 (format output-stream "~%~A solutions not in ~A:" result-label1 result-label2)
+				 (format output-stream "~%Compare SPARQL results: Not equal solutions in ~A and ~A~%" result-label1 result-label2)
+				 (format output-stream "~%  Solutions not in ~A:" result-label2)
 				 (show-solutions expected-minus-observed)
-				 (format output-stream "~%~A solutions not ~A:" result-label2 result-label1)
+				 (format output-stream "~%  Solutions not in ~A:" result-label1)
 				 (show-solutions observed-minus-expected)
 				 (values nil nil))))))
 		     (t (values nil nil))))))
 	  (t
-	   (when verbosep (format output-stream "~%Cannot compare ~A ~S and ~A ~S" result-label1 query-results1 result-label2 query-results2))
+	   (when verbosep (format output-stream "~%Cannot compare ~A and ~A" result-label1 result-label2))
 	   (values nil nil)))))
 
 (defgeneric print-sparql-results (sparql-query-results &key stream)
@@ -224,7 +237,7 @@
   (let* ((i (make-instance 'instans))
 	 (res1 (parse-results-file i file1))
 	 (res2 (parse-results-file i file2)))
-    (sparql-results-compare res1 res2 :verbosep t)))
+    (sparql-results-compare res1 res2 :verbosep t :result-label1 file1 :result-label2 file2)))
 
 (defun test-read-write-srx (in-file out-file)
   (let* ((i (make-instance 'instans))
@@ -250,7 +263,7 @@
       (print-sparql-results res2 :stream *error-output*)
       (sparql-results-compare res1 res2 :verbosep t))
     (cond ((slot-boundp res1 'results)
-	   (add-sparql-result res2 :values (loop for var in (sparql-query-results-variables res1) collect (string (gensym))))
+	   (add-sparql-result-values res2 (loop for var in (sparql-query-results-variables res1) collect (string (gensym))))
 	   (when (sparql-results-compare res1 res2)
 	     (inform "Comparing results in ~S to a copy with an extra result~%" in-file)
 	     (sparql-results-compare res1 res2 :verbosep t))
@@ -272,3 +285,10 @@
         do (inform "~%File ~A~%" file)
         do (test-srx-compare (namestring file) "x.srx")))
 
+
+(defun test-manifest (directory)
+  (let* ((rules-file (format nil "~A/tests/input/evaluation-test.rq" (find-instans-root-directory)))
+	 (base (format nil "file://~A" (namestring directory)))
+	 (args (format nil "-b ~A -r ~A --input=~A/manifest.ttl" base rules-file directory)))
+    (inform "(main ~S)" args)
+    (main args)))
