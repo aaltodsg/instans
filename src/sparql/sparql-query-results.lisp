@@ -170,16 +170,18 @@
 			   (every #'(lambda (r1 r2) (sparql-result-equal-extended r1 r2)) result-list1 result-list2))
 		      (when verbosep (format output-stream "~%Compare SPARQL results: Equal solutions in ~A and ~A" result-label1 result-label2))
 		      (values t t))
-		     ((not (= (length result-list1) (length result-list2)))
-		      (when verbosep (format output-stream "~%Compare SPARQL results: Different number of solutions in ~A (~D) and ~A (~D)" result-label1 (length result-list1) result-label2 (length result-list2)))
-		      (values nil nil))
+		     ;; ((not (= (length result-list1) (length result-list2)))
+		     ;;  (when verbosep (format output-stream "~%Compare SPARQL results: Different number of solutions in ~A (~D) and ~A (~D)" result-label1 (length result-list1) result-label2 (length result-list2)))
+		     ;;  (values nil nil))
 		     (verbosep
 		      (flet ((show-solutions (sl) (loop for s in sl
 							do (loop for b in (sparql-result-bindings s)
-								 do (format output-stream "~%  ~A=~A~%" (sparql-binding-variable b) (sparql-binding-value b))))))
-			(let ((observed-minus-expected (set-difference result-list1 result-list2 :test #'sparql-result-equal-extended))
-			      (expected-minus-observed (set-difference result-list2 result-list1 :test #'sparql-result-equal-extended)))
-			  (cond ((and (null observed-minus-expected) (null expected-minus-observed))
+								 do (format output-stream "~%  ~A -> ~A~%"
+									    (uniquely-named-object-name (sparql-binding-variable b))
+									    (sparql-value-to-string (sparql-binding-value b)))))))
+			(let ((result1-minus-result2 (set-difference result-list1 result-list2 :test #'sparql-result-equal-extended))
+			      (result2-minus-result1 (set-difference result-list2 result-list1 :test #'sparql-result-equal-extended)))
+			  (cond ((and (null result1-minus-result2) (null result2-minus-result1))
 				 (cond ((not order-dependent-p)
 					(format output-stream "~%Compare SPARQL results: Equal solutions* in ~A and ~A~%" result-label1 result-label2)
 					(values t t))
@@ -192,11 +194,14 @@
 					  (show-solutions result-list2))
 					(values t nil))))
 				(t
-				 (format output-stream "~%Compare SPARQL results: Not equal solutions in ~A and ~A~%" result-label1 result-label2)
-				 (format output-stream "~%  Solutions not in ~A:" result-label2)
-				 (show-solutions expected-minus-observed)
-				 (format output-stream "~%  Solutions not in ~A:" result-label1)
-				 (show-solutions observed-minus-expected)
+				 (format output-stream "~%Compare SPARQL results: Not equal solutions in ~A (~D) and ~A (~D)~%"
+					 result-label1 (length result-list1) result-label2 (length result-list2))
+				 (when result2-minus-result1
+				   (format output-stream "~%  Solutions not in ~A:" result-label1)
+				   (show-solutions result2-minus-result1))
+				 (when result1-minus-result2
+				   (format output-stream "~%  Solutions not in ~A:" result-label2)
+				   (show-solutions result1-minus-result2))
 				 (values nil nil))))))
 		     (t (values nil nil))))))
 	  (t
@@ -292,3 +297,31 @@
 	 (args (format nil "-b ~A -r ~A --input=~A/manifest.ttl" base rules-file directory)))
     (inform "(main ~S)" args)
     (main args)))
+
+(defun evaluation-test (rule-file input-file &key select-results-file construct-results-file (output-directory "."))
+  (let* ((directory (directory-namestring rule-file))
+	 (base (format nil "file://~A" (namestring directory)))
+	 (instans-iri (parse-iri (format nil "file://~A" rule-file)))
+	 (instans (create-instans instans-iri))
+	 select-output-file construct-output-file
+	 select-output-type construct-output-type
+	 parse-ok-p translate-ok-p)
+    (unless (null select-results-file)
+      (setf select-output-file (format nil "~A/~A" output-directory (file-namestring select-results-file)))
+      (setf select-output-type (intern-keyword (string-upcase (pathname-type (parse-namestring select-output-file)))))
+      (setf (instans-select-output-processor instans) (create-select-output-processor instans select-output-file select-output-type)))
+    (unless (null construct-results-file)
+      (setf construct-output-file (format nil "~A/~A" output-directory (file-namestring construct-results-file)))
+      (setf construct-output-type (intern-keyword (string-upcase (pathname-type (parse-namestring construct-output-file)))))
+      (setf (instans-construct-output-processor instans) (create-construct-output-processor instans construct-output-file construct-output-type)))
+    (instans-add-rules instans rule-file)
+    (setf parse-ok-p (instans-has-status instans (intern-instans "INSTANS-RULE-PARSING-SUCCEEDED")))
+    (setf translate-ok-p (instans-has-status instans (intern-instans "INSTANS-RULE-TRANSLATION-SUCCEEDED")))
+    (when (and parse-ok-p translate-ok-p)
+      (instans-add-stream-input-processor instans input-file :base base :input-type (intern-keyword (string-upcase (file-type input-file))))
+      (instans-run instans)
+      (when select-output-file
+	(case select-output-type
+	  (:srx (sparql-compare-srx-files select-results-file select-output-file))
+	  (t (inform "Cannot compare files of type ~A yet" select-output-type)))))))
+    

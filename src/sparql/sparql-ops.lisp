@@ -357,16 +357,16 @@
 ;; 17.4.2.6 lang
 ;; -------------
 ;; simple literal  LANG (literal ltrl)
+
 (define-sparql-function "lang" (:arguments ((x literal)) :returns xsd-string-value)
-  (:method ((x rdf-literal)) (rdf-literal-lang x))
+  (:method ((x rdf-literal)) (or (rdf-literal-lang x) ""))
   (:method ((x literal)) (declare (ignorable x)) ""))
 
 ;; 17.4.2.7 datatype
 ;; -----------------
 ;; iri  DATATYPE (literal literal)
 (define-sparql-function "datatype" (:arguments ((x literal)) :returns rdf-iri)
-  (:method ((x rdf-literal)) (rdf-literal-type x))
-  (:method ((x literal)) (declare (ignorable x)) *xsd-string-iri*))
+  (:method ((x literal)) (sparql-value-type-iri x)))
 
 ;; 17.4.2.8 IRI
 ;; ------------
