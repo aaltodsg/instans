@@ -291,14 +291,13 @@
         do (test-srx-compare (namestring file) "x.srx")))
 
 
-(defun test-manifest (directory)
-  (let* ((rules-file (format nil "~A/tests/input/evaluation-test.rq" (find-instans-root-directory)))
-	 (base (format nil "file://~A" (namestring directory)))
+(defun test-manifest (directory &key (rules-file (format nil "~A/tests/input/evaluation-test.rq" (find-instans-root-directory))) (verbosep nil))
+  (let* ((base (format nil "file://~A" (namestring directory)))
 	 (args (format nil "-b ~A -r ~A --input=~A/manifest.ttl" base rules-file directory)))
-    (inform "(main ~S)" args)
+    (when verbosep (inform "(main ~S)" args))
     (main args)))
 
-(defun evaluation-test (rule-file input-file &key select-results-file construct-results-file (output-directory "."))
+(defun evaluation-test (rule-file data-file &key graph-data-file select-results-file construct-results-file (output-directory "."))
   (let* ((directory (directory-namestring rule-file))
 	 (base (format nil "file://~A" (namestring directory)))
 	 (instans-iri (parse-iri (format nil "file://~A" rule-file)))
@@ -318,10 +317,16 @@
     (setf parse-ok-p (instans-has-status instans (intern-instans "INSTANS-RULE-PARSING-SUCCEEDED")))
     (setf translate-ok-p (instans-has-status instans (intern-instans "INSTANS-RULE-TRANSLATION-SUCCEEDED")))
     (when (and parse-ok-p translate-ok-p)
-      (instans-add-stream-input-processor instans input-file :base base :input-type (intern-keyword (string-upcase (file-type input-file))))
+      (instans-add-stream-input-processor instans data-file :base base :input-type (intern-keyword (string-upcase (file-type data-file))))
       (instans-run instans)
       (when select-output-file
 	(case select-output-type
 	  (:srx (sparql-compare-srx-files select-results-file select-output-file))
 	  (t (inform "Cannot compare files of type ~A yet" select-output-type)))))))
     
+
+(defun test-manifests (&key (rules-file (format nil "~A/tests/input/evaluation-test.rq" (find-instans-root-directory))))
+  (loop for manifest in (append (directory (format nil "~A/tests/data-r2/*/manifest.ttl" (find-instans-root-directory)))
+				(directory (format nil "~A/tests/data-sparql11/*/manifest.ttl" (find-instans-root-directory))))
+        for dir = (directory-namestring manifest)
+        do (test-manifest dir :rules-file rules-file)))
