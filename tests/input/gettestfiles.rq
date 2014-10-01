@@ -7,26 +7,40 @@ PREFIX ut:     <http://www.w3.org/2009/sparql/tests/test-update#>
 PREFIX dawgt:  <http://www.w3.org/2001/sw/DataAccess/tests/test-dawg#>
 
 #SELECT ?queryfile ?test { # ?testtype ?parsed_ok ?translate_ok ?error_msg ?status WHERE {
-SELECT DISTINCT ?queryfile ?testshort ?testtype ?datafile ?resultfile ?graphdatafile WHERE {
+SELECT DISTINCT ?queryfile ?testshort ?testtype ?datafile ?graphdatafile ?resultfile ?resultgraphfile ?resultgraphlabel
+WHERE {
    ?test a ?testtype_long; mf:name ?name .
    BIND(strafter(str(?test),"#") AS ?testshort)
    BIND(strafter(str(?testtype_long),"#") AS ?testtype)
-   OPTIONAL { ?test mf:action [ qt:query ?qf1 ] }
-   OPTIONAL { ?test mf:action [ ut:request ?qf2] }
-   OPTIONAL { ?test mf:action ?qf3 FILTER(!isblank(?qf3)) }
-   BIND(coalesce(?qf1, ?qf2, ?qf3) AS ?qf)
-   FILTER(bound(?qf))
-   BIND(strafter(str(?qf), "instans/tests/") AS ?queryfile) 
-   OPTIONAL { ?test mf:action [ qt:data ?df1 ] }
-   OPTIONAL { ?test mf:action [ ut:data ?df2 ] }
-   BIND(coalesce(?df1, ?df2) AS ?df)
-   BIND(strafter(str(?df), "instans/tests/") AS ?datafile)
-   OPTIONAL { ?test mf:action [ qt:graphData ?gdf1 ] FILTER(!isblank(?gdf1)) }
-   BIND(coalesce(?gdf1) AS ?gdf)
+#   { SELECT * {
+   OPTIONAL { ?test mf:action ?a1 .
+              ?a1 qt:query ?q1
+	      OPTIONAL { ?a1 qt:data ?d1
+	                 OPTIONAL { ?a1 qt:graphData ?gd1 }}}
+   OPTIONAL { ?test mf:action ?a2 .
+              ?a2 ut:request ?q2
+	      OPTIONAL { ?a2 ut:data ?d2
+	                 OPTIONAL { ?a2 ut:graphData ?gd2 ; rdfs:label ?graphlabel }}}
+#			 } }
+   OPTIONAL { ?test mf:action ?q3 FILTER(!isblank(?q3)) }
+   BIND(coalesce(?q1, ?q2, ?q3) AS ?q)
+   FILTER(bound(?q))
+   BIND(strafter(str(?q), "instans/tests/") AS ?queryfile) 
+   BIND(coalesce(?d1, ?d2) AS ?d)
+   BIND(strafter(str(?d), "instans/tests/") AS ?datafile)
+   BIND(coalesce(?gd1, ?gd2) AS ?gdf)
    BIND(strafter(str(?gdf), "instans/tests/") AS ?graphdatafile)
-   OPTIONAL { ?test mf:result ?rf1 FILTER(!isblank(?rf1)) }
-   BIND(coalesce(?rf1, ?df2) AS ?rf)
-   BIND(strafter(str(?rf), "instans/tests/") AS ?resultfile)
+   OPTIONAL { ?test mf:result ?r1 .
+              FILTER(isblank(?r1))
+              OPTIONAL { ?r1 ut:data ?rd1 }
+	      OPTIONAL { ?a1 ut:graphData [ ut:graph ?rg; rdfs:label ?rl ] } }
+   OPTIONAL { ?test mf:result ?rd2 FILTER(!isblank(?rd2)) }
+   BIND(coalesce(?rd1, ?rd2) AS ?rd)
+   BIND(strafter(str(?rd), "instans/tests/") AS ?resultfile)
+   BIND(strafter(str(?rg), "instans/tests/") AS ?resultgraphfile)
+   BIND(?rl AS ?resultgraphlabel)
+    # mf:result [ ut:graphData [ ut:graph <move-default.ttl> ;
+    #                            rdfs:label "http://example.org/g1" ]
        # 		 { ?test mf:action ?queryfile FILTER(!isblank(?queryfile) && (strends(str(?queryfile), ".rq") || strends(str(?queryfile), ".ru"))) }}
        # 	      	?test a mf:QueryEvaluationTest; mf:name ?name ; mf:action [ qt:query ?queryfile ; qt:data ?datafile]; mf:result ?resultfile. 
        # 		FILTER(strends(str(?resultfile), ".srx"))

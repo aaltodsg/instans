@@ -298,6 +298,7 @@
     (main args)))
 
 (defun evaluation-test (rule-file data-file &key graph-data-file select-results-file construct-results-file (output-directory "."))
+  (declare (ignorable graph-data-file))
   (let* ((directory (directory-namestring rule-file))
 	 (base (format nil "file://~A" (namestring directory)))
 	 (instans-iri (parse-iri (format nil "file://~A" rule-file)))
