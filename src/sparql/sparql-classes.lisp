@@ -199,7 +199,10 @@
 ;    (describe type-descriptor)
     (cond ((null type-descriptor)
 	   (make-instance 'rdf-literal :string string :type type-iri))
-	  (t (funcall (type-descriptor-value-parser type-descriptor) string)))))
+	  (t (multiple-value-bind (value msg)
+		 (funcall (type-descriptor-value-parser type-descriptor) string :errorp nil)
+	       (cond ((null msg) value)
+		     (t nil)))))))
 
 (defun create-rdf-literal-with-lang (string lang)
   (make-instance 'rdf-literal :string string :lang lang :type *rdf-lang-string-iri*))

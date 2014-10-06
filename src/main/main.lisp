@@ -142,8 +142,10 @@
 	 (directory (parse-iri (format nil "file://~A" (expand-dirname (or *default-main-dir* ".")))))
 	 (select-output-name nil)
 	 (select-output-type :csv)
+	 (select-output-append-p nil)
 	 (construct-output-name nil)
 	 (construct-output-type :trig)
+	 (construct-output-append-p nil)
 	 report-sizes-interval
 	 time-output-name
 	 time-output-stream
@@ -164,9 +166,9 @@
 		     collect (if (member key colon-expand-fields) (list key (parse-colon-separated-values value)) param)))
 	     (set-output-processors ()
 	       (when (and select-output-type (null (instans-select-output-processor instans)))
-		 (setf (instans-select-output-processor instans) (create-select-output-processor instans select-output-name select-output-type)))
+		 (setf (instans-select-output-processor instans) (create-select-output-processor instans select-output-name select-output-type :appendp select-output-append-p)))
 	       (when (and construct-output-type (null (instans-construct-output-processor instans)))
-		 (setf (instans-construct-output-processor instans) (create-construct-output-processor instans construct-output-name construct-output-type))))
+		 (setf (instans-construct-output-processor instans) (create-construct-output-processor instans construct-output-name construct-output-type :appendp construct-output-append-p))))
 	     (execute ()
 	       (instans-run instans
 			    :select-output-name select-output-name :select-output-type select-output-type
@@ -281,6 +283,12 @@
 		:usage "Write SELECT results to FILE. Output is based on the file name suffix."
 		(setf select-output-name value)
 		(setf select-output-type (intern-keyword (string-upcase (pathname-type (parse-namestring value))))))
+	       (select-output-append
+		:options ("--select-output-append=FILE")
+		:usage "Write SELECT results to FILE. Output is based on the file name suffix."
+		(setf select-output-append-p t)
+		(setf select-output-name value)
+		(setf select-output-type (intern-keyword (string-upcase (pathname-type (parse-namestring value))))))
 	       (select-output-csv
 		:options ("--select-output-csv=OUTPUT")
 		:usage "Write SELECT results in CSV format to OUTPUT."
@@ -294,6 +302,13 @@
 	       (construct-output
 		:options ("--construct-output=FILE")
 		:usage "Write CONSTRUCT results to FILE. Output format is based on the file name suffix."
+		(setf construct-output-name value)
+		(setf construct-output-type (let ((type (pathname-type (parse-namestring value))))
+					      (and type (intern-keyword (string-upcase type))))))
+	       (construct-output-append
+		:options ("--construct-output-append=FILE")
+		:usage "Write CONSTRUCT results to FILE. Output format is based on the file name suffix."
+		(setf construct-output-append-p t)
 		(setf construct-output-name value)
 		(setf construct-output-type (let ((type (pathname-type (parse-namestring value))))
 					      (and type (intern-keyword (string-upcase type))))))

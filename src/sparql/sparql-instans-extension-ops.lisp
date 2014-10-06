@@ -54,15 +54,15 @@
 	     (instans-add-stream-input-processor instans input-iri :graph graph-iri :base base :input-type (intern-keyword (string-upcase (file-type input-iri))))
 	     t)))))
 
-(define-sparql-function "instans:add_select_output_processor" (:arguments ((instans-iri rdf-iri) (output-iri iri-or-string)) :returns xsd-boolean)
-  (:method ((instans-iri rdf-iri) (output-iri iri-or-string))
+(define-sparql-function "instans:add_select_output_processor" (:arguments ((instans-iri rdf-iri) (output-iri iri-or-string) &optional appendp) :returns xsd-boolean)
+  (:method ((instans-iri rdf-iri) (output-iri iri-or-string) &optional appendp)
     (let ((instans (get-instans instans-iri))
 	  (select-output-name (file-iri-or-filename-as-string output-iri))
 	  (select-output-type (intern-keyword (string-upcase (file-type output-iri)))))
       (cond ((null instans) nil)
 	    ((null select-output-name) nil)
 	    (t
-	     (setf (instans-select-output-processor instans) (create-select-output-processor instans select-output-name select-output-type))
+	     (setf (instans-select-output-processor instans) (create-select-output-processor instans select-output-name select-output-type :appendp appendp))
 	     t)))))
 
 (define-sparql-function "instans:execute" (:arguments ((instans-iri rdf-iri)))

@@ -33,7 +33,8 @@
 ;;; Writers do the actual writing of output to streams and agent mailboxes.
 
 (define-class instans-writer ()
-  ((name :accessor instans-writer-name :initarg :name)))
+  ((appendp :accessor instans-writer-append-p :initarg :appendp)
+   (name :accessor instans-writer-name :initarg :name)))
 
 ;; Select writers
 
@@ -115,27 +116,37 @@
 
 ;;; Creating output processors
 
-(defun create-select-output-processor (instans output-name output-type)
+(defun make-instans-output-processor-output-stream (output-name appendp)
+  (cond ((or (null output-name) (string= "-" output-name))
+	 *standard-output*)
+	(appendp
+	 (open output-name :direction :output :if-exists :append))
+	(t
+	 (open output-name :direction :output :if-exists :supersede))))
+
+(defun create-select-output-processor (instans output-name output-type &key appendp)
+;  (inform "create-select-output-processor ~A ~A" output-name appendp)
+  (setf appendp (not (null (and appendp output-name (not (string= "-" output-name)) (probe-file output-name)))))
+;  (inform "appendp now ~A" appendp)
   (let ((writer (case output-type
 		  (:csv
 		   (make-instance 'instans-csv-writer
 				  :name output-name
+				  :appendp appendp
 				  :csv-output (make-instance
 					       'csv-output
-					       :stream (if (or (null output-name) (string= "-" output-name))
-							   *standard-output*
-							   (open output-name :direction :output :if-exists :supersede)))))
+					       :require-headers-p (not appendp)
+					       :stream (make-instans-output-processor-output-stream output-name appendp))))
 		  (:sparql-results
 		   (make-instance 'instans-sparql-query-results-writer
-		  		  :name output-name
-		  		  :results (make-instance 'sparql-query-results)))
+				  :name output-name
+				  :results (make-instance 'sparql-query-results)))
 		  (:srx
 		   (make-instance 'instans-srx-writer
 				  :name output-name
-		  		  :results (make-instance 'sparql-query-results)
-				  :stream (if (or (null output-name) (string= "-" output-name))
-					      *standard-output*
-					      (open output-name :direction :output :if-exists :supersede))))
+				  :results (make-instance 'sparql-query-results)
+				  :appendp appendp
+				  :stream (make-instans-output-processor-output-stream output-name appendp)))
 		  (t (error* "Unknown select output writer type ~S" output-type)))))
     (make-instance 'instans-select-output-processor
 		   :instans instans
@@ -144,13 +155,12 @@
 
 ;;; !!! Clean this !!!
 
-(defun create-construct-output-processor (instans output-name output-type)
-  (create-construct-stream-output-processor instans output-name output-type))
+(defun create-construct-output-processor (instans output-name output-type &key appendp)
+  (create-construct-stream-output-processor instans output-name output-type :appendp appendp))
 
-(defun create-construct-stream-output-processor (instans output-name output-type)
-  (let* ((stream (cond ((or (null output-name) (string= "-" output-name)) *standard-output*)
-		       (t
-			(open output-name :direction :output :if-exists :supersede))))
+(defun create-construct-stream-output-processor (instans output-name output-type &key appendp)
+  (setf appendp (and appendp (or (null output-name) (string= "-" output-name) (probe-file output-name))))
+  (let* ((stream (make-instans-output-processor-output-stream output-name appendp))
 	 (writer (make-instance 'instans-stream-writer :name output-name :stream stream)))
     (case output-type
       ((:ttl :turtle) (make-instance 'instans-turtle-output-processor :instans instans :output-name output-name :writer writer))
@@ -232,10 +242,11 @@
 
 (defgeneric write-variables (instans-writer variables)
   (:method ((this instans-csv-writer) variables)
-    (write-csv-headers (instans-csv-writer-csv-output this)
-		       (mapcar #'(lambda (var)
-				   (format nil "~(~A~)" (subseq (uniquely-named-object-name var) 1)))
-			       variables)))
+    (unless (instans-writer-append-p this)
+      (write-csv-headers (instans-csv-writer-csv-output this)
+			 (mapcar #'(lambda (var)
+				     (format nil "~(~A~)" (subseq (uniquely-named-object-name var) 1)))
+				 variables))))
   (:method ((this instans-sparql-query-results-writer) variables)
     (set-query-variables (instans-sparql-query-results-writer-results this) variables)))
 

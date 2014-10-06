@@ -140,7 +140,19 @@
 (defun parse-xsd-double (string &key (start 0) (end (length string)) (errorp t) (error-value nil))
   (parse-float string :start start :end end :type 'double-float :errorp errorp :error-value error-value))
 
-(defun parse-xsd-boolean (string &key (errorp t) (error-value nil))
+(defun maybe-subseq (string start end)
+  (cond ((null start)
+	 (cond ((null end) string)
+	       ((= end (length string)) string)
+	       (t (subseq string 0 end))))
+	((zerop start)
+	 (cond ((or (null end) (= end (length string))) string)
+	       (t (subseq string 0 end))))
+	(t
+	 (subseq string start end))))
+
+(defun parse-xsd-boolean (string &key (start 0) (end (length string)) (errorp t) (error-value nil))
+  (setf string (maybe-subseq string start end))
   (cond ((string-equal string "true") t)
 	((string-equal string "false") nil)
 	(errorp
@@ -148,7 +160,8 @@
 	(t
 	 (values error-value (format nil  "Unable to parse a boolean from ~S" string)))))
 
-(defun parse-xsd-datetime (string &key (errorp t) (error-value nil))
+(defun parse-xsd-datetime (string &key (start 0) (end (length string)) (errorp t) (error-value nil))
+  (setf string (maybe-subseq string start end))
   (multiple-value-bind (dt error-msg) (datetime-from-string string)
     (cond ((null dt)
 	   (cond ((not errorp)
@@ -157,7 +170,11 @@
 		  (signal-sparql-error error-msg))))
 	  (t dt))))
 
-(defun parse-xsd-string (string) string)
+
+(defun parse-xsd-string (string &key (start 0) (end (length string)) (errorp t) (error-value nil))
+  (declare (ignorable errorp error-value))
+  (setf string (maybe-subseq string start end))
+ string)
 
 (defun parse-xsd-value (string)
   (let (value msg)
@@ -178,5 +195,3 @@
 				(cond ((null msg) value)
 				      (t
 				       string))))))))))))
-		      
-    

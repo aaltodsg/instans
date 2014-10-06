@@ -10,7 +10,7 @@ PREFIX dawgt:  <http://www.w3.org/2001/sw/DataAccess/tests/test-dawg#>
 SELECT DISTINCT ?queryfile ?testshort ?testtype ?datafile ?graphdatafile ?resultfile ?resultgraphfile ?resultgraphlabel
 WHERE {
    ?test a ?testtype_long; mf:name ?name .
-   BIND(strafter(str(?test),"#") AS ?testshort)
+   BIND(strafter(str(?test),"/tests/") AS ?testshort)
    BIND(strafter(str(?testtype_long),"#") AS ?testtype)
 #   { SELECT * {
    OPTIONAL { ?test mf:action ?a1 .
@@ -33,7 +33,7 @@ WHERE {
    OPTIONAL { ?test mf:result ?r1 .
               FILTER(isblank(?r1))
               OPTIONAL { ?r1 ut:data ?rd1 }
-	      OPTIONAL { ?a1 ut:graphData [ ut:graph ?rg; rdfs:label ?rl ] } }
+	      OPTIONAL { ?r1 ut:graphData [ ut:graph ?rg; rdfs:label ?rl ] } }
    OPTIONAL { ?test mf:result ?rd2 FILTER(!isblank(?rd2)) }
    BIND(coalesce(?rd1, ?rd2) AS ?rd)
    BIND(strafter(str(?rd), "instans/tests/") AS ?resultfile)

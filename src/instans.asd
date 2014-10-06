@@ -14,6 +14,7 @@
 (ql:quickload "uuid")
 (ql:quickload "percent-encoding")
 (ql:quickload "sb-concurrency")
+(ql:quickload "csv-parser")
 ;(ql:quickload "lisp-unit")
 ;(ql:quickload "cl-json")
 ;; (load "lisp-unit/lisp-unit")
