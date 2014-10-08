@@ -115,6 +115,7 @@
     (when (null (node-prev this))
       (let* ((active-p-var (existence-active-p-var this))
 	     (counter-var (existence-counter-var this))
+	     ;;; Order in the new token is ((nil key) (counter-var 0) (active-p nil) ..)
 	     (initial-token (make-token this (make-singleton-token) (list active-p-var counter-var) (list nil 0)))) ;;; Node is inactive; zero hits
 	(add-token this initial-token))))
   (:method ((this memory))
@@ -479,7 +480,7 @@
     (unless (store-get-token this token)
       (store-put-token this token)
       (loop for next in (node-succ this)
-	   do (cond ((typep next 'join-node)
+	   do (cond ((or (typep next 'join-node) (typep next 'minus-node))
 		     (add-beta-token next token stack))
 		    (t
 		     (add-token next token stack))))))
@@ -515,6 +516,7 @@
     (unless (store-get-token this token)
       (let* ((active-p-var (existence-active-p-var this))
 	     (counter-var (existence-counter-var this))
+	     ;;; Order in the new token is ((nil key) (counter-var 0) (active-p nil) ..)
 	     (new-token (make-token this token (list active-p-var counter-var) (list t 0)))) ;;; Node is active; zero hits
 	(store-put-token this new-token)
 ;	(inform "~%add-token ~S: this=~%, kind=~A" this (exists-kind this))
@@ -564,6 +566,7 @@
     (unless (store-get-token this token)
       (let* ((active-p-var (existence-active-p-var this))
 	     (counter-var (existence-counter-var this))
+	     ;;; Order in the new token is ((nil key) (counter-var 0) (active-p nil) ..)
 	     (new-token (make-token this token (list active-p-var counter-var) (list t 0)))) ;;; Node is active; zero hits
 	(store-put-token this new-token)
 	(let ((next (car (node-succ this))))
@@ -616,6 +619,13 @@
     (error* "Don't know how to use node ~A" this)))
 
 (defgeneric add-alpha-token (join alpha-token &optional stack)
+  (:method ((this minus-node) alpha-token &optional stack)
+    (let ((key (join-alpha-key this alpha-token)))
+;      (pop alpha-token) ; Drop hashkey
+      (assert (node-use this))
+      (index-put-token (join-alpha-index this) key alpha-token)
+      (loop for beta-token in (index-get-tokens (join-beta-index this) key)
+	    do (call-succ-nodes #'remove-token this beta-token stack))))
   (:method ((this join-node) alpha-token &optional stack)
     (let ((key (join-alpha-key this alpha-token)))
 ;      (pop alpha-token) ; Drop hashkey
@@ -630,6 +640,12 @@
 	    do (call-succ-nodes #'add-token this new-token stack)))))
 
 (defgeneric add-beta-token (join beta-token &optional stack)
+  (:method ((this minus-node) beta-token &optional stack)
+    (let ((key (join-beta-key this beta-token)))
+      (assert (node-use this))
+      (index-put-token (join-beta-index this) key beta-token)
+      (when (null (index-get-tokens (join-alpha-index this) key))
+	(call-succ-nodes #'add-token this beta-token stack))))
   (:method ((this join-node) beta-token &optional stack)
     (let ((key (join-beta-key this beta-token)))
       (when (node-use this)
@@ -802,6 +818,14 @@
     (error* "Don't know how to use node ~A" this)))
 
 (defgeneric remove-alpha-token (join alpha-token &optional stack)
+  (:method ((this minus-node) alpha-token &optional stack)
+;    (pop alpha-token) ;;; Get rid of the hash key
+    (let ((key (join-alpha-key this alpha-token)))
+;      (pop alpha-token) ; Drop hashkey
+      (assert (node-use this))
+      (index-remove-token (join-alpha-index this) key alpha-token)
+      (loop for beta-token in (index-get-tokens (join-beta-index this) key)
+	    do (call-succ-nodes #'add-token this beta-token stack))))
   (:method ((this join-node) alpha-token &optional stack)
 ;    (pop alpha-token) ;;; Get rid of the hash key
     (let ((key (join-alpha-key this alpha-token)))
@@ -817,6 +841,12 @@
 	    do (call-succ-nodes #'remove-token this new-token stack)))))
 
 (defgeneric remove-beta-token (join beta-token &optional stack)
+  (:method ((this minus-node) beta-token &optional stack)
+    (let ((key (join-beta-key this beta-token)))
+      (assert (node-use this))
+      (index-remove-token (join-beta-index this) key beta-token)
+      (unless (index-get-tokens (join-alpha-index this) key)
+	(call-succ-nodes #'remove-token this beta-token stack))))
   (:method ((this join-node) beta-token &optional stack)
     (let ((key (join-beta-key this beta-token)))
       (when (node-use this)
@@ -1010,4 +1040,4 @@
 	 join-beta-key join-alpha-key
 	 token-value make-token call-succ-nodes rete-add-rule-instance execute-rules rule-instance-queue-execute-instance execute-rule-node
 	 select-output store-put-token store-get-token store-remove-token store-tokens index-put-token index-get-tokens index-remove-token
-	 aggregate-get-value aggregate-add-value aggregate-remove-value))
+	 aggregate-get-value aggregate-add-value aggregate-remove-value start-node-token))

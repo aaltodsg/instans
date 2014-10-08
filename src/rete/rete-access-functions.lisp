@@ -159,7 +159,7 @@
     (labels ((visit (node)
 ;	       (flet ((revresol (vars) (reverse-resolve-bindings (node-instans node) vars)))
 	       (unless (member node seen)
-					;		 (inform "propagate-vars-down:visit ~S" node)
+;		 (inform "propagate-vars-down:visit ~S" node)
 		 (push node seen)
 		 (let ((precs (node-effective-precs node)))
 		   (loop for prec in precs do (visit prec))

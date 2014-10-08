@@ -34,6 +34,7 @@
   (:method ((this optional-end-node)) (dot-default-pretty-name-format "}?"))
   (:method ((this union-start-node)) (concatenate 'string "U" (dot-subscript-number-format) "{"))
   (:method ((this union-end-node)) (dot-default-pretty-name-format "}U"))
+  (:method ((this minus-node)) (dot-default-pretty-name-format "-"))
   (:method ((this filter-node)) (dot-default-pretty-name-format "F"))
   (:method ((this filter-memory)) (dot-default-pretty-name-format "FM"))
   (:method ((this bind-node)) (dot-default-pretty-name-format (format nil "B[~A]" (uniquely-named-object-name (bind-variable this)))))

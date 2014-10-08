@@ -8,6 +8,7 @@
 (defun make-singleton-token ()
   (list (list nil (sxhash nil))))
 
+;;; Note: the new-vars and new-values are in reverse order, i.e., the new bindings are pushed to the old token!
 ;;; Note: key-item (nil key) is used instead of just the key to be able to call (assoc var token) to retrieve the value of a variable (nil never matches).
 (defgeneric make-token (node prev-token new-vars new-values)
   (:method ((this existence-start-node) prev-token new-vars new-values)
@@ -51,18 +52,22 @@
 
 (defgeneric start-node-token (node token)
   (:method ((this exists-end-node) token)
+    ;;; Order in the token is (... (counter-var ...) (active-p ...) ...)
     (loop with counter-var = (existence-counter-var (subgraph-start-node this))
 	  for items on token
-	  for item = (cadr items)
+	  for item = (first items)
+;	  do (inform "items = ~A, item = ~A" items item)
 	  while (not (equal (car item) counter-var))
-	 ;;; (car items) should be (nil [key of the contained token]). Thus, this should be the token as it was in existence-start-node!
-	  finally (return items)))
+	  ;;; This comment seems to be wrong: (car items) should be (nil [key of the contained token]). Thus, this should be the token as it was in existence-start-node!
+	  finally ;(progn (inform "return ~A" (cons (third items) items))
+	 (return (cons (third items) items))))
+					;)
   (:method ((this optional-end-node) token)
     (loop with active-p-var = (existence-active-p-var (subgraph-start-node this))
 	  for items on (cdr token)
 	  for item = (car items)
 	  while (not (equal (car item) active-p-var))
-	 ;;; (car items) should be (nil [key of the contained token]). Thus, this should be the token as it was in existence-start-node!
+	  ;;; (car items) should be (nil [key of the contained token]). Thus, this should be the token as it was in existence-start-node!
 	  finally (return (cdr items)))))
 
 (defun token-equal (t1 t2)

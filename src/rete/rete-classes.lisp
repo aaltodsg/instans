@@ -99,9 +99,7 @@
 
 (define-class optional-end-node (existence-end-node) ())
 
-(define-class minus-node (node) 
-  ((positive :accessor minus-node-positive :initarg :positive)
-   (negative :accessor minus-node-negative :initarg :negative)))
+(define-class minus-node (join-node) ())
 
 (define-class aggregate-join-node (node)
   ((group :accessor aggregate-group :initarg :group)
