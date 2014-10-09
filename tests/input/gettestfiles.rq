@@ -15,8 +15,8 @@ WHERE {
 #   { SELECT * {
    OPTIONAL { ?test mf:action ?a1 .
               ?a1 qt:query ?q1
-	      OPTIONAL { ?a1 qt:data ?d1
-	                 OPTIONAL { ?a1 qt:graphData ?gd1 }}}
+	      OPTIONAL { ?a1 qt:data ?d1 }
+	      OPTIONAL { ?a1 qt:graphData ?gd1 }}
    OPTIONAL { ?test mf:action ?a2 .
               ?a2 ut:request ?q2
 	      OPTIONAL { ?a2 ut:data ?d2

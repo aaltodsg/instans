@@ -298,7 +298,8 @@
     (when verbosep (inform "(main ~S)" args))
     (main args)))
 
-(defun tests-from-manifests (&key (rules-file (format nil "~A/tests/input/evaluation-test.rq" (find-instans-root-directory))) select-output-name verbosep)
+;(defun tests-from-manifests (&key (rules-file (format nil "~A/tests/input/evaluation-test.rq" (find-instans-root-directory))) select-output-name verbosep)
+(defun tests-from-manifests (&key (rules-file (format nil "~A/tests/input/gettestfiles.rq" (find-instans-root-directory))) select-output-name verbosep)
   (loop for manifest in (append (directory (format nil "~A/tests/data-r2/*/manifest.ttl" (find-instans-root-directory)))
 				(directory (format nil "~A/tests/data-sparql11/*/manifest.ttl" (find-instans-root-directory))))
         for appendp = nil then (not (null select-output-name))
@@ -340,30 +341,42 @@
 	       (setf (sparql-test-datafile matching) (or (sparql-test-datafile matching) datafile))
 	       (setf (sparql-test-resultfile matching) (or (sparql-test-resultfile matching) resultfile))
 	       (when graphdatafile
-		 (push-to-end graphdatafile (sparql-test-graphdatafiles matching)))
+		 (push-to-end-new graphdatafile (sparql-test-graphdatafiles matching) :test #'equal))
 	       (when resultgraphfile
-		 (push-to-end (list resultgraphfile resultgraphlabel) (sparql-test-resultgraphs matching)))))))))
+		 (push-to-end-new (list resultgraphfile resultgraphlabel) (sparql-test-resultgraphs matching)
+				  :test #'(lambda (a b)
+					    (and (equal (first a) (first b)) (equal (second a) (second b))))))))))))
 
-(defgeneric print-sparql-tests (sparql-tests &key stream)
-  (:method ((this sparql-tests) &key (stream *standard-output*))
+(defgeneric print-sparql-tests (sparql-tests &key stream readablep)
+  (:method ((this sparql-tests) &key (stream *standard-output*) readablep)
     (loop for test in (sparql-tests-entries this)
-	  do (print-sparql-test test :stream stream))))
+	  do (print-sparql-test test :stream stream :readablep readablep))))
 
-(defgeneric print-sparql-test (sparql-test &key stream)
-  (:method ((this sparql-test) &key (stream *standard-output*))
-    (format stream "~&Sparql-test ~A:~%  queryfile=~A~%  testtype=~A~%  datafile=~A~%  graphdatafile=~A~%  resultfile=~A~%  resultgraphs=~A~%"
-	    (sparql-test-testshort this)
-	    (sparql-test-queryfile this)
-	    (sparql-test-testtype this)
-	    (sparql-test-datafile this)
-	    (sparql-test-graphdatafiles this)
-	    (sparql-test-resultfile this)
-	    (sparql-test-resultgraphs this))))
+(defgeneric print-sparql-test (sparql-test &key stream readablep)
+  (:method ((this sparql-test) &key (stream *standard-output*) readablep)
+    (cond ((not readablep)
+	   (format stream "~&Sparql-test ~A:~%  queryfile=~A~%  testtype=~A~%  datafile=~A~%  graphdatafile=~A~%  resultfile=~A~%  resultgraphs=~A~%"
+		   (sparql-test-testshort this)
+		   (sparql-test-queryfile this)
+		   (sparql-test-testtype this)
+		   (sparql-test-datafile this)
+		   (sparql-test-graphdatafiles this)
+		   (sparql-test-resultfile this)
+		   (sparql-test-resultgraphs this)))
+	  (t
+	   (format stream "(make-instance 'sparql-test :queryfile ~S :testshort ~S :testtype ~S :datafile ~S :graphdatafiles (list ~{~S~^ ~}) :resultfile ~S :resultgraphfiles (list ~{~{~S~^ ~}~^~}))~%"
+		   (sparql-test-queryfile this)
+		   (sparql-test-testshort this)
+		   (sparql-test-testtype this)
+		   (sparql-test-datafile this)
+		   (sparql-test-graphdatafiles this)
+		   (sparql-test-resultfile this)
+		   (sparql-test-resultgraphs this))))))
 
 ;(defun evaluation-test (rule-file data-file &key graph-data-file select-results-file construct-results-file (output-directory "."))
 
-(defgeneric run-sparql-test (sparql-test &key output-dir-name)
-  (:method ((this sparql-test) &key (output-dir-name "cmpout"))
+(defgeneric run-sparql-test (sparql-test &key output-dir-name log-file)
+  (:method ((this sparql-test) &key (output-dir-name "cmpout") (log-file "sparql-tests.csv"))
     (inform "---------------")
     (print-sparql-test this :stream *error-output*)
     (inform "---------------")
@@ -387,10 +400,10 @@
 	       (base (parse-iri (format nil "file://~A" (directory-namestring queryfile))))
 	       (instans-iri (parse-iri (format nil "file://~A" queryfile)))
 	       (instans (create-instans instans-iri))
-	       parse-ok-p translate-ok-p)
+	       parse-ok-p translate-ok-p runnablep run-ok-p)
 	  (declare (ignorable testshort testtype resultgraphs graph-datafiles))
 	  (ensure-directories-exist output-directory)
-;	  (inform "~A" (probe-file output-directory))
+					;	  (inform "~A" (probe-file output-directory))
 	  (when select-output-file
 	    (setf (instans-select-output-processor instans) (create-select-output-processor instans select-output-file select-results-type)))
 	  (when construct-output-file
@@ -398,21 +411,43 @@
 	  (instans-add-rules instans queryfile)
 	  (setf parse-ok-p (instans-has-status instans (intern-instans "INSTANS-RULE-PARSING-SUCCEEDED")))
 	  (setf translate-ok-p (instans-has-status instans (intern-instans "INSTANS-RULE-TRANSLATION-SUCCEEDED")))
+	  (setf runnablep (not (null (or datafile graph-datafiles))))
 	  (when (and parse-ok-p translate-ok-p)
 	    (when datafile
 	      (instans-add-stream-input-processor instans datafile :base base :input-type (intern-keyword (string-upcase (file-type datafile)))))
+	    (loop for graph-datafile in graph-datafiles
+		  do (instans-add-stream-input-processor instans graph-datafile :base base :input-type (intern-keyword (string-upcase (file-type graph-datafile)))))
 	    (instans-run instans)
 	    (when select-output-file
 	      (case select-results-type
 		(:srx (sparql-compare-srx-files select-results-file select-output-file))
-		(t (inform "Cannot compare files of type ~A yet" select-results-type))))))))))
+		(t (inform "Cannot compare files of type ~A yet" select-results-type)))))
+	  (let (log-stream)
+	    (unwind-protect
+		 (progn
+		   (setf log-stream (if log-file (open log-file :direction :output :if-exists :append) *error-output*))
+		   (format log-stream "~&~S,~S,~S,~S,~S,~S,~S,~S~%" (sparql-test-testshort this) (sparql-test-queryfile this) (sparql-test-testtype this)
+			   (sparql-value-to-string parse-ok-p)
+			   (sparql-value-to-string translate-ok-p)
+			   (sparql-value-to-string runnablep)
+			   (sparql-value-to-string run-ok-p)
+			   (sparql-value-to-string (and parse-ok-p translate-ok-p (or (not runnablep) run-ok-p)))))
+	      (when log-file (close log-stream)))))))))
 
-(defgeneric run-sparql-tests (sparql-tests &key output-dir-name names-of-tests-to-run names-of-tests-to-avoid name-of-first-test-to-start-at)
+(defgeneric run-sparql-tests (sparql-tests &key output-dir-name names-of-tests-to-run names-of-tests-to-avoid name-of-first-test-to-start-at log-file)
   (:method ((this sparql-tests) &key (output-dir-name "cmpoutput") names-of-tests-to-run
-				  (names-of-tests-to-avoid (list "dawg-delete-insert-01" "dawg-delete-insert-05b"
-								 "md5-01" "md5-02" "sha1-01" "sha1-02" "sha256-01" "sha256-02" "sha512-01" "sha512-02"
-								 "replace01" "replace02" "replace03"))
-				  name-of-first-test-to-start-at)
+				  (names-of-tests-to-avoid (list "dawg-delete-insert-01" "dawg-delete-insert-05b" ;; These loop on INSTANS
+								 "md5-01" "md5-02" "sha1-01" "sha1-02" "sha256-01" "sha256-02" "sha512-01" "sha512-02" ;; Not implemented
+								 "replace01" "replace02" "replace03"
+								 "subquery01" "subquery02" "subquery03" "subquery04" "subquery05" "subquery06" "subquery07" ;; Missing RDF input format
+								 "subquery08" "subquery09" "subquery10" "subquery11" "subquery12" "subquery13" "subquery14"))
+				  name-of-first-test-to-start-at (log-file "sparql-tests.csv"))
+    (let (log-stream)
+      (unwind-protect
+	   (progn
+	     (setf log-stream (if log-file (open log-file :direction :output :if-exists :append :if-does-not-exist :create) *error-output*))
+	     (format log-stream "~&testshort,queryfile,testtype,parseok,translateok,runnable,runok,testok~%"))
+	(when log-file (close log-stream))))
     (let ((entries (sparql-tests-entries this)))
       (when name-of-first-test-to-start-at
 	(loop for test = (first entries)
@@ -422,7 +457,7 @@
 	    for test-name = (sparql-test-testshort test)
 	    when (and (or (null names-of-tests-to-run) (find test-name names-of-tests-to-run :test #'(lambda (x y) (search y x :test #'equalp))))
 		      (not (find test-name names-of-tests-to-avoid :test #'(lambda (x y) (search y x :test #'equalp)))))
-	    do (run-sparql-test test :output-dir-name output-dir-name)))))
+	    do (run-sparql-test test :output-dir-name output-dir-name :log-file log-file)))))
 
 ;queryfile,testshort,testtype,datafile,graphdatafile,resultfile,resultgraphfile,resultgraphlabel
 (defun run-csv-tests (csv-file &key (skip-lines 1))
