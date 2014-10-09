@@ -12,7 +12,7 @@
 	 (minor-end-pos (and major-end-pos (position #\. version-string :start (1+ major-end-pos)))))
     (values (and major-end-pos (parse-integer version-string :start 0 :end major-end-pos))
 	    (and minor-end-pos (parse-integer version-string :start (1+ major-end-pos) :end minor-end-pos))
-	    (and minor-end-pos (parse-integer version-string :start (1+ minor-end-pos))))))
+	    (and minor-end-pos (parse-integer version-string :start (1+ minor-end-pos) :junk-allowed T)))))
 
 (defun version< (v1 v2)
   (multiple-value-bind (major1 minor1 revision1)
