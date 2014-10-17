@@ -186,9 +186,24 @@
 	   (setf dn (namestring dn))
 	   (char= (char dn (1- (length dn))) #\/)))))
 
-(defun close-stream-not-stdout-stderr (stream)
-  (unless (or (eq stream *standard-output*) (eq stream *error-output*) (not (open-stream-p stream)))
-    (close stream)))
+(defun close-stream (stream &optional fmt)
+  (declare (ignorable fmt))
+  ;; (when fmt
+  ;;   (format *error-output* "~&~A~%" (format nil fmt stream)))
+  (close stream))
+
+(defun close-stream-not-stdout-stderr (stream &optional fmt)
+  (unless (or (eq stream *standard-output*) (eq stream *error-output*) ); (not (open-stream-p stream)))
+    (close-stream stream fmt)))
+
+(defun open-file (file &rest keys &key fmt &allow-other-keys)
+  (declare (ignorable fmt))
+  (when fmt
+    (setf keys (copy-list keys))
+    (remf keys :fmt)
+    ;; (format *error-output* "~&~A~%" (format nil fmt (list file keys)))
+    )
+  (apply #'open file keys))
 
 ;;;
 

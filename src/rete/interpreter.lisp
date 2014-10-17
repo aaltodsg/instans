@@ -243,19 +243,13 @@
 	  while continuep
 	  do (loop for processor in runnable do (run-input-processor processor)))))
 
-(defgeneric check-instans-runnable (instans)
-  (:method ((this instans))
-    (unless (instans-runnable-p this)
-      (instans-close-open-streams this))))
-
 (defgeneric run-input-processor (instans-input-processor)
   (:method ((this instans-agent-input-processor))
     (let ((instans (instans-input-processor-instans this)))
       (multiple-value-bind (statements receivedp)
 	  (agent-receive instans nil)
 	(cond ((eq statements :eof)
-	       (setf (instans-input-processor-status this) :succeeded)
-	       (check-instans-runnable instans))
+	       (setf (instans-input-processor-status this) :succeeded))
 	      ((not receivedp)
 	       (setf (instans-input-processor-status this) :runnable))
 	      (t
@@ -271,8 +265,7 @@
 	       (instans-close-open-streams instans)))
 	    ((ll-parser-succeeded-p ll-parser)
 	     (instans-add-status instans 'instans-rdf-parsing-succeeded)
-	     (setf (instans-input-processor-status this) :succeeded)
-	     (check-instans-runnable instans))
+	     (setf (instans-input-processor-status this) :succeeded))
 	    (t
 	     (setf (instans-input-processor-status this) :runnable))))))
 
@@ -280,7 +273,7 @@
   (:method ((this instans))
     (loop for ip in (instans-input-processors this)
 	  do (when (instans-stream-input-processor-p ip)
-	       (close (lexer-input-stream (ll-parser-lexer (instans-stream-input-processor-parser ip))))))
+	       (close-stream (lexer-input-stream (ll-parser-lexer (instans-stream-input-processor-parser ip))) "instans-close-open-streams: close ~A")))
     (when (instans-select-output-processor this)
       (close-output-processor (instans-select-output-processor this)))
     (when (instans-construct-output-processor this)
@@ -787,8 +780,12 @@
     (assert (null stack))
     (rete-remove-rule-instance (node-instans this) this token))
   (:method ((this union-start-node) token &optional stack)
+    (declare (special *oink*))
+    (when *oink* (inform "add-token union-start-node ~A ~A" this token))
     (call-succ-nodes #'remove-token this token stack))
   (:method ((this union-end-node) token &optional stack)
+    (declare (special *oink*))
+    (when *oink* (inform "add-token union-end-node ~A ~A" this token))
     (call-succ-nodes #'remove-token this token stack))
   (:method ((this query-node) token &optional stack)
     (cond ((not (solution-modifiers-distinct-p this))

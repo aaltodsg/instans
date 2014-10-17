@@ -120,12 +120,12 @@
   (cond ((or (null output-name) (string= "-" output-name))
 	 *standard-output*)
 	(appendp
-	 (open output-name :direction :output :if-exists :append))
+	 (open-file output-name :direction :output :if-exists :append :fmt "make-instans-output-processor-output-stream: open ~{~A~^ ~}"))
 	(t
-	 (open output-name :direction :output :if-exists :supersede))))
+	 (open-file output-name :direction :output :if-exists :supersede :fmt "make-instans-output-processor-output-stream: open ~{~A~^ ~}"))))
 
 (defun create-select-output-processor (instans output-name output-type &key appendp)
-;  (inform "create-select-output-processor ~A ~A" output-name appendp)
+  ;; (inform "create-select-output-processor ~A ~A" output-name appendp)
   (setf appendp (not (null (and appendp output-name (not (string= "-" output-name)) (probe-file output-name)))))
 ;  (inform "appendp now ~A" appendp)
   (let ((writer (case output-type
@@ -159,6 +159,7 @@
   (create-construct-stream-output-processor instans output-name output-type :appendp appendp))
 
 (defun create-construct-stream-output-processor (instans output-name output-type &key appendp)
+  ;; (inform "create-construct-stream-output-processor ~A ~A" output-name appendp)
   (setf appendp (and appendp (or (null output-name) (string= "-" output-name) (probe-file output-name))))
   (let* ((stream (make-instans-output-processor-output-stream output-name appendp))
 	 (writer (make-instance 'instans-stream-writer :name output-name :stream stream)))
@@ -204,6 +205,7 @@
 
 (defgeneric close-output-processor (instans-output-processor)
   (:method ((this instans-output-processor))
+    ;; (inform "close-output-processor ~S" this)
     (let ((writer (instans-output-processor-writer this)))
       (flush-output-processor this)
       (when (typep writer 'instans-agent-writer)
@@ -213,13 +215,16 @@
 
 (defgeneric close-writer (instans-writer)
   (:method ((this instans-stream-writer))
+    ;; (inform "close-writer (instans-stream-writer) ~S" this)
     (close-stream-not-stdout-stderr (instans-stream-writer-stream this)))
   (:method ((this instans-csv-writer))
+    ;; (inform "close-writer (instans-csv-writer) ~S" this)
     (close-stream-not-stdout-stderr (csv-output-stream (instans-csv-writer-csv-output this))))
   (:method ((this instans-srx-writer))
-    (when (open-stream-p (instans-srx-writer-stream this))
+    ;; (inform "close-writer (instans-srx-writer) ~S" this)
+;    (when (open-stream-p (instans-srx-writer-stream this))
       (output-srx (instans-sparql-query-results-writer-results this) (instans-srx-writer-stream this))
-      (close-stream-not-stdout-stderr (instans-srx-writer-stream this))))
+      (close-stream-not-stdout-stderr (instans-srx-writer-stream this)))
   (:method ((this instans-writer))
     (declare (ignore this))
     nil))
