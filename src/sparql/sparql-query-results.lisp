@@ -315,19 +315,33 @@
    (resultfile :accessor sparql-test-resultfile :initarg :resultfile)
    (resultgraphs :accessor sparql-test-resultgraphs :initarg :resultgraphs)
    (error-message :accessor sparql-test-error-message :initform nil)
+   (completedp :accessor sparql-test-completed-p :initform nil)
+   (negative-syntax-p :accessor sparql-test-negative-syntax-p)
    (parse-ok-p :accessor sparql-test-parse-ok-p :initform nil)
    (translate-ok-p :accessor sparql-test-translate-ok-p :initform nil)
    (runnablep :accessor sparql-test-runnable-p :initform nil)
    (run-ok-p :accessor sparql-test-run-ok-p :initform nil)
-   (successfullp :accessor sparql-test-successfull-p :initform nil)))
+   (feature-not-implemented-yet-p :accessor sparql-test-feature-not-implemented-yet-p :initform nil)
+   (comparablep :accessor sparql-test-comparable-p :initform nil)
+   (compare-ok-p :accessor sparql-test-compare-ok-p :initform nil)
+   (succeededp :accessor sparql-test-succeeded-p :initform nil)))
 
-(define-class sparql-tests ()
-  ((entries :accessor sparql-tests-entries :initarg :entries :initform nil)))
+(defmethod initialize-instance :after ((this sparql-test) &key &allow-other-keys)
+  (setf (sparql-test-negative-syntax-p this) (member (sparql-test-testtype this) '("NegativeSyntaxTest" "NegativeSyntaxTest11") :test #'equal))
+;  (setf (sparql-test-runnable-p this) (not (null (or (sparql-test-datafile this) (sparql-test-resultgraphs this)))))
+  (setf (sparql-test-runnable-p this) (not (sparql-test-negative-syntax-p this)))
+  (setf (sparql-test-comparable-p this) (not (null (or (sparql-test-resultfile this) (sparql-test-resultgraphs this))))))
 
-(defgeneric sparql-test-negative-syntax-p (sparql-test)
+(defgeneric sparql-test-successful-p (sparql-test)
   (:method ((this sparql-test))
-;    (inform "sparql-test-negative-syntax-p ~A -> ~A" (sparql-test-testshort this) (member (sparql-test-testtype this) '("NegativeSyntaxTest" "NegativeSyntaxTest11") :test #'equal))
-    (member (sparql-test-testtype this) '("NegativeSyntaxTest" "NegativeSyntaxTest11") :test #'equal)))
+    (cond ((not (sparql-test-completed-p this)) (error* "Test ~A not completed yet!" (sparql-test-testshort this)))
+	  ((not (sparql-test-parse-ok-p this)) (sparql-test-negative-syntax-p this))
+	  ((not (sparql-test-translate-ok-p this)) (sparql-test-negative-syntax-p this))
+	  ((not (sparql-test-run-ok-p this)) (not (sparql-test-runnable-p this)))
+	  ((not (sparql-test-compare-ok-p this)) (not (sparql-test-comparable-p this)))
+	  (t t))))
+
+(define-class sparql-tests () ((entries :accessor sparql-tests-entries :initarg :entries :initform nil)))
 
 (defgeneric add-sparql-test (sparql-tests &rest keys &key queryfile testshort testtype datafile graphdatafile resultfile resultgraphfile resultgraphlabel)
   (:method ((this sparql-tests) &rest keys &key queryfile testshort testtype datafile graphdatafile resultfile resultgraphfile resultgraphlabel)
@@ -359,31 +373,65 @@
 				  :test #'(lambda (a b)
 					    (and (equal (first a) (first b)) (equal (second a) (second b))))))))))))
 
-(defgeneric print-sparql-tests (sparql-tests &key stream readablep)
-  (:method ((this sparql-tests) &key (stream *standard-output*) readablep)
+(defgeneric print-sparql-tests (sparql-tests &key output output-type)
+  (:method ((this sparql-tests) &key output (output-type :csv))
     (loop for test in (sparql-tests-entries this)
-	  do (print-sparql-test test :stream stream :readablep readablep))))
+	  do (print-sparql-test test :output output :output-type output-type))))
 
-(defgeneric print-sparql-test (sparql-test &key stream readablep)
-  (:method ((this sparql-test) &key (stream *standard-output*) readablep)
-    (cond ((not readablep)
-	   (format stream "~&Sparql-test ~A:~%  queryfile=~A~%  testtype=~A~%  datafile=~A~%  graphdatafile=~A~%  resultfile=~A~%  resultgraphs=~A~%"
-		   (sparql-test-testshort this)
-		   (sparql-test-queryfile this)
-		   (sparql-test-testtype this)
-		   (sparql-test-datafile this)
-		   (sparql-test-graphdatafiles this)
-		   (sparql-test-resultfile this)
-		   (sparql-test-resultgraphs this)))
-	  (t
-	   (format stream "(make-instance 'sparql-test :queryfile ~S :testshort ~S :testtype ~S :datafile ~S :graphdatafiles (list ~{~S~^ ~}) :resultfile ~S :resultgraphfiles (list ~{~{~S~^ ~}~^~}))~%"
-		   (sparql-test-queryfile this)
-		   (sparql-test-testshort this)
-		   (sparql-test-testtype this)
-		   (sparql-test-datafile this)
-		   (sparql-test-graphdatafiles this)
-		   (sparql-test-resultfile this)
-		   (sparql-test-resultgraphs this))))))
+(defgeneric print-sparql-test (sparql-test &key output output-type)
+  (:method ((this sparql-test) &key output (output-type :csv))
+    (setf output (or output *error-output*))
+    (let ((stream nil))
+      (unwind-protect 
+	   (progn
+	     (setf stream (cond ((typep output 'stream) output)
+				(t (open-file output :direction :output :if-exists :append :if-does-not-exist :create :fmt "run-sparql-test: open ~{~A~^ ~}") *error-output*)))
+	     (case output-type
+	       (:txt (format stream "~&Sparql-test ~A:~%  queryfile=~A~%  testtype=~A~%  datafile=~A~%  graphdatafile=~A~%  resultfile=~A~%  resultgraphs=~A~%"
+			     (sparql-test-testshort this)
+			     (sparql-test-queryfile this)
+			     (sparql-test-testtype this)
+			     (sparql-test-datafile this)
+			     (sparql-test-graphdatafiles this)
+			     (sparql-test-resultfile this)
+			     (sparql-test-resultgraphs this)))
+	       (:lisp
+		(format stream "(make-instance 'sparql-test :queryfile ~S :testshort ~S :testtype ~S :datafile ~S :graphdatafiles (list ~{~S~^ ~}) :resultfile ~S :resultgraphfiles (list ~{~{~S~^ ~}~^~}))~%"
+			(sparql-test-queryfile this)
+			(sparql-test-testshort this)
+			(sparql-test-testtype this)
+			(sparql-test-datafile this)
+			(sparql-test-graphdatafiles this)
+			(sparql-test-resultfile this)
+			(sparql-test-resultgraphs this)))
+	       (:csv
+		(format stream "~&~S,~S,~S,~S,~S,~S,~S,~S,~S,~S,~S,~S~%"
+			(sparql-test-testshort this)
+			(sparql-test-queryfile this)
+			(sparql-test-datafile this)
+			(sparql-test-testtype this)
+			(sparql-value-to-string (sparql-test-parse-ok-p this))
+			(sparql-value-to-string (sparql-test-translate-ok-p this))
+			(sparql-value-to-string (sparql-test-runnable-p this))
+			(sparql-value-to-string (sparql-test-run-ok-p this))
+			(sparql-value-to-string (sparql-test-feature-not-implemented-yet-p this))
+			(sparql-value-to-string (sparql-test-comparable-p this))
+			(sparql-value-to-string (sparql-test-compare-ok-p this))
+			(sparql-value-to-string (sparql-test-succeeded-p this))))
+	       (:html
+		(format stream "~&<tr><td class=\"testshort\">~A</td>~%" (sparql-test-testshort this))
+		(format stream "~&<tr><td class=\"queryfile\">~A</td>~%" (sparql-test-queryfile this))
+		(format stream "~&<tr><td class=\"datafile\">~A</td>~%" (sparql-test-datafile this))
+		(format stream "~&<tr><td class=\"testtype\">~A</td>~%" (sparql-test-testtype this))
+		(format stream "~&<tr><td class=\"parse-ok\">~A</td>~%" (sparql-value-to-string (sparql-test-parse-ok-p this)))
+		(format stream "~&<tr><td class=\"translate-ok\">~A</td>~%" (sparql-value-to-string (sparql-test-translate-ok-p this)))
+		(format stream "~&<tr><td class=\"runnable\">~A</td>~%" (sparql-value-to-string (sparql-test-runnable-p this)))
+		(format stream "~&<tr><td class=\"run-ok\">~A</td>~%" (sparql-value-to-string (sparql-test-run-ok-p this)))
+		(format stream "~&<tr><td class=\"feature-not-implemented-yet\">~A</td>~%" (sparql-value-to-string (sparql-test-feature-not-implemented-yet-p this)))
+		(format stream "~&<tr><td class=\"comparable\">~A</td>~%" (sparql-value-to-string (sparql-test-comparable-p this)))
+		(format stream "~&<tr><td class=\"compare-ok\">~A</td>~%" (sparql-value-to-string (sparql-test-compare-ok-p this)))
+		(format stream "~&<tr><td class=\"succeeded\">~A</td>~%" (sparql-value-to-string (sparql-test-succeeded-p this))))))
+	       (unless (typep output 'stream) (close-stream stream))))))
 
 ;(defun evaluation-test (rule-file data-file &key graph-data-file select-results-file construct-results-file (output-directory "."))
 
@@ -392,9 +440,10 @@
     (let (log-stream)
       (unwind-protect
 	   (progn
+	     (setf (sparql-test-completed-p this) nil)
 	     (setf log-stream (if log-file (open-file log-file :direction :output :if-exists :append :if-does-not-exist :create :fmt "run-sparql-test: open ~{~A~^ ~}") *error-output*))
 	     (format log-stream "~&---------------~%")
-	     (print-sparql-test this :stream log-stream)
+	     (print-sparql-test this :output log-stream :output-type :txt)
 	     ;; (print-sparql-test this :stream *error-output*)
 	     (format log-stream "~&---------------~%")
 	     (let ((directory (directory-namestring (sparql-test-queryfile this))))
@@ -425,7 +474,6 @@
 ;		   (untrace)
 		   (setf (sparql-test-parse-ok-p this) (instans-has-status instans (intern-instans "INSTANS-RULE-PARSING-SUCCEEDED")))
 		   (setf (sparql-test-translate-ok-p this) (instans-has-status instans (intern-instans "INSTANS-RULE-TRANSLATION-SUCCEEDED")))
-		   (setf (sparql-test-runnable-p this) (not (null (or resultfile resultgraphs))))
 		   (when (and (sparql-test-parse-ok-p this) (sparql-test-translate-ok-p this))
 		     (when select-output-file
 		       (setf (instans-select-output-processor instans) (create-select-output-processor instans select-output-file select-results-type)))
@@ -437,39 +485,21 @@
 			   do (instans-add-stream-input-processor instans graph-datafile :base base :input-type (intern-keyword (string-upcase (file-type graph-datafile)))))
 ;		     (trace-rete)
 		     (instans-run instans)
+		     (setf (sparql-test-run-ok-p this) (instans-has-status instans (intern-instans "INSTANS-RUNNING-SUCCEEDED")))
+		     (setf (sparql-test-run-ok-p this) (instans-has-status instans (intern-instans "INSTANS-RUNNING-SUCCEEDED")))
+		     (setf (sparql-test-feature-not-implemented-yet-p this) (instans-has-status instans (intern-instans "INSTANS-FEATURE-NOT-IMPLEMENTED")))
 ;		     (untrace)
 		     (instans-close-open-streams instans)
-		     (when select-results-file
+		     (when (sparql-test-comparable-p this)
 		       (case select-results-type
 			 (:srx
 			  (multiple-value-bind (samep same-order-p) (sparql-compare-srx-files select-results-file select-output-file :output-stream log-stream)
 			    (declare (ignorable same-order-p))
-			    (setf (sparql-test-run-ok-p this) samep)))
+			    (setf (sparql-test-compare-ok-p this) samep)))
 			 (t (inform "Cannot compare files of type ~A yet" select-results-type)))))
-		   (setf (sparql-test-successfull-p this)
-			 (if (sparql-test-negative-syntax-p this)
-			     (not (sparql-test-parse-ok-p this))
-			     (and (sparql-test-parse-ok-p this) (sparql-test-translate-ok-p this)
-				  (or (not (sparql-test-runnable-p this)) (sparql-test-run-ok-p this)))))
-		   (let (sparql-test-results-csv-stream)
-		     (unwind-protect
-			  (progn
-			    (setf sparql-test-results-csv-stream
-				  (if sparql-test-results-csv-file
-				      (open-file sparql-test-results-csv-file :direction :output :if-exists :append :if-does-not-exist :create :fmt "run-sparql-test: open ~{~A~^ ~}")
-				      *error-output*))
-			    (format sparql-test-results-csv-stream "~&~S,~S,~S,~S,~S,~S,~S,~S,~S~%"
-				    (sparql-test-testshort this)
-				    (sparql-test-queryfile this)
-				    (sparql-test-datafile this)
-				    (sparql-test-testtype this)
-				    (sparql-value-to-string (sparql-test-parse-ok-p this))
-				    (sparql-value-to-string (sparql-test-translate-ok-p this))
-				    (sparql-value-to-string (sparql-test-runnable-p this))
-				    (sparql-value-to-string (sparql-test-run-ok-p this))
-				    (sparql-value-to-string (sparql-test-successfull-p this))))
-		       (when sparql-test-results-csv-file 
-			 (close-stream sparql-test-results-csv-stream "run-sparql-test: closing ~A"))))))))
+		   (setf (sparql-test-succeeded-p this) (sparql-test-successful-p this))
+		   (when sparql-test-results-csv-file (print-sparql-test this :output sparql-test-results-csv-file :output-type :csv)))))
+	     (setf (sparql-test-completed-p this) t))
 	(when log-file
 	  (close-stream log-stream "run-sparql-test: closing ~A"))))))
 
@@ -487,7 +517,7 @@
       (unwind-protect
 	   (progn
 	     (setf sparql-test-results-stream (if sparql-test-results-csv-file (open-file sparql-test-results-csv-file :direction :output :if-exists :append :if-does-not-exist :create :fmt "run-sparql-tests: open ~{~A~^ ~}") *error-output*))
-	     (format sparql-test-results-stream "~&testshort,queryfile,datafile,testtype,parseok,translateok,runnable,runok,testok~%"))
+	     (format sparql-test-results-stream "~&testshort,queryfile,datafile,testtype,parseok,translateok,runnable,runok,comparable,compareok,succeeded~%"))
 	(when sparql-test-results-csv-file
 	  (close-stream sparql-test-results-stream "run-sparql-tests: close ~A"))))
     (let ((entries (sparql-tests-entries this)))
@@ -531,3 +561,4 @@
 
 (defun rpts (&rest test-iri-list)
   (run-sparql-test-suite :tests-results-csv-file nil :log-file nil :test-iri-list test-iri-list))
+
