@@ -552,12 +552,13 @@ th.rotate > div > span {
 ;		     (untrace)
 		     (instans-close-open-streams instans)
 		     (when (sparql-test-comparable-p this)
-		       (case select-results-type
+		       (case resulttype
 			 (:srx
 			  (multiple-value-bind (samep same-order-p) (sparql-compare-srx-files select-results-file select-output-file :output-stream log-stream)
 			    (declare (ignorable same-order-p))
 			    (setf (sparql-test-compare-ok-p this) samep)))
-			 (t (inform "Cannot compare files of type ~A yet" select-results-type))))))))
+			 (t (inform "Cannot compare files of type ~A yet" resulttype)
+			    (describe this))))))))
 	     (setf (sparql-test-completed-p this) t)
 	     (setf (sparql-test-succeeded-p this) (sparql-test-successful-p this)))
 	(when log-file
