@@ -192,7 +192,7 @@
       (pop args) ; Program path
       (when (equalp (first args) "--end-toplevel-options") (pop args)) ; Inserted by wrapper script
       (cond ((equalp (first args) "--run-sparql-test-suite")
-	     (run-sparql-test-suite))
+	     (process-sparql-test-suite))
 	    (t
 	     (unwind-protect
 		  (block command-loop

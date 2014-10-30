@@ -7,11 +7,15 @@ PREFIX ut:     <http://www.w3.org/2009/sparql/tests/test-update#>
 PREFIX dawgt:  <http://www.w3.org/2001/sw/DataAccess/tests/test-dawg#>
 
 #SELECT ?queryfile ?test { # ?testtype ?parsed_ok ?translate_ok ?error_msg ?status WHERE {
-SELECT DISTINCT ?queryfile ?testshort ?testtype ?datafile ?graphdatafile ?resultfile ?resultgraphfile ?resultgraphlabel
+SELECT DISTINCT ?type ?suite ?collection ?name ?queryfile ?datafile ?graphdatafile ?resultfile ?resultgraphfile ?resultgraphlabel
 WHERE {
-   ?test a ?testtype_long; mf:name ?name .
-   BIND(strafter(str(?test),"/tests/") AS ?testshort)
-   BIND(strafter(str(?testtype_long),"#") AS ?testtype)
+   ?test a ?typelong; mf:name ?prettyname .
+   BIND(strafter(str(?typelong),"#") AS ?type)
+   BIND(strafter(str(?test), "tests/") AS ?ts)
+   BIND(strbefore(?ts, "/") AS ?suite)
+   BIND(strbefore(strafter(?ts, "/"), "/") AS ?collection)
+   BIND(concat("tests/", ?suite, "/", ?collection, "/") AS ?itss) 
+   BIND(strafter(strafter(str(?test), ?itss), "manifest#") AS ?name)
 #   { SELECT * {
    OPTIONAL { ?test mf:action ?a1 .
               ?a1 qt:query ?q1
@@ -25,46 +29,19 @@ WHERE {
    OPTIONAL { ?test mf:action ?q3 FILTER(!isblank(?q3)) }
    BIND(coalesce(?q1, ?q2, ?q3) AS ?q)
    FILTER(bound(?q))
-   BIND(strafter(str(?q), "instans/tests/") AS ?queryfile) 
+
+   BIND(strafter(str(?q), ?itss) AS ?queryfile)
    BIND(coalesce(?d1, ?d2) AS ?d)
-   BIND(strafter(str(?d), "instans/tests/") AS ?datafile)
+   BIND(strafter(str(?d), ?itss) AS ?datafile)
    BIND(coalesce(?gd1, ?gd2) AS ?gdf)
-   BIND(strafter(str(?gdf), "instans/tests/") AS ?graphdatafile)
+   BIND(strafter(str(?gdf), ?itss) AS ?graphdatafile)
    OPTIONAL { ?test mf:result ?r1 .
               FILTER(isblank(?r1))
               OPTIONAL { ?r1 ut:data ?rd1 }
 	      OPTIONAL { ?r1 ut:graphData [ ut:graph ?rg; rdfs:label ?rl ] } }
    OPTIONAL { ?test mf:result ?rd2 FILTER(!isblank(?rd2)) }
    BIND(coalesce(?rd1, ?rd2) AS ?rd)
-   BIND(strafter(str(?rd), "instans/tests/") AS ?resultfile)
-   BIND(strafter(str(?rg), "instans/tests/") AS ?resultgraphfile)
+   BIND(strafter(str(?rd), ?itss) AS ?resultfile)
+   BIND(strafter(str(?rg), ?itss) AS ?resultgraphfile)
    BIND(?rl AS ?resultgraphlabel)
-    # mf:result [ ut:graphData [ ut:graph <move-default.ttl> ;
-    #                            rdfs:label "http://example.org/g1" ]
-       # 		 { ?test mf:action ?queryfile FILTER(!isblank(?queryfile) && (strends(str(?queryfile), ".rq") || strends(str(?queryfile), ".ru"))) }}
-       # 	      	?test a mf:QueryEvaluationTest; mf:name ?name ; mf:action [ qt:query ?queryfile ; qt:data ?datafile]; mf:result ?resultfile. 
-       # 		FILTER(strends(str(?resultfile), ".srx"))
-       # 	      }}
-       # 	      BIND(concat(str(<>), "/compare/") AS ?cmpdir)
-       # 	      BIND(instans:create_directory(?cmpdir) AS ?mkdir)
-       # 	      BIND(concat(?cmpdir, "/", strafter(strafter(str(?resultfile), "data-r2/"), "/")) AS ?cmpfile)
-       # 	      BIND(iri(strbefore(str(?queryfile),".")) AS ?instans)
-       # 	      BIND(instans:create_instans(?instans) AS ?aux)
-       # 	      BIND(instans:add_select_output_processor(?instans, ?cmpfile) AS ?add_output)
-       # 	      BIND(instans:add_rules(?instans, ?queryfile) AS ?add_rules)
-       # 	      BIND(instans:has_status(?instans, "instans-rule-parsing-succeeded") AS ?parsed_ok) 
-       # 	      BIND(instans:has_status(?instans, "instans-rule-translation-succeeded") AS ?translated_ok) 
-       # 	      BIND(instans:printing(concat("Parsed ", strafter(strafter(str(?queryfile), "data-r2/"), "/"), " = "), ?parsed_ok && ?translated_ok) AS ?pr1)
-       # 	      FILTER(?parsed_ok && ?translated_ok)
-       # } 
-       # }
-       # # BIND(instans:error_message(?instans) AS ?error_msg)
-       # BIND(instans:add_query_input_processor(?instans, ?datafile) AS ?add_input)
-       # BIND(instans:printing(concat("Added input ", strafter(strafter(str(?datafile), "data-r2/"), "/"), " = "), ?add_input) AS ?pr2)
-       # BIND(instans:execute(?instans) AS ?exec)
-       # BIND(instans:printing(concat("Executed ", strafter(strafter(str(?queryfile), "data-r2/"), "/"), " = "), ?exec) AS ?pr3)
-       # BIND(instans:compare_srx_files(?resultfile, ?cmpfile) AS ?cmpresult)
-       # BIND(instans:printing(concat("Compared ", strafter(strafter(str(?queryfile), "data-r2/"), "/"), " = "), ?cmpresult) AS ?pr4)
-       # BIND(instans:status(?instans) AS ?status)
-       # BIND(instans:printing("---------------", "") AS ?huuhaa)
 }

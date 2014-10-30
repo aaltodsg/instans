@@ -238,7 +238,10 @@
 	 (setf (getf clauses :query-form) 'DELETE-INSERT)
 	 (translate-algebra instans clauses)))
       ((LOAD CREATE DROP CLEAR ADD MOVE COPY SERVICE) (remf clauses :query-form) (list query-form clauses))
-      (t (sparql-parse-error "~A not implemented yet" (and (symbolp query-form) (substitute #\space #\- (string query-form))))))))
+      (t
+       (inform "~A not implemented yet" (and (symbolp query-form) (substitute #\space #\- (string query-form))))
+       (instans-add-status instans 'instans-feature-not-implemented-yet)
+       (sparql-parse-error "~A not implemented yet" (and (symbolp query-form) (substitute #\space #\- (string query-form))))))))
 
 (defun sparql-parse-error (fmt &rest args)
   (apply #'ll-parser-failure fmt args))
