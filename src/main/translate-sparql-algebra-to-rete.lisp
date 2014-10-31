@@ -16,9 +16,10 @@
   (let ((new-nodes nil)
 	;; (level 0)
 	(color (instans-next-color instans)))
-    (labels ((translate-failure (fmt &rest args)
+    (labels ((translate-not-implemented-yet (fmt &rest args)
 	       (let ((msg (apply #'format nil fmt args)))
-;		 (inform "(translate-failure ~S ~S) -> ~S" fmt args msg)
+;		 (inform "(translate-not-implemented-yet ~S ~S) -> ~S" fmt args msg)
+		 (instans-add-status instans 'instans-feature-not-implemented-yet)
 		 (instans-add-status instans 'instans-rule-translation-failed (list msg))
 		 (return-from translate-sparql-algebra-to-rete nil)))
 	     (replace-exists-by-vars (e)
@@ -82,7 +83,8 @@
 		   (GGP (translate (getf (rest expr) :form) prev dataset))
 		   (BGP (loop for triple-pattern in args
 			      do (progn
-				   (when (member 'PATH triple-pattern) (translate-failure "Paths not fully implemented yet ~S" triple-pattern))
+				   (when (member 'PATH triple-pattern)
+				     (translate-not-implemented-yet "Paths not fully implemented yet ~S" triple-pattern))
 				   (let* ((beta-memory (cond ((typep prev 'beta-memory) prev)
 							     (t (make-or-share-instance 'beta-memory :prev prev))))
 					  (triple-pattern-node (make-or-share-instance 'triple-pattern-node :triple-pattern triple-pattern :dataset dataset))
@@ -259,13 +261,6 @@
 							    :insert-template insert-clause
 							    :insert-parameters insert-parameters
 							    :insert-lambda insert-lambda)))
-		   ((INSERT-DATA DELETE-DATA)
-		    (error* "INSERT-DATA and DELETE-DATA should be handled as DELETE-INSERT: ~A" expr))
-		   ;; ((LOAD CLEAR)
-		   ;; (assert* nil "Don't know how to translate ~S" expr))
-		   ;; (SERVICE
-		   ;;  (assert* nil "SERVICE not implemented properly yet ~S" expr)
-		   ;;  nil)
 		   (INLINEDATA
 		    (let* ((beta-memory (cond ((typep prev 'beta-memory) prev)
 					      (t (make-or-share-instance 'beta-memory :prev prev))))
@@ -274,8 +269,12 @@
 		      (setf prev (make-or-share-instance 'join-node
 							 :beta beta-memory :alpha alpha-memory))
 		      prev))
+		   ((INSERT-DATA DELETE-DATA)
+		    (error* "INSERT-DATA and DELETE-DATA should be handled as DELETE-INSERT: ~A" expr))
+		   ((LOAD CLEAR DROP CREATE ADD MOVE COPY SERVICE)
+		    (translate-not-implemented-yet "~A not implemented yet (in ~S)" op expr))
 		   (t
-		    (translate-failure "Cannot translate ~S within ~S" expr sae)
+		    (error* "Cannot translate ~S within ~S" expr sae)
 		    nil)))))
       (translate sae nil nil)
       (compute-node-vars new-nodes)
