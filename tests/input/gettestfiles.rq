@@ -7,10 +7,11 @@ PREFIX ut:     <http://www.w3.org/2009/sparql/tests/test-update#>
 PREFIX dawgt:  <http://www.w3.org/2001/sw/DataAccess/tests/test-dawg#>
 
 #SELECT ?queryfile ?test { # ?testtype ?parsed_ok ?translate_ok ?error_msg ?status WHERE {
-SELECT DISTINCT ?type ?suite ?collection ?name ?queryfile ?datafile ?graphdatafile ?resultfile ?resultgraphfile ?resultgraphlabel
+SELECT DISTINCT ?type ?negative ?suite ?collection ?name ?queryfile ?datafile ?graphdatafile ?resultfile ?resultgraphfile ?resultgraphlabel
 WHERE {
    ?test a ?typelong; mf:name ?prettyname .
    BIND(strafter(str(?typelong),"#") AS ?type)
+   BIND((?type = "NegativeSyntaxTest" || ?type = "NegativeSyntaxTest11") AS ?negative)
    BIND(strafter(str(?test), "tests/") AS ?ts)
    BIND(strbefore(?ts, "/") AS ?suite)
    BIND(strbefore(strafter(?ts, "/"), "/") AS ?collection)

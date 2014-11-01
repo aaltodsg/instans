@@ -240,10 +240,24 @@
 	     (sparql-value-same-term (sparql-binding-value b1) (sparql-binding-value b2))))))
 
 (defun sparql-compare-srx-files (file1 file2 &key output-stream)
+  (declare (ignorable output-stream))
   (let* ((i (make-instance 'instans))
 	 (res1 (parse-results-file i file1))
 	 (res2 (parse-results-file i file2)))
     (sparql-results-compare res1 res2 :verbosep t :result-label1 file1 :result-label2 file2 :output-stream output-stream)))
+
+(defun sparql-compare-ttl-files (file1 file2 &key output-stream)
+  (declare (ignorable output-stream))
+  (let* ((graph1 nil)
+	 (res1 (parse-rdf-file file1 :document-callback #'(lambda (statements) (setf graph1 statements))))
+	 (graph2 nil)
+	 (res2 (parse-rdf-file file2 :document-callback #'(lambda (statements) (setf graph2 statements)))))
+    (cond ((ll-parser-failed-p res1)
+	   (error* "Parsing of ~A failed: ~A" file1 (ll-parser-error-messages res1)))
+	  ((ll-parser-failed-p res2)
+	   (error* "Parsing of ~A failed: ~A" file2 (ll-parser-error-messages res2)))
+	  (t
+	   (rdf-graphs-isomorphic-p graph1 graph2)))))
 
 (defun test-read-write-srx (in-file out-file)
   (let* ((i (make-instance 'instans))
@@ -308,52 +322,49 @@
 
 (define-class sparql-test ()
   ((test-set :accessor sparql-test-test-set :initarg :test-set)
-   (queryfile :accessor sparql-test-queryfile :initarg :queryfile)
    (type :accessor sparql-test-type :initarg :type)
    (suite :accessor sparql-test-suite :initarg :suite)
    (collection :accessor sparql-test-collection :initarg :collection)
    (name :accessor sparql-test-name :initarg :name)
+   (queryfile :accessor sparql-test-queryfile :initarg :queryfile)
    (datafile :accessor sparql-test-datafile :initarg :datafile)
    (graphdatafiles :accessor sparql-test-graphdatafiles :initarg :graphdatafiles)
    (resultfile :accessor sparql-test-resultfile :initarg :resultfile)
    (resultgraphs :accessor sparql-test-resultgraphs :initarg :resultgraphs)
    (error-message :accessor sparql-test-error-message :initform nil)
-   (completedp :accessor sparql-test-completed-p :initform nil)
-   (negative-syntax-p :accessor sparql-test-negative-syntax-p)
-   (parse-ok-p :accessor sparql-test-parse-ok-p :initform nil)
-   (translate-ok-p :accessor sparql-test-translate-ok-p :initform nil)
-   (initialization-ok-p :accessor sparql-test-initialization-ok-p :initform nil)
-   (runnablep :accessor sparql-test-runnable-p :initform nil)
-   (run-ok-p :accessor sparql-test-run-ok-p :initform nil)
-   (feature-not-implemented-yet-p :accessor sparql-test-feature-not-implemented-yet-p :initform nil)
-   (comparablep :accessor sparql-test-comparable-p :initform nil)
-   (compare-ok-p :accessor sparql-test-compare-ok-p :initform nil)
-   (succeededp :accessor sparql-test-succeeded-p :initform nil)))
-
-(defmethod initialize-instance :after ((this sparql-test) &key &allow-other-keys)
-  (setf (sparql-test-negative-syntax-p this) (not (null (member (sparql-test-type this) '("NegativeSyntaxTest" "NegativeSyntaxTest11") :test #'equal))))
-  (setf (sparql-test-runnable-p this) (not (sparql-test-negative-syntax-p this))))
+   (completed :accessor sparql-test-completed :initform nil)
+   (implemented :accessor sparql-test-implemented :initform t)
+   (negative :accessor sparql-test-negative :initarg :negative)
+   (parse :accessor sparql-test-parse :initform nil)
+   (translate :accessor sparql-test-translate :initform nil)
+   (initialization :accessor sparql-test-initialization :initform nil)
+   (run :accessor sparql-test-run :initform nil)
+   (comparable :accessor sparql-test-comparable :initform nil)
+   (compare :accessor sparql-test-compare :initform nil)
+   (pass :accessor sparql-test-pass :initform nil)))
 
 (defgeneric sparql-test-successful-p (sparql-test)
   (:method ((this sparql-test))
-    (cond ((not (sparql-test-completed-p this)) (error* "Test ~A not completed yet!" (sparql-test-name this)))
-	  ((not (sparql-test-parse-ok-p this)) (sparql-test-negative-syntax-p this))
-	  ((not (sparql-test-translate-ok-p this)) (sparql-test-negative-syntax-p this))
-	  ((not (sparql-test-initialization-ok-p this)) (sparql-test-negative-syntax-p this))
-	  ((not (sparql-test-run-ok-p this)) (not (sparql-test-runnable-p this)))
-	  ((not (sparql-test-compare-ok-p this)) (not (sparql-test-comparable-p this)))
+    (cond ((not (sparql-test-completed this)) (error* "Test ~A not completed yet!" (sparql-test-name this)))
+	  ((not (sparql-test-implemented this)) nil)
+	  ((sparql-test-negative this) (not (sparql-test-parse this)))
+	  ((not (sparql-test-parse this)) nil)
+	  ((not (sparql-test-translate this)) nil)
+	  ((not (sparql-test-initialization this)) nil)
+	  ((not (sparql-test-run this)) nil)
+	  ((not (sparql-test-compare this)) (not (sparql-test-comparable this)))
 	  (t t))))
 
 (define-class sparql-tests ()
   ((entries :accessor sparql-tests-entries :initarg :entries :initform nil)
    (fields :accessor sparql-tests-fields
 	   :allocation :class
-	   :initform '(suite collection name queryfile datafile parse-ok-p translate-ok-p runnablep run-ok-p feature-not-implemented-yet-p comparablep compare-ok-p succeededp))))
+	   :initform '(suite collection name queryfile datafile implemented negative parse translate run comparable compare pass))))
 
 (defun sparql-test-fields (test) (sparql-tests-fields (sparql-test-test-set test)))
 
-(defgeneric add-sparql-test (sparql-tests &rest keys &key type suite collection name queryfile datafile graphdatafile resultfile resultgraphfile resultgraphlabel)
-  (:method ((this sparql-tests) &rest keys &key type suite collection name queryfile datafile graphdatafile resultfile resultgraphfile resultgraphlabel)
+(defgeneric add-sparql-test (sparql-tests &rest keys &key type negative suite collection name queryfile datafile graphdatafile resultfile resultgraphfile resultgraphlabel)
+  (:method ((this sparql-tests) &rest keys &key type negative suite collection name queryfile datafile graphdatafile resultfile resultgraphfile resultgraphlabel)
     (declare (ignorable keys))
 ;    (inform "enter add-sparql-test ~A" keys)
     (flet ((string=* (x y)
@@ -370,7 +381,7 @@
 	(cond ((null matching)
 	       (push-to-end (setf matching (make-instance 'sparql-test
 							  :test-set this
-							  :type type :suite suite :collection collection :name name
+							  :type type :negative negative :suite suite :collection collection :name name
 							  :queryfile queryfile :datafile datafile
 							  :graphdatafiles (and graphdatafile (list graphdatafile))
 							  :resultfile resultfile
@@ -387,7 +398,7 @@
 					    (and (equal (first a) (first b)) (equal (second a) (second b))))))
 ;	       (describe matching)
 	       ))
-	(setf (sparql-test-comparable-p matching) (not (null (or (sparql-test-resultfile matching) (sparql-test-resultgraphs matching)))))))
+	(setf (sparql-test-comparable matching) (not (null (or (sparql-test-resultfile matching) (sparql-test-resultgraphs matching)))))))
 					;    (inform "exit add-sparql-test ~A" keys)
     ))
 
@@ -417,7 +428,7 @@
       (:lisp (error* "Not implemented yet"))
       (:csv (format stream "~{~A~^,~}" (sparql-tests-fields this)))
       (:html ;(inform "(sparql-tests-fields this) = ~A, stream = ~A" (sparql-tests-fields this) stream)
-	     (format stream "~%<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\">
+	     (format stream "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\">
 <html>
 <head>
 <meta charset=\"utf-8\"> 
@@ -428,24 +439,35 @@
   @import \"DataTables/extras/ColumnFilterWidgets/media/css/ColumnFilterWidgets.css\";
 </style>
 <style type=\"text/css\">
-td { text-align: center }
-tr.syntax_failed td.test_type { color: red; }
-tr.translate_failed td.test_type{ color: red; }
-tr.run_failed td.test_type { color: red; }
-tr.negative_syntax_parseok td.test_type { color: orange; }
-td.translate_ok_not_runnable{ }
-td.run_ok { }
-th.rotate > div {
-  transform: 
-    /* Magic Numbers */
-    translate(25px, 51px)
-    /* 45 is really 360 - 45 */
-    rotate(315deg);
-  width: 30px;
+table {
+    border-collapse: collapse;
 }
-th.rotate > div > span {
-  border-bottom: 1px solid #ccc;
-  padding: 5px 10px;
+
+table, th, td {
+    border: 1px solid black;
+}
+
+#Summary table th {
+  width: 4em;
+}
+
+#Summary table td {
+  height: 1.5em;
+  vertical-align: bottom;
+}
+
+.succeeded { background: #BDFF9D;
+}
+
+.failed { background: #FF4D4D;
+}
+
+.note { background: #66CCFF;
+}
+
+table, tr, th, td {
+  text-align: left;
+  vertical-align: top;
 }
 </style>
 <script type=\"text/javascript\" src=\"DataTables/media/js/jquery.js\"></script>
@@ -453,23 +475,190 @@ th.rotate > div > span {
 <script type=\"text/javascript\" src=\"DataTables/extras/ColumnFilterWidgets/media/js/ColumnFilterWidgets.js\"></script>
 <script type=\"text/javascript\" src=\"DataTables/extras/ColReorder/media/js/ColReorder.js\"></script>
 <script type=\"text/javascript\">
-	\$(document).ready( function () {
-				\$('#TestResults').dataTable( { \"bPaginate\": false, \"sDom\": 'W<\"clear\">ilfrtp', \"oColumnFilterWidgets\": { \"aiExclude\": [ 1, 2, 3 ] } } );
-			} );
+	$(document).ready( function () {
+
+    $('#TestResults').dataTable( { \"bPaginate\": false, \"sDom\": 'W<\"clear\">ilfrtp', \"oColumnFilterWidgets\": { \"aiExclude\": [ 3, 4, 5 ] } } );
+    function counts(elem) {
+      var allTests = 0;
+      var passYesTests = 0;
+      var passNoTests = 0;
+      var implementYesTests = 0;
+      var implementNoTests = 0;
+      var negativeSyntaxTests = 0;
+      var positiveSyntaxTests = 0;
+      var parseYesNegativeSyntaxTests = 0;
+      var parseNoNegativeSyntaxTests = 0;
+      var parseYesPositiveSyntaxTests = 0;
+      var parseNoPositiveSyntaxTests = 0;
+      var translateYesTests = 0;
+      var translateNoTests = 0;
+      var initializeYesTests = 0;
+      var initializeNoTests = 0;
+      var runYesTests = 0;
+      var runNoTests = 0;
+      var comparableYesTests = 0;
+      var comparableNoTests = 0;
+      var compareYesTests = 0;
+      var compareNoTests = 0;
+      console.log( 'Redraw occurred at: '+new Date().getTime() );
+      $(elem).find('tr:visible').each(function () {
+          allTests = allTests + 1;
+          $(this).find('td.pass').each(function () {
+            if ($(this).html() == 't') passYesTests = passYesTests + 1;
+            else passNoTests = passNoTests + 1;
+          });
+          $(this).find('td.implemented').each(function () {
+            if ($(this).html() == 't') implementYesTests = implementYesTests + 1;
+            else implementNoTests = implementNoTests + 1;
+          });
+          $(this).find('td.negative').each(function () {
+            if ($(this).html() == 't') {
+              negativeSyntaxTests = negativeSyntaxTests + 1;
+              $(this).parent().find('td.parse').each(function () {
+                if ($(this).html() == 't') parseYesNegativeSyntaxTests = parseYesNegativeSyntaxTests + 1;
+                else parseNoNegativeSyntaxTests = parseNoNegativeSyntaxTests + 1;
+              });
+            } else {
+              positiveSyntaxTests = positiveSyntaxTests + 1;
+              $(this).parent().find('td.parse').each(function () {
+              if ($(this).html() == 't') {
+                parseYesPositiveSyntaxTests = parseYesPositiveSyntaxTests + 1;
+                $(this).parent().find('td.translate').each(function () {
+                  if ($(this).html() == 't') {
+                    translateYesTests = translateYesTests + 1;
+                    $(this).parent().find('td.run').each(function () {
+                      if ($(this).html() == 't') {
+                        runYesTests = runYesTests + 1;
+                        $(this).parent().find('td.comparable').each(function () {
+                          if ($(this).html() == 't') {
+                            comparableYesTests = comparableYesTests + 1;
+                            $(this).parent().find('td.compare').each(function () {
+                            if ($(this).html() == 't') {
+                              compareYesTests = compareYesTests + 1;
+                            } else compareNoTests = compareNoTests + 1;
+                          });
+                          } else comparableNoTests = comparableNoTests + 1;
+                      });
+                      } else runNoTests = runNoTests + 1;
+                    });
+                  } else translateNoTests = translateNoTests + 1;
+                });
+              } else parseNoPositiveSyntaxTests = parseNoPositiveSyntaxTests + 1;
+              });
+            }
+          });
+        });
+        $('#pass span.yes').html(passYesTests);  
+        $('#pass span.no').html(passNoTests);  
+        $('#pass span.sum').html(passYesTests + passNoTests);  
+        $('#implemented span.yes').html(implementYesTests);  
+        $('#implemented span.no').html(implementNoTests);  
+        $('#implemented span.sum').html(implementYesTests + implementNoTests);  
+        $('#negativeSyntax span.yes').html(negativeSyntaxTests);  
+        $('#negativeSyntax span.no').html(positiveSyntaxTests);  
+        $('#negativeSyntax span.sum').html(negativeSyntaxTests + positiveSyntaxTests);  
+        $('#parseNegative span.yes').html(parseYesNegativeSyntaxTests);  
+        $('#parseNegative span.no').html(parseNoNegativeSyntaxTests);  
+        $('#parseNegative span.sum').html(parseYesNegativeSyntaxTests + parseNoNegativeSyntaxTests);  
+        $('#parsePositive span.yes').html(parseYesPositiveSyntaxTests);  
+        $('#parsePositive span.no').html(parseNoPositiveSyntaxTests);  
+        $('#parsePositive span.sum').html(parseYesPositiveSyntaxTests + parseNoPositiveSyntaxTests);  
+        $('#translate span.yes').html(translateYesTests);  
+        $('#translate span.no').html(translateNoTests);  
+        $('#translate span.sum').html(translateYesTests + translateNoTests);  
+        $('#run span.yes').html(runYesTests);  
+        $('#run span.no').html(runNoTests);  
+        $('#run span.sum').html(runYesTests + runNoTests);  
+        $('#comparable span.yes').html(comparableYesTests);  
+        $('#comparable span.no').html(comparableNoTests);  
+        $('#comparable span.sum').html(comparableYesTests + comparableNoTests);  
+        $('#compare span.yes').html(compareYesTests);  
+        $('#compare span.no').html(compareNoTests);  
+        $('#compare span.sum').html(compareYesTests + compareNoTests);  
+    }
+    $('#TestResults').each(function () { counts(this); });
+    $('#TestResults').on('draw.dt', function () { counts(this);});
+} );
 </script>
 </head>
 <body>
-<ul>
-<li>Total ~D tests</li>
-<li>~D tests OK</li>
-</ul>
+<h2>Summary</h2>
+<table id=\"Summary\">
+<tr><th>Pass</th><th>Implemented</th><th>Negative syntax</th><th>Parse negative (of <sup class=\"note\">[1]</sup>)</th><th>Parse positive (of <sup class=\"note\">[1]</sup>)</th><th>Translate (of <sup class=\"note\">[2]</sup>)</th>
+<!-- <th>Initialize (of <sup class=\"note\">[3]</sup>)</th> -->
+<th>Run (of <sup class=\"note\">[4]</sup>)</th><th>Comparable (of <sup class=\"note\">[5]</sup>)</th><th>Compare (of <sup class=\"note\">[6]</sup>)</th></tr>
+<tr>
+  <td>
+    <table id=\"pass\" width=\"100%\">
+      <tr><th>Yes</th><th>No</th><th>Sum</th></tr>
+      <tr><td class=\"succeeded\"><span class=\"yes\"></span></td><td class=\"failed\"><span class=\"no\"></span></td><td><span class=\"sum\"></span></td></tr>
+    </table>
+  </td>
+  <td>
+    <table id=\"implemented\" width=\"100%\">
+      <tr><th>Yes</th><th>No</th><th>Sum</th></tr>
+      <tr><td><span class=\"yes\"></span><sup class=\"note\">[1]</sup></td><td class=\"failed\"><span class=\"no\"></span></td><td><span class=\"sum\"></span></td></tr>
+    </table>
+  </td>
+  <td>
+    <table id=\"negativeSyntax\" width=\"100%\">
+      <tr><th>Yes</th><th>No</th><th>Sum</th></tr>
+      <tr><td><span class=\"yes\"></span></td><td><span class=\"no\"></span></td><td><span class=\"sum\"></span></td></tr>
+    </table>
+  </td>
+  <td>
+    <table id=\"parseNegative\" width=\"100%\">
+      <tr><th>Yes</th><th>No</th><th>Sum</th></tr>
+      <tr><td class=\"failed\"><span class=\"yes\"></span></td><td class=\"succeeded\"><span class=\"no\"></span></td><td><span class=\"sum\"></span></td></tr>
+    </table>
+  </td>
+  <td>
+    <table id=\"parsePositive\" width=\"100%\">
+      <tr><th>Yes</th><th>No</th><th>Sum</th></tr>
+      <tr><td><span class=\"yes\"></span><sup class=\"note\">[2]</sup></td><td class=\"failed\"><span class=\"no\"></span></td><td><span class=\"sum\"></span></td></tr>
+    </table>
+  </td>
+  <td>
+    <table id=\"translate\" width=\"100%\">
+      <tr><th>Yes</th><th>No</th><th>Sum</th></tr>
+      <tr><td><span class=\"yes\"></span><sup class=\"note\">[3]</sup></td><td class=\"failed\"><span class=\"no\"></span></td><td><span class=\"sum\"></span></td></tr>
+    </table>
+  </td>
+  <!-- <td> -->
+  <!--   <table id=\"initialize\" width=\"100%\"> -->
+  <!--     <tr><th>Yes</th><th>No</th><th>Sum</th></tr> -->
+  <!--     <tr><td class=\"succeeded\"><span class=\"yes\"></span><sup class=\"note\">[4]</sup></td><td class=\"failed\"><span class=\"no\"></span></td><td><span class=\"sum\"></span></td></tr> -->
+  <!--   </table> -->
+  <!-- </td> -->
+  <td>
+    <table id=\"run\" width=\"100%\">
+      <tr><th>Yes</th><th>No</th><th>Sum</th></tr>
+      <tr><td><span class=\"yes\"></span><sup class=\"note\">[5]</sup></td><td class=\"failed\"><span class=\"no\"></span></td><td><span class=\"sum\"></span></td></tr>
+    </table>
+  </td>
+  <td>
+    <table id=\"comparable\" width=\"100%\">
+      <tr><th>Yes</th><th>No</th><th>Sum</th></tr>
+      <tr><td><span class=\"yes\"></span><sup class=\"note\">[6]</sup></td><td class=\"succeeded\"><span class=\"no\"></span></td><td><span class=\"sum\"></span></td></tr>
+    </table>
+  </td>
+  <td>
+    <table id=\"compare\" width=\"100%\">
+      <tr><th>Yes</th><th>No</th><th>Sum</th></tr>
+      <tr><td class=\"succeeded\"><span class=\"yes\"></span></td><td class=\"failed\"><span class=\"no\"></span></td><td><span class=\"sum\"></span></td></tr>
+    </table>
+  </td>
+<tr>
+</table>
+<h2>Tests</h2>
 <table id=\"TestResults\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"display\" width=\"100%\">
 <thead>
-<tr>~%  <th class=\"test-number\">Number</th>~%~{~{  <th class=\"vertical-text ~(~A~)\">~(~A~)~}</th>~^~%~}~%</tr>
+<tr>
+  <th class=\"test-number\">Number</th>
+~{  ~{<th class=\"~(~A~)\">~(~A~)</th>~}~^~%~}
+</tr>
 </thead>
-<tbody>"
-		     (length (sparql-tests-entries this))
-		     (loop for test in (sparql-tests-entries this) count (sparql-test-succeeded-p test))
+<tbody>~%"
 		     (mapcar #'(lambda (f) (list f f)) (sparql-tests-fields this))))
       (t (error* "Unknown output-type ~A" output-type)))))
 
@@ -500,17 +689,17 @@ th.rotate > div > span {
 ;(defun evaluation-test (rule-file data-file &key graph-data-file select-results-file construct-results-file (output-directory "."))
 
 (defgeneric run-sparql-test (sparql-test &key output-dir-name log-file)
-  (:method ((this sparql-test) &key (output-dir-name "cmpout") log-file)
+  (:method ((this sparql-test) &key (output-dir-name "cmpoutput") log-file)
     (let (log-stream)
       (unwind-protect
 	   (progn
-	     (setf (sparql-test-completed-p this) nil)
+	     (setf (sparql-test-completed this) nil)
 	     (setf log-stream (if log-file (open-file log-file :direction :output :if-exists :append :if-does-not-exist :create :fmt "run-sparql-test: open ~{~A~^ ~}") *error-output*))
 	     (format log-stream "~&---------------~%")
 	     (print-sparql-test this :stream log-stream :output-type :txt)
 	     (format log-stream "~&---------------~%")
-	     (let ((directory (format nil "~A/~A" (sparql-test-suite this) (sparql-test-collection this))))
-	       (flet ((expanded-filename (fn) (and fn (format nil "~A/tests/~A/~A" (find-instans-root-directory) directory fn))))
+	     (let ((directory (format nil "~Atests/~A/~A" (find-instans-root-directory) (sparql-test-suite this) (sparql-test-collection this))))
+	       (flet ((expanded-filename (fn) (and fn (format nil "~A/~A" directory fn))))
 		 (let* ((queryfile (expanded-filename (sparql-test-queryfile this)))
 			(output-directory (format nil "~A/~A/" directory output-dir-name))
 			(datafile (expanded-filename (sparql-test-datafile this)))
@@ -518,10 +707,10 @@ th.rotate > div > span {
 			(resultfile (expanded-filename (sparql-test-resultfile this)))
 			(resulttype (and resultfile (intern-keyword (string-upcase (pathname-type (parse-namestring resultfile))))))
 			(select-results-file (if (member resulttype '(:csv :srx)) resultfile))
-			(select-output-file (if select-results-file (format nil "~A/~A" output-directory (file-namestring select-results-file)) (format nil "~A/default-select-output.csv" output-directory)))
+			(select-output-file (if select-results-file (format nil "~A~A" output-directory (file-namestring select-results-file)) (format nil "~Adefault-select-output.csv" output-directory)))
 			(select-results-type (intern-keyword (string-upcase (pathname-type (parse-namestring select-output-file)))))
 			(construct-results-file (if (member resulttype '(:ttl)) resultfile))
-			(construct-output-file (if construct-results-file (format nil "~A/~A" output-directory (file-namestring construct-results-file)) (format nil "~A/default-construct-output.ttl" output-directory)))
+			(construct-output-file (if construct-results-file (format nil "~A~A" output-directory (file-namestring construct-results-file)) (format nil "~Adefault-construct-output.ttl" output-directory)))
 			(construct-results-type (intern-keyword (string-upcase (pathname-type (parse-namestring construct-output-file)))))
 			(resultgraphs (mapcar #'(lambda (x) (list (expanded-filename (first x)) (second x))) (sparql-test-resultgraphs this)))
 			(base (parse-iri (format nil "file://~A" (directory-namestring queryfile))))
@@ -529,14 +718,14 @@ th.rotate > div > span {
 			(instans (create-instans instans-iri)))
 		   (declare (ignorable resultgraphs graph-datafiles))
 		   (ensure-directories-exist output-directory)
-					;	  (format log-stream "~&~A~%" (probe-file output-directory))
+		   (inform "~&~A~%" (probe-file output-directory))
 ;		   (trace translate-sparql-algebra-to-rete)
 		   (instans-add-rules instans queryfile)
 ;		   (untrace)
-		   (setf (sparql-test-parse-ok-p this) (instans-has-status instans (intern-instans "INSTANS-RULE-PARSING-SUCCEEDED")))
-		   (setf (sparql-test-translate-ok-p this) (instans-has-status instans (intern-instans "INSTANS-RULE-TRANSLATION-SUCCEEDED")))
-		   (setf (sparql-test-initialization-ok-p this) (instans-has-status instans (intern-instans "INSTANS-RULE-INITIALIZATION-SUCCEEDED")))
-		   (when (and (sparql-test-parse-ok-p this) (sparql-test-translate-ok-p this))
+		   (setf (sparql-test-parse this) (instans-has-status instans (intern-instans "INSTANS-RULE-PARSING-SUCCEEDED")))
+		   (setf (sparql-test-translate this) (instans-has-status instans (intern-instans "INSTANS-RULE-TRANSLATION-SUCCEEDED")))
+		   (setf (sparql-test-initialization this) (instans-has-status instans (intern-instans "INSTANS-RULE-INITIALIZATION-SUCCEEDED")))
+		   (when (and (sparql-test-parse this) (sparql-test-translate this))
 		     (when select-output-file
 		       (setf (instans-select-output-processor instans) (create-select-output-processor instans select-output-file select-results-type)))
 		     (when construct-output-file
@@ -547,20 +736,22 @@ th.rotate > div > span {
 			   do (instans-add-stream-input-processor instans graph-datafile :base base :input-type (intern-keyword (string-upcase (file-type graph-datafile)))))
 ;		     (trace-rete)
 		     (instans-run instans)
-		     (setf (sparql-test-run-ok-p this) (instans-has-status instans (intern-instans "INSTANS-RULE-RUNNING-SUCCEEDED")))
-		     (setf (sparql-test-feature-not-implemented-yet-p this) (instans-has-status instans (intern-instans "INSTANS-FEATURE-NOT-IMPLEMENTED-YET")))
+		     (setf (sparql-test-run this) (instans-has-status instans (intern-instans "INSTANS-RULE-RUNNING-SUCCEEDED")))
+		     (setf (sparql-test-implemented this) (not (instans-has-status instans (intern-instans "INSTANS-FEATURE-NOT-IMPLEMENTED-YET"))))
 ;		     (untrace)
 		     (instans-close-open-streams instans)
-		     (when (sparql-test-comparable-p this)
+		     (when (sparql-test-comparable this)
 		       (case resulttype
 			 (:srx
 			  (multiple-value-bind (samep same-order-p) (sparql-compare-srx-files select-results-file select-output-file :output-stream log-stream)
 			    (declare (ignorable same-order-p))
-			    (setf (sparql-test-compare-ok-p this) samep)))
+			    (setf (sparql-test-compare this) samep)))
+			 (:ttl
+			  (setf (sparql-test-compare this) (sparql-compare-ttl-files  construct-results-file construct-output-file)))
 			 (t (inform "Cannot compare files of type ~A yet" resulttype)
 			    (describe this))))))))
-	     (setf (sparql-test-completed-p this) t)
-	     (setf (sparql-test-succeeded-p this) (sparql-test-successful-p this)))
+	     (setf (sparql-test-completed this) t)
+	     (setf (sparql-test-pass this) (sparql-test-successful-p this)))
 	(when log-file
 	  (close-stream log-stream "run-sparql-test: closing ~A"))))))
 
@@ -589,11 +780,11 @@ th.rotate > div > span {
   (let ((tests (make-instance 'sparql-tests)))
 ;    (inform "test-iri-list ~A" test-iri-list)
     (csv-parser:map-csv-file csv-file #'(lambda (line)
-					  (destructuring-bind (type suite collection name queryfile datafile graphdatafile resultfile resultgraphfile resultgraphlabel)
+					  (destructuring-bind (type negative suite collection name queryfile datafile graphdatafile resultfile resultgraphfile resultgraphlabel)
 					      (mapcar #'(lambda (x) (if (string= "UNBOUND" x) nil x)) line)
 ;					    (inform "resultfile=~A" resultfile)
 					    (add-sparql-test tests
-							     :type type :suite suite :collection collection :name name
+							     :type type :negative (parse-xsd-boolean negative) :suite suite :collection collection :name name
 							     :queryfile queryfile :datafile datafile :graphdatafile graphdatafile
 							     :resultfile resultfile :resultgraphfile resultgraphfile :resultgraphlabel resultgraphlabel)))
 			     :skip-lines skip-lines)

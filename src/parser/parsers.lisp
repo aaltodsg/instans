@@ -22,7 +22,7 @@
 
 (defun parse-rdf-file (file &rest keys &key subscribe base triple-callback block-callback document-callback)
   (declare (ignorable subscribe base triple-callback block-callback document-callback))
-  (inform "~%parse-triple-file ~A:~%" file)
+  (inform "~%parse-rdf-file ~A:~%" file)
 ;  (time
    (with-open-file (stream file)
      (let* ((*triple-count* 0)
@@ -41,7 +41,7 @@
 		      (hash-table-count (bindings-table-hash-table (lexer-keyword-table lexer))))
 	      )
 	     (t
-	      (inform "Parsing failed")))
+	      (inform "~%parse-rdf-file ~A failed!~%" file)))
        result))
 ;   )
 )
