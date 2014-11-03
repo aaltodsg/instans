@@ -477,8 +477,10 @@ table, tr, th, td {
 <script type=\"text/javascript\">
 	$(document).ready( function () {
 
+      var suitesCollections = [''];
+      var suitesCollectionsHash = new Object();
     $('#TestResults').dataTable( { \"bPaginate\": false, \"sDom\": 'W<\"clear\">ilfrtp', \"oColumnFilterWidgets\": { \"aiExclude\": [ 3, 4, 5 ] } } );
-    function counts(elem) {
+    function updateCountsSuiteCollection(testResults, suiteCollection) {
       var allTests = 0;
       var passYesTests = 0;
       var passNoTests = 0;
@@ -500,8 +502,9 @@ table, tr, th, td {
       var comparableNoTests = 0;
       var compareYesTests = 0;
       var compareNoTests = 0;
-      console.log( 'Redraw occurred at: '+new Date().getTime() );
-      $(elem).find('tr:visible').each(function () {
+//      alert('updateCountsSuiteCollection ' + suiteCollection);
+      var trSel = (suiteCollection != '' ? 'tr.'+suiteCollection : 'tr');
+      $(testResults).find(trSel+':visible').each(function () {
           allTests = allTests + 1;
           $(this).find('td.pass').each(function () {
             if ($(this).html() == 't') passYesTests = passYesTests + 1;
@@ -548,107 +551,66 @@ table, tr, th, td {
             }
           });
         });
-        $('#pass span.yes').html(passYesTests);  
-        $('#pass span.no').html(passNoTests);  
-        $('#pass span.sum').html(passYesTests + passNoTests);  
-        $('#implemented span.yes').html(implementYesTests);  
-        $('#implemented span.no').html(implementNoTests);  
-        $('#implemented span.sum').html(implementYesTests + implementNoTests);  
-        $('#negativeSyntax span.yes').html(negativeSyntaxTests);  
-        $('#negativeSyntax span.no').html(positiveSyntaxTests);  
-        $('#negativeSyntax span.sum').html(negativeSyntaxTests + positiveSyntaxTests);  
-        $('#parseNegative span.yes').html(parseYesNegativeSyntaxTests);  
-        $('#parseNegative span.no').html(parseNoNegativeSyntaxTests);  
-        $('#parseNegative span.sum').html(parseYesNegativeSyntaxTests + parseNoNegativeSyntaxTests);  
-        $('#parsePositive span.yes').html(parseYesPositiveSyntaxTests);  
-        $('#parsePositive span.no').html(parseNoPositiveSyntaxTests);  
-        $('#parsePositive span.sum').html(parseYesPositiveSyntaxTests + parseNoPositiveSyntaxTests);  
-        $('#translate span.yes').html(translateYesTests);  
-        $('#translate span.no').html(translateNoTests);  
-        $('#translate span.sum').html(translateYesTests + translateNoTests);  
-        $('#run span.yes').html(runYesTests);  
-        $('#run span.no').html(runNoTests);  
-        $('#run span.sum').html(runYesTests + runNoTests);  
-        $('#comparable span.yes').html(comparableYesTests);  
-        $('#comparable span.no').html(comparableNoTests);  
-        $('#comparable span.sum').html(comparableYesTests + comparableNoTests);  
-        $('#compare span.yes').html(compareYesTests);  
-        $('#compare span.no').html(compareNoTests);  
-        $('#compare span.sum').html(compareYesTests + compareNoTests);  
+        $('#'+suiteCollection+'-pass-yes').html(passYesTests);  
+        $('#'+suiteCollection+'-pass-no').html(passNoTests);  
+        $('#'+suiteCollection+'-pass-sum').html(passYesTests + passNoTests);  
+        $('#'+suiteCollection+'-implemented-yes').html(implementYesTests);  
+        $('#'+suiteCollection+'-implemented-no').html(implementNoTests);  
+        $('#'+suiteCollection+'-implemented-sum').html(implementYesTests + implementNoTests);  
+        $('#'+suiteCollection+'-negativeSyntax-yes').html(negativeSyntaxTests);  
+        $('#'+suiteCollection+'-negativeSyntax-no').html(positiveSyntaxTests);  
+        $('#'+suiteCollection+'-negativeSyntax-sum').html(negativeSyntaxTests + positiveSyntaxTests);  
+        $('#'+suiteCollection+'-parseNegative-yes').html(parseYesNegativeSyntaxTests);  
+        $('#'+suiteCollection+'-parseNegative-no').html(parseNoNegativeSyntaxTests);  
+        $('#'+suiteCollection+'-parseNegative-sum').html(parseYesNegativeSyntaxTests + parseNoNegativeSyntaxTests);  
+        $('#'+suiteCollection+'-parsePositive-yes').html(parseYesPositiveSyntaxTests);  
+        $('#'+suiteCollection+'-parsePositive-no').html(parseNoPositiveSyntaxTests);  
+        $('#'+suiteCollection+'-parsePositive-sum').html(parseYesPositiveSyntaxTests + parseNoPositiveSyntaxTests);  
+        $('#'+suiteCollection+'-translate-yes').html(translateYesTests);  
+        $('#'+suiteCollection+'-translate-no').html(translateNoTests);  
+        $('#'+suiteCollection+'-translate-sum').html(translateYesTests + translateNoTests);  
+        $('#'+suiteCollection+'-run-yes').html(runYesTests);  
+        $('#'+suiteCollection+'-run-no').html(runNoTests);
+        $('#'+suiteCollection+'-run-sum').html(runYesTests + runNoTests);  
+        $('#'+suiteCollection+'-comparable-yes').html(comparableYesTests);  
+        $('#'+suiteCollection+'-comparable-no').html(comparableNoTests);  
+        $('#'+suiteCollection+'-comparable-sum').html(comparableYesTests + comparableNoTests);  
+        $('#'+suiteCollection+'-compare-yes').html(compareYesTests);  
+        $('#'+suiteCollection+'-compare-no').html(compareNoTests);  
+        $('#'+suiteCollection+'-compare-sum').html(compareYesTests + compareNoTests);  
     }
-    $('#TestResults').each(function () { counts(this); });
-    $('#TestResults').on('draw.dt', function () { counts(this);});
+    function addSummaryRow(suiteCollection) {
+      $('#Summary').append('<tr><td>'+suiteCollection+'</td><td class=\"succeeded\"><span id=\"'+suiteCollection+'-pass-yes\" class=\"yes\"></span></td><td class=\"failed\"><span id=\"'+suiteCollection+'-pass-no\" class=\"no\"></span></td><td><span id=\"'+suiteCollection+'-pass-sum\" class=\"sum\"></span></td><td><span id=\"'+suiteCollection+'-implemented-yes\" class=\"yes\"></span></td><td class=\"failed\"><span id=\"'+suiteCollection+'-implemented-no\" class=\"no\"></span></td><td><span id=\"'+suiteCollection+'-implemented-sum\" class=\"sum\"></span></td><td><span id=\"'+suiteCollection+'-negativeSyntax-yes\" class=\"yes\"></span></td><td><span id=\"'+suiteCollection+'-negativeSyntax-no\" class=\"no\"></span></td><td><span id=\"'+suiteCollection+'-negativeSyntax-sum\" class=\"sum\"></span></td><td class=\"failed\"><span id=\"'+suiteCollection+'-parseNegative-yes\" class=\"yes\"></span></td><td class=\"succeeded\"><span id=\"'+suiteCollection+'-parseNegative-no\" class=\"no\"></span></td><td><span id=\"'+suiteCollection+'-parseNegative-sum\" class=\"sum\"></span></td><td><span id=\"'+suiteCollection+'-parsePositive-yes\" class=\"yes\"></span></td><td class=\"failed\"><span id=\"'+suiteCollection+'-parsePositive-no\" class=\"no\"></span></td><td><span id=\"'+suiteCollection+'-parsePositive-sum\" class=\"sum\"></span></td><td><span id=\"'+suiteCollection+'-translate-yes\" class=\"yes\"></span></td><td class=\"failed\"><span id=\"'+suiteCollection+'-translate-no\" class=\"no\"></span></td><td><span id=\"'+suiteCollection+'-translate-sum\" class=\"sum\"></span></td><td><span id=\"'+suiteCollection+'-run-yes\" class=\"yes\"></span></td><td class=\"failed\"><span id=\"'+suiteCollection+'-run-no\" class=\"no\"></span></td><td><span id=\"'+suiteCollection+'-run-sum\" class=\"sum\"></span></td><td><span id=\"'+suiteCollection+'-comparable-yes\" class=\"yes\"></span></td><td class=\"succeeded\"><span id=\"'+suiteCollection+'-comparable-no\" class=\"no\"></span></td><td><span id=\"'+suiteCollection+'-comparable-sum\" class=\"sum\"></span></td><td class=\"succeeded\"><span id=\"'+suiteCollection+'-compare-yes\" class=\"yes\"></span></td><td class=\"failed\"><span id=\"'+suiteCollection+'-compare-no\" class=\"no\"></span></td><td><span id=\"'+suiteCollection+'-compare-sum\" class=\"sum\"></span></td></tr>');
+    }
+    function updateCounts(testResults) {
+      $('#Summary tr').detach();
+      $('#Summary').append('<tr><th></th><th colspan=\"3\">Pass</th><th colspan=\"3\">Implemented</th><th colspan=\"3\">Negative syntax</th><th colspan=\"3\">Parse negative (of <sup class=\"note\">[1]</sup>)</th><th colspan=\"3\">Parse positive (of <sup class=\"note\">[1]</sup>)</th><th colspan=\"3\">Translate (of <sup class=\"note\">[2]</sup>)</th><th colspan=\"3\">Run (of <sup class=\"note\">[3]</sup>)</th><th colspan=\"3\">Comparable (of <sup class=\"note\">[4]</sup>)</th><th colspan=\"3\">Compare (of <sup class=\"note\">[5]</sup>)</th></tr>');
+      $('#Summary').append('<tr><th></th><th>Yes</th><th>No</th><th>Sum</th><th>Yes<sup class=\"note\">[1]</sup></th><th>No</th><th>Sum</th><th>Yes</th><th>No</th><th>Sum</th><th>Yes</th><th>No</th><th>Sum</th><th>Yes<sup class=\"note\">[2]</sup></th><th>No</th><th>Sum</th><th>Yes<sup class=\"note\">[3]</sup></th><th>No</th><th>Sum</th><th>Yes<sup class=\"note\">[4]</sup></th><th>No</th><th>Sum</th><th>Yes<sup class=\"note\">[5]</sup></th><th>No</th><th>Sum</th><th>Yes</th><th>No</th><th>Sum</th></tr>');
+      addSummaryRow('');
+      updateCountsSuiteCollection(testResults, '');
+      $(testResults).find('tr:visible').each(function () {
+        if ($(this).attr('id')) {
+          var suiteCollectionName = $(this).attr('id');
+          var suiteCollection = suiteCollectionName.slice(0, suiteCollectionName.indexOf('_'));
+	  if (!suitesCollectionsHash[suiteCollection]) {
+//            alert('Found ' + suiteCollectionName + ', suiteCollection = ' + suiteCollection);
+	    suitesCollectionsHash[suiteCollection] = true;
+	    suitesCollections.push(suiteCollection);
+            addSummaryRow(suiteCollection);
+            updateCountsSuiteCollection(testResults, suiteCollection);
+	  }
+        }
+      });
+      suitesCollections.reverse();
+    }
+    $('#TestResults').each(function () { updateCounts(this); });
+    $('#TestResults').on('draw.dt', function () { updateCounts(this);});
 } );
 </script>
 </head>
 <body>
 <h2>Summary</h2>
 <table id=\"Summary\">
-<tr><th>Pass</th><th>Implemented</th><th>Negative syntax</th><th>Parse negative (of <sup class=\"note\">[1]</sup>)</th><th>Parse positive (of <sup class=\"note\">[1]</sup>)</th><th>Translate (of <sup class=\"note\">[2]</sup>)</th>
-<!-- <th>Initialize (of <sup class=\"note\">[3]</sup>)</th> -->
-<th>Run (of <sup class=\"note\">[4]</sup>)</th><th>Comparable (of <sup class=\"note\">[5]</sup>)</th><th>Compare (of <sup class=\"note\">[6]</sup>)</th></tr>
-<tr>
-  <td>
-    <table id=\"pass\" width=\"100%\">
-      <tr><th>Yes</th><th>No</th><th>Sum</th></tr>
-      <tr><td class=\"succeeded\"><span class=\"yes\"></span></td><td class=\"failed\"><span class=\"no\"></span></td><td><span class=\"sum\"></span></td></tr>
-    </table>
-  </td>
-  <td>
-    <table id=\"implemented\" width=\"100%\">
-      <tr><th>Yes</th><th>No</th><th>Sum</th></tr>
-      <tr><td><span class=\"yes\"></span><sup class=\"note\">[1]</sup></td><td class=\"failed\"><span class=\"no\"></span></td><td><span class=\"sum\"></span></td></tr>
-    </table>
-  </td>
-  <td>
-    <table id=\"negativeSyntax\" width=\"100%\">
-      <tr><th>Yes</th><th>No</th><th>Sum</th></tr>
-      <tr><td><span class=\"yes\"></span></td><td><span class=\"no\"></span></td><td><span class=\"sum\"></span></td></tr>
-    </table>
-  </td>
-  <td>
-    <table id=\"parseNegative\" width=\"100%\">
-      <tr><th>Yes</th><th>No</th><th>Sum</th></tr>
-      <tr><td class=\"failed\"><span class=\"yes\"></span></td><td class=\"succeeded\"><span class=\"no\"></span></td><td><span class=\"sum\"></span></td></tr>
-    </table>
-  </td>
-  <td>
-    <table id=\"parsePositive\" width=\"100%\">
-      <tr><th>Yes</th><th>No</th><th>Sum</th></tr>
-      <tr><td><span class=\"yes\"></span><sup class=\"note\">[2]</sup></td><td class=\"failed\"><span class=\"no\"></span></td><td><span class=\"sum\"></span></td></tr>
-    </table>
-  </td>
-  <td>
-    <table id=\"translate\" width=\"100%\">
-      <tr><th>Yes</th><th>No</th><th>Sum</th></tr>
-      <tr><td><span class=\"yes\"></span><sup class=\"note\">[3]</sup></td><td class=\"failed\"><span class=\"no\"></span></td><td><span class=\"sum\"></span></td></tr>
-    </table>
-  </td>
-  <!-- <td> -->
-  <!--   <table id=\"initialize\" width=\"100%\"> -->
-  <!--     <tr><th>Yes</th><th>No</th><th>Sum</th></tr> -->
-  <!--     <tr><td class=\"succeeded\"><span class=\"yes\"></span><sup class=\"note\">[4]</sup></td><td class=\"failed\"><span class=\"no\"></span></td><td><span class=\"sum\"></span></td></tr> -->
-  <!--   </table> -->
-  <!-- </td> -->
-  <td>
-    <table id=\"run\" width=\"100%\">
-      <tr><th>Yes</th><th>No</th><th>Sum</th></tr>
-      <tr><td><span class=\"yes\"></span><sup class=\"note\">[5]</sup></td><td class=\"failed\"><span class=\"no\"></span></td><td><span class=\"sum\"></span></td></tr>
-    </table>
-  </td>
-  <td>
-    <table id=\"comparable\" width=\"100%\">
-      <tr><th>Yes</th><th>No</th><th>Sum</th></tr>
-      <tr><td><span class=\"yes\"></span><sup class=\"note\">[6]</sup></td><td class=\"succeeded\"><span class=\"no\"></span></td><td><span class=\"sum\"></span></td></tr>
-    </table>
-  </td>
-  <td>
-    <table id=\"compare\" width=\"100%\">
-      <tr><th>Yes</th><th>No</th><th>Sum</th></tr>
-      <tr><td class=\"succeeded\"><span class=\"yes\"></span></td><td class=\"failed\"><span class=\"no\"></span></td><td><span class=\"sum\"></span></td></tr>
-    </table>
-  </td>
-<tr>
 </table>
 <h2>Tests</h2>
 <table id=\"TestResults\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"display\" width=\"100%\">
@@ -658,8 +620,7 @@ table, tr, th, td {
 ~{  ~{<th class=\"~(~A~)\">~(~A~)</th>~}~^~%~}
 </tr>
 </thead>
-<tbody>~%"
-		     (mapcar #'(lambda (f) (list f f)) (sparql-tests-fields this))))
+<tbody>~%" (mapcar #'(lambda (f) (list f f)) (sparql-tests-fields this))))
       (t (error* "Unknown output-type ~A" output-type)))))
 
 (defgeneric print-sparql-test-trailers (sparql-tests &key stream output-type)
@@ -682,8 +643,8 @@ table, tr, th, td {
 	(:txt (format stream "~&Sparql-test:~%~{  ~{~(~A~) = ~A~}~^~%~}~%" (mapcar #'(lambda (field) (list field (slot-value this field))) (sparql-test-fields this))))
 	(:lisp (error* "Not implemented yet"))
 	(:csv (format stream "~&~{~A~^,~}~%" (mapcar #'(lambda (f) (sparql-value-to-string* (slot-value this f))) (sparql-test-fields this))))
-	(:html (format stream "~&<tr>~%<td class=\"test-number\">~A</td>~%~{~{  <td class=\"~(~A~)\">~(~A~)</td>~}</td>~^~%~}~%</tr>~%"
-		       (if test-number test-number "") (mapcar #'(lambda (f) (list f (slot-value this f))) (sparql-test-fields this))))
+	(:html (format stream "~&<tr class=\"~(~A~)-~(~A~)\" id=\"~(~A~)-~(~A~)_~(~A~)\">~%<td class=\"test-number\">~A</td>~%~{~{  <td class=\"~(~A~)\">~(~A~)</td>~}</td>~^~%~}~%</tr>~%"
+		       (sparql-test-suite this) (sparql-test-collection this)(sparql-test-suite this) (sparql-test-collection this) (sparql-test-name this) (if test-number test-number "") (mapcar #'(lambda (f) (list f (slot-value this f))) (sparql-test-fields this))))
 	(t (error* "Unknown output-type ~A" output-type))))))
 
 ;(defun evaluation-test (rule-file data-file &key graph-data-file select-results-file construct-results-file (output-directory "."))
@@ -718,7 +679,7 @@ table, tr, th, td {
 			(instans (create-instans instans-iri)))
 		   (declare (ignorable resultgraphs graph-datafiles))
 		   (ensure-directories-exist output-directory)
-		   (inform "~&~A~%" (probe-file output-directory))
+;		   (inform "~&~A~%" (probe-file output-directory))
 ;		   (trace translate-sparql-algebra-to-rete)
 		   (instans-add-rules instans queryfile)
 ;		   (untrace)
