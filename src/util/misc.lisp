@@ -139,6 +139,10 @@
     (loop for line = (read-line stream nil nil)
 	  while line do (format output "~A~%" line))))
 
+(defun file-contents-to-string (file)
+  (with-open-file (stream file)
+    (stream-contents-to-string stream)))
+
 (defun http-get-to-string (iri-string)
   (let ((data (drakma:http-request iri-string)))
     (cond ((stringp data) data) (t (coerce (mapcar #'code-char (coerce data 'list)) 'string)))))
