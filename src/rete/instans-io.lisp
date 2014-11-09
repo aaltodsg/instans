@@ -36,6 +36,18 @@
   ((appendp :accessor instans-writer-append-p :initarg :appendp)
    (name :accessor instans-writer-name :initarg :name)))
 
+;; Construct writers
+
+(define-class instans-construct-writer (instans-writer) ())
+
+(define-class instans-stream-writer (instans-writer)
+  ((stream :accessor instans-stream-writer-stream :initarg :stream :initform nil)))
+
+(define-class instans-construct-stream-writer (instans-stream-writer instans-construct-writer) ())
+
+(define-class instans-agent-writer (instans-construct-writer)
+  ((destinations :accessor instans-agent-writer-destinations :initarg :destinations :initform nil)))
+
 ;; Select writers
 
 (define-class instans-select-writer (instans-writer) ())
@@ -46,18 +58,10 @@
 (define-class instans-sparql-query-results-writer (instans-select-writer)
   ((results :accessor instans-sparql-query-results-writer-results :initarg :results)))
 
-(define-class instans-srx-writer (instans-sparql-query-results-writer)
-  ((stream :accessor instans-srx-writer-stream :initarg :stream)))
+(define-class instans-srx-writer (instans-sparql-query-results-writer instans-stream-writer) ())
 
-;; Construct writers
-
-(define-class instans-construct-writer (instans-writer) ())
-
-(define-class instans-stream-writer (instans-construct-writer)
-  ((stream :accessor instans-stream-writer-stream :initarg :stream :initform nil)))
-
-(define-class instans-agent-writer (instans-construct-writer)
-  ((destinations :accessor instans-agent-writer-destinations :initarg :destinations :initform nil)))
+(define-class instans-ttl-writer (instans-sparql-query-results-writer instans-stream-writer) ())
+;(define-class instans-ttl-writer (instans-construct-stream-writer) ())
 
 ;;; Output processors collect data that is later written by writers.
 
@@ -147,6 +151,13 @@
 				  :results (make-instance 'sparql-query-results)
 				  :appendp appendp
 				  :stream (make-instans-output-processor-output-stream output-name appendp)))
+		  (:ttl
+		   (make-instance 'instans-ttl-writer
+				  :name output-name
+				  :results (make-instance 'sparql-query-results)
+;				  :results nil
+				  :appendp appendp
+				  :stream (make-instans-output-processor-output-stream output-name appendp)))
 		  (t (error* "Unknown select output writer type ~S" output-type)))))
     (make-instance 'instans-select-output-processor
 		   :instans instans
@@ -162,7 +173,7 @@
   ;; (inform "create-construct-stream-output-processor ~A ~A" output-name appendp)
   (setf appendp (and appendp (or (null output-name) (string= "-" output-name) (probe-file output-name))))
   (let* ((stream (make-instans-output-processor-output-stream output-name appendp))
-	 (writer (make-instance 'instans-stream-writer :name output-name :stream stream)))
+	 (writer (make-instance 'instans-construct-stream-writer :name output-name :stream stream)))
     (case output-type
       ((:ttl :turtle) (make-instance 'instans-turtle-output-processor :instans instans :output-name output-name :writer writer))
       (:trig (make-instance 'instans-trig-output-processor :instans instans :output-name output-name :writer writer))
@@ -215,20 +226,94 @@
       (close-writer writer))))
 
 (defgeneric close-writer (instans-writer)
-  (:method ((this instans-stream-writer))
-    ;; (inform "close-writer (instans-stream-writer) ~S" this)
-    (close-stream-not-stdout-stderr (instans-stream-writer-stream this)))
   (:method ((this instans-csv-writer))
-    ;; (inform "close-writer (instans-csv-writer) ~S" this)
     (close-stream-not-stdout-stderr (csv-output-stream (instans-csv-writer-csv-output this))))
   (:method ((this instans-srx-writer))
-    ;; (inform "close-writer (instans-srx-writer) ~S" this)
-;    (when (open-stream-p (instans-srx-writer-stream this))
-      (output-results-in-srx (instans-sparql-query-results-writer-results this) (instans-srx-writer-stream this))
-      (close-stream-not-stdout-stderr (instans-srx-writer-stream this)))
+    (output-results-in-srx (instans-sparql-query-results-writer-results this) (instans-stream-writer-stream this))
+    (close-stream-not-stdout-stderr (instans-stream-writer-stream this)))
+  (:method ((this instans-ttl-writer))
+    (output-results-in-ttl (instans-sparql-query-results-writer-results this) (instans-stream-writer-stream this))
+    (close-stream-not-stdout-stderr (instans-stream-writer-stream this)))
+  (:method ((this instans-stream-writer))
+    (close-stream-not-stdout-stderr (instans-stream-writer-stream this)))
   (:method ((this instans-writer))
     (declare (ignore this))
     nil))
+
+(defgeneric output-results-in-srx (query-results stream)
+  (:method ((this sparql-query-results) stream)
+    (xml-emitter:with-xml-output (stream)
+      (xml-emitter:with-tag ("sparql" '(("xmlns" "http://www.w3.org/2005/sparql-results#")))
+	(xml-emitter:with-tag ("head")
+	  (when (slot-boundp this 'variables)
+	    (loop for variable in (sparql-query-results-variables this)
+		  do (xml-emitter:with-simple-tag ("variable" `(("name" ,(format nil "~(~A~)" (subseq (uniquely-named-object-name variable) 1)))))))
+	    (when (slot-boundp this 'links)
+	      (loop for link in (sparql-query-results-links this)
+		    do (xml-emitter:with-simple-tag ("link" `(("href" ,(sparql-link-href link )))))))))
+	(cond ((slot-boundp this 'boolean)
+	       (xml-emitter:simple-tag "boolean" (if (sparql-boolean-result-value (sparql-query-results-boolean this)) "true" "false")))
+	      ((slot-boundp this 'results)
+	       (xml-emitter:with-tag ("results")
+		 (loop for result in (sparql-query-results-results this)
+		       for bindings = (sparql-result-bindings result)
+		       do (xml-emitter:with-tag ("result")
+			    (loop for variable in (sparql-query-results-variables this)
+				  for binding = (find-if #'(lambda (b) (sparql-var-equal variable (sparql-binding-variable b))) bindings)
+				  when binding
+				  do (let ((value (sparql-binding-value binding)))
+				       (unless (sparql-unbound-p value)
+					 (xml-emitter:with-tag ("binding" `(("name" ,(format nil "~(~A~)" (subseq (uniquely-named-object-name variable) 1)))))
+					   (cond ((sparql-error-p value)
+					;						(inform "outputting ~S" value)
+						  (xml-emitter:simple-tag "literal" "SPARQL-ERROR"))
+						 ((rdf-iri-p value)
+					;(inform "writing uri ~S~%" (rdf-iri-string value))
+						  (xml-emitter:simple-tag "uri" (rdf-iri-string value)))
+						 ((rdf-literal-p value)
+					;(inform "about to write ~S" value)
+						  (cond ((rdf-literal-lang value)
+					;(inform "writing literal with langtag ~A@~A~%" (rdf-literal-string value) (rdf-literal-lang value))
+							 (xml-emitter:with-tag ("literal" (list (list "xml:lang" (rdf-literal-lang value))))
+							   (xml-emitter:xml-as-is (rdf-literal-string value))))
+							((rdf-literal-type value)
+					;(inform "writing literal with type ~A^^~A~%" (rdf-literal-string value) (rdf-literal-type value))
+							 (xml-emitter:with-tag ("literal" (list (list "datatype" (rdf-iri-string (rdf-literal-type value)))))
+							   (xml-emitter:xml-as-is (rdf-literal-string value))))
+							(t
+					;(inform "writing plain literal ~A~%" (rdf-literal-string value))
+							 (xml-emitter:simple-tag "literal" (rdf-literal-string value)))))
+						 ((rdf-blank-node-p value)
+					;(inform "writing blank ~A~%" (uniquely-named-object-name value))
+						  (xml-emitter:with-simple-tag ("bnode") (xml-emitter:xml-as-is (uniquely-named-object-name value))))
+						 ((typep value 'datetime)
+						  (xml-emitter:with-tag ("literal" (list (list "datatype" *xsd-datetime-iri-string*)))
+						    (xml-emitter:xml-as-is (datetime-canonic-string value))))
+						 ((typep value 'double-float)
+						  (xml-emitter:with-simple-tag ("literal")
+						    (xml-emitter:xml-as-is (substitute #\e #\d (format nil "~A" value)))))
+						 (t
+					;(inform "writing literal value ~A~%" (sparql-value-to-string value))
+						  (xml-emitter:with-simple-tag ("literal") (xml-emitter:xml-as-is value)))))))))))))))))
+
+(defgeneric output-results-in-ttl (query-results stream)
+  (:method ((this sparql-query-results) stream)
+    (format stream "@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix rs:      <http://www.w3.org/2001/sw/DataAccess/tests/result-set#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix :        <http://example.org/things#> .
+
+[]      rdf:type    rs:ResultSet ;
+        ~{rs:resultVariable \"~A\" ;~^~%        ~}
+        ~{rs:solution [ ~{ rs:binding ~{ [ rs:variable \"~A\"; rs:value    ~A ]~}~^;~%                      ~}
+                    ];~^~%        ~} .~%"
+	    (mapcar #'(lambda (v) (subseq (uniquely-named-object-name v) 1)) (sparql-query-results-variables this))
+	    (mapcar #'(lambda (solution) (mapcan #'(lambda (b)
+						     (and (not (sparql-unbound-p (sparql-binding-value b)))
+							  (list (list (subseq (uniquely-named-object-name (sparql-binding-variable b)) 1)
+								      (sparql-value-to-string (sparql-binding-value b))))))
+						 (sparql-result-bindings solution)))
+		    (sparql-query-results-results this)))))
 
 ;;; Doing SELECT output
 
@@ -304,7 +389,7 @@
 ))
 
 (defgeneric write-statements (instans-writer statements)
-  (:method ((this instans-stream-writer) statements)
+  (:method ((this instans-construct-stream-writer) statements)
     (loop for (s p o g) in statements
 	 do (format (instans-stream-writer-stream this) "~&~A ~A ~A~@[ ~A~]~%" s p o g)))
   (:method ((this instans-agent-writer) statements)
@@ -312,7 +397,7 @@
 	  do (agent-send agent statements))))
 
 (defgeneric write-graph-subject-predicate-object-trie (instans-writer instans trie &key wrap-default-p)
-  (:method ((this instans-stream-writer) (instans instans) trie &key (wrap-default-p t))
+  (:method ((this instans-construct-stream-writer) (instans instans) trie &key (wrap-default-p t))
 ;    (trie-print trie *error-output*)
     (let ((stream (instans-stream-writer-stream this))
 	  (indent 0)
@@ -374,7 +459,7 @@
 (defgeneric maybe-write-prefixes (instans instans-output-processor)
   (:method ((instans instans) (processor instans-trig-output-processor))
     (let ((writer (instans-output-processor-writer processor)))
-      (when (and (typep writer 'instans-stream-writer)
+      (when (and (typep writer 'instans-construct-stream-writer)
 		 (instans-encode-prefixes-p instans)
 		 (not (instans-trig-output-processor-prefixes-written-p processor)))
 	(loop for (k . v) in (instans-prefixes instans)

@@ -35,7 +35,7 @@
   (make-instance 'sparql-binding :variable var :value value))
 
 (defun create-sparql-result (bindings)
-  (inform "create-sparql-result ~{~A~^ ~}" bindings)
+;  (inform "create-sparql-result ~{~A~^ ~}" bindings)
   (make-instance 'sparql-result :bindings bindings))
 
 (defun create-sparql-boolean-result (value)
@@ -70,66 +70,6 @@
 		        collect (create-sparql-binding var value) into bindings
 		        finally (return (create-sparql-result bindings)))))
       (add-sparql-result this result))))
-
-;(defgeneric output-results-in-ttl (query-results instans stream)
-;  (:method ((this sparql-query-results) instans stream)
-
-(defgeneric output-results-in-srx (query-results instans stream)
-  (:method ((this sparql-query-results) instans stream)
-    (declare (ignorable instans))
-    (xml-emitter:with-xml-output (stream)
-      (xml-emitter:with-tag ("sparql" '(("xmlns" "http://www.w3.org/2005/sparql-results#")))
-	(xml-emitter:with-tag ("head")
-	  (when (slot-boundp this 'variables)
-	    (loop for variable in (sparql-query-results-variables this)
-		  do (xml-emitter:with-simple-tag ("variable" `(("name" ,(format nil "~(~A~)" (subseq (uniquely-named-object-name variable) 1)))))))
-	    (when (slot-boundp this 'links)
-	      (loop for link in (sparql-query-results-links this)
-		    do (xml-emitter:with-simple-tag ("link" `(("href" ,(sparql-link-href link )))))))))
-	(cond ((slot-boundp this 'boolean)
-	       (xml-emitter:simple-tag "boolean" (if (sparql-boolean-result-value (sparql-query-results-boolean this)) "true" "false")))
-	      ((slot-boundp this 'results)
-	       (xml-emitter:with-tag ("results")
-		 (loop for result in (sparql-query-results-results this)
-		       for bindings = (sparql-result-bindings result)
-		       do (xml-emitter:with-tag ("result")
-			    (loop for variable in (sparql-query-results-variables this)
-				  for binding = (find-if #'(lambda (b) (sparql-var-equal variable (sparql-binding-variable b))) bindings)
-				  when binding
-				  do (let ((value (sparql-binding-value binding)))
-				       (unless (sparql-unbound-p value)
-					 (xml-emitter:with-tag ("binding" `(("name" ,(format nil "~(~A~)" (subseq (uniquely-named-object-name variable) 1)))))
-					   (cond ((sparql-error-p value)
-					;						(inform "outputting ~S" value)
-						  (xml-emitter:simple-tag "literal" "SPARQL-ERROR"))
-						 ((rdf-iri-p value)
-					;(inform "writing uri ~S~%" (rdf-iri-string value))
-						  (xml-emitter:simple-tag "uri" (rdf-iri-string value)))
-						 ((rdf-literal-p value)
-					;(inform "about to write ~S" value)
-						  (cond ((rdf-literal-lang value)
-					;(inform "writing literal with langtag ~A@~A~%" (rdf-literal-string value) (rdf-literal-lang value))
-							 (xml-emitter:with-tag ("literal" (list (list "xml:lang" (rdf-literal-lang value))))
-							   (xml-emitter:xml-as-is (rdf-literal-string value))))
-							((rdf-literal-type value)
-					;(inform "writing literal with type ~A^^~A~%" (rdf-literal-string value) (rdf-literal-type value))
-							 (xml-emitter:with-tag ("literal" (list (list "datatype" (rdf-iri-string (rdf-literal-type value)))))
-							   (xml-emitter:xml-as-is (rdf-literal-string value))))
-							(t
-					;(inform "writing plain literal ~A~%" (rdf-literal-string value))
-							 (xml-emitter:simple-tag "literal" (rdf-literal-string value)))))
-						 ((rdf-blank-node-p value)
-					;(inform "writing blank ~A~%" (uniquely-named-object-name value))
-						  (xml-emitter:with-simple-tag ("bnode") (xml-emitter:xml-as-is (uniquely-named-object-name value))))
-						 ((typep value 'datetime)
-						  (xml-emitter:with-tag ("literal" (list (list "datatype" *xsd-datetime-iri-string*)))
-						    (xml-emitter:xml-as-is (datetime-canonic-string value))))
-						 ((typep value 'double-float)
-						  (xml-emitter:with-simple-tag ("literal")
-						    (xml-emitter:xml-as-is (substitute #\e #\d (format nil "~A" value)))))
-						 (t
-					;(inform "writing literal value ~A~%" (sparql-value-to-string value))
-						  (xml-emitter:with-simple-tag ("literal") (xml-emitter:xml-as-is value)))))))))))))))))
 
 (defgeneric sparql-results-compare (query-results1 query-results2 &key order-dependent-p verbosep output-stream result-label1 result-label2 handle-error-values-p)
   (:method ((query-results1 sparql-query-results) (query-results2 sparql-query-results) &key order-dependent-p verbosep (output-stream *error-output*) (result-label1 "") (result-label2 "") (handle-error-values-p t))
@@ -245,7 +185,7 @@
   (let* ((i (make-instance 'instans))
 	 (res1 (parse-results-file i in-file)))
     (with-open-file (stream out-file :direction :output :if-exists :supersede)
-      (output-results-in-srx res1 i stream))
+      (output-results-in-srx res1 stream))
     (let ((res2 (parse-results-file i out-file)))
       (unless (sparql-results-compare res1 res2)
       (print-sparql-results res1 :stream *error-output*)
@@ -256,7 +196,7 @@
   (let ((i (make-instance 'instans)) res1 res2)
     (setf res1 (parse-results-file i in-file))
     (with-open-file (stream out-file :direction :output :if-exists :supersede)
-      (output-results-in-srx res1 i stream))
+      (output-results-in-srx res1 stream))
     (setf res2 (parse-results-file i out-file))
 ;    (format stream "~&res2 = ~S~%" res2)
     (unless (sparql-results-compare res1 res2)
@@ -648,7 +588,7 @@ table, tr, th, td {
     (and pathname (format nil "~Atests/~A/~A/~A" (find-instans-root-directory) (sparql-test-suite this) (sparql-test-collection this) pathname))))
 
 (defgeneric run-one-sparql-test (sparql-test &key output-dir-name log-file print-queryfile print-datafile print-resultfile)
-  (:method ((this sparql-test) &key (output-dir-name "cmpoutput") log-file print-queryfile print-datafile print-resultfile)
+  (:method ((this sparql-test) &key (output-dir-name "cmpoutput") log-file print-queryfile print-datafile (print-resultfile t))
     (unless (char= (char output-dir-name (1- (length output-dir-name))) #\/)
       (setf output-dir-name (format nil "~A/" output-dir-name)))
     (let (log-stream)
@@ -664,72 +604,84 @@ table, tr, th, td {
 		    (datafile (expand-sparql-test-path this (sparql-test-datafile this)))
 		    (graph-datafiles (mapcar #'(lambda (file) (expand-sparql-test-path this file)) (sparql-test-graphdatafiles this)))
 		    (resultfile (expand-sparql-test-path this (sparql-test-resultfile this)))
+		    (resultfilebase (if resultfile (subseq (file-namestring resultfile) 0 (position #\. (file-namestring resultfile) :from-end t))))
 		    (resulttype (and resultfile (intern-keyword (string-upcase (pathname-type (parse-namestring resultfile))))))
-		    (resultgraphs (mapcar #'(lambda (x) (list (expand-sparql-test-path this (first x)) (second x))) (sparql-test-resultgraphs this)))
-		    (select-output-file (if resultfile
-					    (multiple-value-bind (select-dir select-filename select-type) (split-path-to-name-and-type-strings resultfile)
-					      (declare (ignorable select-type select-dir))
-					      (format nil "~A~A.srx" output-directory select-filename))))
-;		    (construct-results-file (if (member resulttype '(:ttl)) resultfile))
-		    (construct-output-file "-") ; (if construct-results-file (format nil "~A~A" output-directory (file-namestring construct-results-file)) (format nil "~Adefault-construct-output.ttl" output-directory)))
-;		    (construct-results-type (intern-keyword (string-upcase (pathname-type (parse-namestring construct-output-file)))))
-		    (base (parse-iri (format nil "file://~A" (directory-namestring queryfile))))
+;		    (resultgraphs (mapcar #'(lambda (x) (list (expand-sparql-test-path this (first x)) (second x))) (sparql-test-resultgraphs this)))
+		    output-ttl-file compare-result
 		    (instans-iri (parse-iri (format nil "file://~A" queryfile)))
-		    (instans (create-instans instans-iri)))
-	       (declare (ignorable resultgraphs graph-datafiles))
+		    (instans (create-instans instans-iri))
+		    (base (parse-iri (format nil "file://~A" (directory-namestring queryfile)))))
 	       (ensure-directories-exist output-directory)
 					;		   (inform "~&~A~%" (probe-file output-directory))
 					;		   (trace translate-sparql-algebra-to-rete)
 	       (when (and print-queryfile queryfile)
 		 (inform "Query ~A:~%~A~%" queryfile (file-contents-to-string queryfile)))
+	       ;;; Add rules and test for parsing, translation and initialization
 	       (instans-add-rules instans queryfile)
 					;		   (untrace)
 	       (setf (sparql-test-parse this) (instans-has-status instans (intern-instans "INSTANS-RULE-PARSING-SUCCEEDED")))
 	       (setf (sparql-test-translate this) (instans-has-status instans (intern-instans "INSTANS-RULE-TRANSLATION-SUCCEEDED")))
 	       (setf (sparql-test-initialization this) (instans-has-status instans (intern-instans "INSTANS-RULE-INITIALIZATION-SUCCEEDED")))
 	       (when (and (sparql-test-parse this) (sparql-test-translate this))
-		 (when select-output-file
-		   (setf (instans-select-output-processor instans) (create-select-output-processor instans select-output-file :srx)))
-		 (when construct-output-file
-		   (setf (instans-construct-output-processor instans) (create-construct-output-processor instans construct-output-file :ttl)))
-		 (when datafile
-		   (when print-datafile
-		     (inform "Datafile ~A:~%~A~%" datafile (file-contents-to-string datafile)))
-		   (instans-add-stream-input-processor instans datafile :base base :input-type (intern-keyword (string-upcase (file-type datafile)))))
-		 (loop for graph-datafile in graph-datafiles
-		       do (instans-add-stream-input-processor instans graph-datafile :base base :input-type (intern-keyword (string-upcase (file-type graph-datafile)))))
+		 ;;; Set select and construct output processors
+		 (let ((select-rules-p (some #'select-node-p (instans-nodes instans)))
+		       (ask-rules-p (some #'ask-node-p (instans-nodes instans)))
+		       (describe-rules-p (some #'describe-node-p (instans-nodes instans)))
+		       (construct-rules-p (some #'construct-node-p (instans-nodes instans)))
+		       (modify-rules-p (some #'modify-node-p (instans-nodes instans))))
+		   (unless (= 1 (count t (list select-rules-p ask-rules-p describe-rules-p construct-rules-p modify-rules-p)))
+		     (error* "Query file contains several kinds of rules ~A" queryfile))
+		   (cond (select-rules-p
+			  (when resultfile
+			    (setf output-ttl-file (format nil "~A~A.ttl" output-directory resultfilebase))
+			    (setf (instans-select-output-processor instans) (create-select-output-processor instans output-ttl-file :ttl))))
+			 ((or ask-rules-p describe-rules-p)
+			  nil)
+			 (construct-rules-p
+			  (when resultfile
+			    (setf output-ttl-file (format nil "~A~A.ttl" output-directory resultfilebase))
+			    (setf (instans-construct-output-processor instans) (create-construct-output-processor instans output-ttl-file :ttl)))))
+		   (when datafile
+		     (when print-datafile
+		       (inform "Datafile ~A:~%~A~%" datafile (file-contents-to-string datafile)))
+		     (instans-add-stream-input-processor instans datafile :base base :input-type (intern-keyword (string-upcase (file-type datafile)))))
+		   (loop for graph-datafile in graph-datafiles
+			 do (instans-add-stream-input-processor instans graph-datafile :base base :input-type (intern-keyword (string-upcase (file-type graph-datafile)))))
 					;		     (trace-rete)
-		 (instans-run instans)
-		 (instans-close-open-streams instans)
-		 (setf (sparql-test-run this) (instans-has-status instans 'instans-rule-running-succeeded))
-		 (setf (sparql-test-implemented this) (not (instans-has-status instans 'instans-feature-not-implemented-yet)))
+		   ;;; Run the tests, check for status
+		   (instans-run instans)
+		   (instans-close-open-streams instans)
+		   (setf (sparql-test-run this) (instans-has-status instans 'instans-rule-running-succeeded))
+		   (setf (sparql-test-implemented this) (not (instans-has-status instans 'instans-feature-not-implemented-yet)))
 					;		     (untrace)
-		 (when (sparql-test-comparable this)
-		   (let ((ttl-resultfile
-			  (case resulttype
-			    (:ttl
-			     (let* ((fn (file-namestring resultfile))
-				    (srx-rf (format nil "~A~A-converted-from-ttl.srx" output-directory (subseq fn 0 (position #\. fn :from-end t)))))
-			       (or (probe-file srx-rf) (maybe-convert-ttl-result-file-to-srx-result-file resultfile srx-rf))))
-			    (:srx resultfile)
-			    (t (inform "Cannot compare files of type ~A yet" resulttype)
-			       nil))))
-		     (cond ((null srx-resultfile)
-			    (when (eq resulttype :ttl)
-			      (inform "Compare graphs in ~A" resultfile)))
-			   (t
-			    (multiple-value-bind (samep same-order-p error-msg) (sparql-compare-srx-result-files srx-resultfile select-output-file :output-stream log-stream)
-			      (declare (ignorable same-order-p))
-			      (inform "Compare result ~A -> ~A" resultfile samep)
-			      (when error-msg (instans-add-status instans 'instans-rule-comparing-failed (list error-msg)))
-			      (when print-resultfile
-				(inform "Expected results ~A:~%~A~%" resultfile (file-contents-to-string resultfile))
-				(inform "Actual results ~A:~%~A~%" select-output-file (file-contents-to-string select-output-file)))
-			    (setf (sparql-test-compare this) samep))))))))
-	     (setf (sparql-test-completed this) t)
-	     (setf (sparql-test-pass this) (sparql-test-successful-p this)))
-	(when log-file
-	  (close-stream log-stream "run-sparql-test: closing ~A"))))))
+		   (when (sparql-test-comparable this)
+		     ;;; Compare results
+		     (cond (select-rules-p
+			    ;;; If the results file is not ttl-file, we must create a comparable ttl file (if it does not exist already)
+			    (setf resultfile 
+				  (cond ((eq resulttype :ttl) resultfile)
+					(t
+					 (let* ((fn (file-namestring resultfile))
+						(ttl-resultfile (format nil "~A~A-converted.ttl" output-directory (subseq fn 0 (position #\. fn :from-end t)))))
+;					   (or (probe-file ttl-resultfile)
+					       (maybe-convert-result-file-to-ttl instans resultfile resulttype ttl-resultfile)
+;					       )
+					       ttl-resultfile))))
+			    (setf compare-result (sparql-compare-ttl-result-files resultfile output-ttl-file)))
+			   (construct-rules-p 
+			    (unless (eq resulttype :ttl)
+			      (error* "Not a ttl resultfile ~A" resultfile))
+			    (setf compare-result (sparql-compare-ttl-result-files resultfile output-ttl-file)))
+			   ((or ask-rules-p describe-rules-p)
+			    (setf compare-result nil)))
+		     (setf (sparql-test-compare this) compare-result)
+		     (inform "Compare result ~A -> ~A" resultfile compare-result)
+		     (when (and (not (or ask-rules-p describe-rules-p)) (not compare-result) print-resultfile)
+		       (inform "Expected results ~A:~%~A~%" resultfile (file-contents-to-string resultfile))
+		       (inform "Actual results ~A:~%~A~%" output-ttl-file (file-contents-to-string output-ttl-file))))))
+	       (setf (sparql-test-completed this) t)
+	       (setf (sparql-test-pass this) (sparql-test-successful-p this))))
+	(when log-file (close-stream log-stream "run-sparql-test: closing ~A"))))))
 
 (defgeneric run-sparql-tests (sparql-tests &key output-dir-name names-of-tests-to-run names-of-tests-to-avoid name-of-first-test-to-start-at log-file)
   (:method ((this sparql-tests) &key (output-dir-name "cmpoutput") names-of-tests-to-run
@@ -797,61 +749,11 @@ table, tr, th, td {
 (defun psts ()
   (process-sparql-test-suite :results-file nil :results-type :txt :log-file nil))
 
-;; (defun maybe-convert-ttl-result-file-to-srx-result-file (ttl-file srx-file &key (rules-file (format nil "~A/tests/input/convert-ttl-results-to-srx-results.rq" (find-instans-root-directory))))
-;;   (handler-case
-;;       (let* ((bindings-file (format nil "~A-bindings.srx" (subseq srx-file 0 (position #\. srx-file :from-end t))))
-;; 	     (args (format nil "--select-output=~A -r ~A --input=~A" bindings-file rules-file ttl-file))) 
-;; 	(inform args)
-;; 	(let* ((instans (main args))
-;; 	       (bindings-results (parse-results instans bindings-file)))
-;; 	  (cond ((slot-boundp bindings-results 'variables)
-;; 		 (let ((variables (sparql-query-results-variables bindings-results)))
-;; 		   (cond ((and (= (length variables) 4)
-;; 			       (equal (uniquely-named-object-name (first variables)) "?RS")
-;; 			       (equal (uniquely-named-object-name (second variables)) "?SOLUTION")
-;; 			       (equal (uniquely-named-object-name (third variables)) "?VAR")
-;; 			       (equal (uniquely-named-object-name (fourth variables)) "?VALUE"))
-;; ;			  (inform "Hit")
-;; 			  (loop with rs-list = nil
-;; 				with srx-variables = nil
-;; 				with srx-solutions = nil
-;; 				for result in (sparql-query-results-results bindings-results)
-;; 				for rs = (let ((b (find-result-binding result "?RS"))) (and b (sparql-binding-value b)))
-;; 				for solution = (let ((b (find-result-binding result "?SOLUTION"))) (and b (sparql-binding-value b)))
-;; 				for var = (let ((b (find-result-binding result "?VAR"))) (and b (make-sparql-var instans (format nil "?~A" (string-upcase (sparql-binding-value b))))))
-;; 				for value = (let ((b (find-result-binding result "?VALUE"))) (and b (sparql-binding-value b)))
-;; 				do (progn
-;; ;				     (inform "pushing ~A, ~A" rs rs-list)
-;; 				     (push-to-end-new rs rs-list :test #'sparql-value-equal)
-;; ;				     (inform "pushed ~A" rs)
-;; 				     (push-to-end-new var srx-variables :test #'sparql-var-equal)
-;; 				     (let ((new-binding (create-sparql-binding var value)))
-;; 				       (cond ((null srx-solutions)
-;; 					      (setf srx-solutions (list (list solution new-binding))))
-;; 					     (t
-;; 					      (let ((srx-solution (assoc solution srx-solutions :test #'sparql-value-equal)))
-;; 						(cond ((null srx-solution)
-;; 						       (push-to-end (list solution new-binding) srx-solutions))
-;; 						      (t
-;; 						       (push-to-end new-binding srx-solution))))))
-;; 				       (inform "srx-solutions = ~A" srx-solutions)))
-;; 				finally (progn
-;; 					  (unless (= 1 (length rs-list)) (error* "Unexpected several result sets in file ~A, ~S" ttl-file rs-list))
-;; 					  (inform "About to convert ~A" srx-solutions)
-;; 					  (let* ((srx-results (make-instance 'sparql-query-results
-;; 									     :variables srx-variables
-;; 									     :results (mapcar #'(lambda (srx-solution)
-;; 												  (inform "calling csr ~A" srx-solution)
-;; 												  (create-sparql-result (rest srx-solution)))
-;; 											      srx-solutions))))
-;; 					    (inform "Writing ~A" srx-file)
-;; 					    (print-sparql-results srx-results :stream *error-output*)
-;; 					    (with-open-file (output srx-file :direction :output :if-exists :supersede)
-;; 					      (output-results-in-srx srx-results instans output)))))
-;; 			  srx-file)
-;; 			 (t (inform "Not an SRX result set ~A" ttl-file)
-;; 			    ))))
-;; 		(t
-;; 		 (inform "Not a result set with variables ~A" ttl-file)
-;; 		 nil))))
-;;     (t (e) (inform "Maybe-convert failed on ~A (~A)" ttl-file e) nil)))
+(defun maybe-convert-result-file-to-ttl (instans input-file input-file-type output-file)
+  (case input-file-type
+    (:srx
+     (let ((results (with-open-file (input input-file :direction :input)
+		     (parse-srx-stream instans input input-file))))
+       (with-open-file (output output-file :direction :output :if-exists :supersede)
+	 (output-results-in-ttl results output))))
+    (t (error* "Cannot convert yet ~A" input-file))))
