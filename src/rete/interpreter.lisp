@@ -277,13 +277,17 @@
 
 (defgeneric instans-close-open-streams (instans)
   (:method ((this instans))
-    (loop for ip in (instans-input-processors this)
-	  do (when (instans-stream-input-processor-p ip)
-	       (close-stream (lexer-input-stream (ll-parser-lexer (instans-stream-input-processor-parser ip))) "instans-close-open-streams: close ~A")))
-    (when (instans-select-output-processor this)
-      (close-output-processor (instans-select-output-processor this)))
-    (when (instans-construct-output-processor this)
-      (close-output-processor (instans-construct-output-processor this)))))
+    (handler-case 
+	(progn
+	  (loop for ip in (instans-input-processors this)
+		do (when (instans-stream-input-processor-p ip)
+		     (close-stream (lexer-input-stream (ll-parser-lexer (instans-stream-input-processor-parser ip))) "instans-close-open-streams: close ~A")))
+	  (when (instans-select-output-processor this)
+	    (close-output-processor (instans-select-output-processor this)))
+	  (when (instans-construct-output-processor this)
+	    (close-output-processor (instans-construct-output-processor this))))
+      (t (e)
+	(instans-add-status this 'instans-rule-running-failed (list (format nil "~A" e)))))))
 
 (defgeneric process-query-input (instans-input-processor inputs &key graph ops)
   (:method ((this instans-input-processor) inputs &key graph ops)

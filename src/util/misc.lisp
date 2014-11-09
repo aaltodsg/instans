@@ -190,6 +190,16 @@
 	   (setf dn (namestring dn))
 	   (char= (char dn (1- (length dn))) #\/)))))
 
+(defun split-path-to-name-and-type-strings (path)
+  (cond ((pathnamep path)
+	 (split-path-to-name-and-type-strings (namestring path)))
+	(t
+	 (let* ((fn (file-namestring path))
+		(last-dot-index (position #\. fn :from-end t)))
+	   (cond ((null last-dot-index) (error* "Missing file type in ~A" path))
+		 (t
+		  (values (directory-namestring path) (subseq fn 0 last-dot-index) (subseq fn (1+ last-dot-index)))))))))
+
 (defun close-stream (stream &optional fmt)
   (declare (ignorable fmt))
   ;; (when fmt

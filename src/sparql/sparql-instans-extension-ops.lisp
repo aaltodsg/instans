@@ -100,7 +100,7 @@
   (:method ((input1 iri-or-string) (input2 iri-or-string))
     (let ((name1 (file-iri-or-filename-as-string input1))
 	  (name2 (file-iri-or-filename-as-string input2)))
-      (sparql-compare-srx-files name1 name2))))
+      (sparql-compare-srx-result-files name1 name2))))
 
 (define-sparql-function "instans:parse_rdf_file" (:arguments ((instans-iri rdf-iri) (input-iri iri-or-string)) :returns xsd-boolean-value)
   (:method ((instans-iri rdf-iri) (input-iri iri-or-string))

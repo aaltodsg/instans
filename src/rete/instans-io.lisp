@@ -224,7 +224,7 @@
   (:method ((this instans-srx-writer))
     ;; (inform "close-writer (instans-srx-writer) ~S" this)
 ;    (when (open-stream-p (instans-srx-writer-stream this))
-      (output-srx (instans-sparql-query-results-writer-results this) (instans-srx-writer-stream this))
+      (output-results-in-srx (instans-sparql-query-results-writer-results this) (instans-srx-writer-stream this))
       (close-stream-not-stdout-stderr (instans-srx-writer-stream this)))
   (:method ((this instans-writer))
     (declare (ignore this))
