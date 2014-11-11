@@ -1,0 +1,26 @@
+- Continue sparql-test definition
+  - Model of processing?
+
+
+------------------------------------------
+LATER
+- Try to get fuseki working
+------------------------------------------
+
+
+
+
+
+
+
+------------------------------------------
+DONE
+------------------------------------------
++ Add prefix encoding to SELECT results
++ Create a runner script for the query
++ Fix bug in sparql-tests.lisp
++ Find out all prefixes in manifest.files
+  + script
++ Find out all predicates in manifest files.
+  - Create a query for a single manifest.ttl file
+  + Result: predicate
