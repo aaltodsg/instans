@@ -210,7 +210,7 @@
 	(write-variables writer (instans-select-output-processor-variables this))
 	(setf (instans-select-output-processor-variables-written-p this) t))
       (loop for solution in (instans-select-output-processor-solutions this)
-	    do (write-solution writer solution))
+	    do (write-solution writer (instans-output-processor-instans this) solution))
       (setf (instans-select-output-processor-solutions this) nil))))
 
 ;;; Closing output processors
@@ -341,16 +341,18 @@
   (:method ((this instans-sparql-query-results-writer) variables)
     (set-query-variables (instans-sparql-query-results-writer-results this) variables)))
 
-(defgeneric write-solution (instans-writer values)
-  (:method ((this instans-csv-writer) values)
+(defgeneric write-solution (instans-writer instans values)
+  (:method ((this instans-csv-writer) instans values)
     (write-csv-record (instans-csv-writer-csv-output this)
 		      (mapcar #'(lambda (value)
-				  (cond ((rdf-term-p value) (rdf-term-as-string value))
+				  (cond ((instans-encode-prefixes-p instans) (sparql-value-to-string value :instans instans))
+					((rdf-term-p value) (rdf-term-as-string value))
 					((typep value 'xsd-boolean-value) (if value "true" "false"))
 					((typep value 'xsd-datetime-value) (datetime-canonic-string value))
 					(t value)))
 			      values)))
-  (:method ((this instans-sparql-query-results-writer) values)
+  (:method ((this instans-sparql-query-results-writer) instans values)
+    (declare (ignorable instans))
     (add-sparql-result-values (instans-sparql-query-results-writer-results this) values)))
 
 (defun solution-bindings (node token)

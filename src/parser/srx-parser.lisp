@@ -194,7 +194,7 @@
 	     (translate-bnode (args orig-form)
 	       (declare (ignorable orig-form))
 	       (cond ((null (first args))
-		      (make-named-blank-node instans (second args)))
+		      (make-named-blank-node instans (concatenate 'string "_:" (second args))))
 		     (t (srx-error "Illegal format bnode ~S" args))))
 	     (translate-iri (args orig-form)
 	       (cond ((null (first args))

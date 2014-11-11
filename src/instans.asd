@@ -98,6 +98,8 @@
 				     (:file "main")
 				     (:file "test")
 ;				     (:file "ptest")
-				     ))))
+				     ))
+	       (:module "tests" :depends-on ("main")
+			:components ((:file "sparql-test")))))
 
 (progn (setf *print-circle* nil) (setf *print-right-margin* 250))

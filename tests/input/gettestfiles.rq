@@ -11,7 +11,7 @@ SELECT DISTINCT ?type ?negative ?suite ?collection ?name ?queryfile ?datafile ?g
 WHERE {
    ?test a ?typelong; mf:name ?prettyname .
    BIND(strafter(str(?typelong),"#") AS ?type)
-   BIND((?type = "NegativeSyntaxTest" || ?type = "NegativeSyntaxTest11") AS ?negative)
+   BIND((?type = "NegativeSyntaxTest" || ?type = "NegativeSyntaxTest11" || ?type = "NegativeUpdateSyntaxTest11") AS ?negative)
    BIND(strafter(str(?test), "tests/") AS ?ts)
    BIND(strbefore(?ts, "/") AS ?suite)
    BIND(strbefore(strafter(?ts, "/"), "/") AS ?collection)

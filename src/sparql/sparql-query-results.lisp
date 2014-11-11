@@ -175,9 +175,11 @@
 	 (graph2 nil)
 	 (res2 (parse-rdf-file file2 :document-callback #'(lambda (statements) (setf graph2 statements)))))
     (cond ((ll-parser-failed-p res1)
-	   (error* "Parsing of ~A failed: ~A" file1 (ll-parser-error-messages res1)))
+	   (inform "Parsing of ~A failed: ~A" file1 (ll-parser-error-messages res1))
+	   nil)
 	  ((ll-parser-failed-p res2)
-	   (error* "Parsing of ~A failed: ~A" file2 (ll-parser-error-messages res2)))
+	   (inform "Parsing of ~A failed: ~A" file2 (ll-parser-error-messages res2))
+	   nil)
 	  (t
 	   (rdf-graphs-isomorphic-p graph1 graph2)))))
 
@@ -588,7 +590,7 @@ table, tr, th, td {
     (and pathname (format nil "~Atests/~A/~A/~A" (find-instans-root-directory) (sparql-test-suite this) (sparql-test-collection this) pathname))))
 
 (defgeneric run-one-sparql-test (sparql-test &key output-dir-name log-file print-queryfile print-datafile print-resultfile)
-  (:method ((this sparql-test) &key (output-dir-name "cmpoutput") log-file print-queryfile print-datafile (print-resultfile t))
+  (:method ((this sparql-test) &key (output-dir-name "cmpoutput") log-file print-queryfile print-datafile (print-resultfile nil))
     (unless (char= (char output-dir-name (1- (length output-dir-name))) #\/)
       (setf output-dir-name (format nil "~A/" output-dir-name)))
     (let (log-stream)
@@ -597,7 +599,8 @@ table, tr, th, td {
 	     (setf (sparql-test-completed this) nil)
 	     (setf log-stream (if log-file (open-file log-file :direction :output :if-exists :append :if-does-not-exist :create :fmt "run-one-sparql-test: open ~{~A~^ ~}") *error-output*))
 	     (format log-stream "~&---------------~%")
-	     (print-sparql-test this :stream log-stream :output-type :txt)
+	     (format log-stream "~&~A-~A-~A~%" (sparql-test-suite this) (sparql-test-collection this) (sparql-test-name this))
+;	     (print-sparql-test this :stream log-stream :output-type :txt)
 	     (format log-stream "~&---------------~%")
 	     (let* ((queryfile (expand-sparql-test-path this (sparql-test-queryfile this)))
 		    (output-directory (expand-sparql-test-path this output-dir-name))
@@ -617,79 +620,88 @@ table, tr, th, td {
 	       (when (and print-queryfile queryfile)
 		 (inform "Query ~A:~%~A~%" queryfile (file-contents-to-string queryfile)))
 	       ;;; Add rules and test for parsing, translation and initialization
+	       (inform "Trying to add rules in ~A" (sparql-test-name this))
 	       (instans-add-rules instans queryfile)
 					;		   (untrace)
 	       (setf (sparql-test-parse this) (instans-has-status instans (intern-instans "INSTANS-RULE-PARSING-SUCCEEDED")))
+	       (inform "Test ~A parse = ~A" (sparql-test-name this) (sparql-test-parse this))
 	       (setf (sparql-test-translate this) (instans-has-status instans (intern-instans "INSTANS-RULE-TRANSLATION-SUCCEEDED")))
 	       (setf (sparql-test-initialization this) (instans-has-status instans (intern-instans "INSTANS-RULE-INITIALIZATION-SUCCEEDED")))
-	       (when (and (sparql-test-parse this) (sparql-test-translate this))
-		 ;;; Set select and construct output processors
-		 (let ((select-rules-p (some #'select-node-p (instans-nodes instans)))
-		       (ask-rules-p (some #'ask-node-p (instans-nodes instans)))
-		       (describe-rules-p (some #'describe-node-p (instans-nodes instans)))
-		       (construct-rules-p (some #'construct-node-p (instans-nodes instans)))
-		       (modify-rules-p (some #'modify-node-p (instans-nodes instans))))
-		   (unless (= 1 (count t (list select-rules-p ask-rules-p describe-rules-p construct-rules-p modify-rules-p)))
-		     (error* "Query file contains several kinds of rules ~A" queryfile))
-		   (cond (select-rules-p
-			  (when resultfile
-			    (setf output-ttl-file (format nil "~A~A.ttl" output-directory resultfilebase))
-			    (setf (instans-select-output-processor instans) (create-select-output-processor instans output-ttl-file :ttl))))
-			 ((or ask-rules-p describe-rules-p)
-			  nil)
-			 (construct-rules-p
-			  (when resultfile
-			    (setf output-ttl-file (format nil "~A~A.ttl" output-directory resultfilebase))
-			    (setf (instans-construct-output-processor instans) (create-construct-output-processor instans output-ttl-file :ttl)))))
-		   (when datafile
-		     (when print-datafile
-		       (inform "Datafile ~A:~%~A~%" datafile (file-contents-to-string datafile)))
-		     (instans-add-stream-input-processor instans datafile :base base :input-type (intern-keyword (string-upcase (file-type datafile)))))
-		   (loop for graph-datafile in graph-datafiles
-			 do (instans-add-stream-input-processor instans graph-datafile :base base :input-type (intern-keyword (string-upcase (file-type graph-datafile)))))
-					;		     (trace-rete)
+	       (let* ((runp (and (sparql-test-parse this) (sparql-test-translate this)))
+		      (rule-types (instans-rule-types instans))
+		      (select-rules-p (member 'select-node rule-types))
+		      (ask-rules-p (member 'ask-node rule-types))
+		      (describe-rules-p (member 'describe-node rule-types))
+		      (construct-rules-p (member 'construct-node rule-types))
+		      (modify-rules-p (member 'modify-node rule-types)))
+		 (when runp
+                   ;;; Set select and construct output processors
+		   (cond ((< 1 (length rule-types))
+			  (inform "Query file contains several kinds of rules ~A" queryfile)
+			  (setf runp nil))
+			 ((= 1 (length rule-types))
+			  (cond (select-rules-p
+				 (when resultfile
+				   (setf output-ttl-file (format nil "~A~A.ttl" output-directory resultfilebase))
+				   (setf (instans-select-output-processor instans) (create-select-output-processor instans output-ttl-file :ttl))))
+				((or ask-rules-p describe-rules-p modify-rules-p)
+				 nil)
+				(construct-rules-p
+				 (when resultfile
+				   (setf output-ttl-file (format nil "~A~A.ttl" output-directory resultfilebase))
+				   (setf (instans-construct-output-processor instans) (create-construct-output-processor instans output-ttl-file :ttl))))))))
+		 (when runp
+		   (handler-case
+		       (progn
+			 (when datafile
+			   (when print-datafile
+			     (inform "Datafile ~A:~%~A~%" datafile (file-contents-to-string datafile)))
+			   (instans-add-stream-input-processor instans datafile :base base :input-type (intern-keyword (string-upcase (file-type datafile)))))
+			 (loop for graph-datafile in graph-datafiles
+			       do (instans-add-stream-input-processor instans graph-datafile :base base :input-type (intern-keyword (string-upcase (file-type graph-datafile))))))
+		     (t (e)
+		       (inform "Adding datafile(s) failed in test ~A: ~A" (sparql-test-name this) e)
+		       (setf runp nil))))
 		   ;;; Run the tests, check for status
+		 (when runp
 		   (instans-run instans)
 		   (instans-close-open-streams instans)
 		   (setf (sparql-test-run this) (instans-has-status instans 'instans-rule-running-succeeded))
-		   (setf (sparql-test-implemented this) (not (instans-has-status instans 'instans-feature-not-implemented-yet)))
-					;		     (untrace)
-		   (when (sparql-test-comparable this)
-		     ;;; Compare results
-		     (cond (select-rules-p
+		   (setf (sparql-test-implemented this) (not (instans-has-status instans 'instans-feature-not-implemented-yet))))
+		 (when (and (sparql-test-run this) (sparql-test-comparable this))
+		   (cond (select-rules-p
 			    ;;; If the results file is not ttl-file, we must create a comparable ttl file (if it does not exist already)
-			    (setf resultfile 
-				  (cond ((eq resulttype :ttl) resultfile)
-					(t
-					 (let* ((fn (file-namestring resultfile))
-						(ttl-resultfile (format nil "~A~A-converted.ttl" output-directory (subseq fn 0 (position #\. fn :from-end t)))))
-;					   (or (probe-file ttl-resultfile)
-					       (maybe-convert-result-file-to-ttl instans resultfile resulttype ttl-resultfile)
-;					       )
-					       ttl-resultfile))))
-			    (setf compare-result (sparql-compare-ttl-result-files resultfile output-ttl-file)))
-			   (construct-rules-p 
-			    (unless (eq resulttype :ttl)
-			      (error* "Not a ttl resultfile ~A" resultfile))
-			    (setf compare-result (sparql-compare-ttl-result-files resultfile output-ttl-file)))
-			   ((or ask-rules-p describe-rules-p)
-			    (setf compare-result nil)))
-		     (setf (sparql-test-compare this) compare-result)
-		     (inform "Compare result ~A -> ~A" resultfile compare-result)
-		     (when (and (not (or ask-rules-p describe-rules-p)) (not compare-result) print-resultfile)
-		       (inform "Expected results ~A:~%~A~%" resultfile (file-contents-to-string resultfile))
-		       (inform "Actual results ~A:~%~A~%" output-ttl-file (file-contents-to-string output-ttl-file))))))
-	       (setf (sparql-test-completed this) t)
-	       (setf (sparql-test-pass this) (sparql-test-successful-p this))))
+			  (setf resultfile 
+				(cond ((eq resulttype :ttl) resultfile)
+				      (t
+				       (let* ((fn (file-namestring resultfile))
+					      (ttl-resultfile (format nil "~A~A-converted.ttl" output-directory (subseq fn 0 (position #\. fn :from-end t)))))
+					;					   (or (probe-file ttl-resultfile)
+					 (maybe-convert-result-file-to-ttl instans resultfile resulttype ttl-resultfile)))))
+			  (unless (null resultfile)
+			    (setf compare-result (sparql-compare-ttl-result-files resultfile output-ttl-file))))
+			 (construct-rules-p 
+			  (unless (eq resulttype :ttl)
+			    (error* "Not a ttl resultfile ~A" resultfile))
+			  (setf compare-result (sparql-compare-ttl-result-files resultfile output-ttl-file)))
+			 ((or ask-rules-p describe-rules-p modify-rules-p)
+			  (setf compare-result nil)))
+		   (setf (sparql-test-compare this) compare-result)
+		   (inform "Compare result ~A -> ~A" resultfile compare-result)
+		   (when (and (not (or ask-rules-p describe-rules-p modify-rules-p)) (not compare-result) resultfile print-resultfile)
+		     (inform "Expected results ~A:~%~A~%" resultfile (file-contents-to-string resultfile))
+		     (inform "Actual results ~A:~%~A~%" output-ttl-file (file-contents-to-string output-ttl-file))))))
+	     (setf (sparql-test-completed this) t)
+	     (setf (sparql-test-pass this) (sparql-test-successful-p this))
+	     (print-sparql-test this :output-type :csv :stream log-stream)
+	     )
 	(when log-file (close-stream log-stream "run-sparql-test: closing ~A"))))))
 
 (defgeneric run-sparql-tests (sparql-tests &key output-dir-name names-of-tests-to-run names-of-tests-to-avoid name-of-first-test-to-start-at log-file)
   (:method ((this sparql-tests) &key (output-dir-name "cmpoutput") names-of-tests-to-run
 				  (names-of-tests-to-avoid (list "dawg-delete-insert-01" "dawg-delete-insert-05b" ;; These loop on INSTANS
 								 "md5-01" "md5-02" "sha1-01" "sha1-02" "sha256-01" "sha256-02" "sha512-01" "sha512-02" ;; Not implemented
-								 "replace01" "replace02" "replace03"
-								 "subquery01" "subquery02" "subquery03" "subquery04" "subquery05" "subquery06" "subquery07" ;; Missing RDF input format
-								 "subquery08" "subquery09" "subquery10" "subquery11" "subquery12" "subquery13" "subquery14"))
+								 ))
 				  name-of-first-test-to-start-at log-file)
     (when (and log-file (probe-file log-file)) (delete-file log-file))
     (let ((entries (sparql-tests-entries this)))
@@ -712,7 +724,8 @@ table, tr, th, td {
 		  (or (null name) (equal name (sparql-test-name test))))
 	do (progn
 	     (inform "Running ~A-~A-~A" (sparql-test-suite test) (sparql-test-collection test) (sparql-test-name test))
-	     (run-one-sparql-test test :log-file nil :print-queryfile t :print-datafile t :print-resultfile t))))
+	     (run-one-sparql-test test :log-file nil :print-queryfile t :print-datafile t :print-resultfile t)
+	     (print-sparql-test test :stream *error-output* :output-type :txt))))
 
 (defun parse-tests (&key (rules-file (format nil "~A/tests/input/gettestfiles.rq" (find-instans-root-directory)))
 		      (tests-csv-file (format nil "~A/tests/sparql-tests/sparql-tests.csv" (find-instans-root-directory))))
@@ -755,5 +768,7 @@ table, tr, th, td {
      (let ((results (with-open-file (input input-file :direction :input)
 		     (parse-srx-stream instans input input-file))))
        (with-open-file (output output-file :direction :output :if-exists :supersede)
-	 (output-results-in-ttl results output))))
-    (t (error* "Cannot convert yet ~A" input-file))))
+	 (output-results-in-ttl results output))
+       output-file))
+    (t (inform "Cannot convert yet ~A" input-file)
+       nil)))

@@ -28,18 +28,18 @@
      (let* ((*triple-count* 0)
 	    (instans (make-instance 'instans :name file))
 	    (parser (apply #'make-rdf-parser instans stream (pathname-type (parse-namestring file)) keys))
-	    (lexer (ll-parser-lexer parser))
+	   ; (lexer (ll-parser-lexer parser))
 	    (result (parse parser)))
        (cond ((ll-parser-succeeded-p result)
 	      ;; (inform "~%triple-count = ~D, triple-sizes = ~D~%strings: ~D elems, prefixes: ~D elems, keywords: ~D elems"
 	      ;; 	*triple-count* *triple-sizes* (hash-table-count (lexer-string-table lexer))
 	      ;; 	(hash-table-count (lexer-prefix-table lexer)) (hash-table-count (lexer-keyword-table lexer)))
-	      (inform "~%  ~A: triple-count = ~D, strings: ~D elems, prefixes: ~D elems, keywords: ~D elems"
-		      (pathname-name (pathname file)) *triple-count*
-		      (hash-table-count (bindings-table-hash-table (lexer-string-table lexer)))
-		      (hash-table-count (bindings-table-hash-table (lexer-prefix-table lexer)))
-		      (hash-table-count (bindings-table-hash-table (lexer-keyword-table lexer))))
-	      )
+	      ;; (inform "~%  ~A: triple-count = ~D, strings: ~D elems, prefixes: ~D elems, keywords: ~D elems"
+	      ;; 	      (pathname-name (pathname file)) *triple-count*
+	      ;; 	      (hash-table-count (bindings-table-hash-table (lexer-string-table lexer)))
+	      ;; 	      (hash-table-count (bindings-table-hash-table (lexer-prefix-table lexer)))
+	      ;; 	      (hash-table-count (bindings-table-hash-table (lexer-keyword-table lexer))))
+	      t)
 	     (t
 	      (inform "~%Error in parse-rdf-file ~A: ~{~A~^; ~}~%" file (ll-parser-error-messages result))))
        result))

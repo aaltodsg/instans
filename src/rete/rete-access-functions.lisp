@@ -593,3 +593,10 @@
 		    (setf (instans-report-operation-kinds this) reporting))))))
     this))
 
+(defgeneric instans-rule-types (instans)
+  (:method ((this instans))
+    (loop with rule-types = nil
+	  for node in (instans-nodes this)
+	  when (and (typep node 'rule-node) (null (node-succ node)))
+	  do (pushnew (type-of node) rule-types)
+	  finally (return rule-types))))
