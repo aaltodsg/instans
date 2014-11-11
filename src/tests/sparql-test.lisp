@@ -20,6 +20,21 @@
 ;;; dawgt:approval
 ;;; dawgt:approvedBy
 ;;; mf:action
+;;; mf:action	qt:data
+;;; mf:action	qt:graphData
+;;; mf:action	qt:query
+;;; mf:action	qt:serviceData
+;;; mf:action	qt:serviceData		qt:data
+;;; mf:action	qt:serviceData		qt:endpoint
+;;; mf:action	sd:EntailmentProfile
+;;; mf:action	sd:EntailmentProfile	<>
+;;; mf:action	sd:entailmentRegime
+;;; mf:action	sd:entailmentRegime	<>
+;;; mf:action	ut:data
+;;; mf:action	ut:graphData
+;;; mf:action	ut:graphData		rdfs:label
+;;; mf:action	ut:graphData		ut:graph
+;;; mf:action	ut:request
 ;;; mf:description
 ;;; mf:entries
 ;;; mf:feature
@@ -27,6 +42,11 @@
 ;;; mf:notable
 ;;; mf:requires
 ;;; mf:result
+;;; mf:result	ut:data
+;;; mf:result	ut:graphData
+;;; mf:result	ut:graphData	rdfs:label
+;;; mf:result	ut:graphData	ut:graph
+;;; mf:result	ut:result
 ;;; mf:resultCardinality
 ;;; qt:data
 ;;; qt:endpoint
@@ -34,17 +54,23 @@
 ;;; qt:query
 ;;; qt:queryForm
 ;;; qt:serviceData
+;;; qt:serviceData	qt:data
+;;; qt:serviceData	qt:endpoint
 ;;; rdf:type
 ;;; rdfs:comment
 ;;; rdfs:label
 ;;; rdfs:seeAlso
 ;;; sd:EntailmentProfile
 ;;; sd:entailmentRegime
+;;; sd:EntailmentProfile	<>	<>	<>
+;;; sd:entailmentRegime		<>	<>	<>
 ;;; ut:data
 ;;; ut:graph
 ;;; ut:graphData
 ;;; ut:request
 ;;; ut:result
+;;; ut:graphData	rdfs:label
+;;; ut:graphData	ut:graph
 
 ;; (define-class sparql-test ()
 ;;   ((
