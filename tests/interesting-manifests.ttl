@@ -1,0 +1,209 @@
+Cases.
+(mf:NegatibeSyntaxTest|mf:NegativeSyntaxTest11|mf:NegativeSyntaxTest11|mf:NegativeUpdateSyntaxTest11)?
+(mf:action \[ qt:query  <*.rq>
+              (;qt:data   <*.ttl>)?
+              (;qt:graphData <*.ttl>)*
+          \];)?
+(mf:result  (<*.srx> | // A SPARQL result set
+             <*.ttl> | // A resultSet with solutions in Turtle
+             <*.ttl> | // A resultSet with boolean in Turtle
+             <*.rdf> | // A resultSet in XML
+	     <*.srj> | // A SRJ result
+            ))?
+
+mf:action \[ ut:request <*.ru>
+            (;ut:data <*.ttl>)?
+            (;ut:graphData \[ ut:graph <*.ttl> ; rdfs:label "*" \] )*
+          \] ;
+(mf:result \[ (ut:result ut:success;)?
+              (ut:data <*>;)?
+              (ut:graphData [ ut:graph <*.ttl> ; rdfs:label "*" \];)*
+	      (qt:serviceData \[ qt:endpoint <*> ; qt:data <*.ttl>;)*
+	      (sd:EntailmentProfile \(...\);)*
+	      (sd:entailmentRegime ent:RDF;)?
+           \])?
+
+
+---------------
+Examples
+---------------
+1.
+         mf:action
+            [ qt:query  <join-combo-1.rq> ;
+              qt:data   <join-combo-graph-2.ttl> ] ;
+         mf:result  <join-combo-1.srx> .
+
+2.
+         mf:action
+            [ qt:query  <join-combo-2.rq> ;
+              qt:graphData   <join-combo-graph-1.ttl>;
+              qt:data        <join-combo-graph-2.ttl> ] ;
+         mf:result  <join-combo-2.srx> .
+
+3.
+       mf:action
+          [ qt:query  <query-boolean-literal.rq> ;
+            qt:data   <data-1.ttl> ] ;
+      mf:result  <result-boolean-literal.ttl> .
+
+5.
+    mf:action
+            [ qt:query  <dataset-01.rq> ] ;
+    mf:result  <dataset-01.ttl> ;
+
+6.
+    mf:action
+            [ qt:query        <graph-11.rq> ;
+              qt:data         <data-g1.ttl> ;
+              qt:graphData    <data-g1.ttl> ;
+              qt:graphData    <data-g2.ttl> ;
+              qt:graphData    <data-g3.ttl> ;
+              qt:graphData    <data-g4.ttl> ;
+            ] ;
+    mf:result  <graph-11.ttl> ;
+
+7.
+    mf:action
+           [ qt:query  <open-eq-07.rq> ;
+             qt:data   <data-2.ttl> ] ;
+    mf:result  <open-eq-07-result.srx> ;
+    mf:requires mf:LangTagAwareness ;
+    mf:requires mf:StringSimpleLiteralCmp ;
+
+8.
+         mf:action
+            [ qt:query  <query-sort-1.rq> ;
+              qt:data   <data-sort-1.ttl> ] ;
+         mf:result  <result-sort-1.rdf> .
+
+9.
+         mf:action  <syntax-basic-01.rq> ;
+
+10.
+         mf:action  <syn-bad-01.rq> ;
+
+11.
+    mf:action [ ut:request <add-01.ru> ;
+                ut:data <add-default.ttl> ;
+                ut:graphData [ ut:graph <add-01-pre.ttl> ;
+                               rdfs:label "http://example.org/g1" ]
+              ] ;
+    mf:result [ ut:data <add-default.ttl> ;
+                ut:graphData [ ut:graph <add-01-post.ttl> ;
+                               rdfs:label "http://example.org/g1" ]
+              ] .
+
+12.
+    mf:action [ ut:request <add-01.ru> ;
+                ut:data <add-default.ttl> ;
+              ] ;
+    mf:result [ ut:data <add-default.ttl> ;
+                ut:graphData [ ut:graph <add-default.ttl> ;
+                               rdfs:label "http://example.org/g1" ]
+              ] .
+
+13.
+    mf:action [ ut:request <add-05.ru> ;
+                ut:data <add-default.ttl> ;
+                ut:graphData [ ut:graph <add-01-pre.ttl> ;
+                               rdfs:label "http://example.org/g1" ] ;
+                ut:graphData [ ut:graph <add-03-pre.ttl> ;
+                               rdfs:label "http://example.org/g3" ]
+              ] ;
+    mf:result [ ut:data <add-default.ttl> ;
+                ut:graphData [ ut:graph <add-01-pre.ttl> ;
+                               rdfs:label "http://example.org/g1" ] ;
+                ut:graphData [ ut:graph <add-03-post.ttl> ;
+                               rdfs:label "http://example.org/g3" ]
+              ] .
+
+14.
+    mf:action  <agg09.rq> .
+
+15.
+    mf:action [ ut:request <insert-data-spo1.ru> ; 
+              ] ;
+    mf:result [ ut:result ut:success ; 
+                ut:data  <spo.ttl>
+              ]
+
+17.
+    mf:action.
+         [ qt:query  <rdf01.rq> ;
+           qt:data   <rdf01.ttl> ;
+           sd:entailmentRegime ent:RDF ] ;
+    mf:result  <rdf01.srx> .
+
+18.
+    mf:action 
+        [ qt:query  <rdf04.rq> ; 
+          qt:data <rdf04.ttl> ; 
+          sd:EntailmentProfile ( pr:DL pr:EL pr:QL pr:RL pr:Full ) ;
+          sd:entailmentRegime ( ent:RDF ent:RDFS ent:D ent:OWL-RDF-Based ) ] ;
+    mf:result  <rdf04.srx> .
+         mf:name "parent query with (hasChild min 1) restriction" ;
+         dawgt:approval dawgt:NotClassified ;
+         mf:action  
+		[ qt:query  <parent4.rq> ; 
+		qt:data <parent.ttl> ; 
+           sd:EntailmentProfile pr:DL ;
+           sd:entailmentRegime ent:OWL-Direct ] ;
+         mf:result  <parent4.srx> .
+
+19.
+         mf:action  
+		[ qt:query  <parent5.rq> ; 
+		qt:data <parent.ttl> ; 
+           sd:EntailmentProfile pr:DL ;
+           sd:EntailmentProfile pr:DL ;
+           sd:entailmentRegime ent:OWL-Direct ] ;
+         mf:result  <parent5.srx> .
+
+20.
+    mf:action
+         [ qt:query  <jsonres01.rq> ;
+           qt:data   <data.ttl> ] ;
+    mf:result  <jsonres01.srj>
+
+21.
+:query_post_form rdf:type mf:ProtocolTest ;
+       mf:name    "query via URL-encoded POST" ;
+       dawgt:approval dawgt:NotClassified ;
+
+22.
+:service1 rdf:type mf:QueryEvaluationTest ;
+       mf:action [
+               qt:query  <service01.rq> ;
+               qt:data   <data01.ttl> ;
+               qt:serviceData [
+                       qt:endpoint <http://example.org/sparql> ;
+                       qt:data     <data01endpoint.ttl>
+               ]
+       ] ;
+       mf:result  <service01.srx> .
+
+23.
+       mf:action [
+               qt:query  <service02.rq> ;
+               qt:serviceData [
+                       qt:endpoint <http://example1.org/sparql> ;
+                       qt:data     <data02endpoint1.ttl>
+               ] ;
+               qt:serviceData [
+                       qt:endpoint <http://example2.org/sparql> ;
+                       qt:data     <data02endpoint2.ttl>
+               ]
+       ] ;
+       mf:result  <service02.srx> .
+   mf:action  <syntax-update-bad-02.ru> ;.
+
+24.
+    mf:action [ ut:request <load-silent.ru> ; 
+              ] ;
+    mf:result [] .
+
+25.
+        mf:action
+            [ qt:data   <tP.ttl> ;
+              qt:query  <tP-double-double.rq> ] ;
+        mf:result  <true.ttl> 
