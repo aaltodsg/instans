@@ -10,7 +10,7 @@ PREFIX sd: <http://www.w3.org/ns/sparql-service-description#>
 PREFIX sparql: <http://www.w3.org/ns/sparql#>
 PREFIX ut: <http://www.w3.org/2009/sparql/tests/test-update#>
 
-SELECT ?type ?suite ?collection ?name ?base WHERE {
+SELECT ?type ?suite ?collection ?name ?q ?d ?rd ?rg ?rl ?utr ?qte ?qtd ?er WHERE {
        { SELECT * { ?test rdf:type ?type
        	 	    FILTER(?type = mf:CSVResultFormatTest
 		        || ?type = mf:CSVResultFormatTest
@@ -28,5 +28,28 @@ SELECT ?type ?suite ?collection ?name ?base WHERE {
        BIND(strbefore(strafter(str(<>), "tests/"), "/") AS ?suite)
        BIND(strbefore(strafter(strafter(str(<>), "tests/"), "/"),"/") AS ?collection)
        BIND(strafter(str(?test), "#") AS ?name)
-       BIND(str(<>) AS ?base)
+#       BIND(str(<>) AS ?base)
+       OPTIONAL { ?test mf:action ?q1 FILTER(!isblank(?q1)) }
+       OPTIONAL { ?test mf:action ?a .
+                  ?a qt:query ?q2
+	          OPTIONAL { ?a qt:data ?d1 }
+	          OPTIONAL { ?a qt:graphData ?gd1 }
+       }
+       OPTIONAL { ?test mf:action ?b .
+                  ?b ut:request ?q3
+       	          OPTIONAL { ?b ut:data ?d2
+       	                     OPTIONAL { ?b ut:graphData ?gd2 ; rdfs:label ?graphlabel }}}
+       BIND(coalesce(?q1, ?q2, ?q3) AS ?q)
+       BIND(coalesce(?d1, ?d2) AS ?d)
+       OPTIONAL { ?test mf:result ?rd1 FILTER(!isblank(?rd1)) }
+       OPTIONAL { ?test mf:result ?r1 .
+                  FILTER(isblank(?r1))
+                  OPTIONAL { ?r1 ut:data ?rd2 }
+		  OPTIONAL { ?r1 ut:graphData [ ut:graph ?rg; rdfs:label ?rl ] }
+		  OPTIONAL { ?r1 ut:result ?utr }
+		  OPTIONAL { ?r1 qt:serviceData [ qt:endpoint ?qte ; qt:data ?qtd ] }
+		  OPTIONAL { ?r1 sd:EntailmentProfile ?ep }
+		  OPTIONAL { ?r1 sd:entailmentRegime ?er }
+       }
+       BIND(coalesce(?rd1, ?rd2) AS ?rd)
 }

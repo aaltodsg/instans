@@ -39,7 +39,8 @@ WHERE {
    OPTIONAL { ?test mf:result ?r1 .
               FILTER(isblank(?r1))
               OPTIONAL { ?r1 ut:data ?rd1 }
-	      OPTIONAL { ?r1 ut:graphData [ ut:graph ?rg; rdfs:label ?rl ] } }
+	      OPTIONAL { ?r1 ut:graphData [ ut:graph ?rg; rdfs:label ?rl ] }
+   }
    OPTIONAL { ?test mf:result ?rd2 FILTER(!isblank(?rd2)) }
    BIND(coalesce(?rd1, ?rd2) AS ?rd)
    BIND(strafter(str(?rd), ?itss) AS ?resultfile)

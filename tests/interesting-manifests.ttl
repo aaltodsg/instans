@@ -11,10 +11,11 @@ Cases.
                 |mf:QueryEvaluationTest
                 |mf:ServiceDescriptionTest
                 |mf:UpdateEvaluationTest);
-(mf:action \[ qt:query  <*.rq>
+(mf:action (\[ qt:query  <*.rq>
               (;qt:data   <*.ttl>)?
               (;qt:graphData <*.ttl>)*
-          \];)?
+             \]
+	     | <*.rq>;)?
 (mf:result  (<*.srx> | // A SPARQL result set
              <*.ttl> | // A resultSet with solutions in Turtle
              <*.ttl> | // A resultSet with boolean in Turtle
