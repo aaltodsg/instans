@@ -296,6 +296,7 @@
    (prefixes :accessor instans-prefixes :initform nil)
    (prefixes-sorted :accessor instans-prefixes-sorted :initform nil)
    (encode-prefixes-p :accessor instans-encode-prefixes-p :initform nil)
+   (print-prefix-encodings-p :accessor instans-print-prefix-encodings-p :initform t)
    (debug-topics :accessor instans-debug-topics :initform nil)
    (algebra-expr-list :accessor instans-algebra-expr-list :initform nil)
    (report-operation-kinds :accessor instans-report-operation-kinds :initarg :report-operation-kinds :initform nil)

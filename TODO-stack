@@ -1,6 +1,8 @@
-- Continue sparql-test definition
-  - Model of processing?
-
+- Add option for ignoring printint prefixes, when using prefix encoding
+- Create a new SPAQRL query to get the necessary fields of a test
+- Create a script that
+  - merges all manifest files, putting @base definitions in between.
+  - runs that SPARQL test
 
 ------------------------------------------
 LATER

@@ -470,6 +470,13 @@
 		       (instans-encode-prefixes instans (cond ((string-equal value "true") t)
 							      ((string-equal value "false") nil)
 							      (t (usage)))))
+		      (print-prefix-encodings
+		       :options ("--print-prefix-encodings=BOOL")
+		       :usage ("If true (the default), print prefix definitions, when outputting results and with prefix encoding is on.")
+		       (setf (instans-print-prefix-encodings-p instans)
+			     (cond ((string-equal value "true") t)
+				   ((string-equal value "false") nil)
+				   (t (usage)))))
 		      (time
 		       :options ("--time=FILE")
 		       :usage "Output timing information to FILE. Use '-' for standard output."

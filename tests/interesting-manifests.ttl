@@ -1,5 +1,16 @@
 Cases.
-(mf:NegatibeSyntaxTest|mf:NegativeSyntaxTest11|mf:NegativeSyntaxTest11|mf:NegativeUpdateSyntaxTest11)?
+
+?x rdf:type (mf:CSVResultFormatTest
+                |mf:NegativeSyntaxTest
+                |mf:NegativeSyntaxTest11
+                |mf:NegativeUpdateSyntaxTest11
+                |mf:PositiveSyntaxTest
+                |mf:PositiveSyntaxTest11
+                |mf:PositiveUpdateSyntaxTest11
+                |mf:ProtocolTest
+                |mf:QueryEvaluationTest
+                |mf:ServiceDescriptionTest
+                |mf:UpdateEvaluationTest);
 (mf:action \[ qt:query  <*.rq>
               (;qt:data   <*.ttl>)?
               (;qt:graphData <*.ttl>)*

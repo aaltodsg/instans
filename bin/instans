@@ -1,6 +1,6 @@
 #!/bin/sh
 DIR=`pwd`
-cd `dirname $0`
+cd `dirname $0` > /dev/null
 newersources=`find ../src/ -name '*.lisp' -newer instans.bin|wc -l`
 
 if test $newersources -gt 0; then
