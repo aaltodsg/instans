@@ -732,6 +732,59 @@ table, tr, th, td {
   (tests-from-manifests :rules-file rules-file :select-output-name tests-csv-file)
   (setf *sparql-tests* (parse-csv-tests tests-csv-file)))
 
+(defun csv-file-to-alist (csv-file &key key-fields (key-test #'equal) (data-field-merge #'cons) (data-field-initial-value nil))
+  (let ((alist nil)
+	(headers nil)
+	(key-indices nil)
+	(firstp t)
+	(line-count 0)
+	(unique-key-count 0))
+    (csv-parser:map-csv-file csv-file
+			     #'(lambda (line)
+				 (cond (firstp
+					(setf firstp nil)
+					(setf headers line)
+					(setf key-indices (loop for key-field in key-fields
+								for key-index = (position key-field line :test #'equal)
+								when (null key-index)
+								do (error* "Missing key field ~A in CSV headers ~A" key-field headers)
+								else
+								collect key-index)))
+				       (t
+					(incf line-count)
+					(multiple-value-bind (key-fields data-fields)
+					    (loop for field in line
+						  for index from 0
+						  when (find index key-indices :test #'eql) collect field into key-fields
+						  else collect field into data-fields
+						  finally (return (values key-fields data-fields)))
+					  (let ((item (assoc key-fields alist :test key-test))
+						(prev-data-fields nil))
+					    (cond ((null item)
+;						   (inform "First hit for ~A" key-fields)
+						   (incf unique-key-count)
+						   (setf item (list key-fields))
+						   (setf prev-data-fields (loop repeat (length data-fields) collect data-field-initial-value))
+						   (push-to-end item alist))
+						  (t
+;						   (inform "New hit for ~A" key-fields)
+						   (setf prev-data-fields (second item))))
+					    (setf (cdr item)
+						  (list (mapcar #'(lambda (a b) (funcall data-field-merge a b)) data-fields prev-data-fields)))))))))
+    (assert (= (length alist) unique-key-count))
+    (values alist line-count unique-key-count)))
+
+(defun simple-field-merge (new-value old-value-or-values)
+ (let ((v
+  (cond ((equal new-value "UNBOUND") old-value-or-values)
+	((equal old-value-or-values "UNBOUND") new-value)
+	((equal new-value old-value-or-values) new-value)
+	((and (listp old-value-or-values) (member new-value old-value-or-values :test #'equal)) old-value-or-values)
+	(t (cons new-value old-value-or-values))))
+      )
+  (unless (null v) (inform "v = ~S" v))
+  v))
+
 (defun parse-csv-tests (csv-file &key (skip-lines 1))
   (let ((tests (make-instance 'sparql-tests)))
 ;    (inform "test-iri-list ~A" test-iri-list)

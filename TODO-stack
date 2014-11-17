@@ -1,8 +1,7 @@
-- Add option for ignoring printint prefixes, when using prefix encoding
-- Create a new SPAQRL query to get the necessary fields of a test
-- Create a script that
-  - merges all manifest files, putting @base definitions in between.
-  - runs that SPARQL test
+- Create a function that merges csv files
+
+
+
 
 ------------------------------------------
 LATER
@@ -18,6 +17,9 @@ LATER
 ------------------------------------------
 DONE
 ------------------------------------------
++ Create a script that runs that SPARQL test
++ Create a new SPAQRL query to get the necessary fields of a test
++ Add option for ignoring printint prefixes, when using prefix encoding
 + Add prefix encoding to SELECT results
 + Create a runner script for the query
 + Fix bug in sparql-tests.lisp

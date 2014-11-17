@@ -20,6 +20,8 @@ for m in tests/data-r2/*/manifest.ttl tests/data-sparql11/*/manifest.ttl; do
     # 	echo Mismatch $m: $[I] != $E
     # fi
 done > $TMP
+# done
+# exit 
 # if test $ETOT -eq $ITOT; then
 #    echo "ETOT=ITOT=$ITOT"
 # else
