@@ -775,15 +775,15 @@ table, tr, th, td {
     (values alist line-count unique-key-count)))
 
 (defun simple-field-merge (new-value old-value-or-values)
- (let ((v
+; (let ((v
   (cond ((equal new-value "UNBOUND") old-value-or-values)
 	((equal old-value-or-values "UNBOUND") new-value)
 	((equal new-value old-value-or-values) new-value)
 	((and (listp old-value-or-values) (member new-value old-value-or-values :test #'equal)) old-value-or-values)
 	(t (cons new-value old-value-or-values))))
-      )
-  (unless (null v) (inform "v = ~S" v))
-  v))
+      ;; )
+  ;; (unless (null v) (inform "v = ~S" v))
+  ;; v))
 
 (defun parse-csv-tests (csv-file &key (skip-lines 1))
   (let ((tests (make-instance 'sparql-tests)))
@@ -798,6 +798,28 @@ table, tr, th, td {
 							     :resultfile resultfile :resultgraphfile resultgraphfile :resultgraphlabel resultgraphlabel)))
 			     :skip-lines skip-lines)
     tests))
+
+(defun categorize-tests (&optional (key-length 4))
+  (let ((test-alist (csv-file-to-alist "/Users/enu/instans/tests.csv" :key-fields '("type" "suite" "collection" "name") :data-field-merge #'simple-field-merge))
+	(category-alist nil))
+    (labels ((categorize-test (test)
+	       (let* ((key (first test))
+		      (data (second test))
+		      (category-key (butlast key (- 4 key-length)))
+		      (category-data (mapcar #'(lambda (x) (if (listp x) (length x) 1)) data))
+		      (item (assoc category-key category-alist :test #'equal)))
+;		 (inform "old-key=~A, old-data=~A~%new-key=~A, new-data=~A" key data category-key category-data)
+		 (cond ((null item)
+			(push-to-end (list category-key category-data) category-alist))
+		       ((not (find category-data (rest item) :test #'equal))
+			(setf (cdr (last item)) (list category-data))))
+		 )))
+      (loop for test in test-alist
+	    do (categorize-test test))
+      category-alist)))
+    
+
+    
 
 (defvar *oink* nil)
 
