@@ -1,7 +1,7 @@
-- Create a function that merges csv files
-
-
-
+- Categorize tests
+  - Print alist from csv
+  - Abstract field data
+  - Combine rows with similar field data
 
 ------------------------------------------
 LATER
