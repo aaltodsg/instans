@@ -1,7 +1,9 @@
-- Categorize tests
-  - Print alist from csv
-  - Abstract field data
-  - Combine rows with similar field data
+- Find out method combination for failure-p method
+- Make methods for testing
+  - Success/failure handling
+  - Make parsing method
+  - Make running method
+  - Make comparison method
 
 ------------------------------------------
 LATER
@@ -17,6 +19,11 @@ LATER
 ------------------------------------------
 DONE
 ------------------------------------------
++ Categorize tests
+  + Print alist from csv
+  + Abstract field data
+  + Combine rows with similar field data
+  + Detect required test classes
 + Create a script that runs that SPARQL test
 + Create a new SPAQRL query to get the necessary fields of a test
 + Add option for ignoring printint prefixes, when using prefix encoding

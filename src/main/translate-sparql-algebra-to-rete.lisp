@@ -269,10 +269,24 @@
 		      (setf prev (make-or-share-instance 'join-node
 							 :beta beta-memory :alpha alpha-memory))
 		      prev))
+		   (LOAD
+		    (translate-not-implemented-yet "~A not implemented yet (in ~S)" op expr))
+		   (CLEAR
+		    (translate-not-implemented-yet "~A not implemented yet (in ~S)" op expr))
+		   (DROP
+		    (translate-not-implemented-yet "~A not implemented yet (in ~S)" op expr))
+		   (CREATE
+		    (translate-not-implemented-yet "~A not implemented yet (in ~S)" op expr))
+		   (ADD
+		    (translate-not-implemented-yet "~A not implemented yet (in ~S)" op expr))
+		   (MOVE
+		    (translate-not-implemented-yet "~A not implemented yet (in ~S)" op expr))
+		   (COPY
+		    (translate-not-implemented-yet "~A not implemented yet (in ~S)" op expr))
+		   (SERVICE
+		    (translate-not-implemented-yet "~A not implemented yet (in ~S)" op expr))
 		   ((INSERT-DATA DELETE-DATA)
 		    (error* "INSERT-DATA and DELETE-DATA should be handled as DELETE-INSERT: ~A" expr))
-		   ((LOAD CLEAR DROP CREATE ADD MOVE COPY SERVICE)
-		    (translate-not-implemented-yet "~A not implemented yet (in ~S)" op expr))
 		   (t
 		    (error* "Cannot translate ~S within ~S" expr sae)
 		    nil)))))

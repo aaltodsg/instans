@@ -187,6 +187,27 @@
    (insert-lambda :accessor modify-insert-lambda :initarg :insert-lambda)
    (insert-func :accessor modify-insert-func)))
 
+(define-class load-node (update-node)
+  ())
+
+(define-class clear-node (update-node)
+  ())
+
+(define-class drop-node (update-node)
+  ())
+
+(define-class create-node (update-node)
+  ())
+
+(define-class add-node (update-node)
+  ())
+
+(define-class move-node (update-node)
+  ())
+
+(define-class copy-node (update-node)
+  ())
+
 (define-class quad-store ()
   ())
 
