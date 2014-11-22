@@ -1,6 +1,7 @@
 #!/bin/sh
 
 cd `dirname $0`/.. > /dev/null
+./configure > /dev/null
 INSTANS=bin/instans
 
 TMP=collect-tmp$$

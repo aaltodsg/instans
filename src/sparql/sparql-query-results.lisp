@@ -597,7 +597,9 @@ table, tr, th, td {
       (unwind-protect
 	   (progn
 	     (setf (sparql-test-completed this) nil)
-	     (setf log-stream (if log-file (open-file log-file :direction :output :if-exists :append :if-does-not-exist :create :fmt "run-one-sparql-test: open ~{~A~^ ~}") *error-output*))
+	     (setf log-stream (if log-file
+				  (open-file log-file :direction :output :if-exists :append :if-does-not-exist :create :fmt "run-one-sparql-test: open ~{~A~^ ~}")
+				  *error-output*))
 	     (format log-stream "~&---------------~%")
 	     (format log-stream "~&~A-~A-~A~%" (sparql-test-suite this) (sparql-test-collection this) (sparql-test-name this))
 ;	     (print-sparql-test this :stream log-stream :output-type :txt)
