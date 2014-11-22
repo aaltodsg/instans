@@ -1,0 +1,65 @@
+mf:QueryEvaluationTest        data-r2 2         ((SELECT-NODE) (:TTL) (:SRX) NIL NIL NIL NIL NIL NIL NIL) 2
+                                                ((ASK-NODE) (:TTL) (:SRX) NIL NIL NIL NIL NIL NIL NIL) 2
+                                                ((NIL) (:TTL) (:SRX) NIL NIL NIL NIL NIL NIL NIL) 2
+                                                ((SELECT-NODE) (:TTL) (:TTL) NIL NIL NIL NIL NIL NIL NIL) 2
+                                                ((CONSTRUCT-NODE) (:TTL) (:TTL) NIL NIL NIL NIL NIL NIL NIL) 2
+                                                ((SELECT-NODE) NIL (:TTL) NIL NIL NIL NIL NIL NIL NIL) 2
+                                                ((SELECT-NODE) (:TTL) (:RDF) NIL NIL NIL NIL NIL NIL NIL) 2
+                                                ((ASK-NODE) (:TTL) (:TTL) NIL NIL NIL NIL NIL NIL NIL) 2
+mf:PositiveSyntaxTest         data-r2 0         ((SELECT-NODE) NIL NIL NIL NIL NIL NIL NIL NIL NIL) 0
+                                                ((NIL) NIL NIL NIL NIL NIL NIL NIL NIL NIL) 0
+                                                ((ASK-NODE) NIL NIL NIL NIL NIL NIL NIL NIL NIL) 0
+                                                ((CONSTRUCT-NODE) NIL NIL NIL NIL NIL NIL NIL NIL NIL) 0
+                                                ((DESCRIBE-NODE) NIL NIL NIL NIL NIL NIL NIL NIL NIL) 0
+mf:NegativeSyntaxTest         data-r2 0         ((NIL) NIL NIL NIL NIL NIL NIL NIL NIL NIL) 0
+mf:UpdateEvaluationTest       data-sparql11 5   ((NIL) (:TTL) (:TTL) (:TTL) ("http://example.org/g1") NIL NIL NIL NIL NIL) 4
+                                                ((NIL) (:TTL) (:TTL) (:TTL :TTL) ("http://example.org/g2" "http://example.org/g1") NIL NIL NIL NIL NIL) 4
+                                                ((NIL) (:TTL) (:TTL) (:TTL) ("http://example.org/g2" "http://example.org/g1") NIL NIL NIL NIL NIL) 4
+                                                ((NIL) (:TTL) (:TTL) (:TTL :TTL) ("http://example.org/g3" "http://example.org/g1") NIL NIL NIL NIL NIL) 4
+                                                ((MODIFY-NODE) NIL (:TTL) NIL NIL ("ut:success") NIL NIL NIL NIL) 5
+                                                ((MODIFY-NODE) NIL NIL (:TTL) ("http://example.org/g1") ("ut:success") NIL NIL NIL NIL) 5
+                                                ((MODIFY-NODE) (:TTL) (:TTL) NIL NIL NIL NIL NIL NIL NIL) 2
+                                                ((MODIFY-NODE) (:TTL) (:TTL) (:TTL) ("http://example.org/g1") NIL NIL NIL NIL NIL) 4
+                                                ((MODIFY-NODE) (:TTL) (:TTL) (:TTL :TTL) ("http://example.org/g2" "http://example.org/g1") NIL NIL NIL NIL NIL) 4
+                                                ((MODIFY-NODE) NIL NIL (:TTL) ("http://example.org/g2" "http://example.org/g1") NIL NIL NIL NIL NIL) 4
+                                                ((MODIFY-NODE) NIL NIL (:TTL) ("http://example.org/g3") NIL NIL NIL NIL NIL) 4
+                                                ((MODIFY-NODE) (:TTL) (:TTL) (:TTL) ("http://example.org/g3") NIL NIL NIL NIL NIL) 4
+                                                ((MODIFY-NODE) NIL NIL (:TTL) ("http://example.org/g1") NIL NIL NIL NIL NIL) 4
+                                                ((MODIFY-NODE) (:TTL) (:TTL) (:TTL :TTL) ("http://example.org/g3" "http://example.org/g2") NIL NIL NIL NIL NIL) 4
+                                                ((MODIFY-NODE) NIL NIL (:TTL :TTL) ("http://example.org/g2" "http://example.org/g1") NIL NIL NIL NIL NIL) 4
+                                                ((MODIFY-NODE) NIL NIL (:TTL) ("http://example.org/g1") ("ut:Success") NIL NIL NIL NIL) 5
+                                                ((MODIFY-NODE) NIL NIL (:TTL :TTL :TTL) ("http://example.org/g3" "http://example.org/g2" "http://example.org/g1") NIL NIL NIL NIL NIL) 4
+                                                ((MODIFY-NODE) (:TTL) (:TTL) (:TTL) ("http://example.org/g2") NIL NIL NIL NIL NIL) 4
+                                                ((NIL) (:TTL) NIL (:TTL :TTL) ("http://example.org/g2" "http://example.org/g1") NIL NIL NIL NIL NIL) 4
+                                                ((NIL) (:TTL) (:TTL) (:TTL) ("http://example.org/g2") NIL NIL NIL NIL NIL) 4
+                                                ((NIL) (:TTL) (:TTL) NIL NIL NIL NIL NIL NIL NIL) 2
+                                                ((NIL) (:TTL) NIL NIL NIL NIL NIL NIL NIL NIL) 1
+                                                ((NIL) (:TTL) NIL (:TTL) ("http://example.org/g1") NIL NIL NIL NIL NIL) 4
+                                                ((NIL) NIL NIL NIL NIL NIL NIL NIL NIL NIL) 0
+                                                ((NIL) NIL NIL (:TTL) ("http://example.org/g1") NIL NIL NIL NIL NIL) 4
+                                                ((NIL) NIL NIL (:TTL) ("http://example.org/g2") NIL NIL NIL NIL NIL) 4
+mf:QueryEvaluationTest        data-sparql11 2   ((SELECT-NODE) (:TTL) (:SRX) NIL NIL NIL NIL NIL NIL NIL) 2
+                                                ((ASK-NODE) (:TTL) (:SRX) NIL NIL NIL NIL NIL NIL NIL) 2
+                                                ((NIL) (:TTL) (:SRX) NIL NIL NIL NIL NIL NIL NIL) 2
+                                                ((CONSTRUCT-NODE) (:TTL) (:TTL) NIL NIL NIL NIL NIL NIL NIL) 2
+                                                ((CONSTRUCT-NODE) NIL (:TTL) NIL NIL NIL NIL NIL NIL NIL) 2
+                                                ((SELECT-NODE) (:TTL) (:TSV) NIL NIL NIL NIL NIL NIL NIL) 2
+                                                ((SELECT-NODE) (:NT) (:SRX) NIL NIL NIL NIL NIL NIL NIL) 2
+                                                ((SELECT-NODE) (:TTL) (:SRJ) NIL NIL NIL NIL NIL NIL NIL) 2
+                                                ((ASK-NODE) (:TTL) (:SRJ) NIL NIL NIL NIL NIL NIL NIL) 2
+                                                ((SELECT-NODE) NIL (:SRX) NIL NIL NIL NIL NIL NIL NIL) 2
+                                                ((NIL) NIL (:SRX) NIL NIL NIL NIL NIL NIL NIL) 2
+                                                ((SELECT-NODE) (:RDF) (:SRX) NIL NIL NIL NIL NIL NIL NIL) 2
+mf:NegativeSyntaxTest11       data-sparql11 0   ((NIL) NIL NIL NIL NIL NIL NIL NIL NIL NIL) 0
+                                                ((SELECT-NODE) NIL NIL NIL NIL NIL NIL NIL NIL NIL) 0
+mf:CSVResultFormatTest        data-sparql11 2   ((SELECT-NODE) (:TTL) (:CSV) NIL NIL NIL NIL NIL NIL NIL) 2
+mf:ProtocolTest               data-sparql11 0   (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL) NIL
+mf:ServiceDescriptionTest     data-sparql11 0   (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL) NIL
+mf:PositiveSyntaxTest11       data-sparql11 0   ((NIL) NIL NIL NIL NIL NIL NIL NIL NIL NIL) 0
+                                                ((SELECT-NODE) NIL NIL NIL NIL NIL NIL NIL NIL NIL) 0
+                                                ((CONSTRUCT-NODE) NIL NIL NIL NIL NIL NIL NIL NIL NIL) 0
+                                                ((ASK-NODE) NIL NIL NIL NIL NIL NIL NIL NIL NIL) 0
+mf:PositiveUpdateSyntaxTest11 data-sparql11 0   ((NIL) NIL NIL NIL NIL NIL NIL NIL NIL NIL) 0
+                                                ((MODIFY-NODE) NIL NIL NIL NIL NIL NIL NIL NIL NIL) 0
+mf:NegativeUpdateSyntaxTest11 data-sparql11 0   ((NIL) NIL NIL NIL NIL NIL NIL NIL NIL NIL) 0
+                                                ((MODIFY-NODE) NIL NIL NIL NIL NIL NIL NIL NIL NIL) 0
