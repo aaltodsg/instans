@@ -8,6 +8,20 @@
 ------------------------------------------
 LATER
 - Try to get fuseki working
+New kind of index:
+- The tokens are indexed based on mandatory and optional bindings.
+  When you add a token, it is stored using the mandatory bindings as the primary key.
+  The optional bindings then form secondary keys. If there are many optional bindings,
+  it may be useful to just use them as a filter, not for actual indexing (combinatorial
+  explosion with multiple optionals).
+- You can query the index by giving a set of bindings, that contains all the mandatory
+  and any number of optional bindings. The tokens matching the mandatory bindings are fetched.
+  These are filtered using the optional bindings.
+- Question: how do we make the hash keys for indexing? Are the mandatory bindings always in the same order?
+- Question: how do we know that a binding is optional?
+  Answer: 1) It is inside the second parameter of a LEFTJOIN construct and does not appear in the first parameter.
+          2) It is inside one parameter of a UNION and does not apperar in the other parameter.
+
 ------------------------------------------
 
 
