@@ -42,12 +42,11 @@ if test $# -eq 0 ; then
         MANIFEST=`pwd`/$i
 	x=${MANIFEST%manifest.ttl}
 	printf "%-35s" ${x#$TESTS/}
-#       ${ECHO} MANIFEST=${MANIFEST}
-#	${ECHO} '${INSTANS}' -b 'file://`dirname $MANIFEST`/' -r '${RULES}' -t '${MANIFEST}'
-#	${ECHO}
+#         ${ECHO} MANIFEST=${MANIFEST}
+# 	${ECHO}
 	${INSTANS} -b file://`dirname $MANIFEST`/ -r ${RULES} -t ${MANIFEST} > ${TMPOUT1} 2>&1
 	cat ${TMPOUT1} | egrep -v '(^[ \t]*;|^[ \t]*$|^parsed_ok,translated_ok,testtype,queryfile_short,error_msg$)' \
-	    | egrep '(^(true|false))' > ${TMPOUT2}
+	    | egrep '(^(T|NIL|true|false))' > ${TMPOUT2}
 	LC=`wc -l $TMPOUT2|awk '{print $1;}'`
 	TC=$(($TC+$LC))
 	printf " %3d tests\n" $LC

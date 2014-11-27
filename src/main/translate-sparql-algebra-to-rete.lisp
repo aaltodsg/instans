@@ -284,7 +284,18 @@
 		   (COPY
 		    (translate-not-implemented-yet "~A not implemented yet (in ~S)" op expr))
 		   (SERVICE
-		    (translate-not-implemented-yet "~A not implemented yet (in ~S)" op expr))
+		    (setf prev (translate (first args) prev dataset))
+		    (inform "prev = ~S" prev)
+		    (let ((tokens (loop for token in (fifth args)
+				        do (inform "input-token = ~S" token)
+					when (member (second token) '(VAR1-TERMINAL VAR2-TERMINAL))
+					collect (cdr (find-if #'(lambda (binding) (equal (uniquely-named-object-name (first binding)) (first token))) (instans-bindings instans)))
+					else collect (input-token-value token))))
+		      (make-or-share-instance 'service-node :prev prev
+					      :silentp (not (null (second args)))
+					      :endpoint (third args)
+					      :query-vars (collect-expression-variables (fourth args))
+					      :query-string (format nil "~{~A~^ ~}" tokens))))
 		   ((INSERT-DATA DELETE-DATA)
 		    (error* "INSERT-DATA and DELETE-DATA should be handled as DELETE-INSERT: ~A" expr))
 		   (t

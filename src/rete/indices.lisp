@@ -16,6 +16,13 @@
 	    ;; ((2 3) (make-hash-table))
 	    ;; (t (error* "Illegal key ~A" key))))))
 
+(defgeneric index-get-tokens-and-defined-p (index key)
+  (:method ((this hash-token-index) key)
+    (assert key)
+    (multiple-value-bind (value definedp)
+	(gethash key (hash-token-index-table this))
+      (values (cdr value) definedp))))
+      
 (defgeneric index-get-tokens (index key)
   (:method ((this hash-token-index) key)
     (assert key)
@@ -100,4 +107,10 @@
   (loop with key = (sxhash nil)
 	for var in (node-use join)
 	do (setf key (mix key (get-hashkey (token-value join beta-token var))))
+	finally (return key)))
+
+(defun service-node-index-key (node token)
+  (loop with key = (sxhash nil)
+	for var in (service-node-index-key-vars node)
+	do (setf key (mix key (get-hashkey (token-value node token var))))
 	finally (return key)))

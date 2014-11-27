@@ -237,7 +237,7 @@
 	       else do (loop for triple in (rest item) do (check-triple triple)))
 	 (setf (getf clauses :query-form) 'DELETE-INSERT)
 	 (translate-algebra instans clauses)))
-      ((LOAD CREATE DROP CLEAR ADD MOVE COPY SERVICE) (remf clauses :query-form) (list query-form clauses))
+      ((LOAD CREATE DROP CLEAR ADD MOVE COPY SERVICE) (remf clauses :query-form) (cons query-form clauses))
       (t
        (inform "~A not implemented yet" (and (symbolp query-form) (substitute #\space #\- (string query-form))))
        (instans-add-status instans 'instans-feature-not-implemented-yet)
@@ -375,7 +375,7 @@
 		 (GRAPH
 		  (list 'GRAPH (second e) (simplify-joins (third e))))
 		 (SERVICE
-		  (list 'SERVICE (second e) (third e) (simplify-joins (fourth e))))
+		  (cons 'SERVICE (cons (simplify-joins (second e)) (cddr e))))
 		 ((MINUS UNION)
 		  (cons (first e) (mapcar #'simplify-joins (rest e))))
 		 (t e)))
@@ -424,11 +424,15 @@
 					    (t (list 'LEFTJOIN g a t))))))
 			   (MINUS
 			    (setf g (list 'MINUS g (second e))))
-			   ((GRAPH SERVICE)
+			   (GRAPH
 			    (let ((var-or-iri (second e))
 				  (subggp-vars (ggp-scope-vars (third e))))
 			      (add-vars (if (sparql-var-p var-or-iri) (cons var-or-iri subggp-vars) subggp-vars))
 			      (join e)))
+			   (SERVICE
+			      (add-vars (ggp-scope-vars (fourth e)))
+			      (inform "SERVICE ggp-vars = ~S" (ggp-scope-vars (fourth e)))
+			      (setf g (cons 'SERVICE (cons g (cdr e)))))
 			   (FILTER
 			    (setf fs (if (null fs) (second e) (create-sparql-call "logical-and" fs (second e)))))
 			   (BIND
@@ -594,7 +598,15 @@
 	 (GraphPatternNotTriples ::= (:OR GroupOrUnionGraphPattern OptionalGraphPattern MinusGraphPattern GraphGraphPattern ServiceGraphPattern Filter Bind InlineData))
 	 (OptionalGraphPattern ::= (OPTIONAL-TERMINAL GroupGraphPattern) :RESULT (list 'OPTIONAL $1))
 	 (GraphGraphPattern ::= (GRAPH-TERMINAL VarOrIri GroupGraphPattern :RESULT (list 'GRAPH $1 $2)))
-	 (ServiceGraphPattern ::= (SERVICE-TERMINAL _OptSilent VarOrIri GroupGraphPattern :RESULT (build-query-expression instans (append '(:query-form SERVICE) $1 (list :endpoint $2) (list :pattern $3)))))
+	 (ServiceGraphPattern ::= ((SERVICE-TERMINAL :RESULT (cdr (ll-parser-stored-token-stack parser))) _OptSilent VarOrIri GroupGraphPattern
+				   :RESULT (let ((ggp-tokens (loop with result = nil
+								   for tokens on (cddr (ll-parser-stored-token-stack parser))
+								   while (not (eq tokens $0))
+								   do (push (list (input-token-value (car tokens))
+										  (second (number-to-symbol-or-production (input-token-type (car tokens)) parser)))
+									    result)
+								   finally (return (cddr result)))))
+					     (list 'SERVICE $1 $2 $3 ggp-tokens))))
 	 (Bind ::= (BIND-TERMINAL |(-TERMINAL| Expression AS-TERMINAL Var |)-TERMINAL|) :RESULT (list 'BIND $2 $4))
 	 (InlineData ::= (VALUES-TERMINAL DataBlock :RESULT $1))
 	 (DataBlock ::= (:OR InlineDataOneVar InlineDataFull))
@@ -788,5 +800,6 @@
 	 ))
       (setf (ll-parser-lexer parser) lexer)
       (setf (ll-parser-subscribe parser) subscribe)
+      (setf (ll-parser-store-tokens-p parser) t)
       parser)))
 

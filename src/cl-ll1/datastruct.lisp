@@ -44,6 +44,8 @@
    (phases :accessor ll-parser-phases :initform nil)
    (parsed-input :accessor ll-parser-parsed-input :initform nil)
    (position :accessor ll-parser-position :initform 0)
+   (store-tokens-p :accessor ll-parser-store-tokens-p :initarg :store-tokens-p :initform nil)
+   (stored-token-stack :accessor ll-parser-stored-token-stack :initform nil)
    (end-of-input-p :accessor ll-parser-end-of-input-p :initform nil)
    (state :accessor ll-parser-state :initform :uninitialized)
    (round :accessor ll-parser-round :initform -1)

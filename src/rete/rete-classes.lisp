@@ -145,6 +145,14 @@
   ((separator :accessor aggregate-group-concat-separator :initarg :separator)
    (distinctp :accessor aggregate-group-concat-distinct-p :initarg :distinctp)))
 
+(define-class service-node (memory)
+  ((endpoint :accessor service-node-endpoint :initarg :endpoint)
+   (query-string :accessor service-node-query-string :initarg :query-string)
+   (query-vars :accessor service-node-query-vars :initarg :query-vars)
+   (index :accessor service-node-index :initform nil)
+   (index-key-vars :accessor service-node-index-key-vars :initform nil)
+   (query-minus-index-key-vars :accessor service-node-query-minus-index-key-vars :initform nil)))
+
 (define-class solution-modifiers-mixin (node)
   ((order-by :accessor solution-modifiers-order-by :initarg :order-by :initform nil)
 ;   (project :accessor solution-modifiers-project :initarg :project :initform nil)

@@ -592,6 +592,32 @@
     (call-succ-nodes #'add-token this token stack))
   (:method ((this union-end-node) token &optional stack)
     (call-succ-nodes #'add-token this token stack))
+  (:method ((this service-node) token &optional stack)
+    (unless (store-get-token this token)
+      (store-put-token this token)
+      (let ((key (service-node-index-key this token)))
+  	(multiple-value-bind (service-tokens definedp)
+  	    (index-get-tokens-and-defined-p (service-node-index this) key)
+  	  (when (not definedp)
+  	    (let* ((response (flexi-streams:octets-to-string (drakma:http-request (rdf-iri-string (service-node-endpoint this))
+  										  :parameters (list (cons "query" (service-node-query-string this)))
+  										  :accept "application/sparql-results+json; charset=utf-8") :external-format :utf-8))
+  		   (bindings (second (assoc :bindings (second (assoc :results (cl-json:decode-json-from-string response))))))
+  		   (new-vars nil))
+  	      (loop for var in (second (assoc :vars (second (assoc :head response))))
+  		    do (push (make-sparql-var (node-instans this) var) new-vars))
+  	      (loop for binding in bindings
+  		    for service-token = (loop for var in new-vars
+  					      collect (second (assoc :value (second (assoc var binding)))) into new-values
+  					      finally (return (make-token this nil new-vars new-values)))
+  		    do (index-put-token (service-node-index this) key service-token)
+  		    do (push service-token service-tokens))))
+  	  (loop with missing-vars = (service-node-query-minus-index-key-vars this)
+  		for service-token in service-tokens
+  	        for new-token = (make-token this token missing-vars (loop for var in missing-vars
+  									      for binding = (assoc var service-token)
+  									      collect (if binding (second binding) (sparql-unbound))))
+  	        do (call-succ-nodes #'add-token this new-token stack))))))
   (:method ((this query-node) token &optional stack)
     (cond ((not (solution-modifiers-distinct-p this))
 	   (cond ((null (node-succ this))
@@ -797,6 +823,20 @@
     (declare (special *oink*))
     (when *oink* (inform "add-token union-end-node ~A ~A" this token))
     (call-succ-nodes #'remove-token this token stack))
+  (:method ((this service-node) token &optional stack)
+    (let ((stored-token (store-get-token this token)))
+      (unless (null stored-token) ;;; May be already removed?!
+  	(store-remove-token this stored-token)
+	(let ((key (service-node-index-key this token)))
+	  (multiple-value-bind (service-tokens definedp)
+	      (index-get-tokens-and-defined-p (service-node-index this) key)
+	    (assert definedp)
+	    (loop with missing-vars = (service-node-query-minus-index-key-vars this)
+		  for service-token in service-tokens
+		  for new-token = (make-token this token missing-vars (loop for var in missing-vars
+									    for binding = (assoc var service-token)
+									    collect (if binding (second binding) (sparql-unbound))))
+		  do (call-succ-nodes #'remove-token this new-token stack)))))))
   (:method ((this query-node) token &optional stack)
     (cond ((not (solution-modifiers-distinct-p this))
 	   (cond ((null (node-succ this))
