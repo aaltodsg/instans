@@ -14,6 +14,10 @@
 
 @prefix : <http://example.com/> .
 
+# Types that you can query in data.aalto.fi
+# Uncomment one or more of them and run:
+# instans --prefix-encoding=true --print-prefix-encodings=false -r tests/input/dataaalto.rq --input=tests/input/query-parameters-for-dataaalto.ttl
+
 # <> :interestingtype aiiso:College .
 <> :interestingtype aiiso:Course .
 # <> :interestingtype aiiso:Department .
