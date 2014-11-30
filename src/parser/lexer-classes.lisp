@@ -232,7 +232,7 @@
 	  (first (find-if #'(lambda (item) (eq token-type (second item))) (lexer-punctuation this)))
 	  (let ((value (input-token-value input-token)))
 	    (case token-type
-	      (BLANK_NODE_LABEL-TERMINAL (format nil "_:~A" value))
+	      (BLANK_NODE_LABEL-TERMINAL (format nil "_:~(~A~)" value))
 	      (DECIMAL-TERMINAL (format nil "~f" value))
 	      (DECIMAL_NEGATIVE-TERMINAL (format nil "~f" value))
 	      (DECIMAL_POSITIVE-TERMINAL (format nil "~@f" value))
@@ -250,8 +250,8 @@
 	      (STRING_LITERAL_LONG1-TERMINAL (format nil "'''~A'''" value))
 	      (STRING_LITERAL2-TERMINAL (format nil "\"~A\"" value))
 	      (STRING_LITERAL_LONG2-TERMINAL (format nil "\"\"\"~A\"\"\"" value))
-	      (VAR1-TERMINAL (format nil "~A" value))
-	      (VAR2-TERMINAL (format nil "~A" value))
+	      (VAR1-TERMINAL (format nil "~(~A~)" value))
+	      (VAR2-TERMINAL (format nil "~(~A~)" value))
 	      (t (error* "Unknown token type ~A in ~A" token-type input-token))))))))
 
 (defun select-keyword (lexer buf &key (not-exists-error-p t))

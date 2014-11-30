@@ -431,7 +431,7 @@
 			      (join e)))
 			   (SERVICE
 			      (add-vars (ggp-scope-vars (fourth e)))
-			      (inform "SERVICE ggp-vars = ~S" (ggp-scope-vars (fourth e)))
+			      ;; (inform "SERVICE ggp-vars = ~S" (ggp-scope-vars (fourth e)))
 			      (setf g (cons 'SERVICE (cons g (cdr e)))))
 			   (FILTER
 			    (setf fs (if (null fs) (second e) (create-sparql-call "logical-and" fs (second e)))))

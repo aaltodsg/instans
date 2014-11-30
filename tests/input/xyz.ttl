@@ -1,1 +1,6 @@
-<http://www.cs.hut.fi> a "Serveri" .
+@prefix : <http://example.com/> .
+@prefix aiiso:<http://purl.org/vocab/aiiso/schema#> .
+
+<> :interestingtype aiiso:School
+
+#<http://www.cs.hut.fi> a "Serveri" .

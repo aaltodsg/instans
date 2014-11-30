@@ -602,37 +602,48 @@
   (:method ((this service-node) token &optional stack)
     (unless (store-get-token this token)
       (store-put-token this token)
-      (let ((key (service-node-index-key this token)))
+      (let ((key (service-node-index-key this token))
+	    (instans (node-instans this)))
   	(multiple-value-bind (service-tokens definedp)
   	    (index-get-tokens-and-defined-p (service-node-index this) key)
   	  (when (not definedp)
   	    (let* ((query-token-strings
 		    (loop for token-string in (service-node-query-token-strings this)
-			  when (and (> (length token-string) 0) (member (char token-string 0) '(#\? #\$) :test #'char=))
-			  collect (let ((canonic-var (cdr (find-if #'(lambda (binding) (equal (uniquely-named-object-name (car binding)) token-string)) (instans-bindings instans)))))
-				    (cond ((find canonic-var (service-node-index-key-vars this) :test #'uniquely-named-object-equal)
-					   (sparql-value-to-string (token-value this token canonic-var)))
-					  (t token-string)))
-			  else collect token-string))
+			  for translated = (cond ((and (> (length token-string) 0) (member (char token-string 0) '(#\? #\$) :test #'char=))
+						  (let ((canonic-var (cdr (find-if #'(lambda (binding) (equal (uniquely-named-object-name (car binding)) (string-upcase token-string))) (instans-bindings instans)))))
+						    (assert* canonic-var "Expected non-null var with name ~S" token-string)
+						    (cond ((find canonic-var (service-node-index-key-vars this) :test #'uniquely-named-object-equal)
+							   (sparql-value-to-string (token-value this token canonic-var)))
+							  (t token-string))))
+						 (t token-string))
+; 			  do (inform "token-string = ~S, translated = ~S" token-string translated)
+			  collect translated))
 		   (query-string (format nil "SELECT * { ~{~A~^ ~} }" query-token-strings))
 		   (response (flexi-streams:octets-to-string (drakma:http-request (rdf-iri-string (service-node-endpoint this))
 										  :parameters (list (cons "query" query-string))
 										  :accept "application/sparql-results+json; charset=utf-8") :external-format :utf-8))
-		   (bindings (second (assoc :bindings (second (assoc :results (cl-json:decode-json-from-string response))))))
-		   (new-vars nil))
-  	      (loop for var in (second (assoc :vars (second (assoc :head response))))
-  		    do (push (make-sparql-var (node-instans this) var) new-vars))
-  	      (loop for binding in bindings
-  		    for service-token = (loop for var in new-vars
-  					      collect (second (assoc :value (second (assoc var binding)))) into new-values
-  					      finally (return (make-token this nil new-vars new-values)))
-  		    do (index-put-token (service-node-index this) key service-token)
-  		    do (push service-token service-tokens))))
+		   (decoded-response (cl-json:decode-json-from-string response)))
+	      ;; (inform "query = ~S" query-string)
+	      ;; (inform "response = ~S~%decoded = ~S" response decoded-response)
+	      (let (
+		    (bindings (rest (assoc :bindings (rest (assoc :results decoded-response))))))
+  	      (loop for var-name in (rest (assoc :vars (rest (assoc :head decoded-response))))
+		    collect (intern-keyword (string-upcase var-name)) into name-keywords
+		    collect (resolve-binding instans (make-sparql-var instans (format nil "?~A" (string-upcase var-name)))) into canonic-vars
+		    finally (progn ;(inform "name-keywords = ~S~&canonic-vars = ~S" name-keywords canonic-vars)
+				   (loop for binding in bindings
+				  for service-token = (loop for name-keyword in name-keywords
+							    collect (cdr (assoc :value (rest (assoc name-keyword binding)))) into values
+							    finally (return (make-token this nil canonic-vars values)))
+;				  do (inform "service-token = ~S" service-token)
+				  do (index-put-token (service-node-index this) key service-token)
+				  do (push service-token service-tokens)))))))
   	  (loop with missing-vars = (service-node-query-minus-index-key-vars this)
   		for service-token in service-tokens
   	        for new-token = (make-token this token missing-vars (loop for var in missing-vars
-  									      for binding = (assoc var service-token)
-  									      collect (if binding (second binding) (sparql-unbound))))
+									  for binding = (assoc var service-token)
+									  collect (if binding (second binding) (sparql-unbound))))
+;	        do (inform "new-token = ~S" new-token)
   	        do (call-succ-nodes #'add-token this new-token stack))))))
   (:method ((this query-node) token &optional stack)
     (cond ((not (solution-modifiers-distinct-p this))

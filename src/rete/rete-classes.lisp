@@ -147,7 +147,7 @@
 
 (define-class service-node (memory)
   ((endpoint :accessor service-node-endpoint :initarg :endpoint)
-   (query-token-strings :accessor service-node-query-token-strings :initarg :query-token-string)
+   (query-token-strings :accessor service-node-query-token-strings :initarg :query-token-strings)
    (query-vars :accessor service-node-query-vars :initarg :query-vars)
    (index :accessor service-node-index :initform nil)
    (index-key-vars :accessor service-node-index-key-vars :initform nil)

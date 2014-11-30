@@ -233,7 +233,7 @@
 		   (when (service-node-p node)
 		     (setf (service-node-index-key-vars node) (sparql-var-list-intersection (service-node-query-vars node) (node-all-vars-in node)))
 		     (setf (service-node-query-minus-index-key-vars node) (sparql-var-list-difference (service-node-query-vars node) (node-all-vars-in node)))
-		     (describe node)
+;		     (describe node)
 		     )
 		   (when (join-node-p node)
 		     (setf (join-beta-minus-alpha-vars node) (sparql-var-list-difference (node-all-vars-out (join-beta node)) (node-all-vars-out (join-alpha node))))

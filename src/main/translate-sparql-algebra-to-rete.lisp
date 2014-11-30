@@ -289,7 +289,7 @@
 					    :silentp (not (null (second args)))
 					    :endpoint (third args)
 					    :query-vars (collect-expression-variables (fourth args))
-					    :query-token-strings(fifth args)))
+					    :query-token-strings (fifth args)))
 		   ;; (SERVICE
 		   ;;  (setf prev (translate (first args) prev dataset))
 		   ;;  (let ((token-strings (loop for ts in (fifth args)
