@@ -5,16 +5,20 @@
 
 (in-package #:instans)
 
+;; (defmethod initialize-instance :after ((this hash-token-index) &key &allow-other-keys)
+;;   (let ((key (token-index-key this)))
+;;     (setf (hash-token-index-table this)
+;; 	  (case (length key)
+;; 	    (0 nil)
+;; 	    ;;; Change this, if the iris are coded in other way
+;; 	    (t (make-hash-table :test #'equal))))))
+;; 	    ;; (1 (make-hash-table))
+;; 	    ;; ((2 3) (make-hash-table))
+;; 	    ;; (t (error* "Illegal key ~A" key))))))
+
 (defmethod initialize-instance :after ((this hash-token-index) &key &allow-other-keys)
-  (let ((key (token-index-key this)))
-    (setf (hash-token-index-table this)
-	  (case (length key)
-	    (0 nil)
-	    ;;; Change this, if the iris are coded in other way
-	    (t (make-hash-table :test #'equal))))))
-	    ;; (1 (make-hash-table))
-	    ;; ((2 3) (make-hash-table))
-	    ;; (t (error* "Illegal key ~A" key))))))
+  (setf (hash-token-index-table this)
+	(make-hash-table :test #'equal)))
 
 (defgeneric index-get-tokens-and-defined-p (index key)
   (:method ((this hash-token-index) key)

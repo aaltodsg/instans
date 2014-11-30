@@ -71,10 +71,11 @@
 	 (equal (grammar-followers g1) (grammar-followers g2))
 	 (equal (grammar-nullable g1) (grammar-nullable g2)))))
 
-(defstruct (input-token :named (:type list))
+(defstruct (input-token :named (:type list) :predicate)
   (type)
   (value)
-  (position))
+  (position)
+  (index))
 
 (defun ll-parser-succeeded-p (ll-parser)
   (eq (ll-parser-state ll-parser) :succeeded))

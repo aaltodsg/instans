@@ -602,9 +602,7 @@
 				   :RESULT (let ((ggp-tokens (loop with result = nil
 								   for tokens on (cddr (ll-parser-stored-token-stack parser))
 								   while (not (eq tokens $0))
-								   do (push (list (input-token-value (car tokens))
-										  (second (number-to-symbol-or-production (input-token-type (car tokens)) parser)))
-									    result)
+								   do (push (input-token-to-string lexer (car tokens)) result)
 								   finally (return (cddr result)))))
 					     (list 'SERVICE $1 $2 $3 ggp-tokens))))
 	 (Bind ::= (BIND-TERMINAL |(-TERMINAL| Expression AS-TERMINAL Var |)-TERMINAL|) :RESULT (list 'BIND $2 $4))

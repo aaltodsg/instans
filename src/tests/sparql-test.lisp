@@ -154,12 +154,12 @@
   (:method ((this sparql-query-evaluation-test))
     (case (sparql-test-type this)
       (SELECT
-       (multiple-value-bind (output-file file-type) (sparql-test-output-file-name this)
+       (multiple-value-bind (output-file file-type) (sparql-test-output-file-name-and-type this)
 	 (when output-file
 	   (let ((instans (sparql-test-instans this)))
 	     (setf (instans-select-output-processor instans) (create-select-output-processor instans output-file file-type))))))
       (CONSTRUCT
-       (multiple-value-bind (output-file file-type) (sparql-test-output-file-name this)
+       (multiple-value-bind (output-file file-type) (sparql-test-output-file-name-and-type this)
 	 (when output-file
 	   (let ((instans (sparql-test-instans this)))
 	     (setf (instans-construct-output-processor instans) (create-construct-output-processor instans output-file file-type))))))
@@ -168,6 +168,10 @@
   (:method ((this sparql-test2))
     (declare (ignore this))
     nil))
+
+(defgeneric sparql-test-run-system (sparql-test2)
+  (:method ((this sparql-test2))
+    this))
 
 (defgeneric sparql-test-running-phase (sparql-test2)
   (:method ((this sparql-query-evaluation-test))
@@ -184,6 +188,14 @@
   (:method ((this sparql-test2))
     (declare (ignore this))
     nil))
+
+(defgeneric sparql-test-compare-graphs (sparql-test2)
+  (:method ((this sparql-test2))
+    this))
+
+(defgeneric sparql-test-compare-datafile (sparql-test2)
+  (:method ((this sparql-test2))
+    this))
 
 (defgeneric sparql-test-comparison-phase (sparql-test2)
   (:method ((this sparql-update-evaluation-test))

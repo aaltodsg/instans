@@ -187,15 +187,16 @@
     (setf (instans-construct-output-processor instans) (create-construct-output-processor instans construct-output-name construct-output-type)))
   (when report-sizes-interval
     (initialize-report-sizes instans report-sizes-interval))
-  (handler-case
+;  (handler-case
       (progn
 	(run-input-processors instans t)
 	(instans-add-status instans 'instans-rule-running-succeeded)
 	t)
-    (t (e)
-      (declare (ignore e))
-      (instans-add-status instans 'instans-rule-running-failed)
-       nil)))
+    ;; (t (e)
+    ;;   (declare (ignore e))
+    ;;   (instans-add-status instans 'instans-rule-running-failed)
+    ;;   nil))
+)
 
 (defun instans-parse-rdf-file (instans input-iri &key subscribe base graph triple-callback block-callback document-callback)
   (let (input-stream file-type error-msg)

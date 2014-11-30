@@ -75,6 +75,13 @@
     (push
      (cons this (setf (memory-store this) (make-hash-table)))
      (instans-stores (node-instans this))))
+  (:method ((this service-node))
+    (push
+     (cons this (setf (memory-store this) (make-hash-table)))
+     (instans-stores (node-instans this)))
+    (push
+     (setf (service-node-index this) (make-instance 'hash-token-index :key (service-node-index-key-vars this) :id (format nil "service-node-index ~A" (node-number this))))
+     (instans-indices (node-instans this))))
   (:method ((this memory))
     ;;; An EQL hashtable, since we are using integers as keys!
     (push
@@ -599,11 +606,20 @@
   	(multiple-value-bind (service-tokens definedp)
   	    (index-get-tokens-and-defined-p (service-node-index this) key)
   	  (when (not definedp)
-  	    (let* ((response (flexi-streams:octets-to-string (drakma:http-request (rdf-iri-string (service-node-endpoint this))
-  										  :parameters (list (cons "query" (service-node-query-string this)))
-  										  :accept "application/sparql-results+json; charset=utf-8") :external-format :utf-8))
-  		   (bindings (second (assoc :bindings (second (assoc :results (cl-json:decode-json-from-string response))))))
-  		   (new-vars nil))
+  	    (let* ((query-token-strings
+		    (loop for token-string in (service-node-query-token-strings this)
+			  when (and (> (length token-string) 0) (member (char token-string 0) '(#\? #\$) :test #'char=))
+			  collect (let ((canonic-var (cdr (find-if #'(lambda (binding) (equal (uniquely-named-object-name (car binding)) token-string)) (instans-bindings instans)))))
+				    (cond ((find canonic-var (service-node-index-key-vars this) :test #'uniquely-named-object-equal)
+					   (sparql-value-to-string (token-value this token canonic-var)))
+					  (t token-string)))
+			  else collect token-string))
+		   (query-string (format nil "SELECT * { ~{~A~^ ~} }" query-token-strings))
+		   (response (flexi-streams:octets-to-string (drakma:http-request (rdf-iri-string (service-node-endpoint this))
+										  :parameters (list (cons "query" query-string))
+										  :accept "application/sparql-results+json; charset=utf-8") :external-format :utf-8))
+		   (bindings (second (assoc :bindings (second (assoc :results (cl-json:decode-json-from-string response))))))
+		   (new-vars nil))
   	      (loop for var in (second (assoc :vars (second (assoc :head response))))
   		    do (push (make-sparql-var (node-instans this) var) new-vars))
   	      (loop for binding in bindings
