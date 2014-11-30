@@ -9,7 +9,30 @@
 @prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
 @prefix aiiso:<http://purl.org/vocab/aiiso/schema#>.
 @prefix teach:<http://linkedscience.org/teach/ns#> .
+@prefix dbpedia: <http://dbpedia.org/ontology/> .
+@prefix icaltzd: <http://www.w3.org/2002/12/cal/icaltzd#> .
 
 @prefix : <http://example.com/> .
 
-<> :interestingtype aiiso:School
+# <> :interestingtype aiiso:College .
+<> :interestingtype aiiso:Course .
+# <> :interestingtype aiiso:Department .
+# <> :interestingtype aiiso:School .
+# <> :interestingtype bibo:Article .
+# <> :interestingtype bibo:Book .
+# <> :interestingtype bibo:Document .
+# <> :interestingtype bibo:Magazine .
+# <> :interestingtype bibo:Patent .
+# <> :interestingtype bibo:Report .
+# <> :interestingtype dbpedia:Building .
+# <> :interestingtype dct:Agent .
+# <> :interestingtype foaf:Agent .
+# <> :interestingtype foaf:Document .
+# <> :interestingtype foaf:Organization .
+# <> :interestingtype foaf:Person .
+# <> :interestingtype icaltzd:Vevent .
+# <> :interestingtype owl:DatatypeProperty .
+# <> :interestingtype owl:ObjectProperty .
+# <> :interestingtype skos:Concept .
+# <> :interestingtype teach:Assignment .
+# <> :interestingtype teach:Material .
