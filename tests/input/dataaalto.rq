@@ -1,0 +1,12 @@
+PREFIX aiiso:<http://purl.org/vocab/aiiso/schema#>
+
+SELECT * WHERE {
+  ?x ?y ?z
+  SERVICE <http://data.aalto.fi/endpoint> {
+    ?school a aiiso:School
+  }
+}
+
+# SELECT * WHERE {
+#     ?school a <http://purl.org/vocab/aiiso/schema#School>
+# }
