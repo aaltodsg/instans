@@ -14,11 +14,13 @@ CONSTRUCT { GRAPH ?newgraph {
     ?s ?p ?o } }
 WHERE { GRAPH ?g { 
     FILTER ( strStarts(str(?g),concat(str(<>),"Eve")) )
-    ?s ?p ?o . ?event a ep:EventObject .
-     BIND ( "Espoo" as ?label ) # Temporary replacement until SERVICE implemented
-#    SERVICE <http://factforge.net/sparql> { # Retrieve location label
-#       ?location omgeo:nearby(?lat ?long "1km"); 
-#                 ff:preferredLabel ?label }
+    ?s ?p ?o .
+    ?event a ep:EventObject ;
+           geo:Point [ geo:lat ?lat; geo:long ?long ] .
+#     BIND ( "Espoo" as ?label ) # Temporary replacement until SERVICE implemented
+    SERVICE <http://factforge.net/sparql> { # Retrieve location label
+       ?location omgeo:nearby(?lat ?long "1km"); 
+                 ff:preferredLabel ?label }
   BIND (IRI(concat("Translated-",strAfter(str(?event),str(<>)))) AS ?newgraph) } } ;
 
 # SERVICE-query replaced with BIND ( "Espoo" as ?label ) to avoid external lookup delay
