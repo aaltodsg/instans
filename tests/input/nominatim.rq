@@ -1,0 +1,29 @@
+PREFIX nm: <http://nominatim.openstreetmap.org/>
+
+SELECT ?address {
+    [ nm:lat ?lat; nm:lon ?long; nm:zoom 18; nm:accept-language "fi"  ]
+    nm:reverse
+    [ nm:house ?house; nm:road ?road; nm:postcode ?postcode nm:city ?city ] .
+    BIND(concatenate(?road, " ", ?house, ", ", ?postcode, " ", ?city) AS ?address)
+}
+
+###############
+
+PREFIX nm: <http://nominatim.openstreetmap.org/>
+
+SELECT ?lat ?long {
+    [ nm:house ?house; nm:road ?road; nm:postcode ?postcode nm:city ?city ] .
+    nm:search
+    [ nm:lat ?lat; nm:lon ?long ] .
+}
+
+###############
+
+PREFIX nm: <http://nominatim.openstreetmap.org/>
+
+SELECT ?lat ?long {
+    [ nm:q ?querystring ] .
+    nm:search
+    [ nm:lat ?lat; nm:lon ?long ] .
+}
+
