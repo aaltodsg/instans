@@ -57,7 +57,7 @@
 
 (defgeneric rete-remove-rule-instance (instans node token)
   (:method ((this instans) (node node) token)
-    (when (eq (instans-allow-rule-instance-removal-p this) :remove)
+    (when (instans-allow-rule-instance-removal-p this)
       (rule-instance-queue-remove (instans-rule-instance-queue this) node token))))
 
 ;;; ----------------------

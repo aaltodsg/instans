@@ -300,8 +300,8 @@
    (rdf-operations :accessor instans-rdf-operations :initarg :rdf-operations :initform '(:add :execute))
    (allowed-rdf-operations :accessor instans-allowed-rdf-operations :allocation :class
 			   :initform '(:add :remove :execute :execute-first :execute-snapshot :execute-repeat-first :execute-repeat-snapshot :flush))
-   (allow-rule-instance-removal-p :accessor instans-allow-rule-instance-removal-p :initarg :allow-rule-instance-removal-p :initform :remove)
-   (allowed-rule-instance-removal-policies :accessor instans-allowed-rule-instance-removal-policies :allocation :class :initform '(:remove :keep))
+   (allow-rule-instance-removal-p :accessor instans-allow-rule-instance-removal-p :initarg :allow-rule-instance-removal-p :initform t)
+;   (allowed-rule-instance-removal-policies :accessor instans-allowed-rule-instance-removal-policies :allocation :class :initform '(:remove :keep))
    (queue-execution-policy :accessor instans-queue-execution-policy :initarg :queue-execution-policy :initform :repeat-first)
    (allowed-queue-execution-policies :accessor instans-allowed-queue-execution-policies :allocation :class :initform '(:first :snapshot :repeat-first :repeat-snapshot))
 					;   (default-rete-input-op :accessor instans-default-rete-input-op :initarg :default-rete-input-op :initform :add)

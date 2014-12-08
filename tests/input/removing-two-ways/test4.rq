@@ -1,0 +1,29 @@
+BASE <http://instans.org/>
+PREFIX : <http://instans.org/>
+
+# Case 4: "Both-Ways" checking & Duplicate Removal (correct)
+# ==========================================================
+
+# @name Both-Ways
+INSERT { GRAPH <puskuri> { ?e1 :p1 ?p1 ; :p2 ?p2 } }
+WHERE { ?e1 :p1 ?p1 ; :p2 ?p2 .
+  ?e2 :p1 ?p2 ;
+        :p2 ?p1 .
+  FILTER NOT EXISTS { GRAPH <puskuri> { ?e2 :p1 ?p2 ; :p2 ?p1 }}
+ } ;
+
+# @name Filter-And-Output
+SELECT * WHERE { GRAPH <puskuri> { ?e1 :p1 ?p1 ; :p2 ?p2 .
+  FILTER NOT EXISTS {
+    ?e2 :p1 ?p2 ;
+          :p2 ?p1 }
+} } ;
+
+# Vastauksia 1 (OK):
+# e1,p1,p2
+# _:0,<john>,<mary>
+
+# Report-All tiedostossa "case4.dbg"
+#
+# Shell: ../../../../bin/instans --prefix-encoding=true -r test4.rq --report=all -t test.ttl
+# Lisp: (main (format nil "-d ~A/tests/removing-two-ways --prefix-encoding=true -r test4.rq --report=all -t test.ttl" (find-instans-root-directory)))

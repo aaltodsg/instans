@@ -1,0 +1,129 @@
+
+http://www.instans.org/INSTANS975: Running RDF-operation ADD
+http://www.instans.org/INSTANS975: Rete add to DEFAULT _:0 <p1> <john>
+
+
+http://www.instans.org/INSTANS975: Running RDF-operation EXECUTE
+http://www.instans.org/INSTANS975: Execute rules with policy REPEAT-FIRST
+
+
+http://www.instans.org/INSTANS975: Running RDF-operation ADD
+http://www.instans.org/INSTANS975: Rete add to DEFAULT _:0 <p2> <mary>
+
+
+http://www.instans.org/INSTANS975: Running RDF-operation EXECUTE
+http://www.instans.org/INSTANS975: Execute rules with policy REPEAT-FIRST
+
+
+http://www.instans.org/INSTANS975: Running RDF-operation ADD
+http://www.instans.org/INSTANS975: Rete add to DEFAULT _:1 <p1> <mary>
+
+
+http://www.instans.org/INSTANS975: Running RDF-operation EXECUTE
+http://www.instans.org/INSTANS975: Execute rules with policy REPEAT-FIRST
+
+
+http://www.instans.org/INSTANS975: Running RDF-operation ADD
+http://www.instans.org/INSTANS975: Rete add to DEFAULT _:1 <p2> <john>
+
+http://www.instans.org/INSTANS975: operation Added
+Rule Both-Ways (modify-node17)
+     ?E1 = _:0
+     ?P1 = <john>
+     ?P2 = <mary>
+     ?E2 = _:1
+
+     Queue has now 1 rules:
+     Rule Both-Ways (modify-node17)
+          ?E1 = _:0
+          ?P1 = <john>
+          ?P2 = <mary>
+          ?E2 = _:1
+
+http://www.instans.org/INSTANS975: operation Added
+Rule Both-Ways (modify-node17)
+     ?E1 = _:1
+     ?P1 = <mary>
+     ?P2 = <john>
+     ?E2 = _:0
+
+     Queue has now 2 rules:
+     Rule Both-Ways (modify-node17)
+          ?E1 = _:0
+          ?P1 = <john>
+          ?P2 = <mary>
+          ?E2 = _:1
+     Rule Both-Ways (modify-node17)
+          ?E1 = _:1
+          ?P1 = <mary>
+          ?P2 = <john>
+          ?E2 = _:0
+
+
+http://www.instans.org/INSTANS975: Running RDF-operation EXECUTE
+http://www.instans.org/INSTANS975: Execute rules with policy REPEAT-FIRST
+
+http://www.instans.org/INSTANS975: operation Executing
+Rule Both-Ways (modify-node17)
+     ?E1 = _:0
+     ?P1 = <john>
+     ?P2 = <mary>
+     ?E2 = _:1
+
+     Queue has now 1 rules:
+     Rule Both-Ways (modify-node17)
+          ?E1 = _:1
+          ?P1 = <mary>
+          ?P2 = <john>
+          ?E2 = _:0
+
+http://www.instans.org/INSTANS975: Rete add to <puskuri> _:0 <p1> <john>
+
+http://www.instans.org/INSTANS975: Rete add to <puskuri> _:0 <p2> <mary>
+
+http://www.instans.org/INSTANS975: operation Added
+Rule Filter-And-Output (select-node34)
+     ?E1 = _:0
+     ?P1 = <john>
+     ?P2 = <mary>
+
+     Queue has now 2 rules:
+     Rule Both-Ways (modify-node17)
+          ?E1 = _:1
+          ?P1 = <mary>
+          ?P2 = <john>
+          ?E2 = _:0
+     Rule Filter-And-Output (select-node34)
+          ?E1 = _:0
+          ?P1 = <john>
+          ?P2 = <mary>
+
+http://www.instans.org/INSTANS975: operation Executing
+Rule Both-Ways (modify-node17)
+     ?E1 = _:1
+     ?P1 = <mary>
+     ?P2 = <john>
+     ?E2 = _:0
+
+     Queue has now 1 rules:
+     Rule Filter-And-Output (select-node34)
+          ?E1 = _:0
+          ?P1 = <john>
+          ?P2 = <mary>
+
+http://www.instans.org/INSTANS975: Rete add to <puskuri> _:1 <p1> <mary>
+
+http://www.instans.org/INSTANS975: Rete add to <puskuri> _:1 <p2> <john>
+
+http://www.instans.org/INSTANS975: operation Removed existing
+Rule Filter-And-Output (select-node34)
+     ?E1 = _:0
+     ?P1 = <john>
+     ?P2 = <mary>
+
+     Queue has now 0 rules:
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+BASE <http://instans.org/>
+PREFIX : <http://instans.org/>

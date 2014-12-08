@@ -1,0 +1,14 @@
+@prefix  : <http://instans.org/> .
+
+[] :p1 :john ;
+   :p2 :mary .
+
+[] :p1 :mary ;
+   :p2 :john .
+
+# :john :likes :mary .
+# :mary :likes :john .
+
+# :this :is :last .
+
+

@@ -1,0 +1,45 @@
+BASE <http://instans.org/>
+PREFIX : <http://instans.org/>
+
+# @name Both-Ways
+INSERT { GRAPH <puskuri> { ?e1 :p1 ?p1 ; :p2 ?p2 } }
+WHERE { ?e1 :p1 ?p1 ; :p2 ?p2 .
+  ?e2 :p1 ?p2 ;
+        :p2 ?p1 .
+ } ;
+
+# @name Filter-And-Output
+SELECT * WHERE { GRAPH <puskuri> { ?e1 :p1 ?p1 ; :p2 ?p2 .
+  FILTER NOT EXISTS {
+    ?e2 :p1 ?p2 ;
+          :p2 ?p1 }
+} } ;
+
+# SELECT *
+# WHERE {
+#   ?a :likes ?b .
+#   FILTER NOT EXISTS { ?b :likes ?a }
+# } ;
+
+# INSERT { GRAPH <puskuri> {
+#   ?e :p1 ?p1 ;
+#       :p2 ?p2 } }
+# WHERE {
+#   ?e :p1 ?p1 ;
+#       :p2 ?p2 } ;
+
+# DELETE { GRAPH <puskuri> {
+#   ?e2 :p1 ?p2 ;
+#         :p2 ?p1 } }
+# WHERE { GRAPH <puskuri> {
+#   ?e1 :p1 ?p1 ;
+#         :p2 ?p2 .
+#   ?e2 :p1 ?p2 ;
+#         :p2 ?p1
+#   FILTER (?e1 != ?e2) } } ; 
+
+# SELECT *
+# WHERE {  :this :is :last .
+#  GRAPH <puskuri> {
+#  ?e :p1 ?p1 ;
+#      :p2 ?p2 } }

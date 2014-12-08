@@ -1,0 +1,88 @@
+BASE <http://instans.org/>
+PREFIX : <http://instans.org/>
+
+# Case 3: "Both-Ways" checking & Duplicate Removal (unexpected)
+# ==================================================
+
+# @name Both-Ways
+INSERT { GRAPH <puskuri> { ?e1 :p1 ?p1 ; :p2 ?p2 } }
+WHERE { ?e1 :p1 ?p1 ; :p2 ?p2 .
+  ?e2 :p1 ?p2 ;
+        :p2 ?p1 .
+ } ;
+
+# @name Filter-And-Output
+SELECT * WHERE { GRAPH <puskuri> { ?e1 :p1 ?p1 ; :p2 ?p2 .
+  FILTER NOT EXISTS {
+    ?e2 :p1 ?p2 ;
+          :p2 ?p1 }
+} } ;
+
+# Vastauksia 0
+# Syy tähän on seuraava:
+#
+# 1. Luetaan [] :p1 :john ; :p2 :mary . ja lisätään siitä muodostuvat triplet _:0 :p1 <john> . _:0 :p2 <mary> RETEen. Yksikään sääntö ei virity.
+#
+# 2. Luetaan [] :p1 :mary ; :p2 :john . ja lisätään siitä muodostuvat triplet _:1 :p1 <mary> . _:1 :p2 <john> RETEen. Virittyy kaksi sääntöä:
+#
+#      Queue has now 2 rules:
+#      Rule Both-Ways (modify-node17)
+#           ?E1 = _:0
+#           ?P1 = <john>
+#           ?P2 = <mary>
+#           ?E2 = _:1
+#      Rule Both-Ways (modify-node17)
+#           ?E1 = _:1
+#           ?P1 = <mary>
+#           ?P2 = <john>
+#           ?E2 = _:0
+#
+# 3. Poistetaan ja suoritetaan näistä ensimmäinen:
+#
+# Rule Both-Ways (modify-node17)
+#      ?E1 = _:0
+#      ?P1 = <john>
+#      ?P2 = <mary>
+#      ?E2 = _:1
+#
+# Tästä seuraa että lisätään graafiin <puskuri> _:0 <p1> <john> ja _:0 <p2> <mary>, josta virittyy yksi sääntö 
+#
+# Rule Filter-And-Output (select-node34)
+#      ?E1 = _:0
+#      ?P1 = <john>
+#      ?P2 = <mary>
+#
+# Jonossa on kaksi sääntöä, joista ensimmäinen kuitenkin on aiemmin virittynyt Both-Ways
+#
+#      Queue has now 2 rules:
+#      Rule Both-Ways (modify-node17)
+#           ?E1 = _:1
+#           ?P1 = <mary>
+#           ?P2 = <john>
+#           ?E2 = _:0
+#      Rule Filter-And-Output (select-node34)
+#           ?E1 = _:0
+#           ?P1 = <john>
+#           ?P2 = <mary>
+#
+# 4. Poistetaan ja suoritetaan näistä ensimmäinen:
+#
+# Rule Both-Ways (modify-node17)
+#      ?E1 = _:1
+#      ?P1 = <mary>
+#      ?P2 = <john>
+#      ?E2 = _:0
+#
+# Tästä seuraa että lisätään graafiin <puskuri> _:1 <p1> <mary> ja _:1 <p2> <john>. Tämä tekee aiemmin lisätyn Filter-And-Output säännön epävalidiksi ja poistaa sen jonosta:
+#
+# Rule Filter-And-Output (select-node34)
+#      ?E1 = _:0
+#      ?P1 = <john>
+#      ?P2 = <mary>
+#
+#      Queue has now 0 rules:
+#
+# Report-All tiedostossa "case3.dbg"
+#
+# Shell: ../../../../bin/instans --prefix-encoding=true -r test3.rq --report=all -t test.ttl
+# Lisp: (main (format nil "-d ~A/tests/removing-two-ways --prefix-encoding=true -r test3.rq --report=all -t test.ttl" (find-instans-root-directory)))
