@@ -1,0 +1,40 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+BASE <http://acrasycompany.org/>
+PREFIX e: <http://somevocabulary.org/>
+PREFIX s: <http://someinvasivesensornetwork.org/streams#>
+PREFIX g: <http://somesocialnetwork.org/graphs#>
+PREFIX : <http://acrasycompany.org/rsp#>
+_:15 rdf:type e:error;
+     rdf:label "Different POI - Close to Each other";
+     e:person :Jason,
+             :Margaret;
+     e:poi :Gallehault,
+          :Brewdog .
+
+_:16 rdf:type e:error;
+     rdf:label "Different POI - Close to Each other";
+     e:person :Margaret,
+             :Jason;
+     e:poi :Brewdog,
+          :Gallehault .
+
+_:33 e:somebody :Sylvester;
+     e:someoneElse :Jennifer;
+     e:poi :Brewdog;
+     :couplecount 1 .
+
+_:53 e:somebody :Rob;
+     e:someoneElse :Angelique;
+     e:poi :Gallehault;
+     :couplecount 1 .
+
+_:61 e:somebody :Christine;
+     e:someoneElse :Mel;
+     e:poi :Brewdog;
+     :couplecount 2 .
+
+_:69 e:somebody :Ivan;
+     e:someoneElse :Anna;
+     e:poi :Brewdog;
+     :couplecount 3 .
