@@ -801,12 +801,13 @@ table, tr, th, td {
 			     :skip-lines skip-lines)
     tests))
 
-(defun categorize-query-file (filename)
+(defun categorize-query-file (filename test-type)
   (let* ((instans (create-instans)))
     (instans-add-rules instans filename)
     (let ((types (instans-rule-types instans)))
       (cond ((null types)
-	     (inform "Null rule types in ~A" filename)
+	     (unless (member test-type '("mf:NegativeSyntaxTest" "mf:NegativeSyntaxTest11" "mf:NegativeUpdateSyntaxTest11") :test #'equal)
+	       (inform "Null rule types in ~A (test-type ~A)" filename test-type))
 	     nil)
 	    ((null (cdr types)) (car types))
 	    (t (inform "Several rule types in ~A: ~A" filename types)
@@ -821,41 +822,64 @@ table, tr, th, td {
     (assert* type "Null type in datafile ~A" filename)
     type))
 
+(defun categorize-result-graph-label (field)
+  (cond ((http-iri-string-p field) :http-iri)
+	((file-iri-string-p field) :file-iri)
+	(t field)))
+
 (defun splice-list (list from below &optional by)
   (loop for i from from below below by by
         collect (nth i list)))
 
 (defun categorize-tests (&optional (key-length 4))
-  (multiple-value-bind (test-alist headers) (csv-file-to-alist "/Users/enu/instans/tests.csv" :key-fields '("type" "suite" "collection" "name") :data-field-merge #'simple-field-merge)
+  (multiple-value-bind (test-alist headers) (csv-file-to-alist "/Users/enu/instans/tests/sparql-tests/sparql-tests.csv" :key-fields '("type" "suite" "collection" "name") :data-field-merge #'simple-field-merge)
+;    (inform "headers = ~S" headers)
     (let ((*print-right-margin* 200)
 	  (instans-root-dir (find-instans-root-directory)))
       ;; (loop for test in (splice-list test-alist 0 (length test-alist) 20)
       ;; 	    do (inform "key = ~S~%data = ~S~%" (first test) (second test)))
-      (labels ((abstract-field (field field-name)
-;		 (inform "abstract-field ~S ~S" field field-name)
+      (labels ((abstract-field (test-type dir field field-name)
 		 (unless (listp field) (setf field (list field)))
 		 (let ((v
+			;; (loop for f in field
+			;;       collect (case field-name
+			;; 		(:queryfile (categorize-query-file (format nil "~A/~A" instans-root-dir (subseq f 1 (1- (length f))))))
+			;; 		((:datafile :resultgraphdata)
+			;; 		 (categorize-data-file (format nil "~A/~A" instans-root-dir (subseq f 1 (1- (length f))))))
+			;; 		(:resultdata
+			;; 		 (categorize-result-file (format nil "~A/~A" instans-root-dir (subseq f 1 (1- (length f))))))
+			;; 		(t f))))
 			(loop for f in field
-			      collect (case field-name
-					(:queryfile (categorize-query-file (format nil "~A/~A" instans-root-dir (subseq f 1 (1- (length f))))))
-					((:datafile :resultgraphdata)
-					 (categorize-data-file (format nil "~A/~A" instans-root-dir (subseq f 1 (1- (length f))))))
-					(:resultdata
-					 (categorize-result-file (format nil "~A/~A" instans-root-dir (subseq f 1 (1- (length f))))))
-					(t f))))
+			      collect
+;			     (informing (format nil "in dir ~S field-name ~S f ~S -> ~~S" dir field-name f)
+					(case field-name
+					  (:queryfile (categorize-query-file (format nil "~A/~A" dir f) test-type))
+					  ((:datafile :graphfile)
+					   (categorize-data-file (format nil "~A/~A" dir f)))
+					  ((:resultfile :resultgraphfile)
+					   (categorize-result-file (format nil "~A/~A" dir f)))
+					  (:resultgraphlabel (categorize-result-graph-label f))
+					  (t f))
+;					)
+			     ))
 		       )
-;		 (inform "abstract-field -> ~S" v)
+;		   (inform "abstract-field -> ~S" v)
 		   v))
 	       (abstract-test (test)
 		 (let* ((key (first test))
+			(test-type (first key))
+			(dir (format nil "~A/tests/~A/~A" instans-root-dir (second key) (third key)))
 			(data
 			 (loop for field in (second test)
 			       for field-name in (nthcdr 4 (mapcar #'(lambda (x) (intern-keyword (string-upcase x))) headers))
-			       collect (abstract-field field field-name))))
+			       collect (abstract-field test-type dir field field-name))))
+;		   (inform "key = ~S~%data = ~S" key data)
 		   (list key data))))
-	(let* ((abstract-test-alist (loop for test in test-alist collect (abstract-test test))))
+	(let* ((abstract-test-alist (loop for test in test-alist
+;					  do (inform "test: ~A" test)
+					  collect (abstract-test test))))
 	  ;; (loop for atest in abstract-test-alist
-	  ;;       for ctest in test-alist
+	  ;; 	for ctest in test-alist
 	  ;; 	do (inform "key = ~S~%cdata = ~S~%adata = ~A~%" (first atest) (second ctest) (second atest)))
 	  (let ((category-alist nil))
 	    (labels ((categorize-test (test)
@@ -882,6 +906,18 @@ table, tr, th, td {
       (values category-alist headers))))
 
  ;; (let ((*print-right-margin* 300) (c (show-categorize-tests 2))) (loop for test in c for dl = (mapcar #'(lambda (d) (list d (position-if #'(lambda (x) x) d :from-end t)))  (rest test)) do (inform "~A~30T~{~A~^-~}~{~45T~{~S ~D~}~^~%~}" (caar test) (cdar test) dl)))
+
+
+(defun sct ()
+  (multiple-value-bind (ct headers) (show-categorize-tests 2)
+    (let ((*print-right-margin* 300))
+      (inform "headers: ~S" headers)
+      (loop for test in ct
+	    for dl = (mapcar #'(lambda (d) (let ((pos (position-if #'(lambda (x) x) d :from-end t)))
+					     (list d (if pos (1+ pos) 0))))
+			     (rest test))
+	    for m = (apply #'max (mapcar #'second dl))
+	    do (inform "~A~30T~{~A~^-~} ~D ~{~48T~{~S ~D~}~^~%~}" (caar test) (cdar test) m dl)))))
 
 (defvar *oink* nil)
 

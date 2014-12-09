@@ -2,11 +2,11 @@
   + Success/failure handling
   + Make parsing method
   - Make running method
-    - Bind default graph input processor for running
+    + Bind default graph input processor for running
     - Bind named graph input processor for running
       - Needs new code in interpreter: Named graph input processor may have to be created at run time. How?
-    - Bind SELECT output processor for running
-    - Bind CONSTRUCT output processor for running
+    + Bind SELECT output processor for running
+    + Bind CONSTRUCT output processor for running
     - Bind different graph output processors
       - Needs new code in interpreter: Named graph output processor may have to be create at run time. How?
   - Make comparison method
@@ -17,6 +17,7 @@
 ------------------------------------------
 LATER
 - Try to get fuseki working
+- Add automatic modification datetime changing to Lisp source files
 New kind of index:
 - The tokens are indexed based on mandatory and optional bindings.
   When you add a token, it is stored using the mandatory bindings as the primary key.
