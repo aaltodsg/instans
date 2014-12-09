@@ -1,0 +1,9 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix e: <http://somevocabulary.org/> .
+@prefix s: <http://someinvasivesensornetwork.org/streams#> .
+@prefix g: <http://somesocialnetwork.org/graphs#> .
+@prefix  : <http://acrasycompany.org/rsp#> .
+
+:Gallehault rdf:type e:bar .
+:Brewdog rdf:type e:bar .
+:Louvre rdf:type e:museum .

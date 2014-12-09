@@ -1,0 +1,157 @@
+BASE <http://acrasycompany.org/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX e: <http://somevocabulary.org/> 
+PREFIX s: <http://someinvasivesensornetwork.org/streams#>
+PREFIX g: <http://somesocialnetwork.org/graphs#>
+PREFIX : <http://acrasycompany.org/rsp#>
+
+# Set up a counter from zero for every bar
+INSERT { GRAPH <memory> { ?poi :couplecount 0 } }
+WHERE { ?poi rdf:type e:bar } ;
+
+# Record the stay of each person
+INSERT { GRAPH <stays> {
+  [] e:person ?person ;
+     e:poi ?poi ;
+     e:entry ?entry ;
+     e:exit ?exit .
+    } }
+WHERE {
+  ?poi a e:bar .
+  ?event1 a e:enters ;
+          e:person ?person ;
+          e:poi ?poi ;
+          e:time ?entry .
+  ?event2 a e:exits ;
+          e:person ?person ;
+          e:poi ?poi ;
+          e:time ?exit .
+} ;
+
+# Collect candidates with qualifying stays
+INSERT { GRAPH <groups> {
+  [] e:somebody ?somebody ;
+     e:someoneElse ?someoneElse ;
+     e:poi ?poi .
+} }
+WHERE { GRAPH <stays> {
+    ?stay1 e:person ?somebody ;
+           e:poi ?poi ;
+           e:entry ?entry1 ;
+           e:exit ?exit1 .
+    ?stay2 e:person ?someoneElse ;
+           e:poi ?poi ;
+           e:entry ?entry2 ;
+           e:exit ?exit2 . }
+  # Not the same person
+  FILTER (?somebody != ?someoneElse)
+  # Arrived within 4 hours
+  FILTER (abs(?entry1-?entry2) <= 240)
+  # Exited within the same minute
+  FILTER (?exit1 = ?exit2)
+  # Were close to each other for 30 minutes or more
+  ?close a e:isCloseTo ;
+         e:person ?somebody ;
+         e:person ?someoneElse ;
+         e:start ?close_start ;
+         e:end ?close_end .
+  FILTER (?close_end - ?close_start >= 30)
+  # Were not close to anyone else for 30 minutes or more
+  FILTER NOT EXISTS {
+    ?close2 a e:isCloseTo ;
+            e:person ?somebody ;
+            e:person ?thirdPerson ;
+            e:start ?close_start2 ;
+            e:end ?close_end2 .
+    FILTER ( (?thirdPerson != ?somebody) && (?thirdPerson != ?someoneElse) )
+    FILTER ( ?close_end2 - ?close_start2 >= 30 )
+  }
+  # Remove the ones where at least one knew the other from before
+  FILTER NOT EXISTS { ?somebody e:knows ?someoneElse }
+} ;
+
+# Test qualifying couples and remove duplicates
+INSERT { GRAPH <couples> {
+  [] e:somebody ?somebody ;
+     e:someoneElse ?someoneElse ;
+     e:poi ?poi ;
+     :status :new 
+}  }
+WHERE { GRAPH <groups> {
+    # Require potential couples to exist both ways
+    # I.e. reject cases where one knew the other, one was close to someone else etc.
+    ?couple1 e:somebody ?somebody ;
+             e:someoneElse ?someoneElse ;
+             e:poi ?poi .
+    ?couple2 e:somebody ?someoneElse ;
+             e:someoneElse ?somebody ;
+             e:poi ?poi . }
+    # Remove the duplicates
+    FILTER NOT EXISTS { GRAPH <couples> {
+      ?couple3 e:somebody ?someoneElse ;
+               e:someoneElse ?somebody } } 
+} ;
+
+# Count the couples for each POI
+DELETE { GRAPH <memory> { ?poi :couplecount ?oldcount }
+         GRAPH <couples> { ?couple :status :new } }
+INSERT { GRAPH <counts> {
+  ?couple e:somebody ?somebody ;
+          e:someoneElse ?someoneElse ;
+          e:poi ?poi ;
+          :couplecount ?newcount }
+  GRAPH <memory> { ?poi :couplecount ?newcount }
+ }
+WHERE { GRAPH <couples> {
+  ?couple e:somebody ?somebody ;
+          e:someoneElse ?someoneElse ;
+          e:poi ?poi ;
+          :status :new .
+  }
+  GRAPH <memory> { ?poi :couplecount ?oldcount }
+  BIND (?oldcount+1 AS ?newcount)
+ } ;
+
+# Construct the output stream
+CONSTRUCT { ?s ?p ?o }
+WHERE { GRAPH <counts> { ?s ?p ?o } } ;
+
+#######################
+#
+# Testing and cleanup
+#
+#######################
+
+# Flag an error if two persons in different POI are flagged close to each other
+CONSTRUCT { [] a e:error ;
+               rdf:label "Different POI - Close to Each other" ;
+               e:person ?person1 ;
+               e:poi ?poi1 ;
+               e:person ?person2 ;
+               e:poi ?poi2 }
+WHERE {
+  ?e1 a e:enters ;
+      e:person ?person1 ;
+      e:poi ?poi1 .
+  ?e2 a e:enters ;
+      e:person ?person2 ;
+      e:poi ?poi2 .
+  ?e3 a e:isCloseTo ;
+      e:person ?person1 ;
+      e:person ?person2 ;
+  FILTER (?poi1 != ?poi2)
+} ;
+
+
+# TODO: Write cleanup-queries
+
+# INSERT DATA { GRAPH <memory> { :time :is 0 } } ;
+
+# DELETE { GRAPH <memory> { :time :is ?previous } }
+# INSERT { GRAPH <memory> { :time :is ?new } }
+# WHERE {  { ?event e:time ?new} UNION { ?event e:end ?new}
+#  GRAPH <memory> { :time :is ?previous }
+#  FILTER (?new > ?previous) } ;
+
+# CONSTRUCT { :time :is ?time }
+# WHERE { GRAPH <memory> { :time :is ?time } } ;

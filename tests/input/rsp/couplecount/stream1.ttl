@@ -1,0 +1,194 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix e: <http://somevocabulary.org/> .
+@prefix s: <http://someinvasivesensornetwork.org/streams#> .
+@prefix g: <http://somesocialnetwork.org/graphs#> .
+@prefix  : <http://acrasycompany.org/rsp#> .
+
+[] a e:enters ;
+   e:person :Kim ;
+   e:time 1 ;
+   e:poi :Gallehault .
+
+[] a e:enters ;
+   e:person :Barney ;
+   e:time 5 ;
+   e:poi :Gallehault .
+
+[] a e:enters ;
+   e:person :Jennifer ;
+   e:time 7 ;
+   e:poi :Brewdog .
+
+[] a e:isCloseTo ;
+   e:person :Barney ;
+   e:person :Kim ;
+   e:start 7 ;
+   e:end 39 .
+
+[] a e:enters ;
+   e:person :Michelle ;
+   e:time 41 ;
+   e:poi :Brewdog .
+
+[] a e:isCloseTo ;
+   e:person :Barney ;
+   e:person :Arnold ;
+   e:start 9 ;
+   e:end 45 .
+
+[] a e:enters ;
+   e:person :Jason ;
+   e:time 51 ;
+   e:poi :Gallehault .
+
+[] a e:enters ;
+   e:person :Margaret ;
+   e:time 57 ;
+   e:poi :Brewdog .
+
+[] a e:enters ;
+   e:person :Sylvester ;
+   e:time 100 ;
+   e:poi :Brewdog .
+
+[] a e:enters ;
+   e:person :Sean ;
+   e:time 105 ;
+   e:poi :Brewdog .
+
+[] a e:isCloseTo ;
+   e:person :Jason ;
+   e:person :Margaret ;
+   e:start 60 ;
+   e:end 107 .
+
+[] a e:exits ;
+   e:person :Barney ;
+   e:time 120 ;
+   e:poi :Gallehault .
+
+[] a e:exits ;
+   e:person :Kim ;
+   e:time 120 ;
+   e:poi :Gallehault .
+
+[] a e:isCloseTo ;
+   e:person :Sylvester ;
+   e:person :Jennifer ;
+   e:start 119 ;
+   e:end 200 .
+
+[] a e:exits ;
+   e:person :Jason ;
+   e:time 205 ;
+   e:poi :Gallehault .
+
+[] a e:exits ;
+   e:person :Margaret ;
+   e:time 205 ;
+   e:poi :Brewdog .
+
+[] a e:exits ;
+   e:person :Sylvester ;
+   e:time 400 ;
+   e:poi :Brewdog .
+
+[] a e:exits ;
+   e:person :Jennifer ;
+   e:time 400 ;
+   e:poi :Brewdog .
+
+[] a e:isCloseTo ;
+   e:person :Sean ;
+   e:person :Michelle ;
+   e:start 405 ;
+   e:end 435 .
+
+[] a e:exits ;
+   e:person :Sean ;
+   e:time 440 ;
+   e:poi :Brewdog .
+
+[] a e:exits ;
+   e:person :Michelle ;
+   e:time 440 ;
+   e:poi :Brewdog .
+
+[] a e:enters ;
+   e:person :Rob ;
+   e:time 445 ;
+   e:poi :Gallehault .
+
+[] a e:enters ;
+   e:person :Angelique ;
+   e:time 510 ;
+   e:poi :Gallehault .
+
+[] a e:enters ;
+   e:person :Mel ;
+   e:time 512 ;
+   e:poi :Brewdog .
+
+[] a e:enters ;
+   e:person :Christine ;
+   e:time 540 ;
+   e:poi :Brewdog .
+
+[] a e:isCloseTo ;
+   e:person :Rob ;
+   e:person :Angelique ;
+   e:start 550 ;
+   e:end 601 .
+
+[] a e:enters ;
+   e:person :Ivan ;
+   e:time 603 ;
+   e:poi :Brewdog .
+
+[] a e:enters ;
+   e:person :Anna ;
+   e:time 605 ;
+   e:poi :Brewdog .
+
+[] a e:exits ;
+   e:person :Rob ;
+   e:time 607 ;
+   e:poi :Gallehault .
+
+[] a e:exits ;
+   e:person :Angelique ;
+   e:time 607 ;
+   e:poi :Gallehault .
+
+[] a e:isCloseTo ;
+   e:person :Mel ;
+   e:person :Christine ;
+   e:start 608 ;
+   e:end 638 .
+
+[] a e:exits ;
+   e:person :Christine ;
+   e:time 638 ;
+   e:poi :Brewdog .
+
+[] a e:exits ;
+   e:person :Mel ;
+   e:time 638 ;
+   e:poi :Brewdog .
+
+[] a e:isCloseTo ;
+   e:person :Ivan ;
+   e:person :Anna ;
+   e:start 650 ;
+   e:end 698 .
+
+[] a e:exits ;
+   e:person :Ivan ;
+   e:time 699 ;
+   e:poi :Brewdog .
+
+[] a e:exits ;
+   e:person :Anna ;
+   e:time 699 ;
+   e:poi :Brewdog .
+
