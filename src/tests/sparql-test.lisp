@@ -2,6 +2,7 @@
 ;;;
 ;;; Author: Esko Nuutila (esko.nuutila@aalto.fi)
 ;;;
+;;; Last updated: Tue Dec  9 14:09:16 EET 2014
 
 (in-package #:instans)
 
@@ -171,7 +172,9 @@
 
 (defgeneric sparql-test-run-system (sparql-test2)
   (:method ((this sparql-test2))
-    this))
+    (let ((instans (sparql-test-instans this)))
+      (run-input-processors instans t)
+      (setf (sparql-test-running-succeeded-p this) t))))
 
 (defgeneric sparql-test-running-phase (sparql-test2)
   (:method ((this sparql-query-evaluation-test))

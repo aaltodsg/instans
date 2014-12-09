@@ -51,6 +51,14 @@
 		   (setf ,access ,update-var)
 		   ,update-var))))
 
+;;;
+
+(defmacro informing (fmt &body body)
+  (let ((v (gensym)))
+    `(let ((,v (progn ,@body)))
+       (inform ,fmt ,v)
+       ,v)))
+
 ;;; Assertions
 
 (defmacro assert* (test fmt &rest args)
