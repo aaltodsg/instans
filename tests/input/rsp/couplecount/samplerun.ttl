@@ -1,19 +1,20 @@
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 BASE <http://acrasycompany.org/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX e: <http://somevocabulary.org/>
 PREFIX s: <http://someinvasivesensornetwork.org/streams#>
 PREFIX g: <http://somesocialnetwork.org/graphs#>
 PREFIX : <http://acrasycompany.org/rsp#>
 _:15 rdf:type e:error;
-     rdf:label "Different POI - Close to Each other";
+     rdfs:label "Different POI - Close to Each other";
      e:person :Jason,
              :Margaret;
      e:poi :Gallehault,
           :Brewdog .
 
 _:16 rdf:type e:error;
-     rdf:label "Different POI - Close to Each other";
+     rdfs:label "Different POI - Close to Each other";
      e:person :Margaret,
              :Jason;
      e:poi :Brewdog,

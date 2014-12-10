@@ -1,5 +1,6 @@
 BASE <http://acrasycompany.org/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX e: <http://somevocabulary.org/> 
 PREFIX s: <http://someinvasivesensornetwork.org/streams#>
 PREFIX g: <http://somesocialnetwork.org/graphs#>
@@ -60,10 +61,10 @@ WHERE { GRAPH <stays> {
   FILTER NOT EXISTS {
     ?close2 a e:isCloseTo ;
             e:person ?somebody ;
-            e:person ?thirdPerson ;
+            e:person ?yetAnotherOne ;
             e:start ?close_start2 ;
             e:end ?close_end2 .
-    FILTER ( (?thirdPerson != ?somebody) && (?thirdPerson != ?someoneElse) )
+    FILTER ( (?yetAnotherOne != ?somebody) && (?yetAnotherOne != ?someoneElse) )
     FILTER ( ?close_end2 - ?close_start2 >= 30 )
   }
   # Remove the ones where at least one knew the other from before
@@ -124,7 +125,7 @@ WHERE { GRAPH <counts> { ?s ?p ?o } } ;
 
 # Flag an error if two persons in different POI are flagged close to each other
 CONSTRUCT { [] a e:error ;
-               rdf:label "Different POI - Close to Each other" ;
+               rdfs:label "Different POI - Close to Each other" ;
                e:person ?person1 ;
                e:poi ?poi1 ;
                e:person ?person2 ;
