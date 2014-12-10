@@ -16,15 +16,17 @@
 # By Mikko Rinne 23.5.2014
 
 # History:
-# 16.5.2014 MJR First version created
-# 20.5.2014 MJR Fixed support for multiple windows, added selection of timeType.
-# 21.5.2014 MJR Added support for independent window step sizes (also non-tumbling windows)
-# 22.5.2014 MJR Added min & max, support for deletion of incoming events, optimizations
-# 23.5.2014 MJR Added some more documentation in comments
+# 16.05.2014 MJR First version created
+# 20.05.2014 MJR Fixed support for multiple windows, added selection of timeType.
+# 21.05.2014 MJR Added support for independent window step sizes (also non-tumbling windows)
+# 22.05.2014 MJR Added min & max, support for deletion of incoming events, optimizations
+# 23.05.2014 MJR Added some more documentation in comments
+# 03.12.2014 MJR Changed the xsd:datetime conversion to use the INSTANS built-in function instead of SPARQL
 
 PREFIX ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
 PREFIX dul: <http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX datetime: <http://instans.org/extensions/datetime#>
 PREFIX : <http://instans.org/>
 
 # Q1: Record time of first event as zero-point, initialize window series
@@ -97,19 +99,7 @@ WHERE {
   ?event ?timePredicate ?currentTime ;
          ?valuePredicate ?currentValue .
 
-  # Note: The conversion here doesn't take into account any months shorter than 31 days and will therefore
-  #       cause problems at the end of shorter months. There are, however, plans to implement the proper
-  #       conversion as a single-function extension. For now, this is kept as a simple example.
-
-  # Convert incoming dateTime to seconds starting from first event
-  BIND (year(?currentTime)-year(?zeroTime) AS ?yearDiff)
-  BIND (month(?currentTime)-month(?zeroTime) AS ?monthDiff)
-  BIND (day(?currentTime)-day(?zeroTime) AS ?dayDiff)
-  BIND (hours(?currentTime)-hours(?zeroTime) AS ?hoursDiff)
-  BIND (minutes(?currentTime)-minutes(?zeroTime) AS ?minutesDiff)
-  BIND (seconds(?currentTime)-seconds(?zeroTime) AS ?secondsDiff)
-
-  BIND (?secondsDiff + (?minutesDiff + (?hoursDiff + ( ?dayDiff + ( ?monthDiff + ?yearDiff * 12 ) * 31) * 24 ) * 60 ) * 60 AS ?windowTime)
+  BIND (datetime:datetime_in_seconds(?currentTime)-datetime:datetime_in_seconds(?zeroTime) AS ?windowTime)
 }
 
 ;

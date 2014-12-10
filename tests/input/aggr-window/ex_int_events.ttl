@@ -1,0 +1,63 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix tl: <http://purl.org/NET/c4dm/timeline.owl#> .
+@prefix geo:  <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix ssn: <http://purl.oclc.org/NET/ssnx/ssn#> .
+@prefix data: <http://example.org/mydata#> .
+@prefix evo: <http://example.org/event_ontology#> .
+@prefix flood: <http://example.org/flood_ontology#> .
+@prefix weather: <http://example.org/weather_ontology#> .
+
+@prefix ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#> .
+@prefix dul: <http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#> .
+@prefix : <http://instans.org/> .
+
+:eve1 a ep:EventObject ;
+      ep:hasEventObjectTime 23432 ;
+      dul:hasRegionDataValue 22 .
+
+:eve2 a ep:EventObject ;
+      ep:hasEventObjectTime 23437 ;
+      dul:hasRegionDataValue 2 .
+
+:eve3 a ep:EventObject ;
+      ep:hasEventObjectTime 23440 ;
+      dul:hasRegionDataValue 14 .
+
+:eve4 a ep:EventObject ;
+      ep:hasEventObjectTime 23449 ;
+      dul:hasRegionDataValue 7 .
+
+:eve5 a ep:EventObject ;
+      ep:hasEventObjectTime 23500 ;
+      dul:hasRegionDataValue 122 .
+
+:eve6 a ep:EventObject ;
+      ep:hasEventObjectTime 23501 ;
+      dul:hasRegionDataValue 16 .
+
+:eve7 a ep:EventObject ;
+      ep:hasEventObjectTime 23501 ;
+      dul:hasRegionDataValue 1 .
+
+:eve8 a ep:EventObject ;
+      ep:hasEventObjectTime 23502 ;
+      dul:hasRegionDataValue -8 .
+
+:eve9 a ep:EventObject ;
+      ep:hasEventObjectTime 23517 ;
+      dul:hasRegionDataValue 12 .
+
+:eve10 a ep:EventObject ;
+      ep:hasEventObjectTime 23519 ;
+      dul:hasRegionDataValue 9 .
+
+:eve11 a ep:EventObject ;
+      ep:hasEventObjectTime 23521 ;
+      dul:hasRegionDataValue 4 .
+
+:eve12 a ep:EventObject ;
+      ep:hasEventObjectTime 23524 ;
+      dul:hasRegionDataValue 2 .
+
+:this :is :last .
