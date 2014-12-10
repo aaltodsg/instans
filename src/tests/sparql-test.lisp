@@ -13,20 +13,11 @@
    (name :accessor sparql-test-name :initarg :name)
    (directory :accessor sparql-test-directory)
    (instans :accessor sparql-test-instans)
-   (not-implemented-p :accessor sparql-test-not-implemented-p :initarg :name)
-   (output-directory :accessor sparql-test-output-directory)
+   (not-implemented-p :accessor sparql-test-not-implemented-p :initarg :not-implemented-p)
+   (output-directory :accessor sparql-test-output-directory :initform "test-output")
    (base :accessor sparql-test-base)
    (status :accessor sparql-test-status :initform :not-completed)))
 					; One of :not-completed, :succeeded, :failed
-
-(defgeneric sparql-test-failed-p (sparql-test2))
-
-(defmethod sparql-test-failed-p ((this sparql-test2))
-  (sparql-test-not-implemented-p this))
-
-(defgeneric expand-sparql-test-filename (sparql-test2 filename)
-  (:method ((this sparql-test2) filename)
-    (truename (format nil "~A/~A" (sparql-test-directory this) filename))))
 
 (defmethod initialize-instance :after ((this sparql-test2) &key &allow-other-keys)
   (setf (sparql-test-directory this)
@@ -36,15 +27,65 @@
   (setf (sparql-test-output-directory this) (expand-sparql-test-filename this (sparql-test-output-directory this)))
   (ensure-directories-exist (sparql-test-output-directory this)))
 
+(defmethod print-object ((this sparql-test2) stream)
+  (format stream "#<~A \"~A/~A/~A\">" (type-of this) (sparql-test-suite this) (sparql-test-collection this) (sparql-test-name this)))
+
+(defgeneric print-test (sparql-test2 &optional stream))
+
+(defmethod print-test ((this sparql-test2) &optional (stream *standard-output*))
+  (format stream "~%~A \"~A/~A/~A\"" (type-of this) (sparql-test-suite this) (sparql-test-collection this) (sparql-test-name this))
+  (when (slot-boundp this 'directory)
+    (format stream "~%  :directory ~A" (sparql-test-directory this)))
+  ;; (when (slot-boundp this 'instans)
+  ;;   (format stream "~%  :instans ~A" (sparql-test-instans this)))
+  (when (slot-boundp this 'not-implemented-p)
+    (format stream "~%  :not-implemented-p ~A" (sparql-test-not-implemented-p this)))
+  (when (slot-boundp this 'output-directory)
+    (format stream "~%  :output-directory ~A" (sparql-test-output-directory this)))
+  (when (slot-boundp this 'base)
+    (format stream "~%  :base ~A" (sparql-test-base this)))
+  (when (slot-boundp this 'status)
+    (format stream "~%  :status ~A" (sparql-test-status this))))
+
+(defgeneric sparql-test-failed-p (sparql-test2))
+
+(defmethod sparql-test-failed-p ((this sparql-test2))
+  (sparql-test-not-implemented-p this))
+
+(defun expand-sparql-test-filename (test filename)
+  (assert (stringp filename))
+  (format nil "~A~A" (sparql-test-directory test) filename))
+
+(defun expand-sparql-test-filename* (test name-or-names)
+  (cond ((null name-or-names) nil)
+	((not (consp name-or-names)) (expand-sparql-test-filename test name-or-names))
+	((= 1 (length name-or-names))
+	 (expand-sparql-test-filename test (first name-or-names)))
+	((not (null name-or-names))
+	 (error* "More than one name in ~A: ~A" test name-or-names))))
+
 (define-class sparql-syntax-test (sparql-test2)
-  ((queryfile :accessor sparql-test-queryfile :initarg :queryfile)
+  ((queryfile :accessor sparql-test-queryfile :initarg :queryfile :initform nil)
    (parsing-succeeded-p :accessor sparql-test-parsing-succeeded-p)
    (translation-succeeded-p :accessor sparql-test-translation-succeeded-p)
    (initialization-succeeded-p :accessor sparql-test-initialization-succeeded-p)
-   (rule-type :accessor sparql-test-rule-type)))
+   (rule-type :accessor sparql-test-rule-type :initform nil)))
 
 (defmethod initialize-instance :after ((this sparql-syntax-test) &key queryfile &allow-other-keys)
-  (setf (sparql-test-queryfile this) (expand-sparql-test-filename this queryfile)))
+  (setf (sparql-test-queryfile this) (expand-sparql-test-filename* this queryfile)))
+
+(defmethod print-test ((this sparql-syntax-test) &optional (stream *standard-output*))
+  (call-next-method)
+  (when (slot-boundp this 'queryfile)
+    (format stream "~%  :queryfile ~A" (sparql-test-queryfile this)))
+  (when (slot-boundp this 'parsing-succeeded-p)
+    (format stream "~%  :parsing-succeeded-p ~A" (sparql-test-parsing-succeeded-p this)))
+  (when (slot-boundp this 'translation-succeeded-p)
+    (format stream "~%  :translation-succeeded-p ~A" (sparql-test-translation-succeeded-p this)))
+  (when (slot-boundp this 'initialization-succeeded-p)
+    (format stream "~%  :initialization-succeeded-p ~A" (sparql-test-initialization-succeeded-p this)))
+  (when (slot-boundp this 'rule-type)
+    (format stream "~%  :rule-type ~A" (sparql-test-rule-type this))))
 
 (define-class sparql-positive-syntax-test (sparql-syntax-test) ())
 
@@ -69,31 +110,57 @@
 (define-class sparql-negative-update-syntax-test-11 (sparql-positive-syntax-test) ())
 
 (define-class sparql-query-evaluation-test (sparql-positive-syntax-test)
-  ((datafile :accessor sparql-test-datafile :initarg :datafile)
-   (expected-resultfile :accessor sparql-test-expected-resultfile :initarg :expected-resultfile)
+  ((datafile :accessor sparql-test-datafile :initarg :datafile :initform nil)
+   (expected-resultfile :accessor sparql-test-expected-resultfile :initarg :expected-resultfile :initform nil)
    (running-succeeded-p :accessor sparql-test-running-succeeded-p )
    (comparison-succeeded-p :accessor sparql-test-comparison-succeeded-p)))
+
+(defmethod initialize-instance :after ((this sparql-query-evaluation-test) &key datafile expected-resultfile &allow-other-keys)
+;  (inform "~A: datafile = ~A" this datafile)
+  (setf (sparql-test-datafile this) (expand-sparql-test-filename* this datafile))
+;  (inform "~A: datafile now = ~A" this (sparql-test-datafile this))
+  (setf (sparql-test-expected-resultfile this) (expand-sparql-test-filename* this expected-resultfile)))
+
+(defmethod print-test ((this sparql-query-evaluation-test) &optional (stream *standard-output*))
+  (call-next-method)
+  (when (slot-boundp this 'datafile)
+    (format stream "~%  :datafile ~A" (sparql-test-datafile this)))
+  (when (slot-boundp this 'expected-resultfile)
+    (format stream "~%  :expected-resultfile ~A" (sparql-test-expected-resultfile this)))
+  (when (slot-boundp this 'running-succeeded-p)
+    (format stream "~%  :running-succeeded-p ~A" (sparql-test-running-succeeded-p this)))
+  (when (slot-boundp this 'comparison-succeeded-p)
+    (format stream "~%  :comparison-succeeded-p ~A" (sparql-test-comparison-succeeded-p this))))
 
 (defmethod sparql-test-failed-p ((this sparql-query-evaluation-test))
   (or (call-next-method)
       (not (and (sparql-test-running-succeeded-p this)
 		(sparql-test-comparison-succeeded-p this)))))
 
-(defmethod initialize-instance :after ((this sparql-query-evaluation-test) &key datafile expected-resultfile &allow-other-keys)
-  (setf (sparql-test-datafile this) (expand-sparql-test-filename this datafile))
-  (setf (sparql-test-expected-resultfile this) (expand-sparql-test-filename this expected-resultfile)))
-
 (define-class sparql-update-evaluation-test (sparql-query-evaluation-test)
-  ((graphfiles :accessor sparql-test-graphfiles :initarg :graphfiles)
-   (graphlabels :accessor sparql-test-graphlabels :initarg :graphlabels)
-   (expected-resultgraphfiles :accessor sparql-test-expected-resultgraphfiles :initarg :expected-resultgraphfiles)
-   (expected-resultgraphlabels :accessor sparql-test-expected-resultgraphlabels :initarg :expected-resultgraphlabels)
-   (updateexpected-result :accessor sparql-test-updateexpected-result :initarg :updateexpected-result)))
+  ((graphfiles :accessor sparql-test-graphfiles :initarg :graphfiles :initform nil)
+   (graphlabels :accessor sparql-test-graphlabels :initarg :graphlabels :initform nil)
+   (expected-resultgraphfiles :accessor sparql-test-expected-resultgraphfiles :initarg :expected-resultgraphfiles :initform nil)
+   (expected-resultgraphlabels :accessor sparql-test-expected-resultgraphlabels :initarg :expected-resultgraphlabels :initform nil)
+   (updateexpected-result :accessor sparql-test-updateexpected-result :initarg :updateexpected-result :initform nil)))
 
 (defmethod initialize-instance :after ((this sparql-update-evaluation-test) &key &allow-other-keys)
   (setf (sparql-test-expected-resultgraphfiles this)
 	(loop for file in (sparql-test-expected-resultgraphfiles this)
 	      collect (expand-sparql-test-filename this file))))
+
+(defmethod print-test ((this sparql-update-evaluation-test) &optional (stream *standard-output*))
+  (call-next-method)
+  (when (slot-boundp this 'graphfiles)
+    (format stream "~%  :graphfiles ~A" (sparql-test-graphfiles this)))
+  (when (slot-boundp this 'graphlabels)
+    (format stream "~%  :graphlabels ~A" (sparql-test-graphlabels this)))
+  (when (slot-boundp this 'expected-resultgraphfiles)
+    (format stream "~%  :expected-resultgraphfiles ~A" (sparql-test-expected-resultgraphfiles this)))
+  (when (slot-boundp this 'expected-resultgraphlabels)
+    (format stream "~%  :expected-resultgraphlabels ~A" (sparql-test-expected-resultgraphlabels this)))
+  (when (slot-boundp this 'updateexpected-result)
+    (format stream "~%  :updateexpected-result ~A" (sparql-test-updateexpected-result this))))
 
 (define-class sparql-csv-result-format-test (sparql-query-evaluation-test) ())
 
@@ -219,3 +286,49 @@
     (unless (sparql-test-failed-p this)
       (sparql-test-comparison-phase this))
     (sparql-test-failed-p this)))
+
+
+(define-class sparql-tests2 ()
+  ((entries :accessor sparql-tests-entries :initarg :entries :initform nil)
+   (fields :accessor sparql-tests-fields :initarg :fields)))
+
+(defun parse-tests-from-csv (&key (csv-file "/Users/enu/instans/tests/sparql-tests/sparql-tests.csv"))
+  (multiple-value-bind (alist headers); linecount entrycount)
+      (csv-file-to-alist csv-file :key-fields '("type" "suite" "collection" "name") :data-field-merge #'simple-field-merge)
+    ;; (loop for entry in alist
+    ;; 	  for key = (first entry)
+    ;; 	  for values = (second entry)
+    ;; 	  for name-value-list = (mapcar #'list (nthcdr 4 headers) values)
+    ;; 	  do (assert (null (cddr entry)))
+    ;; 	  do (inform "~A ~{~A~^/~}:~{~%  ~{:~A~^ ~A~}~}" (first key) (rest key) name-value-list))
+    ;; 					;    alist
+    (flet ((test-type-class-name (type-string)
+	     (cond ((string= type-string "mf:PositiveSyntaxTest") 'sparql-positive-syntax-test)
+		   ((string= type-string "mf:NegativeSyntaxTest") 'sparql-negative-syntax-test)
+		   ((string= type-string "mf:PositiveSyntaxTest11") 'sparql-positive-syntax-test-11)
+		   ((string= type-string "mf:NegativeSyntaxTest11") 'sparql-negative-syntax-test-11)
+		   ((string= type-string "mf:PositiveUpdateSyntaxTest11") 'sparql-positive-update-syntax-test-11)
+		   ((string= type-string "mf:NegativeUpdateSyntaxTest11") 'sparql-negative-update-syntax-test-11)
+		   ((string= type-string "mf:QueryEvaluationTest") 'sparql-query-evaluation-test)
+		   ((string= type-string "mf:UpdateEvaluationTest") 'sparql-update-evaluation-test)
+		   ((string= type-string "mf:CSVResultFormatTest") 'sparql-csv-result-format-test)
+		   ((string= type-string "mf:ProtocolTest") 'sparql-protocol-test)
+		   ((string= type-string "mf:ServiceDescriptionTest") 'sparql-service-description-test)
+		   (t (error* "Unknown test type ~A" type-string)))))
+      (let* ((header-keywords (mapcar #'(lambda (h) (intern-keyword (string-upcase h))) headers)))
+	(make-instance 'sparql-tests2
+		       :fields header-keywords
+		       :entries (loop for entry in alist
+				      for key = (first entry)
+				      for values = (second entry)
+				      for type-class-name = (test-type-class-name (first key))
+				      for test = (apply #'make-instance type-class-name :type (first key) :suite (second key) :collection (third key) :name (fourth key)
+							(loop for keyword in (nthcdr 4 header-keywords)
+							      for value in values
+							      nconc (list keyword value)))
+				      collect test))))))
+
+;; (add-sparql-test tests
+;; 							     :type type :negative (parse-xsd-boolean negative) :suite suite :collection collection :name name
+;; 							     :queryfile queryfile :datafile datafile :graphdatafile graphdatafile
+;; 							     :resultfile resultfile :resultgraphfile resultgraphfile :resultgraphlabel resultgraphlabel)
