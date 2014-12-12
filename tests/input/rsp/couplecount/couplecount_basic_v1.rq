@@ -10,7 +10,7 @@ PREFIX : <http://acrasycompany.org/rsp#>
 INSERT { GRAPH <memory> { ?poi :couplecount 0 } }
 WHERE { ?poi rdf:type e:bar } ;
 
-# Record the stay of each person
+# Record the bar stay of each person
 INSERT { GRAPH <stays> {
   [] e:person ?person ;
      e:poi ?poi ;
@@ -87,13 +87,14 @@ WHERE { GRAPH <groups> {
     ?couple2 e:somebody ?someoneElse ;
              e:someoneElse ?somebody ;
              e:poi ?poi . }
-    # Remove the duplicates
+    # Remove symmetric duplicates
     FILTER NOT EXISTS { GRAPH <couples> {
       ?couple3 e:somebody ?someoneElse ;
-               e:someoneElse ?somebody } } 
+               e:someoneElse ?somebody ;
+               e:poi ?poi } } 
 } ;
 
-# Count the couples for each POI
+# Count the couples per POI
 DELETE { GRAPH <memory> { ?poi :couplecount ?oldcount }
          GRAPH <couples> { ?couple :status :new } }
 INSERT { GRAPH <counts> {
