@@ -1,3 +1,4 @@
+- Fix field labeling sparql-tests.csv headers vs. class fields
 - Make methods for testing
   + Success/failure handling
   + Make parsing method
