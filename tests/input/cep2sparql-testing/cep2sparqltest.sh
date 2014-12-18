@@ -1,1 +1,0 @@
-../../../bin/instans -r CEP2SPARQL_Queries_testing.rq -g http://instans.org/pattern -t CEP2SPARQL_SamplePattern.ttl --rdf-operations=add:execute:remove:execute -g http://instans.org/poststateless --input-blocks=CEP2SPARQL_SampleEvents.ttl

@@ -1,1 +1,0 @@
-../../../bin/instans --construct-output=EPA8-Transform-Out.ttl -r EPA8-Transform.rq --rdf-operations=add:execute-snapshot:remove:execute -g http://instans.org/source --input-blocks=CEP2SPARQL_SampleEvents.ttl
