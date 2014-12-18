@@ -50,7 +50,7 @@
 (defgeneric sparql-test-failed-p (sparql-test2))
 
 (defmethod sparql-test-failed-p ((this sparql-test2))
-  (sparql-test-not-implemented-p this))
+  (slot-value-with-default this 'not-implemented-p nil))
 
 (defun expand-sparql-test-filename (test filename)
   (assert (stringp filename))
@@ -91,15 +91,15 @@
 
 (defmethod sparql-test-failed-p ((this sparql-positive-syntax-test))
   (or (call-next-method)
-      (not (and (sparql-test-parsing-succeeded-p this)
-		(sparql-test-translation-succeeded-p this)
-		(sparql-test-initialization-succeeded-p this)))))
+      (not (and (slot-value-with-default this 'parsing-succeeded-p t)
+		(slot-value-with-default this 'translation-succeeded-p t)
+		(slot-value-with-default this 'initialization-succeeded-p t)))))
 
 (define-class sparql-negative-syntax-test (sparql-syntax-test) ())
 
 (defmethod sparql-test-failed-p ((this sparql-negative-syntax-test))
   (or (call-next-method)
-      (sparql-test-parsing-succeeded-p this)))
+      (not (slot-value-with-default this 'parsing-succeeded-p t))))
 
 (define-class sparql-positive-syntax-test-11 (sparql-positive-syntax-test) ())
 
@@ -140,8 +140,8 @@
 
 (defmethod sparql-test-failed-p ((this sparql-query-evaluation-test))
   (or (call-next-method)
-      (not (and (sparql-test-running-succeeded-p this)
-		(sparql-test-comparison-succeeded-p this)))))
+      (not (and (slot-value-with-default this 'running-succeeded-p t)
+		(slot-value-with-default this 'comparison-succeeded-p t)))))
 
 (define-class sparql-update-evaluation-test (sparql-query-evaluation-test)
   ((graphlabels :accessor sparql-test-graphlabels :initarg :graphlabels)
@@ -167,25 +167,36 @@
 
 (define-class sparql-csv-result-format-test (sparql-query-evaluation-test) ())
 
+(defmethod initialize-instance :after ((this sparql-csv-result-format-test) &key &allow-other-keys)
+  (setf (sparql-test-not-implemented-p this) t))
+
 (define-class sparql-protocol-test (sparql-test2) ())
 
+(defmethod initialize-instance :after ((this sparql-protocol-test) &key &allow-other-keys)
+  (setf (sparql-test-not-implemented-p this) t))
+
 (define-class sparql-service-description-test (sparql-test2) ())
+
+(defmethod initialize-instance :after ((this sparql-service-description-test) &key &allow-other-keys)
+  (setf (sparql-test-not-implemented-p this) t))
 
 (defgeneric sparql-test-parsing-phase (sparql-test2)
   (:method ((this sparql-syntax-test))
     (let ((instans (sparql-test-instans this)))
     ;;; Add rules
+      ;; (inform "Parsing ~A" (sparql-test-name this))
       (instans-add-rules instans (sparql-test-queryfile this))
     ;;; Set status
+      (inform "test ~A status ~A" this (instans-status instans))
       (setf (sparql-test-parsing-succeeded-p this) (instans-has-status instans 'instans-rule-parsing-succeeded))
-					;    (inform "Test ~A parse = ~A" (sparql-test-name this) (sparql-test-parsing-succeeded-p this))
       (setf (sparql-test-translation-succeeded-p this) (instans-has-status instans 'instans-rule-translation-succeeded))
       (setf (sparql-test-initialization-succeeded-p this) (instans-has-status instans 'instans-rule-initialization-succeeded))
       (let ((rule-types (instans-rule-types instans)))
 	(cond ((null rule-types) nil)
 	      ((null (cdr rule-types))
 	       (let ((type (string (car rule-types))))
-		 (setf (sparql-test-rule-type this) (intern-instans (subseq type (search "-node" type :from-end t))))))
+;		 (inform "(search \"-NODE\" ~S :from-end t :test #'equal) = ~S" type (search "-NODE" type :from-end t :test #'equal))
+		 (setf (sparql-test-rule-type this) (intern-instans (subseq type (search "-NODE" type :from-end t :test #'equal))))))
 	      (t
 	       (error* "Several rule types in test query file ~A: ~A" (sparql-test-queryfile this) rule-types))))
       ))
@@ -280,230 +291,325 @@
     (declare (ignore this))
     nil))
 
-(defgeneric sparql-test-execute (sparql-test2)
-  (:method ((this sparql-test2))
-    (unless (sparql-test-failed-p this)
-      (sparql-test-parsing-phase this))
-    (unless (sparql-test-failed-p this)
-      (sparql-test-running-phase this))
-    (unless (sparql-test-failed-p this)
-      (sparql-test-comparison-phase this))
-    (sparql-test-failed-p this)))
-
-
 (define-class sparql-tests2 ()
-  ((entries :accessor sparql-tests-entries :initarg :entries)
-   (fields :accessor sparql-tests-fields :initarg :fields)))
+  ((manifests :accessor sparql-tests-manifests :initarg :manifests :initform nil)
+   (csv-file :accessor sparql-tests-csv-file :initarg :csv-file
+	     :initform (expand-instans-file-name "tests/sparql-tests/sparql-tests.csv"))
+   (collector-rules-file :accessor sparql-tests-collector-rules-file :initarg :collector-rules-file
+			 :initform (expand-instans-file-name "tests/input/collect-sparql-tests-info.rq"))
+   (headers :accessor sparql-tests-headers :initarg :headers)
+   (entries :accessor sparql-tests-entries :initarg :entries)
+   (phases :accessor sparql-tests-phases :initform nil)
+   (verbosep :accessor sparql-tests-verbose-p :initarg :verbosedp :initform t)))
 
-(defun test-from-csv-file (csv-file)
-  (let ((lines nil)
-	(end nil))
-    (csv-parser:map-csv-file csv-file
-			     #'(lambda (line)
-				 (cond ((null lines)
-					(setf lines (list line))
-					(setf end lines))
-				       (t
-					(setf (cdr end) (list line))
-					(setf end (cdr end))))))
-;;    lines
-    (let* ((headers (mapcar #'(lambda (h) (intern-keyword (string-upcase h))) (pop lines)))
-	   (test-lines1 (loop for line in lines
-			      collect (loop for item in line
-					    for name in headers
-					    collect (list name (if (equal item "UNBOUND") nil item)))))
-	   (test-lines2 (loop for line in test-lines1
-			      for key = (list (cdr (assoc :type line))
-					      (cdr (assoc :suite line))
-					      (cdr (assoc :collection line))
-					      (cdr (assoc :name line)))
-			      do (progn
-				   (unless (second (assoc :graphfiles line))
-				     (setf (rest (assoc :graphfiles line)) nil))
-				   (unless (second (assoc :graphlabels line))
-				     (setf (rest (assoc :graphlabels line)) nil))
-				   (unless (second (assoc :resultgraphfiles line))
-				     (setf (rest (assoc :resultgraphfiles line)) nil))
-				   (unless (second (assoc :resultgraphlabels line))
-				     (setf (rest (assoc :resultgraphlabels line)) nil))
-				   (push (list :resultgraphs (and (rest (assoc :resultgraphfiles line))
-								  (list (second (assoc :resultgraphfiles line)) (second (assoc :resultgraphlabels line)))))
-					 line)
-				   (push (list :graphs (and (second (assoc :graphfiles line))
-							    (list (second (assoc :graphfiles line)) (second (assoc :graphlabels line)))))
-					 line)
-				   (push (list :key key) line))
-			     collect line))
-	   (test-alist nil))
-      ;; (inform "~D lines in test-lines2" (length test-lines2))
-      (loop for line in test-lines2
-	    for key = (assoc :key line)
-      	    for test-item = (assoc key test-alist :test #'equal)
-      	    do (cond ((null test-item)
-      		      (push line test-alist))
-      		     (t
-		      ;; (inform "Merging~%~Swith~%~S" line test-item)
-		      (let ((graphs-item (assoc :graphs test-item))
-			    (new-graphs (second (assoc :graphs line))))
-			;; (inform "graphs-item =~S" graphs-item)
-			;; (inform "new-graphs =~S" new-graphs)
-			(unless (member new-graphs (cdr graphs-item) :test #'equal)
-			  (push new-graphs (cdr graphs-item))
-			  (push (second (assoc :graphfiles line)) (cdr (assoc :graphfiles test-item)))
-			  (push (second (assoc :graphlabels line)) (cdr (assoc :graphlabels test-item)))))
-		      (let ((resultgraphs-item (assoc :resultgraphs test-item))
-			    (new-resultgraphs (second (assoc :resultgraphs line))))
-			(unless (member new-resultgraphs (cdr resultgraphs-item) :test #'equal)
-			  (push new-resultgraphs (cdr resultgraphs-item))
-			  (push (second (assoc :resultgraphfiles line)) (cdr (assoc :resultgraphfiles test-item)))
-			  (push (second (assoc :resultgraphlabels line)) (cdr (assoc :resultgraphlabels test-item)))))
-		      (flet ((maybe-replace-value (key)
-			       (let ((item (assoc key test-item))
-				     (new-value (second (assoc key line))))
-				 (cond ((null (second item))
-					(setf (second item) new-value))
-				       ((not (or (null new-value) (equal new-value (second item))))
-					(error* "Incompatible values ~S and ~S in~%  ~S and ~%~S" item new-value test-item line))))))
-			(maybe-replace-value :queryfile)
-			(maybe-replace-value :datafile)
-			(maybe-replace-value :updateresult)
-			(maybe-replace-value :queryserviceendpoint)
-			(maybe-replace-value :queryservicedata)
-			(maybe-replace-value :entailmentregime))
-		      ;; (inform "Result~%~S" test-item)
-		      )))
-;;       test-alist
-;; )))
-      ;; (inform "~D lines in test-alist" (length test-alist))
-      (setf test-alist (nreverse test-alist))
-      (loop for test-item in test-alist
-	    for type-string = (second (assoc :type test-item))
-            for type = (cond ((string= type-string "mf:PositiveSyntaxTest") 'sparql-positive-syntax-test)
-			     ((string= type-string "mf:NegativeSyntaxTest") 'sparql-negative-syntax-test)
-			     ((string= type-string "mf:PositiveSyntaxTest11") 'sparql-positive-syntax-test-11)
-			     ((string= type-string "mf:NegativeSyntaxTest11") 'sparql-negative-syntax-test-11)
-			     ((string= type-string "mf:PositiveUpdateSyntaxTest11") 'sparql-positive-update-syntax-test-11)
-			     ((string= type-string "mf:NegativeUpdateSyntaxTest11") 'sparql-negative-update-syntax-test-11)
-			     ((string= type-string "mf:QueryEvaluationTest") 'sparql-query-evaluation-test)
-			     ((string= type-string "mf:UpdateEvaluationTest") 'sparql-update-evaluation-test)
-			     ((string= type-string "mf:CSVResultFormatTest") 'sparql-csv-result-format-test)
-			     ((string= type-string "mf:ProtocolTest") 'sparql-protocol-test)
-			     ((string= type-string "mf:ServiceDescriptionTest") 'sparql-service-description-test)
-			     (t (error* "Unknown test type ~A" type-string)))
-	    for test = (apply #'make-instance type (mapcan #'(lambda (key)
-							       (list key
-								     (if (member key '(:graphfiles :graphlabels :resultgraphfiles :resultgraphlabels)) (cdr (assoc key test-item)) (second (assoc key test-item)))))
-							   headers))
+(defmethod initialize-instance :after ((this sparql-tests2) &key manifests &allow-other-keys)
+  (unless manifests
+    (setf (sparql-tests-manifests this)
+	  (append (directory (format nil "~A/tests/data-r2/*/manifest.ttl" (find-instans-root-directory)))
+		  (directory (format nil "~A/tests/data-sparql11/*/manifest.ttl" (find-instans-root-directory))))))
+  (when (sparql-tests-verbose-p this)
+    (inform "Manifest files:~{~%  ~A~}" (sparql-tests-manifests this))))
+
+(defvar *collect-sparql-tests-script*
+  "PREFIX dawgt: <http://www.w3.org/2001/sw/DataAccess/tests/test-dawg#>
+PREFIX ent: <http://www.w3.org/ns/entailment/>
+PREFIX mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#>
+PREFIX mfx: <http://jena.hpl.hp.com/2005/05/test-manifest-extra#>
+PREFIX pr: <http://www.w3.org/ns/owl-profile/>
+PREFIX qt: <http://www.w3.org/2001/sw/DataAccess/tests/test-query#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sd: <http://www.w3.org/ns/sparql-service-description#>
+PREFIX sparql: <http://www.w3.org/ns/sparql#>
+PREFIX ut: <http://www.w3.org/2009/sparql/tests/test-update#>
+
+# @SyntaxTest
+SELECT ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlabels ?resultfile ?resultgraphfiles ?resultgraphlabels ?updateresult ?queryserviceendpoint ?queryservicedata ?entailmentprofile ?entailmentregime WHERE {
+       ?test rdf:type ?type
+       FILTER(?type = mf:NegativeSyntaxTest
+           || ?type = mf:NegativeSyntaxTest11
+           || ?type = mf:NegativeUpdateSyntaxTest11
+           || ?type = mf:PositiveSyntaxTest
+           || ?type = mf:PositiveSyntaxTest11
+           || ?type = mf:PositiveUpdateSyntaxTest11)
+
+       ?test mf:action ?queryfile1
+       FILTER(!isblank(?queryfile1))
+
+       BIND(strbefore(strafter(str(<>), \"tests/\"), \"/\") AS ?suite)
+       BIND(strbefore(strafter(strafter(str(<>), \"tests/\"), \"/\"),\"/\") AS ?collection)
+       BIND(strafter(str(?test), \"#\") AS ?name)
+       BIND(str(<>) AS ?base)
+       BIND(strafter(str(?queryfile1), ?base) AS ?queryfile)
+};
+
+# @QueryEvaluationTest
+SELECT ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlabels ?resultfile ?resultgraphfiles ?resultgraphlabels ?updateresult ?queryserviceendpoint ?queryservicedata ?entailmentprofile ?entailmentregime WHERE {
+       ?test rdf:type ?type
+       FILTER(?type = mf:QueryEvaluationTest)
+
+       ?test mf:action ?a .
+       ?a qt:query ?queryfile1
+       OPTIONAL { ?a qt:data ?datafile1 }
+       OPTIONAL { ?a qt:graphData ?graphfiles1 }
+       OPTIONAL { ?test mf:result ?resultfile1 FILTER(!isblank(?resultfile1)) }
+
+       BIND(strbefore(strafter(str(<>), \"tests/\"), \"/\") AS ?suite)
+       BIND(strbefore(strafter(strafter(str(<>), \"tests/\"), \"/\"),\"/\") AS ?collection)
+       BIND(strafter(str(?test), \"#\") AS ?name)
+       BIND(str(<>) AS ?base)
+       BIND(strafter(str(?queryfile1), ?base) AS ?queryfile)
+       BIND(strafter(str(?datafile1),?base) AS ?datafile)
+       BIND(strafter(str(?graphfiles1),?base) AS ?graphfiles)
+       BIND(strafter(str(?resultfile1),?base) AS ?resultfile)
+};
+
+# @UpdateEvaluationTest
+SELECT ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlabels ?resultfile ?resultgraphfiles ?resultgraphlabels ?updateresult ?queryserviceendpoint ?queryservicedata ?entailmentprofile ?entailmentregime WHERE {
+       ?test rdf:type ?type
+       FILTER(?type = mf:UpdateEvaluationTest)
+
+       ?test mf:action ?a .
+       ?a ut:request ?queryfile1
+       OPTIONAL { ?a ut:data ?datafile1 }
+       OPTIONAL { ?a ut:graphData [ ut:graph ?graphfiles1 ; rdfs:label ?graphlabels ] }
+       ?test mf:result ?r1 .
+       FILTER(isblank(?r1))
+       OPTIONAL { ?r1 ut:data ?resultfile2 }
+       OPTIONAL { ?r1 ut:graphData [ ut:graph ?resultgraphfiles1; rdfs:label ?resultgraphlabels ] }
+       OPTIONAL { ?r1 ut:result ?updateresult }
+       BIND(strbefore(strafter(str(<>), \"tests/\"), \"/\") AS ?suite)
+       BIND(strbefore(strafter(strafter(str(<>), \"tests/\"), \"/\"),\"/\") AS ?collection)
+       BIND(strafter(str(?test), \"#\") AS ?name)
+       BIND(str(<>) AS ?base)
+
+       BIND(strafter(str(?queryfile1), ?base) AS ?queryfile)
+       BIND(strafter(str(?datafile1),?base) AS ?datafile)
+       BIND(strafter(str(?graphfiles1),?base) AS ?graphfiles)
+       BIND(strafter(str(?resultfile1),?base) AS ?resultfile)
+       BIND(strafter(str(?resultgraphfiles1),?base) AS ?resultgraphfiles)
+};
+
+# @CSVResultFormatTest
+SELECT ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlabels ?resultfile ?resultgraphfiles ?resultgraphlabels ?updateresult ?queryserviceendpoint ?queryservicedata ?entailmentprofile ?entailmentregime WHERE {
+       ?test rdf:type ?type
+       FILTER(?type = mf:CSVResultFormatTest)
+
+       ?test mf:action ?a .
+       ?a qt:query ?queryfile1
+       OPTIONAL { ?a qt:data ?datafile1 }
+       OPTIONAL { ?test mf:result ?resultfile1 FILTER(!isblank(?resultfile1)) }
+
+       BIND(strbefore(strafter(str(<>), \"tests/\"), \"/\") AS ?suite)
+       BIND(strbefore(strafter(strafter(str(<>), \"tests/\"), \"/\"),\"/\") AS ?collection)
+       BIND(strafter(str(?test), \"#\") AS ?name)
+       BIND(str(<>) AS ?base)
+       BIND(strafter(str(?queryfile1), ?base) AS ?queryfile)
+       BIND(strafter(str(?datafile1),?base) AS ?datafile)
+       BIND(strafter(str(?resultfile1),?base) AS ?resultfile)
+};
+
+# @ProtocolTest
+SELECT ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlabels ?resultfile ?resultgraphfiles ?resultgraphlabels ?updateresult ?queryserviceendpoint ?queryservicedata ?entailmentprofile ?entailmentregime WHERE {
+       ?test rdf:type ?type
+       FILTER(?type = mf:ProtocolTest)
+       BIND(strbefore(strafter(str(<>), \"tests/\"), \"/\") AS ?suite)
+       BIND(strbefore(strafter(strafter(str(<>), \"tests/\"), \"/\"),\"/\") AS ?collection)
+       BIND(strafter(str(?test), \"#\") AS ?name)
+       BIND(str(<>) AS ?base)
+};
+
+# @ServiceDescriptionTest
+SELECT ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlabels ?resultfile ?resultgraphfiles ?resultgraphlabels ?updateresult ?queryserviceendpoint ?queryservicedata ?entailmentprofile ?entailmentregime WHERE {
+       ?test rdf:type ?type
+       FILTER(?type = mf:ServiceDescriptionTest)
+       BIND(strbefore(strafter(str(<>), \"tests/\"), \"/\") AS ?suite)
+       BIND(strbefore(strafter(strafter(str(<>), \"tests/\"), \"/\"),\"/\") AS ?collection)
+       BIND(strafter(str(?test), \"#\") AS ?name)
+       BIND(str(<>) AS ?base)
+};
+")
+
+(defgeneric sparql-tests-convert-manifests-to-csv-file (sparql-tests2)
+  (:method ((this sparql-tests2))
+    (unless (member :convert-to-csv (sparql-tests-phases this))
+      (let ((csv-file (sparql-tests-csv-file this))
+	    (collector-rules-file (sparql-tests-collector-rules-file this)))
+	(when (sparql-tests-verbose-p this)
+	  (inform "Converting manifests to a csv file ~A~%" csv-file))
+	(when (sparql-tests-verbose-p this)
+	  (inform "  Writing rules to file ~A~%" collector-rules-file))
+	(with-open-file (query collector-rules-file :direction :output :if-exists :supersede)
+	  (format query "~A~%" *collect-sparql-tests-script*))
+	(loop for manifest in (sparql-tests-manifests this)
+	      for firstp = t then nil
+	      for cmd = (format nil "-b ~A --prefix-encoding=true --print-prefix-encodings=false ~A=~A --rules=~A --input-blocks=~A"
+				manifest (if firstp "--select-output" "--select-output-append") csv-file collector-rules-file manifest)
+	      when (sparql-tests-verbose-p this) do (inform "  instans ~A" cmd)
+	      do (main cmd)))
+      (push-to-end :convert-to-csv (sparql-tests-phases this)))
+    this))
+
+(defgeneric sparql-tests-collect-tests (sparql-tests2)
+  (:method ((this sparql-tests2))
+    (unless (member :collect-tests (sparql-tests-phases this))
+      (sparql-tests-convert-manifests-to-csv-file this)
+      (when (sparql-tests-verbose-p this)
+	(inform "~%Create tests from file ~A~%" (sparql-tests-csv-file this)))
+      (let ((lines nil)
+	    (end nil))
+	(csv-parser:map-csv-file (sparql-tests-csv-file this)
+				 #'(lambda (line)
+				     (cond ((null lines)
+					    (setf lines (list line))
+					    (setf end lines))
+					   (t
+					    (setf (cdr end) (list line))
+					    (setf end (cdr end))))))
+	;;    lines
+	(let* ((headers (mapcar #'(lambda (h) (intern-keyword (string-upcase h))) (pop lines)))
+	       (test-lines1 (loop for line in lines
+				  collect (loop for item in line
+						for name in headers
+						collect (list name (if (equal item "UNBOUND") nil item)))))
+	       (test-lines2 (loop for line in test-lines1
+				  for key = (list (cdr (assoc :type line))
+						  (cdr (assoc :suite line))
+						  (cdr (assoc :collection line))
+						  (cdr (assoc :name line)))
+				  do (progn
+				       (unless (second (assoc :graphfiles line))
+					 (setf (rest (assoc :graphfiles line)) nil))
+				       (unless (second (assoc :graphlabels line))
+					 (setf (rest (assoc :graphlabels line)) nil))
+				       (unless (second (assoc :resultgraphfiles line))
+					 (setf (rest (assoc :resultgraphfiles line)) nil))
+				       (unless (second (assoc :resultgraphlabels line))
+					 (setf (rest (assoc :resultgraphlabels line)) nil))
+				       (push (list :resultgraphs (and (rest (assoc :resultgraphfiles line))
+								      (list (second (assoc :resultgraphfiles line)) (second (assoc :resultgraphlabels line)))))
+					     line)
+				       (push (list :graphs (and (second (assoc :graphfiles line))
+								(list (second (assoc :graphfiles line)) (second (assoc :graphlabels line)))))
+					     line)
+				       (push (list :key key) line))
+				  collect line))
+	       (test-alist nil))
+	  ;; (inform "~D lines in test-lines2" (length test-lines2))
+	  (loop for line in test-lines2
+		for key = (assoc :key line)
+		for test-item = (assoc key test-alist :test #'equal)
+		do (cond ((null test-item)
+			  (push line test-alist))
+			 (t
+			  ;; (inform "Merging~%~Swith~%~S" line test-item)
+			  (let ((graphs-item (assoc :graphs test-item))
+				(new-graphs (second (assoc :graphs line))))
+			    ;; (inform "graphs-item =~S" graphs-item)
+			    ;; (inform "new-graphs =~S" new-graphs)
+			    (unless (member new-graphs (cdr graphs-item) :test #'equal)
+			      (push new-graphs (cdr graphs-item))
+			      (push (second (assoc :graphfiles line)) (cdr (assoc :graphfiles test-item)))
+			      (push (second (assoc :graphlabels line)) (cdr (assoc :graphlabels test-item)))))
+			  (let ((resultgraphs-item (assoc :resultgraphs test-item))
+				(new-resultgraphs (second (assoc :resultgraphs line))))
+			    (unless (member new-resultgraphs (cdr resultgraphs-item) :test #'equal)
+			      (push new-resultgraphs (cdr resultgraphs-item))
+			      (push (second (assoc :resultgraphfiles line)) (cdr (assoc :resultgraphfiles test-item)))
+			      (push (second (assoc :resultgraphlabels line)) (cdr (assoc :resultgraphlabels test-item)))))
+			  (flet ((maybe-replace-value (key)
+				   (let ((item (assoc key test-item))
+					 (new-value (second (assoc key line))))
+				     (cond ((null (second item))
+					    (setf (second item) new-value))
+					   ((not (or (null new-value) (equal new-value (second item))))
+					    (error* "Incompatible values ~S and ~S in~%  ~S and ~%~S" item new-value test-item line))))))
+			    (maybe-replace-value :queryfile)
+			    (maybe-replace-value :datafile)
+			    (maybe-replace-value :updateresult)
+			    (maybe-replace-value :queryserviceendpoint)
+			    (maybe-replace-value :queryservicedata)
+			    (maybe-replace-value :entailmentregime))
+			  ;; (inform "Result~%~S" test-item)
+			  )))
+	  ;;       test-alist
+	  ;; )))
+	  ;; (inform "~D lines in test-alist" (length test-alist))
+	  (setf test-alist (nreverse test-alist))
+	  (let ((tests (loop for test-item in test-alist
+			     for type-string = (second (assoc :type test-item))
+			     for type = (cond ((string= type-string "mf:PositiveSyntaxTest") 'sparql-positive-syntax-test)
+					      ((string= type-string "mf:NegativeSyntaxTest") 'sparql-negative-syntax-test)
+					      ((string= type-string "mf:PositiveSyntaxTest11") 'sparql-positive-syntax-test-11)
+					      ((string= type-string "mf:NegativeSyntaxTest11") 'sparql-negative-syntax-test-11)
+					      ((string= type-string "mf:PositiveUpdateSyntaxTest11") 'sparql-positive-update-syntax-test-11)
+					      ((string= type-string "mf:NegativeUpdateSyntaxTest11") 'sparql-negative-update-syntax-test-11)
+					      ((string= type-string "mf:QueryEvaluationTest") 'sparql-query-evaluation-test)
+					      ((string= type-string "mf:UpdateEvaluationTest") 'sparql-update-evaluation-test)
+					      ((string= type-string "mf:CSVResultFormatTest") 'sparql-csv-result-format-test)
+					      ((string= type-string "mf:ProtocolTest") 'sparql-protocol-test)
+					      ((string= type-string "mf:ServiceDescriptionTest") 'sparql-service-description-test)
+					      (t (error* "Unknown test type ~A" type-string)))
+			     for test = (apply #'make-instance type
+					       (mapcan #'(lambda (key)
+							   (list key
+								 (if (member key '(:graphfiles :graphlabels :resultgraphfiles :resultgraphlabels))
+								     (cdr (assoc key test-item))
+								     (second (assoc key test-item)))))
+						       headers))
+					;	    do (describe test)
+			     collect test)))
+	    (setf (sparql-tests-headers this) headers)
+	    (setf (sparql-tests-entries this) tests)
+	    (when (sparql-tests-verbose-p this)
+	      (inform "~%In total ~D tests~%" (length tests)))
+	    (push-to-end :collect-tests (sparql-tests-phases this))))))
+    this))
+
+(defgeneric sparql-tests-parse (sparql-tests2)
+  (:method ((this sparql-tests2))
+    (unless (member :parse (sparql-tests-phases this))
+      (sparql-tests-collect-tests this)
+      (when (sparql-tests-verbose-p this)
+	(inform "~%Parsing tests~%"))
+      (loop for test in (sparql-tests-entries this)
+	    unless (sparql-test-failed-p test)
+	    do (progn
+		 (inform "  Parsing test ~A" test)
+		 (sparql-test-parsing-phase test)))
+      (when (sparql-tests-verbose-p this)
+	(inform "~%Parsed tests~%"))
+      (push-to-end :parse (sparql-tests-phases this)))
+    this))
+
+(defgeneric sparql-tests-run (sparql-tests2)
+  (:method ((this sparql-tests2))
+    (unless (member :run (sparql-tests-phases this))
+      (sparql-tests-parse this)
+      (when (sparql-tests-verbose-p this)
+	(inform "~%Running tests~%"))
+      (loop for test in (sparql-tests-entries this)
 	    do (describe test)
-	    collect test)
-      )))
+	    unless (sparql-test-failed-p test)
+	    do (progn
+		 (inform "  Running test ~A" test)
+		 (sparql-test-running-phase test)))
+      (when (sparql-tests-verbose-p this)
+	(inform "~%Ran tests~%"))
+      (push-to-end :run (sparql-tests-phases this)))
+    this))
 
-(defun parse-tests-from-csv (&key (csv-file "/Users/enu/instans/tests/sparql-tests/sparql-tests.csv"))
-  (let ((key-field-names '("type" "suite" "collection" "name"))
-	(list-field-names '("graphfiles" "graphlabels" "resultgraphfiles" "resultgraphlabels")))
-    (multiple-value-bind (alist headers); linecount entrycount)
-	(csv-file-to-alist csv-file
-			   :key-fields key-field-names
-			   :data-field-merge #'(lambda (field-key new-value old-value-or-values)
-						 (cond ((member field-key list-field-names :test #'equal)
-							(cond ((or (null new-value) (equal new-value "UNBOUND")) old-value-or-values)
-							      (t (append old-value-or-values (list new-value)))))
-						       ((or (null new-value) (equal new-value "UNBOUND")) old-value-or-values)
-						       ((or (null old-value-or-values) (equal old-value-or-values "UNBOUND")) new-value)
-						       ((equal new-value old-value-or-values) new-value)
-						       (t (error* "Two different values for non-list field ~A: ~A vs. ~A" field-key new-value old-value-or-values)))))
-    ;; (loop for entry in alist
-    ;; 	  for key = (first entry)
-    ;; 	  for values = (second entry)
-    ;; 	  for name-value-list = (mapcar #'list (nthcdr 4 headers) values)
-    ;; 	  do (assert (null (cddr entry)))
-    ;; 	  do (inform "~A ~{~A~^/~}:~{~%  ~{:~A~^ ~A~}~}" (first key) (rest key) name-value-list))
-    ;; 					;    alist
-      (flet ((test-type-class-name (type-string)
-	       (cond ((string= type-string "mf:PositiveSyntaxTest") 'sparql-positive-syntax-test)
-		     ((string= type-string "mf:NegativeSyntaxTest") 'sparql-negative-syntax-test)
-		     ((string= type-string "mf:PositiveSyntaxTest11") 'sparql-positive-syntax-test-11)
-		     ((string= type-string "mf:NegativeSyntaxTest11") 'sparql-negative-syntax-test-11)
-		     ((string= type-string "mf:PositiveUpdateSyntaxTest11") 'sparql-positive-update-syntax-test-11)
-		     ((string= type-string "mf:NegativeUpdateSyntaxTest11") 'sparql-negative-update-syntax-test-11)
-		     ((string= type-string "mf:QueryEvaluationTest") 'sparql-query-evaluation-test)
-		     ((string= type-string "mf:UpdateEvaluationTest") 'sparql-update-evaluation-test)
-		     ((string= type-string "mf:CSVResultFormatTest") 'sparql-csv-result-format-test)
-		     ((string= type-string "mf:ProtocolTest") 'sparql-protocol-test)
-		     ((string= type-string "mf:ServiceDescriptionTest") 'sparql-service-description-test)
-		     (t (error* "Unknown test type ~A" type-string)))))
-	(let ((header-keywords (mapcar #'(lambda (h) (intern-keyword (string-upcase h))) headers)))
-	  (make-instance 'sparql-tests2
-			 :fields header-keywords
-			 :entries (loop for entry in alist
-					for key = (first entry)
-					for values = (second entry)
-					for type-class-name = (test-type-class-name (first key))
-					for args = (append (list type-class-name :type (first key) :suite (second key) :collection (third key) :name (fourth key))
-							   (loop for keyword in (nthcdr 4 header-keywords)
-								 for value in values
-								 nconc (list keyword value)))
-					for test = (apply #'make-instance args)
-					when (equal (fourth key) "add01")
-					do (progn (inform "entry = ~S~%args = ~S" entry args) (describe test))
-					collect test)))))))
+(defgeneric sparql-tests-compare (sparql-tests2)
+  (:method ((this sparql-tests2))
+    (unless (member :compare (sparql-tests-phases this))
+      (sparql-tests-run this)
+      (loop for test in (sparql-tests-entries this)
+	    unless (sparql-test-failed-p test)
+	    do (sparql-test-comparison-phase test))
+      (push-to-end :compare (sparql-tests-phases this)))
+    this))
 
-;; (add-sparql-test tests
-;; 							     :type type :negative (parse-xsd-boolean negative) :suite suite :collection collection :name name
-;; 							     :queryfile queryfile :datafile datafile :graphdatafile graphdatafile
-;; 							     :resultfile resultfile :resultgraphfile resultgraphfile :resultgraphlabel resultgraphlabel)
+(defgeneric sparql-tests-execute (sparql-tests2)
+  (:method ((this sparql-tests2))
+    (sparql-tests-compare this)))
 
-;; (defun parse-tests-from-csv (&key (csv-file "/Users/enu/instans/tests/sparql-tests/sparql-tests.csv"))
-;;   (let ((key-field-names '("type" "suite" "collection" "name"))
-;; 	(list-field-names '("graphfiles" "graphlabels" "resultgraphfiles" "resultgraphlabels")))
-;;     (multiple-value-bind (alist headers); linecount entrycount)
-;; 	(csv-file-to-alist csv-file
-;; 			   :key-fields key-field-names
-;; 			   :data-field-merge #'(lambda (field-key new-value old-value-or-values)
-;; 						 (cond ((member field-key list-field-names :test #'equal)
-;; 							(cond ((or (null new-value) (equal new-value "UNBOUND")) old-value-or-values)
-;; 							      (t (append old-value-or-values (list new-value)))))
-;; 						       ((or (null new-value) (equal new-value "UNBOUND")) old-value-or-values)
-;; 						       ((or (null old-value-or-values) (equal old-value-or-values "UNBOUND")) new-value)
-;; 						       ((equal new-value old-value-or-values) new-value)
-;; 						       (t (error* "Two different values for non-list field ~A: ~A vs. ~A" field-key new-value old-value-or-values)))))
-;;     ;; (loop for entry in alist
-;;     ;; 	  for key = (first entry)
-;;     ;; 	  for values = (second entry)
-;;     ;; 	  for name-value-list = (mapcar #'list (nthcdr 4 headers) values)
-;;     ;; 	  do (assert (null (cddr entry)))
-;;     ;; 	  do (inform "~A ~{~A~^/~}:~{~%  ~{:~A~^ ~A~}~}" (first key) (rest key) name-value-list))
-;;     ;; 					;    alist
-;;       (flet ((test-type-class-name (type-string)
-;; 	       (cond ((string= type-string "mf:PositiveSyntaxTest") 'sparql-positive-syntax-test)
-;; 		     ((string= type-string "mf:NegativeSyntaxTest") 'sparql-negative-syntax-test)
-;; 		     ((string= type-string "mf:PositiveSyntaxTest11") 'sparql-positive-syntax-test-11)
-;; 		     ((string= type-string "mf:NegativeSyntaxTest11") 'sparql-negative-syntax-test-11)
-;; 		     ((string= type-string "mf:PositiveUpdateSyntaxTest11") 'sparql-positive-update-syntax-test-11)
-;; 		     ((string= type-string "mf:NegativeUpdateSyntaxTest11") 'sparql-negative-update-syntax-test-11)
-;; 		     ((string= type-string "mf:QueryEvaluationTest") 'sparql-query-evaluation-test)
-;; 		     ((string= type-string "mf:UpdateEvaluationTest") 'sparql-update-evaluation-test)
-;; 		     ((string= type-string "mf:CSVResultFormatTest") 'sparql-csv-result-format-test)
-;; 		     ((string= type-string "mf:ProtocolTest") 'sparql-protocol-test)
-;; 		     ((string= type-string "mf:ServiceDescriptionTest") 'sparql-service-description-test)
-;; 		     (t (error* "Unknown test type ~A" type-string)))))
-;; 	(let ((header-keywords (mapcar #'(lambda (h) (intern-keyword (string-upcase h))) headers)))
-;; 	  (make-instance 'sparql-tests2
-;; 			 :fields header-keywords
-;; 			 :entries (loop for entry in alist
-;; 					for key = (first entry)
-;; 					for values = (second entry)
-;; 					for type-class-name = (test-type-class-name (first key))
-;; 					for args = (append (list type-class-name :type (first key) :suite (second key) :collection (third key) :name (fourth key))
-;; 							   (loop for keyword in (nthcdr 4 header-keywords)
-;; 								 for value in values
-;; 								 nconc (list keyword value)))
-;; 					for test = (apply #'make-instance args)
-;; 					when (equal (fourth key) "add01")
-;; 					do (progn (inform "entry = ~S~%args = ~S" entry args) (describe test))
-;; 					collect test)))))))
-
-;; (add-sparql-test tests
-;; 							     :type type :negative (parse-xsd-boolean negative) :suite suite :collection collection :name name
-;; 							     :queryfile queryfile :datafile datafile :graphdatafile graphdatafile
-;; 							     :resultfile resultfile :resultgraphfile resultgraphfile :resultgraphlabel resultgraphlabel)

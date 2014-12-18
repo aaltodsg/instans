@@ -92,3 +92,11 @@
 	      (setf (,tail-access ,container-var) (cdr (,tail-access ,container-var))))))))
 
   
+;;;
+
+(defmacro slot-value-with-default (object slot default)
+  (let ((object-var (gensym))
+	(slot-var (gensym)))
+    `(let ((,object-var ,object)
+	   (,slot-var ,slot))
+       (if (slot-boundp ,object-var ,slot-var) (slot-value ,object-var ,slot-var) ,default))))

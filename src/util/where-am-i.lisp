@@ -16,3 +16,6 @@
 (defun find-make-rete-html-script ()
   (let ((root (find-instans-root-directory)))
     (and root (probe-file (concatenate 'string (namestring root) "scripts/make-rete-html-page.sh")))))
+
+(defun expand-instans-file-name (relative-name)
+  (format nil "~A~A" (find-instans-root-directory) relative-name))
