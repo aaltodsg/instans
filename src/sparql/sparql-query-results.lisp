@@ -734,7 +734,11 @@ table, tr, th, td {
   (tests-from-manifests :rules-file rules-file :select-output-name tests-csv-file)
   (setf *sparql-tests* (parse-csv-tests tests-csv-file)))
 
-(defun csv-file-to-alist (csv-file &key key-fields (key-test #'equal) (data-field-merge #'cons) (data-field-initial-value nil))
+(defun csv-file-to-alist (csv-file &key key-fields (key-test #'equal)
+				     (data-field-merge #'(lambda (field-key new-value old-values)
+							   (declare (ignorable field-key))
+							   (append old-values (list new-value))))
+				     (data-field-initial-value nil))
   (let ((alist nil)
 	(headers nil)
 	(key-indices nil)
@@ -754,29 +758,31 @@ table, tr, th, td {
 								collect key-index)))
 				       (t
 					(incf line-count)
-					(multiple-value-bind (key-fields data-fields)
+					(multiple-value-bind (key-fields named-data-fields)
 					    (loop for field in line
 						  for index from 0
 						  when (find index key-indices :test #'eql) collect field into key-fields
-						  else collect field into data-fields
-						  finally (return (values key-fields data-fields)))
+						  else collect (list (nth index headers) field) into named-data-fields
+						  finally (return (values key-fields named-data-fields)))
 					  (let ((item (assoc key-fields alist :test key-test))
 						(prev-data-fields nil))
 					    (cond ((null item)
 					;						   (inform "First hit for ~A" key-fields)
 						   (incf unique-key-count)
 						   (setf item (list key-fields))
-						   (setf prev-data-fields (loop repeat (length data-fields) collect data-field-initial-value))
+						   (setf prev-data-fields (loop repeat (length named-data-fields) collect data-field-initial-value))
 						   (push-to-end item alist))
 						  (t
 					;						   (inform "New hit for ~A" key-fields)
 						   (setf prev-data-fields (second item))))
 					    (setf (cdr item)
-						  (list (mapcar #'(lambda (a b) (funcall data-field-merge a b)) data-fields prev-data-fields)))))))))
+						  (list (mapcar #'(lambda (k a b) (funcall data-field-merge k a b))
+								(mapcar #'first named-data-fields) (mapcar #'second named-data-fields) prev-data-fields)))))))))
     (assert (= (length alist) unique-key-count))
     (values alist headers line-count unique-key-count)))
 
-(defun simple-field-merge (new-value old-value-or-values)
+(defun simple-field-merge (field-key new-value old-value-or-values)
+  (declare (ignorable field-key))
 ; (let ((v
   (cond ((equal new-value "UNBOUND") old-value-or-values)
 	((equal old-value-or-values "UNBOUND") new-value)
