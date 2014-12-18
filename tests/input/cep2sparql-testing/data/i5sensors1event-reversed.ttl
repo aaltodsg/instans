@@ -1,8 +1,0 @@
-_:bnode1 <http://www.w3.org/2003/01/geo/wgs84_pos#lat> 60.15922234475837;
-         <http://www.w3.org/2003/01/geo/wgs84_pos#long> 24.87610729902513 .
-
-<http://#e1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#EventObject>;
-             <http://purl.oclc.org/NET/ssnx/ssn#Sensor> <http://#p1>;
-             <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#hasEventObjectSamplingTime> "2012-03-05T13:32:28"^^<http://www.w3.org/2001/XMLSchema#dateTime>;
-             <http://www.w3.org/2003/01/geo/wgs84_pos#Point> _:bnode1 .
-

@@ -1,1 +1,0 @@
-../../../../bin/instans -r EPA2.rq -r select-printout.rq --rdf-operations=add:execute-snapshot:remove:execute -g http://instans.org/poststateless --time=- --input-blocks=../CEP2SPARQL_SampleEvents.ttl
