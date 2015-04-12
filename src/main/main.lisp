@@ -484,7 +484,16 @@
 		       (multiple-value-setq (start-time-sec start-time-usec) (sb-unix::get-time-of-day))
 		       (setf time-output-stream
 			     (if (string= value "-") *standard-output* (open-file value :direction :output :if-exists :supersede :fmt "main: open ~{~A~^ ~}"))))
-		      )
+		      (pause
+		       :options ("--pause")
+		       :usage "Pause and wait for user to press enter"
+		       (format *standard-output* "~&INSTANS process ~D paused. Press enter to continue: " (sb-unix:unix-getpid))
+		       (read-char))
+		      (system
+		       :options ("--system=PATH")
+		       :usage "Execute a system command. PATH should name an executable program."
+		       (sb-ext:run-program value nil :pty *error-output* :search t))
+		       )
 		    (unless executedp (execute))
 		    instans)
 	       (when time-output-stream
