@@ -7,10 +7,10 @@ ${ECHO} "===================="
 ${ECHO}
 cd `dirname $0`/.. > /dev/null
 ROOT=`pwd`
-BIN=${ROOT}/bin
 TESTS=${ROOT}/tests
 RULES=${TESTS}/input/syntax-test.rq
 cd ${TESTS} > /dev/null
+INSTANS=../../instans/bin/instans
 RESULTSDIR=syntax-test-results
 TEST_OUTPUT=${RESULTSDIR}/results
 REPORT_HTML=${RESULTSDIR}/index.html
@@ -51,7 +51,7 @@ if test $# -eq 0 ; then
 	TC=$(($TC+$LC))
 	printf " %3d tests\n" $LC
 	cat ${TMPOUT2} >> ${TEST_OUTPUT} 2>&1
-	rm -f ${TMPOUT1} ${TMPOUT2}
+#	rm -f ${TMPOUT1} ${TMPOUT2}
     done
     ${ECHO}
     ${ECHO} "$CNT test sets, $TC tests"

@@ -7,21 +7,6 @@
 
 (define-output-function inform)
 
-(defun error* (fmt &rest args)
-  (error (apply #'format nil fmt args)))
-
-(defun quotify-list (l)
-  (mapcar #'(lambda (x) (if (symbolp x) (list 'quote x) x)) l))
-
-(defun intern-instans (name)
-  (intern name :instans))
-
-(defun intern-keyword (name)
-  (intern name :keyword))
-
-(defun fmt-intern (fmt &rest args)
-  (intern (apply #'format nil fmt args) :instans))
-
 ;;; This retains the order and possible duplicates of the arguments.
 (defun list-union (list1 list2 &key (test #'eql))
   (cond ((null list1) list2)
@@ -52,13 +37,6 @@
 			  (setf last (cdr last))))))
 	     hash-table)
     result))
-
-;;; Used by define-class
-(defun predicate-name (name)
-  (cond ((find #\- (coerce (string name) 'list))
-	 (fmt-intern "~:@(~A-p~)" name))
-	(t
-	 (fmt-intern "~:@(~Ap~)" name))))
 
 (defun camel-case (string)
   (coerce (loop with humpp = nil

@@ -39,7 +39,8 @@
   :depends-on (#:cl-ppcre #:cl-ppcre-unicode)
   :components ((:module "util"
 			:components ((:file "version")
-				     (:file "macros")
+				     (:file "misc0")
+				     (:file "macros" :depends-on ("misc0"))
 				     (:file "misc" :depends-on ("macros"))
 				     (:file "trie" :depends-on ("macros"))
 				     (:file "csv" :depends-on ("macros"))
@@ -51,7 +52,7 @@
 			:components ((:file "parse-values")
 				     (:file "datetime")
 				     (:file "sparql-macros")
-				     (:file "sparql-classes")
+				     (:file "sparql-classes" :depends-on ("sparql-macros"))
 				     (:file "iri" :depends-on ("sparql-classes" "sparql-macros"))
 				     (:file "sparql-types" :depends-on ("sparql-macros" "datetime" "parse-values" "sparql-classes" "iri"))
 				     (:file "sparql-helper-functions" :depends-on ("sparql-types" "sparql-macros"))

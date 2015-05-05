@@ -66,6 +66,8 @@
      (warn ,fmt ,@args)
      (error* ,fmt ,@args)))
 
+;;(defvar *checkit* nil)
+;;(setf *checkit* nil)
 (defvar *checkit* t)
 (setf *checkit* t)
 
