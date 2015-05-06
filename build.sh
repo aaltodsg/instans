@@ -144,7 +144,7 @@ if test $NEEDSCOMPILE = true; then
 	rm $TMP
     else
 	echo " Done."
-#	rm $TMP
+	rm $TMP
     fi
     cd $ROOT
 fi
