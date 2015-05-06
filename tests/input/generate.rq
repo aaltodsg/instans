@@ -1,0 +1,15 @@
+INSERT { <subj-1> <pred-1> <obj-1> }
+WHERE { }
+;
+INSERT { ?news ?newp ?newo}
+WHERE {
+      ?s ?p ?o .
+      BIND(xsd:integer(strafter(str($s), "subj-"))+1 AS $sn)
+      BIND(xsd:integer(strafter(str($p), "pred-"))+1 AS $sp)
+      BIND(xsd:integer(strafter(str($o), "obj-"))+1 AS $so)
+      BIND(concat(strbefore(str($s), "subj-"), "subj-", str($sn)) AS $news)
+      BIND(concat(strbefore(str($p), "pred-"), "pred-", str($sp)) AS $newp)
+      BIND(concat(strbefore(str($o), "obj-"), "obj-", str($so)) AS $newo)
+}
+;
+SELECT $s WHERE { $s $p $o}

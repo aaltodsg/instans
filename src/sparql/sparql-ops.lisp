@@ -777,10 +777,14 @@
     (declare (ignorable arg))
     (error "Not implemented yet!")))
 
+;;; Does not test for too large integers
 (define-sparql-function "xsd:integer" (:arguments ((arg term-or-value)) :returns xsd-integer-value)
-  (:method ((arg term-or-value))
-    (declare (ignorable arg))
-    (error "Not implemented yet!")))
+  (:method ((arg xsd-integer-value)) arg)
+  (:method ((arg xsd-double-value)) (truncate arg))
+  (:method ((arg xsd-float-value)) (truncate arg))
+  (:method ((arg xsd-decimal-value)) (truncate arg))
+  (:method ((arg xsd-boolean-value)) (if arg 1 0))
+  (:method ((arg xsd-string-value)) (parse-xsd-integer arg)))
 
 (define-sparql-function "xsd:dateTime" (:arguments ((arg term-or-value)) :returns xsd-datetime-value)
   (:method ((arg term-or-value))

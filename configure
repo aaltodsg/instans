@@ -10,21 +10,10 @@ function die () {
     exit 1
 }
 
+function usage() {
+    die "Usage: $0 { (--clean|clean|-c|--sbclimg|sbclimg|-s|--dynamic-space-size <megabytes>) }"
+}
 
-test "$LAST" != instans || die "You should run this script in the instans root directory!"
-CLEAN="false"
-MAKESBCLIMG="false"
-while test $# -gt 0; do
-    if test "$1" = "clean" -o "$1" = "--clean" -o "$1" = "-c"; then
-	CLEAN="true"
-    elif test "$1" = "sbclimg" -o "$1" = "--sbclimg" -o "$1" = "-s"; then
-	MAKESBCLIMG="true"
-    else
-	echo "Usage: $0 { (--clean|clean|-c|--sbclimg|sbclimg|-s) }"
-	exit 1
-    fi
-    shift
-done
 SRC=${ROOT}/src
 TESTS=${ROOT}/tests
 INIT=${ROOT}/init
@@ -34,19 +23,77 @@ DATATABLES=${SYNTAX_TEST_RESULTS}/DataTables
 LISP_CONFIGURATION=${INIT}/lisp-configuration
 SBCL_INSTANS_CORE=${BIN}/sbcl-instans.core
 EXECUTABLE=${BIN}/instans.bin
+EXECUTABLEOPTIONS=${BIN}/instans.bin.options
+
+if test -f "$EXECUTABLEOPTIONS"; then
+    . "$EXECUTABLEOPTIONS"
+    PREV_DYNAMIC_SPACE_SIZE=$DYNAMIC_SPACE_SIZE
+fi
+
+CLEAN="false"
+MAKESBCLIMG="false"
+DYNAMIC_SPACE_SIZE=
+
+if test -f configure.options; then
+    . configure.options
+fi
+
+test "$LAST" != instans || die "You should run this script in the instans root directory!"
+while test $# -gt 0; do
+    if test "$1" = "clean" -o "$1" = "--clean" -o "$1" = "-c"; then
+	CLEAN="true"
+    elif test "$1" = "sbclimg" -o "$1" = "--sbclimg" -o "$1" = "-s"; then
+	MAKESBCLIMG="true"
+    elif test "$1" = "--dynamic-space-size"; then
+	if test $# -gt 0; then
+	    DYNAMIC_SPACE_SIZE=$2
+	    shift
+	else
+	    usage
+	fi
+    else
+	usage
+    fi
+    shift
+done
+SBCLOPTS=""
+if test "$DYNAMIC_SPACE_SIZE"; then
+    SBCLOPTS="--dynamic-space-size $DYNAMIC_SPACE_SIZE"
+fi
 
 if test "$CLEAN" = "true"; then
+    rm -rf 
     rm -rf $HOME/quicklisp
     rm -rf ${TESTS}/data-r2 ${TESTS}/data-sparql11
     rm -rf $DATATABLES $DATATABLES-*
+    rm -rf buildapp*
+    NEEDSCOMPILE=true
+    NEEDSBUILDAPP=true
 else
+    NEEDSCOMPILE=false
+    NEEDSBUILDAPP=false
     newersources=`find src/ -name '*.lisp' -newer bin/instans.bin|wc -l`
-    if test $newersources -eq 0; then
-	echo "No need to configure"
-	exit
+    if test $newersources -ne 0; then
+	NEEDSCOMPILE=true
+	NEEDSBUILDAPP=true
+    fi
+    if test "$PREV_DYNAMIC_SPACE_SIZE" != "$DYNAMIC_SPACE_SIZE"; then
+	NEEDSBUILDAPP=true
     fi
 fi
-
+BUILDAPP=${ROOT}/buildapp/buildapp
+if test ! -x $BUILDAPP; then
+    echo "Installing Buildapp"
+    echo "Trying to download http://www.xach.com/lisp/buildapp.tgz with curl"
+    curl -s -O http://www.xach.com/lisp/buildapp.tgz || die "Curl failed. Check http://www.xach.com/lisp/buildapp for instructions to install buildapp"
+    tar -xzf buildapp.tgz
+    ln -s buildapp-* buildapp
+    (cd buildapp; make)
+fi
+if test $NEEDSCOMPILE = false -a $NEEDSBUILDAPP = false; then
+    echo "No need to configure"
+    exit 
+fi
 # echo sbcl --noinform --load init/output-configuration.lisp --eval "(output-configuration \"$LISP_CONFIGURATION\")" --quit
 sbcl --noinform --load init/output-configuration.lisp --eval "(output-configuration \"$LISP_CONFIGURATION\")" --quit
 
@@ -91,30 +138,51 @@ if test "$QUICKLISP" = "no"; then
      rm quicklisp.lisp
 fi
 test "$ASDF" = "yes" || die "No ASDF found. It should come with $LISP_IMPLEMENTATION_TYPE. You may try to install it from http://common-lisp.net/project/asdf/ and then try again."
-cd $SRC
-echo
-echo "Compiling system"
-echo
-TMP=make_tmp_$$
-make > $TMP
-if test $? -ne 0; then
-    cat $TMP
-    rm $TMP
-    die "Compilation failed"
-else
-    rm $TMP
+if test $NEEDSCOMPILE = true; then
+    cd $SRC
+    echo
+    echo "Compiling system"
+    echo
+    TMP=make_tmp_$$
+    make > $TMP
+    if test $? -ne 0; then
+	cat $TMP
+	rm $TMP
+	die "Compilation failed"
+    else
+	rm $TMP
+    fi
 fi
 #echo
-echo "Building $EXECUTABLE"
-#sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans))" --eval "(sb-ext:save-lisp-and-die \"${EXECUTABLE}\" :toplevel (quote instans:main) :executable t)" --quit
-#echo sbcl --load $ROOT/init/make-executable.lisp --eval "(sb-ext:save-lisp-and-die \"${EXECUTABLE}\" :toplevel (quote instans:main) :executable t)" --quit
-sbcl --load $ROOT/init/make-executable.lisp --eval "(sb-ext:save-lisp-and-die \"${EXECUTABLE}\" :toplevel (quote instans:main) :executable t)" --quit > /dev/null
-if test "${MAKESBCLIMG}" = "true" ; then
-    echo
-    echo "Creating a custom Lisp image for Instans in file ${SBCL_INSTANS_CORE}"
-    cd $SRC
-    # echo sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans) (sb-ext:save-lisp-and-die \"${SBCL_INSTANS_CORE}\"))" --quit
-    sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans) (sb-ext:save-lisp-and-die \"${SBCL_INSTANS_CORE}\"))" --quit > /dev/null
+if test $NEEDSBUILDAPP = true; then
+    if test "$SBCLOPTS" != ""; then
+	echo "Building $EXECUTABLE with options$SBCLOPTS"
+    else
+	echo "Building $EXECUTABLE"
+    fi
+    # sbcl $SBCLOPTS --load $ROOT/init/make-executable.lisp --eval "(sb-ext:save-lisp-and-die \"${EXECUTABLE}\" :toplevel (quote instans:main) :executable t)" --quit > /dev/null
+    $BUILDAPP --output $EXECUTABLE $SBCLOPTS \
+	      --entry instans:main \
+	      --load $HOME/quicklisp/setup.lisp \
+	      --asdf-path $SRC \
+	      --require sb-bsd-sockets \
+	      --require sb-posix \
+	      --require sb-introspect \
+	      --require sb-cltl2 \
+	      --require asdf \
+	      --eval "(setf asdf:*central-registry* (list \"$SRC/\"))" \
+              --load-system instans \
+              --eval '(in-package :instans)'
+    cat <<EOF > $EXECUTABLEOPTIONS
+DYNAMIC_SPACE_SIZE=$DYNAMIC_SPACE_SIZE
+EOF
+    if test "${MAKESBCLIMG}" = "true" ; then
+	echo
+	echo "Creating a custom Lisp image for Instans in file ${SBCL_INSTANS_CORE}"
+	cd $SRC
+	# echo sbcl --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans) (sb-ext:save-lisp-and-die \"${SBCL_INSTANS_CORE}\"))" --quit
+	sbcl $SBCLOPTS --eval "(progn (require (quote sb-bsd-sockets)) (require (quote sb-posix)) (require (quote sb-introspect)) (require (quote sb-cltl2)) (require (quote asdf)) (push (probe-file \".\") asdf:*central-registry*) (asdf:compile-system :instans) (asdf:load-system :instans) (in-package :instans) (sb-ext:save-lisp-and-die \"${SBCL_INSTANS_CORE}\"))" --quit > /dev/null
+    fi
 fi
 cd $TESTS
 if test -d data-r2; then
@@ -151,6 +219,7 @@ if test ! -d $DATATABLES ; then
   git clone -q https://github.com/cyberhobo/ColumnFilterWidgets.git
   cd $ROOT
 fi
+
 echo "Configuration done."
 echo
 if test "${MAKESBCLIMG}" = "true" ; then

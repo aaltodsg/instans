@@ -390,7 +390,7 @@
 ;    (inform "")
     (cond ((probe-file manifest)
 	   (inform "Directory ~A:~%~%" dirname)
-	   (main "-b" base "-r" query "-t" manifest))
+	   (main (list "-b" base "-r" query "-t" manifest)))
 	  (t
 ;	   (inform "No manifest.ttl in directory ~A" dirname)
 ))))

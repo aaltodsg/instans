@@ -51,18 +51,18 @@
 (defun expand-rhs (lhs rhs)
   (dbg "~%expand-rhs: ~S ~S" lhs rhs)
   (loop with sub-rules = nil
-     for item in rhs
-     do (dbg "~%  rhs = ~S, item = ~S, new-rhs = ~S, new-rules = ~S" rhs item new-rhs sub-rules)
-     when (keywordp rhs)
-     do (error* "Cannot use a keyword (~S) as a grammar symbol" rhs)
-     else when (and (atom item) (not (null item)))
-     collect item into new-rhs
-     else
-     collect (let ((new-lhs (make-nonterminal lhs :sub)))
-	       (setf sub-rules (nconc sub-rules (expand-lhs-rhs-result new-lhs item nil)))
-	       new-lhs) into new-rhs
-     finally (return (progn (dbg "~%rhs = ~S, new-rhs = ~S" rhs new-rhs)
-			    (values new-rhs sub-rules)))))
+	for item in rhs
+	do (dbg "~%  rhs = ~S, item = ~S, new-rhs = ~S, new-rules = ~S" rhs item new-rhs sub-rules)
+	when (keywordp item)
+	do (error* "Cannot use a keyword (~S) as a grammar symbol" item)
+	else when (and (atom item) (not (null item)))
+	collect item into new-rhs
+	else
+	collect (let ((new-lhs (make-nonterminal lhs :sub)))
+		  (setf sub-rules (nconc sub-rules (expand-lhs-rhs-result new-lhs item nil)))
+		  new-lhs) into new-rhs
+	finally (return (progn (dbg "~%rhs = ~S, new-rhs = ~S" rhs new-rhs)
+			       (values new-rhs sub-rules)))))
 
 (defun expand-rep-or-opt (lhs rhs)
   (let ((kind (car rhs))

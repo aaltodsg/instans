@@ -17,5 +17,6 @@ if test $newersources -gt 0; then
     esac
 fi
 cd "$DIR"
-exec `dirname $0`/instans.bin --end-toplevel-options $*
+#exec `dirname $0`/instans.bin --end-toplevel-options $*
+exec `dirname $0`/instans.bin $*
 

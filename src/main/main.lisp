@@ -131,11 +131,15 @@
 				   (format *error-output* "~%Unrecognized option ~A~%" ,arg-var)
 				   (,usage)))))))))
 
-(defun main (&rest args)
+(defun main (args)
+  ;; (cond ((null args)
+  ;; 	 (setf args sb-ext:*posix-argv*))
+  ;; 	(t
+  ;; 	 (setf args (cons "instans" (cons "--end-toplevel-options" (if (= 1 (length args)) (split-string (first args) " ") args))))))
   (cond ((null args)
 	 (setf args sb-ext:*posix-argv*))
-	(t
-	 (setf args (cons "instans" (cons "--end-toplevel-options" (if (= 1 (length args)) (split-string (first args) " ") args))))))
+	((stringp args)
+	 (setf args (cons "instans" (split-string args " ")))))
   (let* ((instans (create-instans))
 	 (executedp nil)
 	 (execute-immediately-p t)
@@ -190,7 +194,7 @@
 		   (format time-output-stream "~%At ~D.~6,'0D: ~A~%" delta-sec delta-usec  (apply #'format nil fmt args))))))
       (setf *instanssi* instans)
       (pop args) ; Program path
-      (when (equalp (first args) "--end-toplevel-options") (pop args)) ; Inserted by wrapper script
+;      (when (equalp (first args) "--end-toplevel-options") (pop args)) ; Inserted by wrapper script
       (cond ((equalp (first args) "--run-sparql-test-suite")
 	     (process-sparql-test-suite))
 	    (t
