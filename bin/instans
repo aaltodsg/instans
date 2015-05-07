@@ -12,7 +12,7 @@ if test $newersources -gt 0; then
     env echo -n "Want to recompile (yes)? "
     read answer
     case "$answer" in
-	''|'yes'|'y') ../configure ;;
+	''|'yes'|'y') ../build.sh ;;
 	*)
     esac
 fi

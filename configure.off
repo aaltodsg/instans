@@ -1,4 +1,6 @@
 #!/bin/bash
+echo "Use ./build.sh instead of this"
+exit 1
 cd `dirname $0`
 ROOT=`pwd`
 echo "In directory $ROOT: running `basename $0` $*"
