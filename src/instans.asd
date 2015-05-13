@@ -70,7 +70,7 @@
 				     (:file "with-ll1-parser" :depends-on ("generator"))))
 	       (:module "parser" :depends-on ("util" "cl-ll1" "sparql")
 	       		:components ((:file "chbuf")
-	       			     (:file "lexer-classes")
+	       			     (:file "lexer-classes" :depends-on ("chbuf"))
 	       			     (:file "lexer" :depends-on ("chbuf" "lexer-classes"))
 	       			     (:file "n-statements-parser" :depends-on ("lexer"))
 	       			     (:file "trig-parser" :depends-on ("lexer"))

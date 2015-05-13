@@ -13,6 +13,9 @@
 (define-class bindings-table ()
   ((name :accessor bindings-table-name :initarg :name)
    (case-sensitive-p :accessor bindings-table-case-sensitive-p :initarg :case-sensitive-p)
+   (report-growth-p :accessor bindings-table-report-growth-p :initarg :report-growth-p :initform nil)
+   (largest-binding-count-so-far :accessor bindings-table-largest-binding-count-so-far :initform nil)
+   (max-allowed-size :accessor bindings-table-max-allowed-size :initarg :max-allowed-size :initform nil)
    (hash-table :accessor bindings-table-hash-table :initform (make-hash-table))))
 
 (defun hash-characters (characters &key (start 0) (end (length characters)) (case-sensitive-p nil))
@@ -43,6 +46,18 @@
 ;      (inform "add hv = ~S, binding = ~S, binding-value = ~S, binding-case = ~S" hv binding (and binding (table-binding-value binding)) (and binding (table-binding-case-sensitive-p binding)))
       (cond ((null binding)
 	     (setf binding (make-instance 'table-binding :key (characters-to-string characters start end) :case-sensitive-p case-sensitive-p))
+	     (when (bindings-table-report-growth-p table)
+	       (cond ((null (bindings-table-largest-binding-count-so-far table))
+		      (setf (bindings-table-largest-binding-count-so-far table) (hash-table-count (bindings-table-hash-table table))))
+		     (t
+		      (when (<= (* 2 (bindings-table-largest-binding-count-so-far table)) (hash-table-count (bindings-table-hash-table table)))
+			(setf (bindings-table-largest-binding-count-so-far table) (hash-table-count (bindings-table-hash-table table)))
+			(inform "size of ~A is now ~D" table (bindings-table-largest-binding-count-so-far table))))))
+	     (when (and (bindings-table-max-allowed-size table) (= (bindings-table-max-allowed-size table) (hash-table-count (bindings-table-hash-table table))))
+	       (setf (bindings-table-hash-table table) (make-hash-table))
+	       (when (bindings-table-report-growth-p table)
+		 (inform "Bindings table ~A reached its maximum size, resetting" table)
+		 (setf (bindings-table-largest-binding-count-so-far table) 1)))
 	     (setf (gethash hv (bindings-table-hash-table table)) binding))
 	    (t
 	     (error* "~S already bound in ~S" (characters-to-string characters start end) table))))))

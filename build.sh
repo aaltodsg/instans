@@ -5,7 +5,13 @@ function die () {
 }
 
 function usage() {
-    die "Usage: $0 { (--clean|clean|-c|--sbclimg|sbclimg|-s|--dynamic-space-size <megabytes>) }"
+    die "Usage: $0 { (--clean | clean | -c | --help | help | -h | --dynamic-space-size <megabytes>) }"
+}
+
+function help() {
+    cat <<EOF
+--clean | clean | -c		Make a clean install. Removes old 
+EOF
 }
 
 cd `dirname $0`
@@ -17,7 +23,7 @@ LISP_CONFIGURATION=${INIT}/lisp-configuration
 EXECUTABLE=${BIN}/instans.bin
 EXECUTABLEOPTIONS=${BIN}/instans.bin.options
 
-echo "In directory $ROOT: running `basename $0` $*"
+#echo "In directory $ROOT: running `basename $0` $*"
 LAST=`echo $ROOT | sed '/^.*[/]\([^/]*\)^/s//\1/'`
 
 if test -f "$EXECUTABLEOPTIONS"; then
@@ -55,7 +61,6 @@ if test "$DYNAMIC_SPACE_SIZE"; then
 fi
 
 if test "$CLEAN" = "true"; then
-    rm -rf 
     rm -rf $HOME/quicklisp
     rm -rf buildapp*
     NEEDSCOMPILE=true
@@ -137,6 +142,9 @@ if test $NEEDSCOMPILE = true; then
     /bin/echo -n "Compiling system..."
     cd $SRC
     TMP=make_tmp_$$
+    if test "$CLEAN" = "true"; then
+	make clean > /dev/null 2>&1
+    fi
     make 2>&1 | tee $TMP | while read line; do /bin/echo -n "."; done
     if test $? -ne 0; then
 	die " Failed!"

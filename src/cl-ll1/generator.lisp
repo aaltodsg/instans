@@ -386,6 +386,8 @@
 			(result-func-lambda `(lambda ($p ,@result-arglist &aux ($* (list ,@result-arglist))) (declare (ignorable $p ,@result-arglist $*)) ,result-func-body))
 					;		     (result-func (if (or result default-result) (compile nil result-func-lambda)))
 			)
+		   ;; (print-production p terminals)
+		   ;; (inform "~A" result-func-lambda)
 		   (cond ((null result-func-name)
 			  (setf (production-result-arglist p) nil)
 			  (setf (production-result-arg-count p) nil)
@@ -561,6 +563,7 @@
 	      while (and (ll-parser-stack parser) input-token)
 	      do (progn
 		   (incf (ll-parser-round parser))
+;		   (update-parser-statistics parser)
 		   (when (debugp subscribe :parse-operations) (print-snapshot input-token))
 		   (setf (ll-parser-position parser) (input-token-position input-token))
 		   (when (debugp subscribe :phases) (push (list (copy-list (ll-parser-stack parser)) nil (copy-list (ll-parser-parsed-input parser))) (ll-parser-phases parser)))

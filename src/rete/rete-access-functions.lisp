@@ -594,7 +594,7 @@
 					 when (eq kind :all)
 					 append '(:select :construct :modify :all :rete-add :rete-remove :queue :rdf-operations :execute)
 					 else when (eql 0 (search "MEMORY" (string kind)))
-					 append (prog1 (list :memory) (setf (instans-size-report-interval this) (parse-integer (string kind) :start 6)))
+					 append (prog1 (list :memory) (setf (instans-memory-summaries-report-interval this) (parse-integer (string kind) :start 6)))
 					 else append (list kind))))
 		    (loop for kind in reporting
 			  unless (member kind '(:select :construct :modify :rete-add :rete-remove :queue :call-succ-nodes :all :memory :rdf-operations :execute))

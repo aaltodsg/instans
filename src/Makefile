@@ -1,17 +1,18 @@
 VERSION := $(subst SBCL ,,$(shell sbcl --version))
 CACHE=$(subst VERSION,$(VERSION),$(HOME)/.cache/common-lisp/sbcl-VERSION-macosx-x64$(HOME)/instans/)
-QUICKLISP=$(HOME)/quicklisp
-CORE=sbcl.core-for-instans
+SOURCES=$(wildcard */*.lisp)
 
-all: clean compile
+all: compile
 
 clean:
-	rm -rf $(CACHE)
+	rm -rf $(CACHE) LAST_COMPILED
 
-compile:
-	sbcl --load docompile.lisp --quit
+compile: LAST_COMPILED
 
-.SILENT: all clean compile
+LAST_COMPILED: $(SOURCES)
+	sbcl --non-interactive --load docompile.lisp
+	date > LAST_COMPILED
+
+#.SILENT: all clean compile
 
 .PHONY: all clean compile
-

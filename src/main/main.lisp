@@ -150,7 +150,6 @@
 	 (construct-output-name nil)
 	 (construct-output-type :trig)
 	 (construct-output-append-p nil)
-	 report-sizes-interval
 	 time-output-name
 	 time-output-stream
 	 start-time-sec
@@ -176,8 +175,7 @@
 	     (execute ()
 	       (instans-run instans
 			    :select-output-name select-output-name :select-output-type select-output-type
-			    :construct-output-name construct-output-name :construct-output-type construct-output-type
-			    :report-sizes-interval report-sizes-interval))
+			    :construct-output-name construct-output-name :construct-output-type construct-output-type))
 	     (maybe-execute ()
 					;		 (inform "maybe-execute?")
 	       (when execute-immediately-p
@@ -454,20 +452,22 @@
 		      (reporting
 		       :options ("--report=KINDS")
 		       :usage ("The kinds of rules you want to get reported; a ':' separated list of"
-			       "(select|construct|modify|all|rete-add|rete-remove|queue|rdf-operations|execute|memoryN)."
+			       "(select|construct|modify|all|rete-add|rete-remove|queue|rdf-operations|execute|memoryN|memoriesN)."
 			       "Here memoryN means a string like 'memory100' having an integer after 'memory'. This means that the interval of reporting is 100 rounds"
-			       "of execution.")
+			       "of execution. MemoryN reports the changes in total sizes of memories and memoriesN reports (in csv format) the sizes of different memories.")
 		       :hiddenp t
 		       (setf reporting (loop for kind in (parse-colon-separated-values value)
 					     when (eq kind :all)
 					     append '(:select :construct :modify :all :rete-add :rete-remove :queue :rdf-operations :execute)
 					     else when (eql 0 (search "MEMORY" (string kind)))
-					     append (prog1 (list :memory) (setf report-sizes-interval (parse-integer (string kind) :start 6)))
+					     append (prog1 (list :memory-summaries) (parse-integer (string kind) :start 6))
+					     else when (eql 0 (search "MEMORIES" (string kind)))
+					     append (prog1 (list :memory-sizes) (parse-integer (string kind) :start 8))
 					     else append (list kind)))
 		       (loop for kind in reporting
-			     unless (member kind '(:select :construct :modify :rete-add :rete-remove :queue :call-succ-nodes :all :memory :rdf-operations :execute))
+			     unless (member kind '(:select :construct :modify :rete-add :rete-remove :queue :call-succ-nodes :all :memory :memories :rdf-operations :execute))
 			     do (usage))
-		       (setf (instans-report-operation-kinds instans) reporting))
+		       (initialize-reporting instans reporting))
 		      (prefix-encoding
 		       :options ("--prefix-encoding=BOOL")
 		       :usage ("If true, use known prefixes when printing IRIs. If false (the default), print IRIs as such.")

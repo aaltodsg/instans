@@ -11,5 +11,5 @@ WHERE {
       BIND(concat(strbefore(str($p), "pred-"), "pred-", str($sp)) AS $newp)
       BIND(concat(strbefore(str($o), "obj-"), "obj-", str($so)) AS $newo)
 }
-;
-SELECT $s WHERE { $s $p $o}
+# ;
+# SELECT $s WHERE { $s $p $o}

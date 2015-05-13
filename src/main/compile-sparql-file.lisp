@@ -180,13 +180,11 @@
     (add-input-processor instans processor)
     instans))
 
-(defun instans-run (instans &key select-output-name (select-output-type :csv) construct-output-name (construct-output-type :trig) report-sizes-interval)
+(defun instans-run (instans &key select-output-name (select-output-type :csv) construct-output-name (construct-output-type :trig))
   (unless (instans-select-output-processor instans)
     (setf (instans-select-output-processor instans) (create-select-output-processor instans select-output-name select-output-type)))
   (unless (instans-construct-output-processor instans)
     (setf (instans-construct-output-processor instans) (create-construct-output-processor instans construct-output-name construct-output-type)))
-  (when report-sizes-interval
-    (initialize-report-sizes instans report-sizes-interval))
 ;  (handler-case
       (progn
 	(run-input-processors instans t)

@@ -30,13 +30,13 @@
 
 (define-class turtle-lexer (trig-lexer) ())
 
-(defmethod initialize-instance :after ((this abstract-sparql-rdf-lexer) &key base &allow-other-keys)
-  (setf (lexer-string-table this) (make-instance 'string-table :case-sensitive-p t))
-  (let ((keyword-table (setf (lexer-keyword-table this) (make-instance 'keyword-table :case-sensitive-p nil))))
+(defmethod initialize-instance :after ((this abstract-sparql-rdf-lexer) &key base (report-table-growth-p nil) (string-table-max-allowed-size 8192) &allow-other-keys)
+  (setf (lexer-string-table this) (make-instance 'string-table :case-sensitive-p t :report-growth-p report-table-growth-p :max-allowed-size string-table-max-allowed-size))
+  (let ((keyword-table (setf (lexer-keyword-table this) (make-instance 'keyword-table :case-sensitive-p nil :report-growth-p report-table-growth-p))))
     (loop for item in (lexer-keywords this)
 	  for binding = (add-table-binding keyword-table (first item) :case-sensitive-p (third item))
 	  do (setf (table-binding-value binding) (second item))))
-  (setf (lexer-prefix-table this) (make-instance 'prefix-table :case-sensitive-p t))
+  (setf (lexer-prefix-table this) (make-instance 'prefix-table :case-sensitive-p t :report-growth-p report-table-growth-p))
   (bind-prefix this "xsd" (parse-iri "http://www.w3.org/2001/XMLSchema#"))
   (unless (null base) (bind-prefix this "BASE" base)))
 

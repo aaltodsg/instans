@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 DIR=`pwd`
 cd `dirname $0` > /dev/null
 newersources=`find ../src/ -name '*.lisp' -newer instans.bin|wc -l`
