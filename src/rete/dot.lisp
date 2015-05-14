@@ -204,7 +204,7 @@
 	   (setf name (pathname-name (if (rdf-iri-p rules-file) (rdf-iri-path rules-file) rules-file)))
 	   (setf html-file (format nil "~A~A.html" dir name)))
 	  (t
-	   (setf dir (expand-dirname (directory-namestring html-file)))
+	   (setf dir (expand-dirname (if (= (length (directory-namestring html-file)) 0) "." (directory-namestring html-file))))
 	   (setf name (pathname-name html-file))))
     (let* ((dot-output-file (create-temp-file-name :directory dir :name-prefix name :type "dot"))
 	   (dot-svg-output-file (create-temp-file-name :directory dir :name-prefix name :type "dot.svg")))
