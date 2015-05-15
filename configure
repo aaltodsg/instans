@@ -1,0 +1,147 @@
+#!/bin/sh
+
+#
+# Note! Currently this only works with SBCL.
+#
+
+# You can edit these or use options to set values.
+# ================================================
+SBCL=""
+BUILDAPP=""
+DYNAMIC_SPACE_SIZE=4096 # For buildapp
+# ================================================
+# Don't change anything below
+
+INIT=init
+BIN=bin
+SRC=src
+LISP_CONFIGURATION=${INIT}/lisp-configuration
+
+EXECUTABLE=$BIN/instans.bin
+LISPTYPE=sbcl # For possible future generalizations to other lisps
+
+# Functions
+function die() {
+    echo $PGM: $*
+    exit 1
+}
+
+function warn() {
+    echo $PGM warning: $*
+    exit 1
+}
+
+function usage () {
+    die "[ -h | --help ]"
+}
+
+PGM=$0
+while [ $# -gt 0 ] ; do
+    case $1 in
+	-h|--help) usage ;;
+	--with-sbcl=*)
+	  SBCL=${1#--with-lisp=}
+	  test -x $SBCL || die "Did not found executable sbcl in $SBCL"
+	  echo "Using SBCL=$SBCL"
+	  ;;
+	--with-dynamic-space-size=*)
+	  DYNAMIC_SPACE_SIZE=${1#--with-dynamic-space-size=}
+	  echo "Using DYNAMIC_SPACE_SIZE=$DYNAMIC_SPACE_SIZE"
+	  ;;
+	--with-buildapp=*)
+	  BUILDAPP=${1#--with-buildapp=}
+	  test -x $BUILDAPP || die "Did not found executable buildapp in $BUILDAPP"
+	  echo "Using BUILDAPP=$BUILDAPP"
+	  ;;
+    esac
+    shift
+done
+
+if [ "$SBCL" = "" ] ; then
+    SBCL=`which sbcl` || die "Could not find SBCL in PATH"
+fi
+[ -x "$SBCL" ] || die "No executable SBCL set"
+
+$SBCL --noinform --load $INIT/output-configuration.lisp --eval "(output-configuration \"$LISP_CONFIGURATION\")" --quit
+
+LISP_IMPLEMENTATION_TYPE=`sed -n "/^lisp-implementation-type:[ ]*\([^ ]*\)$/s//\1/p" ${LISP_CONFIGURATION}`
+LISP_IMPLEMENTATION_VERSION=`sed -n "/^lisp-implementation-version:[ ]*\([^ ]*\)$/s//\1/p" ${LISP_CONFIGURATION}`
+MINIMUM_SBCL_VERSION_FOR_INSTANS=`sed -n "/^minimum-sbcl-version-for-instans:[ ]*\([^ ]*\)$/s//\1/p" ${LISP_CONFIGURATION}`
+CONSISTENT_SBCL_VERSION=`sed -n "/^consistent-sbcl-version:[ ]*\([^ ]*\)$/s//\1/p" ${LISP_CONFIGURATION}`
+QUICKLISP=`sed -n "/^quicklisp:[ ]*\([^ ]*\)$/s//\1/p" ${LISP_CONFIGURATION}`
+ASDF=`sed -n "/^asdf:[ ]*\([^ ]*\)$/s//\1/p" ${LISP_CONFIGURATION}`
+rm ${LISP_CONFIGURATION}
+
+function show_configuration () {
+    echo
+    echo "Detected the following configuration:"
+    echo "  LISP_IMPLEMENTATION_TYPE=$LISP_IMPLEMENTATION_TYPE"
+    echo "  LISP_IMPLEMENTATION_VERSION=$LISP_IMPLEMENTATION_VERSION"
+    echo "  MINIMUM_SBCL_VERSION_FOR_INSTANS=$MINIMUM_SBCL_VERSION_FOR_INSTANS"
+    echo "  CONSISTENT_SBCL_VERSION=$CONSISTENT_SBCL_VERSION"
+    echo "  QUICKLISP=$QUICKLISP"
+    echo "  ASDF=$ASDF"
+    echo
+}
+if test "$LISP_IMPLEMENTATION_TYPE" != "SBCL" -o $CONSISTENT_SBCL_VERSION = "no" ; then
+    show_configuration
+    warn "You seem to be running $LISP_IMPLEMENTATION_TYPE. Instans has only been tested with SBCL (minimum version $MINIMUM_SBCL_VERSION_FOR_INSTANS)."
+fi
+if test "$CONSISTENT_SBCL_VERSION" = "no" ; then
+    show_configuration
+    warn "You seem to be running $LISP_IMPLEMENTATION_TYPE $LISP_IMPLEMENTATION_VERSION. Instans has only been tested version $LISP_IMPLEMENTATION_TYPE $MINIMUM_SBCL_VERSION_FOR_INSTANS."
+fi
+[ "$QUICKLISP" = "yes" ] || die "No QUICKLISP found. You can install it from http://beta.quicklisp.org/"
+[  "$ASDF" = "yes" ] || die "No ASDF found. It should come with $LISP_IMPLEMENTATION_TYPE. You can install it from http://common-lisp.net/project/asdf/"
+
+if [ "$BUILDAPP" = "" ] ; then
+    BUILDAPP=`which buildapp` || die "Could not find BUILDAPP in PATH"
+fi
+[ -x "$BUILDAPP" ] || die "No executable BUILDAPP set. You can install it from http://www.xach.com/lisp/buildapp/"
+
+echo "Creating Makefile"
+{ 
+if [ $LISPTYPE=sbcl ]; then
+    cat <<EOF
+DYNAMIC_SPACE_SIZE=$DYNAMIC_SPACE_SIZE
+VERSION := \$(subst SBCL ,,\$(shell sbcl --version))
+CACHE=\$(subst VERSION,\$(VERSION),\$(HOME)/.cache/common-lisp/sbcl-VERSION-macosx-x64\$(HOME)/instans/)
+EOF
+fi
+cat <<EOF
+SOURCES=\$(wildcard $SRC/*/*.lisp)
+EXECUTABLE=$EXECUTABLE
+BUILDAPP=$BUILDAPP
+SBCL=$SBCL
+
+all: \$(EXECUTABLE)
+
+\$(EXECUTABLE): \$(SOURCES) Makefile
+	(cd $SRC; \$(SBCL) --non-interactive --load docompile.lisp)
+	\$(BUILDAPP) --output \$(EXECUTABLE) --dynamic-space-size \$(DYNAMIC_SPACE_SIZE)  \\
+		    --entry instans:main \\
+		    --load \$(HOME)/quicklisp/setup.lisp \\
+	            --asdf-path $SRC \\
+	            --require sb-bsd-sockets \\
+	            --require sb-posix \\
+	            --require sb-introspect \\
+	            --require sb-cltl2 \\
+	            --require asdf \\
+	            --eval "(setf asdf:*central-registry* (list \"$SRC/\"))" \\
+                    --load-system instans \\
+                    --eval '(in-package :instans)'
+
+.PHONY: all
+EOF
+if [ $LISPTYPE=sbcl ]; then
+cat <<EOF
+clean:
+	rm -rf \$(CACHE) \$(EXECUTABLE)
+
+.PHONY: clean
+
+#.SILENT: all clean
+
+EOF
+fi } > Makefile
+echo "Done."
