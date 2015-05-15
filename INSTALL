@@ -1,0 +1,3 @@
+1) Run ./configure. This creates a Makefile. See ./configure -h for available options. You probably need to set BUILDAPP.
+2) Run make. This compiles the lisp files in directory src and creates an executable image bin/instans.bin.
+3) You can now run INSTANS using command bin/instans. You probably want to add this to your PATH too.

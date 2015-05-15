@@ -1,5 +1,0 @@
-# You may edit these
-DYNAMIC_SPACE_SIZE=4096
-EXECUTABLE=bin/instans.bin
-BUILDAPP=buildapp/buildapp
-SBCLOPTS="--dynamic-space-size $DYNAMIC_SPACE_SIZE"
