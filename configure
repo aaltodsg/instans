@@ -95,7 +95,7 @@ fi
 [  "$ASDF" = "yes" ] || die "No ASDF found. It should come with $LISP_IMPLEMENTATION_TYPE. You can install it from http://common-lisp.net/project/asdf/"
 
 if [ "$BUILDAPP" = "" ] ; then
-    BUILDAPP=`which buildapp` || die "Could not find BUILDAPP in PATH"
+    BUILDAPP=`which buildapp` || die "Could not find BUILDAPP in PATH. You can install it from http://www.xach.com/lisp/buildapp/"
 fi
 [ -x "$BUILDAPP" ] || die "No executable BUILDAPP set. You can install it from http://www.xach.com/lisp/buildapp/"
 
