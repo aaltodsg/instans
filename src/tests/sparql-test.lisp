@@ -292,23 +292,30 @@
     nil))
 
 (define-class sparql-tests2 ()
-  ((manifests :accessor sparql-tests-manifests :initarg :manifests :initform nil)
-   (csv-file :accessor sparql-tests-csv-file :initarg :csv-file
-	     :initform (expand-instans-file-name "tests/sparql-tests/sparql-tests.csv"))
-   (collector-rules-file :accessor sparql-tests-collector-rules-file :initarg :collector-rules-file
-			 :initform (expand-instans-file-name "tests/input/collect-sparql-tests-info.rq"))
+  ((root-directory :accessor sparql-tests-root-directory :initarg :root-directory :initform "instans-sparql-conformance-tests")
+   (csv-file :accessor sparql-tests-csv-file :initarg :csv-file) ; :initform (expand-instans-file-name "tests/sparql-tests/sparql-tests.csv")
+   (collector-rules-file :accessor sparql-tests-collector-rules-file :initarg :collector-rules-file) ; :initform (expand-instans-file-name "tests/input/collect-sparql-tests-info.rq")
+   (manifests :accessor sparql-tests-manifests :initarg :manifests)
    (headers :accessor sparql-tests-headers :initarg :headers)
    (entries :accessor sparql-tests-entries :initarg :entries)
    (phases :accessor sparql-tests-phases :initform nil)
    (verbosep :accessor sparql-tests-verbose-p :initarg :verbosedp :initform t)))
 
-(defmethod initialize-instance :after ((this sparql-tests2) &key manifests &allow-other-keys)
-  (unless manifests
-    (setf (sparql-tests-manifests this)
-	  (append (directory (format nil "~A/tests/data-r2/*/manifest.ttl" (find-instans-root-directory)))
-		  (directory (format nil "~A/tests/data-sparql11/*/manifest.ttl" (find-instans-root-directory))))))
-  (when (sparql-tests-verbose-p this)
-    (inform "Manifest files:~{~%  ~A~}" (sparql-tests-manifests this))))
+(defmethod initialize-instance :after ((this sparql-tests2) &key manifests csv-file collector-rules-file &allow-other-keys)
+  (let ((root (sparql-tests-root-directory this)))
+    (unless csv-file (setf (sparql-tests-csv-file this) (expand-instans-file-name (format nil "~A/tests/sparql-tests/sparql-tests.csv" root))))
+    (unless collector-rules-file (setf (sparql-tests-collector-rules-file this) (expand-instans-file-name (format nil "~A/tests/input/collect-sparql-tests-info.rq" root))))
+    (unless manifests
+      (setf (sparql-tests-manifests this)
+	    (append (directory (expand-instans-file-name (format nil "~A/tests/data-r2/*/manifest.ttl" root)))
+		    (directory (expand-instans-file-name (format nil "~A/tests/data-sparql11/*/manifest.ttl" root))))))
+    (when (sparql-tests-verbose-p this)
+      (inform "Manifest files:~{~%  ~A~}" (sparql-tests-manifests this)))))
+
+(defgeneric sparql-tests-print (sparql-tests2 &optional stream)
+  (:method ((this sparql-tests2) &optional (stream *error-output*))
+    (loop for test in (sparql-tests-entries this)
+	  do (print-test test stream))))
 
 (defvar *collect-sparql-tests-script*
   "PREFIX dawgt: <http://www.w3.org/2001/sw/DataAccess/tests/test-dawg#>
@@ -612,4 +619,3 @@ SELECT ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlab
 (defgeneric sparql-tests-execute (sparql-tests2)
   (:method ((this sparql-tests2))
     (sparql-tests-compare this)))
-
