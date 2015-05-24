@@ -15,14 +15,17 @@
    (instans :accessor sparql-test-instans)
    (not-implemented-p :accessor sparql-test-not-implemented-p :initarg :not-implemented-p)
    (output-directory :accessor sparql-test-output-directory :initform "test-output")
-   (base :accessor sparql-test-base)
+   (base :accessor sparql-test-base :initarg :base)
    (status :accessor sparql-test-status :initform :not-completed)))
 					; One of :not-completed, :succeeded, :failed
 
-(defmethod initialize-instance :after ((this sparql-test2) &key &allow-other-keys)
-  (setf (sparql-test-directory this)
-	(truename (format nil "~Atests/~A/~A/" (find-instans-root-directory) (sparql-test-suite this) (sparql-test-collection this))))
-  (setf (sparql-test-base this) (parse-iri (format nil "file://~A" (sparql-test-directory this))))
+(defmethod initialize-instance :after ((this sparql-test2) &key base &allow-other-keys)
+  (cond ((eql 0 (search "file://" base))
+	 (setf (sparql-test-directory this) (truename (subseq base 0 7)))
+	 (setf (sparql-test-base this) (parse-iri base)))
+	(t
+	 (setf (sparql-test-directory this) (truename base))
+	 (setf (sparql-test-base this) (parse-iri (format nil "file://~A" base)))))
   (setf (sparql-test-instans this) (create-instans (sparql-test-base this)))
   (setf (sparql-test-output-directory this) (expand-sparql-test-filename this (sparql-test-output-directory this)))
   (ensure-directories-exist (sparql-test-output-directory this)))
@@ -184,7 +187,7 @@
   (:method ((this sparql-syntax-test))
     (let ((instans (sparql-test-instans this)))
     ;;; Add rules
-      ;; (inform "Parsing ~A" (sparql-test-name this))
+      (inform "Parsing ~A from file ~A" (sparql-test-name this) (sparql-test-queryfile this))
       (instans-add-rules instans (sparql-test-queryfile this))
     ;;; Set status
       (inform "test ~A status ~A" this (instans-status instans))
@@ -317,8 +320,11 @@
     (loop for test in (sparql-tests-entries this)
 	  do (print-test test stream))))
 
-(defvar *collect-sparql-tests-script*
-  "PREFIX dawgt: <http://www.w3.org/2001/sw/DataAccess/tests/test-dawg#>
+(defvar *collect-sparql-tests-script* nil)
+
+(defun init-sparql-tests-script ()
+  (setf *collect-sparql-tests-script*
+"PREFIX dawgt: <http://www.w3.org/2001/sw/DataAccess/tests/test-dawg#>
 PREFIX ent: <http://www.w3.org/ns/entailment/>
 PREFIX mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#>
 PREFIX mfx: <http://jena.hpl.hp.com/2005/05/test-manifest-extra#>
@@ -331,7 +337,7 @@ PREFIX sparql: <http://www.w3.org/ns/sparql#>
 PREFIX ut: <http://www.w3.org/2009/sparql/tests/test-update#>
 
 # @SyntaxTest
-SELECT ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlabels ?resultfile ?resultgraphfiles ?resultgraphlabels ?updateresult ?queryserviceendpoint ?queryservicedata ?entailmentprofile ?entailmentregime WHERE {
+SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlabels ?resultfile ?resultgraphfiles ?resultgraphlabels ?updateresult ?queryserviceendpoint ?queryservicedata ?entailmentprofile ?entailmentregime WHERE {
        ?test rdf:type ?type
        FILTER(?type = mf:NegativeSyntaxTest
            || ?type = mf:NegativeSyntaxTest11
@@ -342,16 +348,15 @@ SELECT ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlab
 
        ?test mf:action ?queryfile1
        FILTER(!isblank(?queryfile1))
-
-       BIND(strbefore(strafter(str(<>), \"tests/\"), \"/\") AS ?suite)
-       BIND(strbefore(strafter(strafter(str(<>), \"tests/\"), \"/\"),\"/\") AS ?collection)
+       BIND(strbefore(strafter(str(<>), \"/tests/\"), \"/\") AS ?suite)
+       BIND(strbefore(strafter(strafter(str(<>), \"/tests/\"), \"/\"),\"/\") AS ?collection)
        BIND(strafter(str(?test), \"#\") AS ?name)
        BIND(str(<>) AS ?base)
        BIND(strafter(str(?queryfile1), ?base) AS ?queryfile)
 };
 
 # @QueryEvaluationTest
-SELECT ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlabels ?resultfile ?resultgraphfiles ?resultgraphlabels ?updateresult ?queryserviceendpoint ?queryservicedata ?entailmentprofile ?entailmentregime WHERE {
+SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlabels ?resultfile ?resultgraphfiles ?resultgraphlabels ?updateresult ?queryserviceendpoint ?queryservicedata ?entailmentprofile ?entailmentregime WHERE {
        ?test rdf:type ?type
        FILTER(?type = mf:QueryEvaluationTest)
 
@@ -361,8 +366,8 @@ SELECT ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlab
        OPTIONAL { ?a qt:graphData ?graphfiles1 }
        OPTIONAL { ?test mf:result ?resultfile1 FILTER(!isblank(?resultfile1)) }
 
-       BIND(strbefore(strafter(str(<>), \"tests/\"), \"/\") AS ?suite)
-       BIND(strbefore(strafter(strafter(str(<>), \"tests/\"), \"/\"),\"/\") AS ?collection)
+       BIND(strbefore(strafter(str(<>), \"/tests/\"), \"/\") AS ?suite)
+       BIND(strbefore(strafter(strafter(str(<>), \"/tests/\"), \"/\"),\"/\") AS ?collection)
        BIND(strafter(str(?test), \"#\") AS ?name)
        BIND(str(<>) AS ?base)
        BIND(strafter(str(?queryfile1), ?base) AS ?queryfile)
@@ -372,7 +377,7 @@ SELECT ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlab
 };
 
 # @UpdateEvaluationTest
-SELECT ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlabels ?resultfile ?resultgraphfiles ?resultgraphlabels ?updateresult ?queryserviceendpoint ?queryservicedata ?entailmentprofile ?entailmentregime WHERE {
+SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlabels ?resultfile ?resultgraphfiles ?resultgraphlabels ?updateresult ?queryserviceendpoint ?queryservicedata ?entailmentprofile ?entailmentregime WHERE {
        ?test rdf:type ?type
        FILTER(?type = mf:UpdateEvaluationTest)
 
@@ -385,8 +390,9 @@ SELECT ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlab
        OPTIONAL { ?r1 ut:data ?resultfile2 }
        OPTIONAL { ?r1 ut:graphData [ ut:graph ?resultgraphfiles1; rdfs:label ?resultgraphlabels ] }
        OPTIONAL { ?r1 ut:result ?updateresult }
-       BIND(strbefore(strafter(str(<>), \"tests/\"), \"/\") AS ?suite)
-       BIND(strbefore(strafter(strafter(str(<>), \"tests/\"), \"/\"),\"/\") AS ?collection)
+
+       BIND(strbefore(strafter(str(<>), \"/tests/\"), \"/\") AS ?suite)
+       BIND(strbefore(strafter(strafter(str(<>), \"/tests/\"), \"/\"),\"/\") AS ?collection)
        BIND(strafter(str(?test), \"#\") AS ?name)
        BIND(str(<>) AS ?base)
 
@@ -398,7 +404,7 @@ SELECT ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlab
 };
 
 # @CSVResultFormatTest
-SELECT ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlabels ?resultfile ?resultgraphfiles ?resultgraphlabels ?updateresult ?queryserviceendpoint ?queryservicedata ?entailmentprofile ?entailmentregime WHERE {
+SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlabels ?resultfile ?resultgraphfiles ?resultgraphlabels ?updateresult ?queryserviceendpoint ?queryservicedata ?entailmentprofile ?entailmentregime WHERE {
        ?test rdf:type ?type
        FILTER(?type = mf:CSVResultFormatTest)
 
@@ -407,8 +413,8 @@ SELECT ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlab
        OPTIONAL { ?a qt:data ?datafile1 }
        OPTIONAL { ?test mf:result ?resultfile1 FILTER(!isblank(?resultfile1)) }
 
-       BIND(strbefore(strafter(str(<>), \"tests/\"), \"/\") AS ?suite)
-       BIND(strbefore(strafter(strafter(str(<>), \"tests/\"), \"/\"),\"/\") AS ?collection)
+       BIND(strbefore(strafter(str(<>), \"/tests/\"), \"/\") AS ?suite)
+       BIND(strbefore(strafter(strafter(str(<>), \"/tests/\"), \"/\"),\"/\") AS ?collection)
        BIND(strafter(str(?test), \"#\") AS ?name)
        BIND(str(<>) AS ?base)
        BIND(strafter(str(?queryfile1), ?base) AS ?queryfile)
@@ -417,25 +423,25 @@ SELECT ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlab
 };
 
 # @ProtocolTest
-SELECT ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlabels ?resultfile ?resultgraphfiles ?resultgraphlabels ?updateresult ?queryserviceendpoint ?queryservicedata ?entailmentprofile ?entailmentregime WHERE {
+SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlabels ?resultfile ?resultgraphfiles ?resultgraphlabels ?updateresult ?queryserviceendpoint ?queryservicedata ?entailmentprofile ?entailmentregime WHERE {
        ?test rdf:type ?type
        FILTER(?type = mf:ProtocolTest)
-       BIND(strbefore(strafter(str(<>), \"tests/\"), \"/\") AS ?suite)
-       BIND(strbefore(strafter(strafter(str(<>), \"tests/\"), \"/\"),\"/\") AS ?collection)
+       BIND(strbefore(strafter(str(<>), \"/tests/\"), \"/\") AS ?suite)
+       BIND(strbefore(strafter(strafter(str(<>), \"/tests/\"), \"/\"),\"/\") AS ?collection)
        BIND(strafter(str(?test), \"#\") AS ?name)
        BIND(str(<>) AS ?base)
 };
 
 # @ServiceDescriptionTest
-SELECT ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlabels ?resultfile ?resultgraphfiles ?resultgraphlabels ?updateresult ?queryserviceendpoint ?queryservicedata ?entailmentprofile ?entailmentregime WHERE {
+SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlabels ?resultfile ?resultgraphfiles ?resultgraphlabels ?updateresult ?queryserviceendpoint ?queryservicedata ?entailmentprofile ?entailmentregime WHERE {
        ?test rdf:type ?type
        FILTER(?type = mf:ServiceDescriptionTest)
-       BIND(strbefore(strafter(str(<>), \"tests/\"), \"/\") AS ?suite)
-       BIND(strbefore(strafter(strafter(str(<>), \"tests/\"), \"/\"),\"/\") AS ?collection)
+       BIND(strbefore(strafter(str(<>), \"/tests/\"), \"/\") AS ?suite)
+       BIND(strbefore(strafter(strafter(str(<>), \"/tests/\"), \"/\"),\"/\") AS ?collection)
        BIND(strafter(str(?test), \"#\") AS ?name)
        BIND(str(<>) AS ?base)
 };
-")
+"))
 
 (defgeneric sparql-tests-convert-manifests-to-csv-file (sparql-tests2)
   (:method ((this sparql-tests2))
@@ -474,14 +480,16 @@ SELECT ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlab
 					    (setf (cdr end) (list line))
 					    (setf end (cdr end))))))
 	;;    lines
-	(inform "lines = ~A" lines)
-	(let* ((headers (informing "headers = ~A"
-			  (mapcar #'(lambda (h) (intern-keyword (string-upcase h))) (pop lines))))
-	       (test-lines1 (informing "test-lines1 ~A"
+;	(inform "lines = ~A" lines)
+	(let* ((headers ;(informing "headers = ~A"
+		(mapcar #'(lambda (h) (intern-keyword (string-upcase h))) (pop lines)))
+					;)
+	       (test-lines1 ;(informing "test-lines1 ~A"
 			      (loop for line in lines
 				    collect (loop for item in line
 						  for name in headers
-						  collect (list name (if (equal item "UNBOUND") nil item))))))
+						  collect (list name (if (equal item "UNBOUND") nil item)))))
+	       ;)
 	       (test-lines2 (loop for line in test-lines1
 				  for key = (list (cdr (assoc :type line))
 						  (cdr (assoc :suite line))
@@ -626,5 +634,7 @@ SELECT ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlab
 (defvar *sparql-tests2*)
 
 (defun init-sparql-tests2 ()
+  (init-sparql-tests-script)
   (setf *sparql-tests2*
 	(make-instance 'sparql-tests2)))
+

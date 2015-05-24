@@ -80,10 +80,10 @@
     (instans-debug-message instans :parse-rules "instans-add-rules ~S ~S :base ~S" (instans-name instans) rules base)
     (cond ((sparql-error-p instans) nil)
 	  (t
-	   (let ((string (cond ((stringp rules) rules)
-			       ((file-or-uri-exists-p rules)
+	   (let ((string (cond ((file-or-uri-exists-p rules)
 				(read-from-url-or-file rules))
-			       (t (inform "Cannot read SPARQL from ~S" rules)))))
+			       ((stringp rules) rules)
+			       (t (error* "Cannot read SPARQL from ~S" rules)))))
 	     (instans-debug-message instans :parse-rules "~S" string)
 	     (with-input-from-string (stream string)
 	       (compile-sparql-stream stream :instans instans :base base)
