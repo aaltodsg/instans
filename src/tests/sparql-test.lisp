@@ -474,11 +474,14 @@ SELECT ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlab
 					    (setf (cdr end) (list line))
 					    (setf end (cdr end))))))
 	;;    lines
-	(let* ((headers (mapcar #'(lambda (h) (intern-keyword (string-upcase h))) (pop lines)))
-	       (test-lines1 (loop for line in lines
-				  collect (loop for item in line
-						for name in headers
-						collect (list name (if (equal item "UNBOUND") nil item)))))
+	(inform "lines = ~A" lines)
+	(let* ((headers (informing "headers = ~A"
+			  (mapcar #'(lambda (h) (intern-keyword (string-upcase h))) (pop lines))))
+	       (test-lines1 (informing "test-lines1 ~A"
+			      (loop for line in lines
+				    collect (loop for item in line
+						  for name in headers
+						  collect (list name (if (equal item "UNBOUND") nil item))))))
 	       (test-lines2 (loop for line in test-lines1
 				  for key = (list (cdr (assoc :type line))
 						  (cdr (assoc :suite line))
@@ -619,3 +622,9 @@ SELECT ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlab
 (defgeneric sparql-tests-execute (sparql-tests2)
   (:method ((this sparql-tests2))
     (sparql-tests-compare this)))
+
+(defvar *sparql-tests2*)
+
+(defun init-sparql-tests2 ()
+  (setf *sparql-tests2*
+	(make-instance 'sparql-tests2)))
