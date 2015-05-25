@@ -6,6 +6,9 @@
 
 (in-package #:instans)
 
+(defvar *sparql-tests2*)
+(defvar *current-sparql-test2*)
+
 (define-class sparql-test2 ()
   ((type :accessor sparql-test-type :initarg :type)
    (suite :accessor sparql-test-suite :initarg :suite)
@@ -16,19 +19,25 @@
    (not-implemented-p :accessor sparql-test-not-implemented-p :initarg :not-implemented-p)
    (output-directory :accessor sparql-test-output-directory :initform "test-output")
    (base :accessor sparql-test-base :initarg :base)
-   (status :accessor sparql-test-status :initform :not-completed)))
+   (status :accessor sparql-test-status :initform :not-completed)
+   (output-options-stream :accessor sparql-test-output-options-stream :initarg :output-options-stream :initform nil)))
 					; One of :not-completed, :succeeded, :failed
 
 (defmethod initialize-instance :after ((this sparql-test2) &key base &allow-other-keys)
-  (cond ((eql 0 (search "file://" base))
-	 (setf (sparql-test-directory this) (truename (subseq base 0 7)))
-	 (setf (sparql-test-base this) (parse-iri base)))
-	(t
-	 (setf (sparql-test-directory this) (truename base))
-	 (setf (sparql-test-base this) (parse-iri (format nil "file://~A" base)))))
+  (unless (rdf-iri-p (slot-value-with-default this 'base nil))
+    (cond ((eql 0 (search "file://" base))
+	   (setf (sparql-test-directory this) (truename (subseq base 0 7)))
+	   (setf (sparql-test-base this) (parse-iri base)))
+	  (t
+	   (setf (sparql-test-directory this) (truename base))
+	   (setf (sparql-test-base this) (parse-iri (format nil "file://~A" base))))))
   (setf (sparql-test-instans this) (create-instans (sparql-test-base this)))
   (setf (sparql-test-output-directory this) (expand-sparql-test-filename this (sparql-test-output-directory this)))
   (ensure-directories-exist (sparql-test-output-directory this)))
+
+(defmethod reinitialize-instance ((this sparql-test2) &key &allow-other-keys)
+  (slot-makunbound this 'not-implemented-p)
+  (setf (slot-value this 'status) :not-completed))
 
 (defmethod print-object ((this sparql-test2) stream)
   (format stream "#<~A \"~A/~A/~A\">" (type-of this) (sparql-test-suite this) (sparql-test-collection this) (sparql-test-name this)))
@@ -74,8 +83,16 @@
    (initialization-succeeded-p :accessor sparql-test-initialization-succeeded-p)
    (rule-type :accessor sparql-test-rule-type)))
 
-(defmethod initialize-instance :after ((this sparql-syntax-test) &key queryfile &allow-other-keys)
-  (setf (sparql-test-queryfile this) (expand-sparql-test-filename* this queryfile)))
+(defmethod initialize-instance :after ((this sparql-syntax-test) &key &allow-other-keys)
+  (unless (char= (char (sparql-test-queryfile this) 0) #\/)
+    (setf (sparql-test-queryfile this) (expand-sparql-test-filename* this (sparql-test-queryfile this)))))
+
+(defmethod reinitialize-instance ((this sparql-syntax-test) &key &allow-other-keys)
+  (call-next-method)
+  (slot-makunbound this 'parsing-succeeded-p)
+  (slot-makunbound this 'translation-succeeded-p)
+  (slot-makunbound this 'initialization-succeeded-p)
+  (slot-makunbound this 'rule-type))
 
 (defmethod print-test ((this sparql-syntax-test) &optional (stream *standard-output*))
   (call-next-method)
@@ -127,6 +144,11 @@
 	(loop for file in (sparql-test-graphfiles this)
 	      collect (expand-sparql-test-filename this file)))
   (setf (sparql-test-resultfile this) (expand-sparql-test-filename* this resultfile)))
+
+(defmethod reinitialize-instance ((this sparql-query-evaluation-test) &key &allow-other-keys)
+  (call-next-method)
+  (slot-makunbound this 'running-succeeded-p)
+  (slot-makunbound this 'comparison-succeeded-p))
 
 (defmethod print-test ((this sparql-query-evaluation-test) &optional (stream *standard-output*))
   (call-next-method)
@@ -187,10 +209,10 @@
   (:method ((this sparql-syntax-test))
     (let ((instans (sparql-test-instans this)))
     ;;; Add rules
-      (inform "Parsing ~A from file ~A" (sparql-test-name this) (sparql-test-queryfile this))
-      (instans-add-rules instans (sparql-test-queryfile this))
+;      (inform "Parsing ~A from file ~A" (sparql-test-name this) (sparql-test-queryfile this))
+      (instans-add-rules instans (sparql-test-queryfile this) :output-options-stream (sparql-test-output-options-stream this))
     ;;; Set status
-      (inform "test ~A status ~A" this (instans-status instans))
+      (inform "      Test ~A status ~{~(~A~)~^, ~}" this (mapcar #'type-of (instans-status instans)))
       (setf (sparql-test-parsing-succeeded-p this) (instans-has-status instans 'instans-rule-parsing-succeeded))
       (setf (sparql-test-translation-succeeded-p this) (instans-has-status instans 'instans-rule-translation-succeeded))
       (setf (sparql-test-initialization-succeeded-p this) (instans-has-status instans 'instans-rule-initialization-succeeded))
@@ -199,7 +221,7 @@
 	      ((null (cdr rule-types))
 	       (let ((type (string (car rule-types))))
 ;		 (inform "(search \"-NODE\" ~S :from-end t :test #'equal) = ~S" type (search "-NODE" type :from-end t :test #'equal))
-		 (setf (sparql-test-rule-type this) (intern-instans (subseq type (search "-NODE" type :from-end t :test #'equal))))))
+		 (setf (sparql-test-rule-type this) (intern-instans (subseq type 0 (search "-NODE" type :from-end t :test #'equal))))))
 	      (t
 	       (error* "Several rule types in test query file ~A: ~A" (sparql-test-queryfile this) rule-types))))
       ))
@@ -213,7 +235,7 @@
       (and datafile
 	   (let ((file-type (intern-keyword (string-upcase (file-type datafile))))
 		 (instans (sparql-test-instans this)))
-	     (instans-add-stream-input-processor instans datafile :base (sparql-test-base this) :input-type file-type)
+	     (instans-add-stream-input-processor instans datafile :base (sparql-test-base this) :input-type file-type :output-options-stream (sparql-test-output-options-stream this))
 	     file-type)))))
 
 (defgeneric sparql-test-add-inputs (sparql-test2)
@@ -222,7 +244,7 @@
     (loop for datafile in (sparql-test-graphfiles this)
 	  for file-type = (intern-keyword (string-upcase (file-type datafile)))
 	  for label in (sparql-test-graphlabels this)
-	  do (instans-add-stream-input-processor (sparql-test-instans this) datafile :graph label :base (sparql-test-base this) :input-type file-type)))
+	  do (instans-add-stream-input-processor (sparql-test-instans this) datafile :graph label :base (sparql-test-base this) :input-type file-type :output-options-stream (sparql-test-output-options-stream this))))
   (:method ((this sparql-query-evaluation-test))
     (sparql-test-add-datafile this))
   (:method ((this sparql-test2))
@@ -241,11 +263,15 @@
       (SELECT
        (multiple-value-bind (output-file file-type) (sparql-test-output-file-name-and-type this)
 	 (when output-file
+	   (when (sparql-test-output-options-stream this)
+	     (format (sparql-test-output-options-stream this) "--select-output-~(~A~)=~A" file-type output-file))
 	   (let ((instans (sparql-test-instans this)))
 	     (setf (instans-select-output-processor instans) (create-select-output-processor instans output-file file-type))))))
       (CONSTRUCT
        (multiple-value-bind (output-file file-type) (sparql-test-output-file-name-and-type this)
 	 (when output-file
+	   (when (sparql-test-output-options-stream this)
+	     (format (sparql-test-output-options-stream this) "--construct-output-~(~A~)=~A" file-type output-file))
 	   (let ((instans (sparql-test-instans this)))
 	     (setf (instans-construct-output-processor instans) (create-construct-output-processor instans output-file file-type))))))
       (ASK)
@@ -273,8 +299,7 @@
       (setf (sparql-test-not-implemented-p this) (not (instans-has-status instans 'instans-feature-not-implemented-yet)))
       (setf (sparql-test-running-succeeded-p this) (instans-has-status instans 'instans-rule-running-succeeded))))
   (:method ((this sparql-test2))
-    (declare (ignore this))
-    nil))
+    this))
 
 (defgeneric sparql-test-compare-graphs (sparql-test2)
   (:method ((this sparql-test2))
@@ -299,6 +324,8 @@
    (csv-file :accessor sparql-tests-csv-file :initarg :csv-file) ; :initform (expand-instans-file-name "tests/sparql-tests/sparql-tests.csv")
    (collector-rules-file :accessor sparql-tests-collector-rules-file :initarg :collector-rules-file) ; :initform (expand-instans-file-name "tests/input/collect-sparql-tests-info.rq")
    (manifests :accessor sparql-tests-manifests :initarg :manifests)
+   (skip-parse-list :accessor sparql-tests-skip-parse-list :initarg :skip-parse-list :initform nil)
+   (skip-run-list :accessor sparql-tests-skip-run-list :initarg :skip-run-list :initform nil)
    (headers :accessor sparql-tests-headers :initarg :headers)
    (entries :accessor sparql-tests-entries :initarg :entries)
    (phases :accessor sparql-tests-phases :initform nil)
@@ -313,12 +340,30 @@
 	    (append (directory (expand-instans-file-name (format nil "~A/tests/data-r2/*/manifest.ttl" root)))
 		    (directory (expand-instans-file-name (format nil "~A/tests/data-sparql11/*/manifest.ttl" root))))))
     (when (sparql-tests-verbose-p this)
-      (inform "Manifest files:~{~%  ~A~}" (sparql-tests-manifests this)))))
+      (inform "Manifest files:~{~%  ~A~}" (sparql-tests-manifests this)))
+    (sparql-tests-collect-tests this)))
 
 (defgeneric sparql-tests-print (sparql-tests2 &optional stream)
   (:method ((this sparql-tests2) &optional (stream *error-output*))
     (loop for test in (sparql-tests-entries this)
 	  do (print-test test stream))))
+
+(defun sparql-tests-skip-test-p (test skip-list)
+  (loop for skip in skip-list
+        when (and (stringp skip)
+		  (or (equal (sparql-test-suite test) skip)
+		      (equal (sparql-test-collection test) skip)
+		      (equal (sparql-test-name test) skip)))
+        return t
+        when (and (consp skip)
+		  (or (null (first skip))
+		      (equal (sparql-test-suite test) (first skip)))
+		  (or (null (second skip))
+		      (equal (sparql-test-collection test) (second skip)))
+		  (or (null (third skip))
+		      (equal (sparql-test-collection test) (third skip))))
+	return t
+	finally (return nil)))
 
 (defvar *collect-sparql-tests-script* nil)
 
@@ -587,16 +632,27 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
 (defgeneric sparql-tests-parse (sparql-tests2)
   (:method ((this sparql-tests2))
     (unless (member :parse (sparql-tests-phases this))
-      (sparql-tests-collect-tests this)
       (when (sparql-tests-verbose-p this)
 	(inform "~%Parsing tests~%"))
-      (loop for test in (sparql-tests-entries this)
-	    unless (sparql-test-failed-p test)
+      (loop with parsed = 0
+	    with parsing-succeeded = 0
+	    with translation-succeeded = 0
+	    with initialization-succeeded = 0
+	    for test in (sparql-tests-entries this)
+	    unless (or (sparql-test-failed-p test)
+		       (and (sparql-tests-skip-test-p test (sparql-tests-skip-parse-list this)) (progn (inform "Skipping ~A" test) t)))
 	    do (progn
+		 (setf *current-sparql-test2* test)
 		 (inform "  Parsing test ~A" test)
-		 (sparql-test-parsing-phase test)))
-      (when (sparql-tests-verbose-p this)
-	(inform "~%Parsed tests~%"))
+		 (sparql-test-parsing-phase test)
+		 (incf parsed)
+		 (when (sparql-test-parsing-succeeded-p test) (incf parsing-succeeded))
+		 (when (sparql-test-translation-succeeded-p test) (incf translation-succeeded))
+		 (when (sparql-test-initialization-succeeded-p test) (incf initialization-succeeded)))
+	   finally 
+	   (when (sparql-tests-verbose-p this)
+	     (inform "~%Total ~D tests.~%Parsed ~D tests.~%Parsing succeeded for ~D files.~%Translation succeeded for ~D files.~%Initialization succeeded for ~D files."
+		     (length (sparql-tests-entries this)) parsed parsing-succeeded translation-succeeded initialization-succeeded)))
       (push-to-end :parse (sparql-tests-phases this)))
     this))
 
@@ -607,11 +663,14 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
       (when (sparql-tests-verbose-p this)
 	(inform "~%Running tests~%"))
       (loop for test in (sparql-tests-entries this)
-	    do (describe test)
-	    unless (sparql-test-failed-p test)
+;	    do (describe test)
+	    unless (or (sparql-test-failed-p test)
+		       (and (sparql-tests-skip-test-p test (sparql-tests-skip-run-list this)) (progn (inform "Skipping ~A" test) t)))
 	    do (progn
+		 (setf *current-sparql-test2* test)
 		 (inform "  Running test ~A" test)
-		 (sparql-test-running-phase test)))
+		 (sparql-test-running-phase test)
+		 (slot-makunbound test 'instans)))
       (when (sparql-tests-verbose-p this)
 	(inform "~%Ran tests~%"))
       (push-to-end :run (sparql-tests-phases this)))
@@ -623,7 +682,9 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
       (sparql-tests-run this)
       (loop for test in (sparql-tests-entries this)
 	    unless (sparql-test-failed-p test)
-	    do (sparql-test-comparison-phase test))
+	    do (progn
+		 (setf *current-sparql-test2* test)
+		 (sparql-test-comparison-phase test)))
       (push-to-end :compare (sparql-tests-phases this)))
     this))
 
@@ -631,10 +692,7 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
   (:method ((this sparql-tests2))
     (sparql-tests-compare this)))
 
-(defvar *sparql-tests2*)
-
 (defun init-sparql-tests2 ()
   (init-sparql-tests-script)
   (setf *sparql-tests2*
-	(make-instance 'sparql-tests2)))
-
+	(make-instance 'sparql-tests2 :skip-run-list '("dawg-delete-insert-01"))))

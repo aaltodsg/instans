@@ -76,8 +76,10 @@
 
 (defvar *instanssi*)
 
-(defun instans-add-rules (instans rules &key base)
+(defun instans-add-rules (instans rules &key base (output-options-stream nil))
     (instans-debug-message instans :parse-rules "instans-add-rules ~S ~S :base ~S" (instans-name instans) rules base)
+    (when output-options-stream
+      (format output-options-stream "--rules=~A" rules))
     (cond ((sparql-error-p instans) nil)
 	  (t
 	   (let ((string (cond ((file-or-uri-exists-p rules)
@@ -130,8 +132,10 @@
 	 (values (open-file input :fmt "create-input-stream ~{~A~^ ~}") (file-type input)))
 	(t (values nil nil (format nil "Cannot create an input stream based on ~S" input)))))
 
-(defun instans-add-stream-input-processor (instans input-iri &key graph base input-type subscribe)
+(defun instans-add-stream-input-processor (instans input-iri &key graph base input-type subscribe (output-options-stream nil))
   (instans-debug-message instans '(:parse-rdf :execute) "instans-add-stream-input-processor ~S ~S :input-type ~S :graph ~S :base ~S" (instans-name instans) input-iri input-type graph base)
+  (when output-options-stream
+    (format output-options-stream "~@[--graph=~A ~]~@[--base=~A ~]--input-~(~A~)=~A" (and graph (rdf-iri-string graph)) (and base (rdf-iri-string base)) input-type input-iri))
   (multiple-value-bind (processor-type parser-creator)
       (case input-type
 	(:trig (values 'instans-trig-input-processor #'make-trig-parser))
