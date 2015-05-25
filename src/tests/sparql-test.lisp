@@ -19,7 +19,6 @@
    (not-implemented-p :accessor sparql-test-not-implemented-p :initarg :not-implemented-p)
    (output-directory :accessor sparql-test-output-directory :initform "test-output")
    (base :accessor sparql-test-base :initarg :base)
-   (status :accessor sparql-test-status :initform :not-completed)
    (output-options-stream :accessor sparql-test-output-options-stream :initarg :output-options-stream :initform nil)))
 					; One of :not-completed, :succeeded, :failed
 
@@ -36,8 +35,7 @@
   (ensure-directories-exist (sparql-test-output-directory this)))
 
 (defmethod reinitialize-instance ((this sparql-test2) &key &allow-other-keys)
-  (slot-makunbound this 'not-implemented-p)
-  (setf (slot-value this 'status) :not-completed))
+  (slot-makunbound this 'not-implemented-p))
 
 (defmethod print-object ((this sparql-test2) stream)
   (format stream "#<~A \"~A/~A/~A\">" (type-of this) (sparql-test-suite this) (sparql-test-collection this) (sparql-test-name this)))
@@ -55,9 +53,7 @@
   (when (slot-boundp this 'output-directory)
     (format stream "~%  :output-directory ~A" (sparql-test-output-directory this)))
   (when (slot-boundp this 'base)
-    (format stream "~%  :base ~A" (sparql-test-base this)))
-  (when (slot-boundp this 'status)
-    (format stream "~%  :status ~A" (sparql-test-status this))))
+    (format stream "~%  :base ~A" (sparql-test-base this))))
 
 (defgeneric sparql-test-failed-p (sparql-test2))
 
@@ -212,7 +208,7 @@
 ;      (inform "Parsing ~A from file ~A" (sparql-test-name this) (sparql-test-queryfile this))
       (instans-add-rules instans (sparql-test-queryfile this) :output-options-stream (sparql-test-output-options-stream this))
     ;;; Set status
-      (inform "      Test ~A status ~{~(~A~)~^, ~}" this (mapcar #'type-of (instans-status instans)))
+;      (inform "      Test ~A status ~{~(~A~)~^, ~}" this (mapcar #'type-of (instans-status instans)))
       (setf (sparql-test-parsing-succeeded-p this) (instans-has-status instans 'instans-rule-parsing-succeeded))
       (setf (sparql-test-translation-succeeded-p this) (instans-has-status instans 'instans-rule-translation-succeeded))
       (setf (sparql-test-initialization-succeeded-p this) (instans-has-status instans 'instans-rule-initialization-succeeded))
@@ -223,8 +219,7 @@
 ;		 (inform "(search \"-NODE\" ~S :from-end t :test #'equal) = ~S" type (search "-NODE" type :from-end t :test #'equal))
 		 (setf (sparql-test-rule-type this) (intern-instans (subseq type 0 (search "-NODE" type :from-end t :test #'equal))))))
 	      (t
-	       (error* "Several rule types in test query file ~A: ~A" (sparql-test-queryfile this) rule-types))))
-      ))
+	       (error* "Several rule types in test query file ~A: ~A" (sparql-test-queryfile this) rule-types))))))
   (:method ((this sparql-test2))
     (declare (ignore this))
     nil))
@@ -282,9 +277,11 @@
 
 (defgeneric sparql-test-run-system (sparql-test2)
   (:method ((this sparql-test2))
-    (let ((instans (sparql-test-instans this)))
-      (run-input-processors instans t)
-      (setf (sparql-test-running-succeeded-p this) t))))
+    (let* ((instans (sparql-test-instans this))
+	   (result (catch 'sparql-op-not-implemented-yet (run-input-processors instans t))))
+      (when (eq result :sparql-op-not-implemented-yet)
+	(instans-add-status instans 'instans-feature-not-implemented-yet))
+      result)))
 
 (defgeneric sparql-test-running-phase (sparql-test2)
   (:method ((this sparql-query-evaluation-test))
@@ -296,7 +293,11 @@
     ;;; Run instans
       (sparql-test-run-system this)
     ;;; Set status
-      (setf (sparql-test-not-implemented-p this) (not (instans-has-status instans 'instans-feature-not-implemented-yet)))
+      (cond ((instans-has-status instans 'instans-feature-not-implemented-yet)
+	     (setf (sparql-test-not-implemented-p this) t))
+	    ((not (or (instans-has-status instans 'instans-rule-running-succeeded)
+		      (instans-has-status instans 'instans-rule-running-failed)))
+	     (instans-add-status instans 'instans-rule-running-succeeded)))
       (setf (sparql-test-running-succeeded-p this) (instans-has-status instans 'instans-rule-running-succeeded))))
   (:method ((this sparql-test2))
     this))
@@ -361,7 +362,7 @@
 		  (or (null (second skip))
 		      (equal (sparql-test-collection test) (second skip)))
 		  (or (null (third skip))
-		      (equal (sparql-test-collection test) (third skip))))
+		      (equal (sparql-test-name test) (third skip))))
 	return t
 	finally (return nil)))
 
@@ -634,25 +635,37 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
     (unless (member :parse (sparql-tests-phases this))
       (when (sparql-tests-verbose-p this)
 	(inform "~%Parsing tests~%"))
-      (loop with parsed = 0
+      (loop with skipped = 0
+	    with parsed = 0
 	    with parsing-succeeded = 0
+	    with parsing-failed = 0
+	    with parsing-negative-succeeded = 0
+	    with parsing-positive-failed = 0
 	    with translation-succeeded = 0
 	    with initialization-succeeded = 0
 	    for test in (sparql-tests-entries this)
 	    unless (or (sparql-test-failed-p test)
-		       (and (sparql-tests-skip-test-p test (sparql-tests-skip-parse-list this)) (progn (inform "Skipping ~A" test) t)))
+		       (and (sparql-tests-skip-test-p test (sparql-tests-skip-parse-list this)) (progn (incf skipped) (inform "Skipping ~A" test) t)))
 	    do (progn
 		 (setf *current-sparql-test2* test)
-		 (inform "  Parsing test ~A" test)
 		 (sparql-test-parsing-phase test)
+		 (inform "  Parsing ~(~A~) -> ~{~(~A~)~^ ~}" test (mapcar #'(lambda (st) (subseq (string (type-of st)) 8)) (instans-status (sparql-test-instans test))))
 		 (incf parsed)
-		 (when (sparql-test-parsing-succeeded-p test) (incf parsing-succeeded))
-		 (when (sparql-test-translation-succeeded-p test) (incf translation-succeeded))
-		 (when (sparql-test-initialization-succeeded-p test) (incf initialization-succeeded)))
+		 (cond ((sparql-test-parsing-succeeded-p test)
+			(incf parsing-succeeded)
+			(cond ((sparql-negative-syntax-test-p test)
+			       (incf parsing-negative-succeeded))
+			      (t
+			       (when (sparql-test-translation-succeeded-p test) (incf translation-succeeded))
+			       (when (sparql-test-initialization-succeeded-p test) (incf initialization-succeeded)))))
+		       (t
+			(incf parsing-failed)
+			(unless (sparql-negative-syntax-test-p test)
+			  (incf parsing-positive-failed)))))
 	   finally 
 	   (when (sparql-tests-verbose-p this)
-	     (inform "~%Total ~D tests.~%Parsed ~D tests.~%Parsing succeeded for ~D files.~%Translation succeeded for ~D files.~%Initialization succeeded for ~D files."
-		     (length (sparql-tests-entries this)) parsed parsing-succeeded translation-succeeded initialization-succeeded)))
+	     (inform "~%Total ~D tests.~%Skipped ~D tests.~%Parsed ~D tests.~%Parsing succeeded for ~D files.~%Parsing failed for ~D files.~%Negative succeeded for ~D files.~%Positive failed for ~D files.~%Translation succeeded for ~D files.~%Initialization succeeded for ~D files."
+		     (length (sparql-tests-entries this)) skipped parsed parsing-succeeded parsing-failed parsing-negative-succeeded parsing-positive-failed translation-succeeded initialization-succeeded)))
       (push-to-end :parse (sparql-tests-phases this)))
     this))
 
@@ -662,17 +675,30 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
       (sparql-tests-parse this)
       (when (sparql-tests-verbose-p this)
 	(inform "~%Running tests~%"))
-      (loop for test in (sparql-tests-entries this)
+      (loop with skipped = 0
+	    with run = 0
+	    with running-succeeded = 0
+	    with running-failed = 0
+	    for test in (sparql-tests-entries this)
 ;	    do (describe test)
-	    unless (or (sparql-test-failed-p test)
-		       (and (sparql-tests-skip-test-p test (sparql-tests-skip-run-list this)) (progn (inform "Skipping ~A" test) t)))
+	    when (or (slot-value-with-default test 'not-implemented-p nil)
+		     (sparql-test-failed-p test)
+		     (sparql-tests-skip-test-p test (sparql-tests-skip-run-list this))
+		     (not (sparql-query-evaluation-test-p test)))
+	    do (progn (incf skipped) (inform "  Skipping ~A" test))
+	    else
 	    do (progn
 		 (setf *current-sparql-test2* test)
 		 (inform "  Running test ~A" test)
 		 (sparql-test-running-phase test)
-		 (slot-makunbound test 'instans)))
-      (when (sparql-tests-verbose-p this)
-	(inform "~%Ran tests~%"))
+		 (incf run)
+		 (cond ((sparql-test-running-succeeded-p test)
+			(incf running-succeeded))
+		       (t
+			(incf running-failed)))
+		 (slot-makunbound test 'instans))
+	   finally (when (sparql-tests-verbose-p this)
+		     (inform "~%Total ~D tests~%Skipped ~D tests.~%Ran ~D tests.~%Running succeeded for ~D tests.~%Running failed for ~D tests." (length (sparql-tests-entries this)) skipped run running-succeeded running-failed)))
       (push-to-end :run (sparql-tests-phases this)))
     this))
 
@@ -692,7 +718,31 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
   (:method ((this sparql-tests2))
     (sparql-tests-compare this)))
 
+(defun skip-tests ()
+  (setf (sparql-tests-skip-run-list *sparql-tests2*) '("delete-insert"
+						       "dawg-delete-insert-01"
+						       "dawg-delete-insert-01c"
+						       ;; "md5-01"
+						       ;; "md5-02"
+						       ;; "sha1-01"
+						       ;; "sha1-02"
+						       ;; "sha256-01"
+						       ;; "sha256-02"
+						       ;; "sha512-01"
+						       ;; "sha512-02"
+						       ;; "replace01"
+						       ;; "replace02"
+						       ;; "replace03"
+						       ("data-sparql11" "service")
+						       ("data-sparql11" "subquery" "subquery04")
+						       ("data-sparql11" "subquery" "subquery06")
+						       ("data-sparql11" "subquery" "subquery08")
+						       ("data-sparql11" "subquery" "subquery09")
+						       ("data-sparql11" "subquery" "subquery10")
+						       )))
+
 (defun init-sparql-tests2 ()
   (init-sparql-tests-script)
   (setf *sparql-tests2*
-	(make-instance 'sparql-tests2 :skip-run-list '("dawg-delete-insert-01"))))
+	(make-instance 'sparql-tests2))
+  (skip-tests))

@@ -30,7 +30,7 @@
 	  when (instans-find-status instans 'instans-rule-translation-failed)
 	  do (return-from compile-sparql-stream nil)
 	  else do (lisp-compile-nodes new-nodes))
-    (instans-add-status instans 'instans-rule-translation-succeeded)
+;    (instans-add-status instans 'instans-rule-translation-succeeded)
     instans))
 
 (defvar *instanses*)

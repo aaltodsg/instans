@@ -569,7 +569,8 @@
 (define-sparql-function "langMatches" (:arguments ((language-tag xsd-string-value) (language-range xsd-string-value)) :returns xsd-boolean-value)
   (:method ((language-tag xsd-string-value) (language-range xsd-string-value))
     (declare (ignorable language-tag language-range))
-    (error "Not implemented yet!")))
+    (inform "SPARQL operation langMatches not implemented yet!")
+    (throw 'sparql-op-not-implemented-yet :sparql-op-not-implemented-yet)))
 
 ;; 17.4.3.14 REGEX !!! Missing !!!
 ;; ---------------
@@ -578,7 +579,8 @@
 (define-sparql-function "regex" (:arguments ((text literal) (pattern xsd-string-value) &optional (flags xsd-string-value)) :returns xsd-boolean-value)
   (:method ((text literal) (pattern xsd-string-value) &optional (flags xsd-string-value))
     (declare (ignorable text pattern flags))
-    (error "Not implemented yet!")))
+    (inform "SPARQL operation regex not implemented yet!")
+    (throw 'sparql-op-not-implemented-yet :sparql-op-not-implemented-yet)))
 
 ;; 17.4.3.15 REPLACE !!! Missing !!!
 ;; -----------------
@@ -587,7 +589,8 @@
 (define-sparql-function "replace" (:arguments ((arg literal) (pattern xsd-string-value) (replacement xsd-string-value) &optional (flags xsd-string-value)) :returns literal)
   (:method ((arg literal) (pattern xsd-string-value) (replacement xsd-string-value) &optional (flags xsd-string-value))
     (declare (ignorable arg pattern replacement flags))
-    (error "Not implemented yet!")))
+    (inform "SPARQL operation replace not implemented yet!")
+    (throw 'sparql-op-not-implemented-yet :sparql-op-not-implemented-yet)))
 
 ;; 17.4.4 Functions on Numerics
 ;; ============================
@@ -698,7 +701,8 @@
 (define-sparql-function "md5" (:arguments ((arg xsd-string-value)) :returns xsd-string-value)
   (:method ((arg xsd-string-value))
     (declare (ignorable arg))
-    (error "Not implemented yet!")))
+    (inform "SPARQL operation md5 not implemented yet!")
+    (throw 'sparql-op-not-implemented-yet :sparql-op-not-implemented-yet)))
 
 ;; 17.4.6.2 SHA1 !!! Missing !!!
 ;; -------------
@@ -707,7 +711,8 @@
 (define-sparql-function "sha1" (:arguments ((arg xsd-string-value)) :returns xsd-string-value)
   (:method ((arg xsd-string-value))
     (declare (ignorable arg))
-    (error "Not implemented yet!")))
+    (inform "SPARQL operation sha1 not implemented yet!")
+    (throw 'sparql-op-not-implemented-yet :sparql-op-not-implemented-yet)))
 
 
 ;; 17.4.6.3 SHA256 !!! Missing !!!
@@ -717,7 +722,8 @@
 (define-sparql-function "sha256" (:arguments ((arg xsd-string-value)) :returns xsd-string-value)
   (:method ((arg xsd-string-value))
     (declare (ignorable arg))
-    (error "Not implemented yet!")))
+    (inform "SPARQL operation sha256 not implemented yet!")
+    (throw 'sparql-op-not-implemented-yet :sparql-op-not-implemented-yet)))
 
 
 ;; 17.4.6.4 SHA384 !!! Missing !!!
@@ -727,7 +733,8 @@
 (define-sparql-function "sha384" (:arguments ((arg xsd-string-value)) :returns xsd-string-value)
   (:method ((arg xsd-string-value))
     (declare (ignorable arg))
-    (error "Not implemented yet!")))
+    (inform "SPARQL operation sha384 not implemented yet!")
+    (throw 'sparql-op-not-implemented-yet :sparql-op-not-implemented-yet)))
 
 
 ;; 17.4.6.5 SHA512 !!! Missing !!!
@@ -737,7 +744,8 @@
 (define-sparql-function "sha512" (:arguments ((arg xsd-string-value)) :returns xsd-string-value)
   (:method ((arg xsd-string-value))
     (declare (ignorable arg))
-    (error "Not implemented yet!")))
+    (inform "SPARQL operation sha512 not implemented yet!")
+    (throw 'sparql-op-not-implemented-yet :sparql-op-not-implemented-yet)))
 
 
 ;; 17.5 XPath Constructor Functions !!! Missing !!!
@@ -765,17 +773,20 @@
 (define-sparql-function "xsd:float" (:arguments ((arg term-or-value)) :returns xsd-float-value)
   (:method ((arg term-or-value))
     (declare (ignorable arg))
-    (error "Not implemented yet!")))
+    (inform "SPARQL operation xsd:float not implemented yet!")
+    (throw 'sparql-op-not-implemented-yet :sparql-op-not-implemented-yet)))
 
 (define-sparql-function "xsd:double" (:arguments ((arg term-or-value)) :returns xsd-double-value)
   (:method ((arg term-or-value))
     (declare (ignorable arg))
-    (error "Not implemented yet!")))
+    (inform "SPARQL operation xsd:double not implemented yet!")
+    (throw 'sparql-op-not-implemented-yet :sparql-op-not-implemented-yet)))
 
 (define-sparql-function "xsd:decimal" (:arguments ((arg term-or-value)) :returns xsd-decimal-value)
   (:method ((arg term-or-value))
     (declare (ignorable arg))
-    (error "Not implemented yet!")))
+    (inform "SPARQL operation xsd:decimal not implemented yet!")
+    (throw 'sparql-op-not-implemented-yet :sparql-op-not-implemented-yet)))
 
 ;;; Does not test for too large integers
 (define-sparql-function "xsd:integer" (:arguments ((arg term-or-value)) :returns xsd-integer-value)
@@ -789,12 +800,14 @@
 (define-sparql-function "xsd:dateTime" (:arguments ((arg term-or-value)) :returns xsd-datetime-value)
   (:method ((arg term-or-value))
     (declare (ignorable arg))
-    (error "Not implemented yet!")))
+    (inform "SPARQL operation xsd:dateTime not implemented yet!")
+    (throw 'sparql-op-not-implemented-yet :sparql-op-not-implemented-yet)))
 
 (define-sparql-function "xsd:boolean" (:arguments ((arg term-or-value)) :returns xsd-boolean-value)
   (:method ((arg term-or-value))
     (declare (ignorable arg))
-    (error "Not implemented yet!")))
+    (inform "SPARQL operation xsd:boolean not implemented yet!")
+    (throw 'sparql-op-not-implemented-yet :sparql-op-not-implemented-yet)))
 
 
 ;;; Aggregates
