@@ -15,7 +15,7 @@
    (collection :accessor sparql-test-collection :initarg :collection)
    (name :accessor sparql-test-name :initarg :name)
    (directory :accessor sparql-test-directory)
-   (instans :accessor sparql-test-instans)
+   (instans :accessor sparql-test-instans :initform nil)
    (not-implemented-p :accessor sparql-test-not-implemented-p :initarg :not-implemented-p)
    (output-directory :accessor sparql-test-output-directory :initform "test-output")
    (base :accessor sparql-test-base :initarg :base)
@@ -30,7 +30,7 @@
 	  (t
 	   (setf (sparql-test-directory this) (truename base))
 	   (setf (sparql-test-base this) (parse-iri (format nil "file://~A" base))))))
-  (setf (sparql-test-instans this) (create-instans (sparql-test-base this)))
+;  (setf (sparql-test-instans this) (create-instans (sparql-test-base this)))
   (setf (sparql-test-output-directory this) (expand-sparql-test-filename this (sparql-test-output-directory this)))
   (ensure-directories-exist (sparql-test-output-directory this)))
 
@@ -119,11 +119,11 @@
 
 (define-class sparql-positive-syntax-test-11 (sparql-positive-syntax-test) ())
 
-(define-class sparql-negative-syntax-test-11 (sparql-positive-syntax-test) ())
+(define-class sparql-negative-syntax-test-11 (sparql-negative-syntax-test) ())
 
 (define-class sparql-positive-update-syntax-test-11 (sparql-positive-syntax-test) ())
 
-(define-class sparql-negative-update-syntax-test-11 (sparql-positive-syntax-test) ())
+(define-class sparql-negative-update-syntax-test-11 (sparql-negative-syntax-test) ())
 
 (define-class sparql-query-evaluation-test (sparql-positive-syntax-test)
   ((datafile :accessor sparql-test-datafile :initarg :datafile)
@@ -201,9 +201,9 @@
 (defmethod initialize-instance :after ((this sparql-service-description-test) &key &allow-other-keys)
   (setf (sparql-test-not-implemented-p this) t))
 
-(defgeneric sparql-test-parsing-phase (sparql-test2)
+(defgeneric sparql-test-parse-phase (sparql-test2)
   (:method ((this sparql-syntax-test))
-    (let ((instans (sparql-test-instans this)))
+    (let ((instans (or (sparql-test-instans this) (setf (sparql-test-instans this) (create-instans (sparql-test-base this))))))
     ;;; Add rules
 ;      (inform "Parsing ~A from file ~A" (sparql-test-name this) (sparql-test-queryfile this))
       (instans-add-rules instans (sparql-test-queryfile this) :output-options-stream (sparql-test-output-options-stream this))
@@ -219,10 +219,7 @@
 ;		 (inform "(search \"-NODE\" ~S :from-end t :test #'equal) = ~S" type (search "-NODE" type :from-end t :test #'equal))
 		 (setf (sparql-test-rule-type this) (intern-instans (subseq type 0 (search "-NODE" type :from-end t :test #'equal))))))
 	      (t
-	       (error* "Several rule types in test query file ~A: ~A" (sparql-test-queryfile this) rule-types))))))
-  (:method ((this sparql-test2))
-    (declare (ignore this))
-    nil))
+	       (error* "Several rule types in test query file ~A: ~A" (sparql-test-queryfile this) rule-types)))))))
 
 (defgeneric sparql-test-add-datafile (sparql-test2)
   (:method ((this sparql-query-evaluation-test))
@@ -241,10 +238,7 @@
 	  for label in (sparql-test-graphlabels this)
 	  do (instans-add-stream-input-processor (sparql-test-instans this) datafile :graph label :base (sparql-test-base this) :input-type file-type :output-options-stream (sparql-test-output-options-stream this))))
   (:method ((this sparql-query-evaluation-test))
-    (sparql-test-add-datafile this))
-  (:method ((this sparql-test2))
-    (declare (ignore this))
-    nil))
+    (sparql-test-add-datafile this)))
 
 (defun sparql-test-output-file-name-and-type (test)
   (let ((resultfile (sparql-test-resultfile test)))
@@ -270,20 +264,17 @@
 	   (let ((instans (sparql-test-instans this)))
 	     (setf (instans-construct-output-processor instans) (create-construct-output-processor instans output-file file-type))))))
       (ASK)
-      (DESCRIBE)))
-  (:method ((this sparql-test2))
-    (declare (ignore this))
-    nil))
+      (DESCRIBE))))
 
 (defgeneric sparql-test-run-system (sparql-test2)
-  (:method ((this sparql-test2))
+  (:method ((this sparql-query-evaluation-test))
     (let* ((instans (sparql-test-instans this))
 	   (result (catch 'sparql-op-not-implemented-yet (run-input-processors instans t))))
       (when (eq result :sparql-op-not-implemented-yet)
 	(instans-add-status instans 'instans-feature-not-implemented-yet))
       result)))
 
-(defgeneric sparql-test-running-phase (sparql-test2)
+(defgeneric sparql-test-run-phase (sparql-test2)
   (:method ((this sparql-query-evaluation-test))
     (let ((instans (sparql-test-instans this)))
     ;;; Add inputs
@@ -298,9 +289,7 @@
 	    ((not (or (instans-has-status instans 'instans-rule-running-succeeded)
 		      (instans-has-status instans 'instans-rule-running-failed)))
 	     (instans-add-status instans 'instans-rule-running-succeeded)))
-      (setf (sparql-test-running-succeeded-p this) (instans-has-status instans 'instans-rule-running-succeeded))))
-  (:method ((this sparql-test2))
-    this))
+      (setf (sparql-test-running-succeeded-p this) (instans-has-status instans 'instans-rule-running-succeeded)))))
 
 (defgeneric sparql-test-compare-graphs (sparql-test2)
   (:method ((this sparql-test2))
@@ -315,10 +304,12 @@
     (call-next-method this)
     (sparql-test-compare-graphs this))
   (:method ((this sparql-query-evaluation-test))
-    (sparql-test-compare-datafile this))
-  (:method ((this sparql-test2))
-    (declare (ignore this))
-    nil))
+    (sparql-test-compare-datafile this)))
+
+;; (defgeneric sparql-test-execute (sparql-test2 &optional target-state)
+;;   (:method ((this sparql-test2) &optional (target-state :completed))
+;;     (let ((states '(:created :parsed :ran :compared :completed)))
+      
 
 (define-class sparql-tests2 ()
   ((root-directory :accessor sparql-tests-root-directory :initarg :root-directory :initform "instans-sparql-conformance-tests")
@@ -329,7 +320,6 @@
    (skip-run-list :accessor sparql-tests-skip-run-list :initarg :skip-run-list :initform nil)
    (headers :accessor sparql-tests-headers :initarg :headers)
    (entries :accessor sparql-tests-entries :initarg :entries)
-   (phases :accessor sparql-tests-phases :initform nil)
    (verbosep :accessor sparql-tests-verbose-p :initarg :verbosedp :initform t)))
 
 (defmethod initialize-instance :after ((this sparql-tests2) &key manifests csv-file collector-rules-file &allow-other-keys)
@@ -491,227 +481,218 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
 
 (defgeneric sparql-tests-convert-manifests-to-csv-file (sparql-tests2)
   (:method ((this sparql-tests2))
-    (unless (member :convert-to-csv (sparql-tests-phases this))
-      (let ((csv-file (sparql-tests-csv-file this))
-	    (collector-rules-file (sparql-tests-collector-rules-file this)))
-	(when (sparql-tests-verbose-p this)
-	  (inform "Converting manifests to a csv file ~A~%" csv-file))
-	(when (sparql-tests-verbose-p this)
-	  (inform "  Writing rules to file ~A~%" collector-rules-file))
-	(with-open-file (query collector-rules-file :direction :output :if-exists :supersede)
-	  (format query "~A~%" *collect-sparql-tests-script*))
-	(loop for manifest in (sparql-tests-manifests this)
-	      for firstp = t then nil
-	      for cmd = (format nil "-b ~A --prefix-encoding=true --print-prefix-encodings=false ~A=~A --rules=~A --input-blocks=~A"
-				manifest (if firstp "--select-output" "--select-output-append") csv-file collector-rules-file manifest)
-	      when (sparql-tests-verbose-p this) do (inform "  instans ~A" cmd)
-	      do (main cmd)))
-      (push-to-end :convert-to-csv (sparql-tests-phases this)))
+    (let ((csv-file (sparql-tests-csv-file this))
+	  (collector-rules-file (sparql-tests-collector-rules-file this)))
+      (when (sparql-tests-verbose-p this)
+	(inform "Converting manifests to a csv file ~A~%" csv-file))
+      (when (sparql-tests-verbose-p this)
+	(inform "  Writing rules to file ~A~%" collector-rules-file))
+      (with-open-file (query collector-rules-file :direction :output :if-exists :supersede)
+	(format query "~A~%" *collect-sparql-tests-script*))
+      (loop for manifest in (sparql-tests-manifests this)
+	    for firstp = t then nil
+	    for cmd = (format nil "-b ~A --prefix-encoding=true --print-prefix-encodings=false ~A=~A --rules=~A --input-blocks=~A"
+			      manifest (if firstp "--select-output" "--select-output-append") csv-file collector-rules-file manifest)
+	    when (sparql-tests-verbose-p this) do (inform "  instans ~A" cmd)
+	    do (main cmd)))
     this))
 
 (defgeneric sparql-tests-collect-tests (sparql-tests2)
   (:method ((this sparql-tests2))
-    (unless (member :collect-tests (sparql-tests-phases this))
-      (sparql-tests-convert-manifests-to-csv-file this)
-      (when (sparql-tests-verbose-p this)
-	(inform "~%Create tests from file ~A~%" (sparql-tests-csv-file this)))
-      (let ((lines nil)
-	    (end nil))
-	(csv-parser:map-csv-file (sparql-tests-csv-file this)
-				 #'(lambda (line)
-				     (cond ((null lines)
-					    (setf lines (list line))
-					    (setf end lines))
-					   (t
-					    (setf (cdr end) (list line))
-					    (setf end (cdr end))))))
-	;;    lines
-;	(inform "lines = ~A" lines)
-	(let* ((headers ;(informing "headers = ~A"
-		(mapcar #'(lambda (h) (intern-keyword (string-upcase h))) (pop lines)))
+    (sparql-tests-convert-manifests-to-csv-file this)
+    (when (sparql-tests-verbose-p this)
+      (inform "~%Create tests from file ~A~%" (sparql-tests-csv-file this)))
+    (let ((lines nil)
+	  (end nil))
+      (csv-parser:map-csv-file (sparql-tests-csv-file this)
+			       #'(lambda (line)
+				   (cond ((null lines)
+					  (setf lines (list line))
+					  (setf end lines))
+					 (t
+					  (setf (cdr end) (list line))
+					  (setf end (cdr end))))))
+      ;;    lines
+					;	(inform "lines = ~A" lines)
+      (let* ((headers ;(informing "headers = ~A"
+	      (mapcar #'(lambda (h) (intern-keyword (string-upcase h))) (pop lines)))
 					;)
-	       (test-lines1 ;(informing "test-lines1 ~A"
-			      (loop for line in lines
-				    collect (loop for item in line
-						  for name in headers
-						  collect (list name (if (equal item "UNBOUND") nil item)))))
-	       ;)
-	       (test-lines2 (loop for line in test-lines1
-				  for key = (list (cdr (assoc :type line))
-						  (cdr (assoc :suite line))
-						  (cdr (assoc :collection line))
-						  (cdr (assoc :name line)))
-				  do (progn
-				       (unless (second (assoc :graphfiles line))
-					 (setf (rest (assoc :graphfiles line)) nil))
-				       (unless (second (assoc :graphlabels line))
-					 (setf (rest (assoc :graphlabels line)) nil))
-				       (unless (second (assoc :resultgraphfiles line))
-					 (setf (rest (assoc :resultgraphfiles line)) nil))
-				       (unless (second (assoc :resultgraphlabels line))
-					 (setf (rest (assoc :resultgraphlabels line)) nil))
-				       (push (list :resultgraphs (and (rest (assoc :resultgraphfiles line))
-								      (list (second (assoc :resultgraphfiles line)) (second (assoc :resultgraphlabels line)))))
-					     line)
-				       (push (list :graphs (and (second (assoc :graphfiles line))
-								(list (second (assoc :graphfiles line)) (second (assoc :graphlabels line)))))
-					     line)
-				       (push (list :key key) line))
-				  collect line))
-	       (test-alist nil))
-	  ;; (inform "~D lines in test-lines2" (length test-lines2))
-	  (loop for line in test-lines2
-		for key = (assoc :key line)
-		for test-item = (assoc key test-alist :test #'equal)
-		do (cond ((null test-item)
-			  (push line test-alist))
-			 (t
-			  ;; (inform "Merging~%~Swith~%~S" line test-item)
-			  (let ((graphs-item (assoc :graphs test-item))
-				(new-graphs (second (assoc :graphs line))))
-			    ;; (inform "graphs-item =~S" graphs-item)
-			    ;; (inform "new-graphs =~S" new-graphs)
-			    (unless (member new-graphs (cdr graphs-item) :test #'equal)
-			      (push new-graphs (cdr graphs-item))
-			      (push (second (assoc :graphfiles line)) (cdr (assoc :graphfiles test-item)))
-			      (push (second (assoc :graphlabels line)) (cdr (assoc :graphlabels test-item)))))
-			  (let ((resultgraphs-item (assoc :resultgraphs test-item))
-				(new-resultgraphs (second (assoc :resultgraphs line))))
-			    (unless (member new-resultgraphs (cdr resultgraphs-item) :test #'equal)
-			      (push new-resultgraphs (cdr resultgraphs-item))
-			      (push (second (assoc :resultgraphfiles line)) (cdr (assoc :resultgraphfiles test-item)))
-			      (push (second (assoc :resultgraphlabels line)) (cdr (assoc :resultgraphlabels test-item)))))
-			  (flet ((maybe-replace-value (key)
-				   (let ((item (assoc key test-item))
-					 (new-value (second (assoc key line))))
-				     (cond ((null (second item))
-					    (setf (second item) new-value))
-					   ((not (or (null new-value) (equal new-value (second item))))
-					    (error* "Incompatible values ~S and ~S in~%  ~S and ~%~S" item new-value test-item line))))))
-			    (maybe-replace-value :queryfile)
-			    (maybe-replace-value :datafile)
-			    (maybe-replace-value :updateresult)
-			    (maybe-replace-value :queryserviceendpoint)
-			    (maybe-replace-value :queryservicedata)
-			    (maybe-replace-value :entailmentregime))
-			  ;; (inform "Result~%~S" test-item)
-			  )))
-	  ;;       test-alist
-	  ;; )))
-	  ;; (inform "~D lines in test-alist" (length test-alist))
-	  (setf test-alist (nreverse test-alist))
-	  (let ((tests (loop for test-item in test-alist
-			     for type-string = (second (assoc :type test-item))
-			     for type = (cond ((string= type-string "mf:PositiveSyntaxTest") 'sparql-positive-syntax-test)
-					      ((string= type-string "mf:NegativeSyntaxTest") 'sparql-negative-syntax-test)
-					      ((string= type-string "mf:PositiveSyntaxTest11") 'sparql-positive-syntax-test-11)
-					      ((string= type-string "mf:NegativeSyntaxTest11") 'sparql-negative-syntax-test-11)
-					      ((string= type-string "mf:PositiveUpdateSyntaxTest11") 'sparql-positive-update-syntax-test-11)
-					      ((string= type-string "mf:NegativeUpdateSyntaxTest11") 'sparql-negative-update-syntax-test-11)
-					      ((string= type-string "mf:QueryEvaluationTest") 'sparql-query-evaluation-test)
-					      ((string= type-string "mf:UpdateEvaluationTest") 'sparql-update-evaluation-test)
-					      ((string= type-string "mf:CSVResultFormatTest") 'sparql-csv-result-format-test)
-					      ((string= type-string "mf:ProtocolTest") 'sparql-protocol-test)
-					      ((string= type-string "mf:ServiceDescriptionTest") 'sparql-service-description-test)
-					      (t (error* "Unknown test type ~A" type-string)))
-			     for test = (apply #'make-instance type
-					       (mapcan #'(lambda (key)
-							   (list key
-								 (if (member key '(:graphfiles :graphlabels :resultgraphfiles :resultgraphlabels))
-								     (cdr (assoc key test-item))
-								     (second (assoc key test-item)))))
-						       headers))
+	     (test-lines1 ;(informing "test-lines1 ~A"
+	      (loop for line in lines
+		    collect (loop for item in line
+				  for name in headers
+				  collect (list name (if (equal item "UNBOUND") nil item)))))
+					;)
+	     (test-lines2 (loop for line in test-lines1
+				for key = (list (cdr (assoc :type line))
+						(cdr (assoc :suite line))
+						(cdr (assoc :collection line))
+						(cdr (assoc :name line)))
+				do (progn
+				     (unless (second (assoc :graphfiles line))
+				       (setf (rest (assoc :graphfiles line)) nil))
+				     (unless (second (assoc :graphlabels line))
+				       (setf (rest (assoc :graphlabels line)) nil))
+				     (unless (second (assoc :resultgraphfiles line))
+				       (setf (rest (assoc :resultgraphfiles line)) nil))
+				     (unless (second (assoc :resultgraphlabels line))
+				       (setf (rest (assoc :resultgraphlabels line)) nil))
+				     (push (list :resultgraphs (and (rest (assoc :resultgraphfiles line))
+								    (list (second (assoc :resultgraphfiles line)) (second (assoc :resultgraphlabels line)))))
+					   line)
+				     (push (list :graphs (and (second (assoc :graphfiles line))
+							      (list (second (assoc :graphfiles line)) (second (assoc :graphlabels line)))))
+					   line)
+				     (push (list :key key) line))
+				collect line))
+	     (test-alist nil))
+	;; (inform "~D lines in test-lines2" (length test-lines2))
+	(loop for line in test-lines2
+	      for key = (assoc :key line)
+	      for test-item = (assoc key test-alist :test #'equal)
+	      do (cond ((null test-item)
+			(push line test-alist))
+		       (t
+			;; (inform "Merging~%~Swith~%~S" line test-item)
+			(let ((graphs-item (assoc :graphs test-item))
+			      (new-graphs (second (assoc :graphs line))))
+			  ;; (inform "graphs-item =~S" graphs-item)
+			  ;; (inform "new-graphs =~S" new-graphs)
+			  (unless (member new-graphs (cdr graphs-item) :test #'equal)
+			    (push new-graphs (cdr graphs-item))
+			    (push (second (assoc :graphfiles line)) (cdr (assoc :graphfiles test-item)))
+			    (push (second (assoc :graphlabels line)) (cdr (assoc :graphlabels test-item)))))
+			(let ((resultgraphs-item (assoc :resultgraphs test-item))
+			      (new-resultgraphs (second (assoc :resultgraphs line))))
+			  (unless (member new-resultgraphs (cdr resultgraphs-item) :test #'equal)
+			    (push new-resultgraphs (cdr resultgraphs-item))
+			    (push (second (assoc :resultgraphfiles line)) (cdr (assoc :resultgraphfiles test-item)))
+			    (push (second (assoc :resultgraphlabels line)) (cdr (assoc :resultgraphlabels test-item)))))
+			(flet ((maybe-replace-value (key)
+				 (let ((item (assoc key test-item))
+				       (new-value (second (assoc key line))))
+				   (cond ((null (second item))
+					  (setf (second item) new-value))
+					 ((not (or (null new-value) (equal new-value (second item))))
+					  (error* "Incompatible values ~S and ~S in~%  ~S and ~%~S" item new-value test-item line))))))
+			  (maybe-replace-value :queryfile)
+			  (maybe-replace-value :datafile)
+			  (maybe-replace-value :updateresult)
+			  (maybe-replace-value :queryserviceendpoint)
+			  (maybe-replace-value :queryservicedata)
+			  (maybe-replace-value :entailmentregime))
+			;; (inform "Result~%~S" test-item)
+			)))
+	;;       test-alist
+	;; )))
+	;; (inform "~D lines in test-alist" (length test-alist))
+	(setf test-alist (nreverse test-alist))
+	(let ((tests (loop for test-item in test-alist
+			   for type-string = (second (assoc :type test-item))
+			   for type = (cond ((string= type-string "mf:PositiveSyntaxTest") 'sparql-positive-syntax-test)
+					    ((string= type-string "mf:PositiveSyntaxTest11") 'sparql-positive-syntax-test-11)
+					    ((string= type-string "mf:PositiveUpdateSyntaxTest11") 'sparql-positive-update-syntax-test-11)
+					    ((string= type-string "mf:NegativeSyntaxTest") 'sparql-negative-syntax-test)
+					    ((string= type-string "mf:NegativeSyntaxTest11") 'sparql-negative-syntax-test-11)
+					    ((string= type-string "mf:NegativeUpdateSyntaxTest11") 'sparql-negative-update-syntax-test-11)
+					    ((string= type-string "mf:QueryEvaluationTest") 'sparql-query-evaluation-test)
+					    ((string= type-string "mf:UpdateEvaluationTest") 'sparql-update-evaluation-test)
+					    ((string= type-string "mf:CSVResultFormatTest") 'sparql-csv-result-format-test)
+					    ((string= type-string "mf:ProtocolTest") 'sparql-protocol-test)
+					    ((string= type-string "mf:ServiceDescriptionTest") 'sparql-service-description-test)
+					    (t (error* "Unknown test type ~A" type-string)))
+			   for test = (apply #'make-instance type
+					     (mapcan #'(lambda (key)
+							 (list key
+							       (if (member key '(:graphfiles :graphlabels :resultgraphfiles :resultgraphlabels))
+								   (cdr (assoc key test-item))
+								   (second (assoc key test-item)))))
+						     headers))
 					;	    do (describe test)
-			     collect test)))
-	    (setf (sparql-tests-headers this) headers)
-	    (setf (sparql-tests-entries this) tests)
-	    (when (sparql-tests-verbose-p this)
-	      (inform "~%In total ~D tests~%" (length tests)))
-	    (push-to-end :collect-tests (sparql-tests-phases this))))))
+			   collect test)))
+	  (setf (sparql-tests-headers this) headers)
+	  (setf (sparql-tests-entries this) tests)
+	  (when (sparql-tests-verbose-p this)
+	    (inform "~%In total ~D tests~%" (length tests))))))
     this))
 
 (defgeneric sparql-tests-parse (sparql-tests2)
   (:method ((this sparql-tests2))
-    (unless (member :parse (sparql-tests-phases this))
-      (when (sparql-tests-verbose-p this)
-	(inform "~%Parsing tests~%"))
-      (loop with skipped = 0
-	    with parsed = 0
-	    with parsing-succeeded = 0
-	    with parsing-failed = 0
-	    with parsing-negative-succeeded = 0
-	    with parsing-positive-failed = 0
-	    with translation-succeeded = 0
-	    with initialization-succeeded = 0
-	    for test in (sparql-tests-entries this)
-	    unless (or (sparql-test-failed-p test)
-		       (and (sparql-tests-skip-test-p test (sparql-tests-skip-parse-list this)) (progn (incf skipped) (inform "Skipping ~A" test) t)))
-	    do (progn
-		 (setf *current-sparql-test2* test)
-		 (sparql-test-parsing-phase test)
-		 (inform "  Parsing ~(~A~) -> ~{~(~A~)~^ ~}" test (mapcar #'(lambda (st) (subseq (string (type-of st)) 8)) (instans-status (sparql-test-instans test))))
-		 (incf parsed)
-		 (cond ((sparql-test-parsing-succeeded-p test)
-			(incf parsing-succeeded)
-			(cond ((sparql-negative-syntax-test-p test)
-			       (incf parsing-negative-succeeded))
-			      (t
-			       (when (sparql-test-translation-succeeded-p test) (incf translation-succeeded))
-			       (when (sparql-test-initialization-succeeded-p test) (incf initialization-succeeded)))))
-		       (t
-			(incf parsing-failed)
-			(unless (sparql-negative-syntax-test-p test)
-			  (incf parsing-positive-failed)))))
-	   finally 
-	   (when (sparql-tests-verbose-p this)
-	     (inform "~%Total ~D tests.~%Skipped ~D tests.~%Parsed ~D tests.~%Parsing succeeded for ~D files.~%Parsing failed for ~D files.~%Negative succeeded for ~D files.~%Positive failed for ~D files.~%Translation succeeded for ~D files.~%Initialization succeeded for ~D files."
-		     (length (sparql-tests-entries this)) skipped parsed parsing-succeeded parsing-failed parsing-negative-succeeded parsing-positive-failed translation-succeeded initialization-succeeded)))
-      (push-to-end :parse (sparql-tests-phases this)))
+    (when (sparql-tests-verbose-p this)
+      (inform "~%Parsing tests~%"))
+    (loop with skipped = 0
+	  with parsed = 0
+	  with parsing-succeeded = 0
+	  with parsing-failed = 0
+	  with parsing-negative-succeeded = 0
+	  with parsing-positive-failed = 0
+	  with translation-succeeded = 0
+	  with initialization-succeeded = 0
+	  for test in (sparql-tests-entries this)
+	  unless (or (sparql-test-failed-p test)
+		     (and (sparql-tests-skip-test-p test (sparql-tests-skip-parse-list this)) (progn (incf skipped) (inform "Skipping ~A" test) t)))
+	  do (progn
+	       (setf *current-sparql-test2* test)
+	       (sparql-test-parse-phase test)
+	       (inform "  Parsing ~(~A~) -> ~{~(~A~)~^ ~}" test (mapcar #'(lambda (st) (subseq (string (type-of st)) 8)) (instans-status (sparql-test-instans test))))
+	       (incf parsed)
+	       (cond ((sparql-test-parsing-succeeded-p test)
+		      (incf parsing-succeeded)
+		      (cond ((sparql-negative-syntax-test-p test)
+			     (incf parsing-negative-succeeded))
+			    (t
+			     (when (sparql-test-translation-succeeded-p test) (incf translation-succeeded))
+			     (when (sparql-test-initialization-succeeded-p test) (incf initialization-succeeded)))))
+		     (t
+		      (incf parsing-failed)
+		      (unless (sparql-negative-syntax-test-p test)
+			(incf parsing-positive-failed)))))
+	  finally 
+	 (when (sparql-tests-verbose-p this)
+	   (inform "~%Total ~D tests.~%Skipped ~D tests.~%Parsed ~D tests.~%Parsing succeeded for ~D files.~%Parsing failed for ~D files.~%Negative succeeded for ~D files.~%Positive failed for ~D files.~%Translation succeeded for ~D files.~%Initialization succeeded for ~D files."
+		   (length (sparql-tests-entries this)) skipped parsed parsing-succeeded parsing-failed parsing-negative-succeeded parsing-positive-failed translation-succeeded initialization-succeeded)))
     this))
 
 (defgeneric sparql-tests-run (sparql-tests2)
   (:method ((this sparql-tests2))
-    (unless (member :run (sparql-tests-phases this))
-      (sparql-tests-parse this)
-      (when (sparql-tests-verbose-p this)
-	(inform "~%Running tests~%"))
-      (loop with skipped = 0
-	    with run = 0
-	    with running-succeeded = 0
-	    with running-failed = 0
-	    for test in (sparql-tests-entries this)
-;	    do (describe test)
-	    when (or (slot-value-with-default test 'not-implemented-p nil)
-		     (sparql-test-failed-p test)
-		     (sparql-tests-skip-test-p test (sparql-tests-skip-run-list this))
-		     (not (sparql-query-evaluation-test-p test)))
-	    do (progn (incf skipped) (inform "  Skipping ~A" test))
-	    else
-	    do (progn
-		 (setf *current-sparql-test2* test)
-		 (inform "  Running test ~A" test)
-		 (sparql-test-running-phase test)
-		 (incf run)
-		 (cond ((sparql-test-running-succeeded-p test)
-			(incf running-succeeded))
-		       (t
-			(incf running-failed)))
-		 (slot-makunbound test 'instans))
-	   finally (when (sparql-tests-verbose-p this)
-		     (inform "~%Total ~D tests~%Skipped ~D tests.~%Ran ~D tests.~%Running succeeded for ~D tests.~%Running failed for ~D tests." (length (sparql-tests-entries this)) skipped run running-succeeded running-failed)))
-      (push-to-end :run (sparql-tests-phases this)))
+    (sparql-tests-parse this)
+    (when (sparql-tests-verbose-p this)
+      (inform "~%Running tests~%"))
+    (loop with skipped = 0
+	  with run = 0
+	  with running-succeeded = 0
+	  with running-failed = 0
+	  for test in (sparql-tests-entries this)
+					;	    do (describe test)
+	  when (or (slot-value-with-default test 'not-implemented-p nil)
+		   (sparql-test-failed-p test)
+		   (sparql-tests-skip-test-p test (sparql-tests-skip-run-list this))
+		   (not (sparql-query-evaluation-test-p test)))
+	  do (progn (incf skipped) (inform "  Skipping ~A" test))
+	  else
+	  do (progn
+	       (setf *current-sparql-test2* test)
+	       (inform "  Running test ~A" test)
+	       (sparql-test-run-phase test)
+	       (incf run)
+	       (cond ((sparql-test-running-succeeded-p test)
+		      (incf running-succeeded))
+		     (t
+		      (incf running-failed)))
+	       (slot-makunbound test 'instans))
+	  finally (when (sparql-tests-verbose-p this)
+		    (inform "~%Total ~D tests~%Skipped ~D tests.~%Ran ~D tests.~%Running succeeded for ~D tests.~%Running failed for ~D tests." (length (sparql-tests-entries this)) skipped run running-succeeded running-failed)))
     this))
 
 (defgeneric sparql-tests-compare (sparql-tests2)
   (:method ((this sparql-tests2))
-    (unless (member :compare (sparql-tests-phases this))
-      (sparql-tests-run this)
-      (loop for test in (sparql-tests-entries this)
-	    unless (sparql-test-failed-p test)
-	    do (progn
-		 (setf *current-sparql-test2* test)
-		 (sparql-test-comparison-phase test)))
-      (push-to-end :compare (sparql-tests-phases this)))
+    (sparql-tests-run this)
+    (loop for test in (sparql-tests-entries this)
+	  unless (or (sparql-test-failed-p test)
+		     (not (sparql-query-evaluation-test-p test)))
+	  do (progn
+	       (setf *current-sparql-test2* test)
+	       (sparql-test-comparison-phase test)))
     this))
 
 (defgeneric sparql-tests-execute (sparql-tests2)
