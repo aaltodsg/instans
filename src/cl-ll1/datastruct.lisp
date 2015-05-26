@@ -9,12 +9,13 @@
 
 (in-package #:instans)
 
-(defstruct (production :named (:type list))
+(defstruct (production :named); (:type list))
   (number)
   (lhs)
   (rhs)
   (grammar-symbol-value)
   (properties)
+  (ignore-result-p)
   (result-arglist)
   (result-arg-count)
   (result-func-name)
@@ -137,8 +138,8 @@
 
 (defun serialize-production (p &key ignoring-fields field-functions)
   `(make-production
-    ,@(loop for field in '(:number :lhs :rhs :properties :result-arglist :result-arg-count :result-func-name :result-func-lambda :result-func)
-	    for accessor in '(production-number production-lhs production-rhs production-properties production-result-arglist production-result-arg-count production-result-func-name production-result-func-lambda production-result-func)
+    ,@(loop for field in '(:number :lhs :rhs :properties :result-arglist :result-arg-count :result-func-name :result-func-lambda :result-func :ignore-result-p)
+	    for accessor in '(production-number production-lhs production-rhs production-properties production-result-arglist production-result-arg-count production-result-func-name production-result-func-lambda production-result-func production-ignore-result-p)
 	    unless (member field ignoring-fields)
 	    nconc (list field (let ((value (funcall accessor p))
 				    (field-processor (second (assoc field field-functions))))

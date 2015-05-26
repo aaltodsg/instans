@@ -1,0 +1,56 @@
+#!/bin/bash
+function die () {
+    echo $*
+    exit 1
+}
+
+function usage() {
+    die "Usage: $0 { (--clean | -c | --help | -h  }"
+}
+
+function help() {
+    cat <<EOF
+--clean | -c		Make a clean install. Removes old 
+--help  | -h		Prints help text 
+EOF
+}
+
+cd `dirname $0`
+ROOT=`pwd`
+INIT=${ROOT}/init
+LISP_CONFIGURATION=${INIT}/lisp-configuration
+
+while [ $# -gt 0 ] ; do
+    case $1 in
+	-h|--help)
+	    help
+	    ;;
+	-c|--clean)
+	    rm -rf $HOME/quicklisp
+	    ;;
+    esac
+    shift
+done
+
+sbcl --noinform --load init/output-configuration.lisp --eval "(output-configuration \"$LISP_CONFIGURATION\")" --quit
+
+QUICKLISP=`sed -n "/^quicklisp:[ ]*\([^ ]*\)$/s//\1/p" ${LISP_CONFIGURATION}`
+rm ${LISP_CONFIGURATION}
+
+if test "$QUICKLISP" = "no"; then
+    if test -f $HOME/.sbclrc; then
+	dt=`date "+%Y-%m-%d%T%H%M%S"`
+	mv $HOME/.sbclrc $HOME/.sbclrc.$dt
+    fi
+    touch $HOME/.sbclrc
+    echo
+    echo "Installing quicklisp into ~/quicklisp"
+    /bin/echo -n "  Downloading http://beta.quicklisp.org/quicklisp.lisp with curl... "
+    (curl -s -O http://beta.quicklisp.org/quicklisp.lisp > /dev/null 2>&1; echo " Done.") || die " Failed! Check http://www.quicklisp.org/beta/ how to install Quicklisp."
+    /bin/echo -n "  Setting up quicklisp and updating your ~/.sbclrc file to automatically use quicklisp..."
+    (sbcl --noinform --load quicklisp.lisp \
+ 	--eval "(quicklisp-quickstart:install)" \
+ 	--eval  "(let ((ql-util::*do-not-prompt* t) (*query-io* (make-two-way-stream *standard-input* *standard-output*))) (ql:add-to-init-file))"  --quit > /dev/null 2>&1; echo " Done."; rm quicklisp.lisp)|| die " Failed!"
+else
+    echo "You seem to have Quicklisp installed already. To reinstall, use $0 --clean"
+fi

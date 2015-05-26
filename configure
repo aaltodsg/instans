@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #
 # Note! Currently this only works with SBCL.
@@ -32,7 +32,7 @@ function warn() {
 }
 
 function usage () {
-    die "[ -h | --help ]"
+    die "[ -h | --help | --with-sbcl=<path-to-sbcl-executable> | --with-dynamic-space-size=<size> | --with-buildapp=<path-to-buildapp-exacutable> ]"
 }
 
 PGM=$0
@@ -40,8 +40,8 @@ while [ $# -gt 0 ] ; do
     case $1 in
 	-h|--help) usage ;;
 	--with-sbcl=*)
-	  SBCL=${1#--with-lisp=}
-	  test -x $SBCL || die "Did not found executable sbcl in $SBCL"
+	  SBCL=${1#--with-sbcl=}
+	  test -x $SBCL || die "Did not find executable sbcl in $SBCL"
 	  echo "Using SBCL=$SBCL"
 	  ;;
 	--with-dynamic-space-size=*)
@@ -50,7 +50,7 @@ while [ $# -gt 0 ] ; do
 	  ;;
 	--with-buildapp=*)
 	  BUILDAPP=${1#--with-buildapp=}
-	  test -x $BUILDAPP || die "Did not found executable buildapp in $BUILDAPP"
+	  test -x $BUILDAPP || die "Did not find executable buildapp in $BUILDAPP"
 	  echo "Using BUILDAPP=$BUILDAPP"
 	  ;;
     esac

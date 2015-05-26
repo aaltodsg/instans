@@ -24,3 +24,4 @@ buildapp-*
 buildapp
 buildapp.tgz
 Makefile
+instans-sparql-conformance-tests
