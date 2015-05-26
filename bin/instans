@@ -20,5 +20,5 @@ fi
 cd "$DIR"
 fi
 #exec `dirname $0`/instans.bin --end-toplevel-options $*
-exec `dirname $0`/instans.bin $*
+exec `dirname $0`/instans.bin "$@"
 
