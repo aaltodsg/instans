@@ -107,3 +107,121 @@
 ;; 							     :type type :negative (parse-xsd-boolean negative) :suite suite :collection collection :name name
 ;; 							     :queryfile queryfile :datafile datafile :graphdatafile graphdatafile
 ;; 							     :resultfile resultfile :resultgraphfile resultgraphfile :resultgraphlabel resultgraphlabel)
+
+;;; 2015-05-29
+
+;; (defgeneric sparql-tests-parse (sparql-tests2)
+;;   (:method ((this sparql-tests2))
+;;     (when (sparql-tests-verbose-p this)
+;;       (inform "~%Parsing tests~%"))
+;;     (loop with skipped = 0
+;; 	  with parsed = 0
+;; 	  with parsing-succeeded = 0
+;; 	  with parsing-failed = 0
+;; 	  with parsing-negative-succeeded = 0
+;; 	  with parsing-positive-failed = 0
+;; 	  with translation-succeeded = 0
+;; 	  with initialization-succeeded = 0
+;; 	  for test in (sparql-tests-entries this)
+;; 	  unless (or (sparql-test-failed-p test)
+;; 		     (and (sparql-tests-skip-test-p test (sparql-tests-skip-parse-list this)) (progn (incf skipped) (inform "Skipping ~A" test) t)))
+;; 	  do (progn
+;; 	       (setf *current-sparql-test2* test)
+;; ;	       (describe test)
+;; 	       (sparql-test-execute test :parsed)
+;; ;	       (describe test)
+;; 	       (incf parsed)
+;; 	       (cond ((sparql-test-parsing-succeeded-p test)
+;; 		      (incf parsing-succeeded)
+;; 		      (cond ((sparql-negative-syntax-test-p test)
+;; 			     (incf parsing-negative-succeeded))
+;; 			    (t
+;; 			     (when (sparql-test-translation-succeeded-p test) (incf translation-succeeded))
+;; 			     (when (sparql-test-initialization-succeeded-p test) (incf initialization-succeeded)))))
+;; 		     (t
+;; 		      (incf parsing-failed)
+;; 		      (unless (sparql-negative-syntax-test-p test)
+;; 			(incf parsing-positive-failed)))))
+;; 	  finally 
+;; 	 (when (sparql-tests-verbose-p this)
+;; 	   (inform "~%Total ~D tests.~%Skipped ~D tests.~%Parsed ~D tests.~%Parsing succeeded for ~D files.~%Parsing failed for ~D files.~%Negative succeeded for ~D files.~%Positive failed for ~D files.~%Translation succeeded for ~D files.~%Initialization succeeded for ~D files."
+;; 		   (length (sparql-tests-entries this)) skipped parsed parsing-succeeded parsing-failed parsing-negative-succeeded parsing-positive-failed translation-succeeded initialization-succeeded)))
+;;     this))
+
+;; (defgeneric sparql-tests-run (sparql-tests2)
+;;   (:method ((this sparql-tests2))
+;;     (when (sparql-tests-verbose-p this)
+;;       (inform "~%Running tests~%"))
+;;     (loop with skipped = 0
+;; 	  with run = 0
+;; 	  with running-succeeded = 0
+;; 	  with running-failed = 0
+;; 	  for test in (sparql-tests-entries this)
+;; 					;	    do (describe test)
+;; 	  when (or (informing "not-implemented-p ~A" (slot-value-with-default test 'not-implemented-p nil))
+;; 		   (informing "test-failed-p ~A" (sparql-test-failed-p test))
+;; 		   (informing "skip-test-p ~A" (sparql-tests-skip-test-p test (sparql-tests-skip-run-list this)))
+;; 		   (not (informing "query-evaluation-test-p ~A" (sparql-query-evaluation-test-p test))))
+;; 	  do (progn (incf skipped) (inform "  Skipping ~A" test))
+;; 	  else
+;; 	  do (progn
+;; 	       (setf *current-sparql-test2* test)
+;; 	       (sparql-test-execute test :ran)
+;; 	       (incf run)
+;; 	       (cond ((sparql-test-running-succeeded-p test)
+;; 		      (incf running-succeeded))
+;; 		     (t
+;; 		      (incf running-failed))))
+;; 	  finally (when (sparql-tests-verbose-p this)
+;; 		    (inform "~%Total ~D tests~%Skipped ~D tests.~%Ran ~D tests.~%Running succeeded for ~D tests.~%Running failed for ~D tests." (length (sparql-tests-entries this)) skipped run running-succeeded running-failed)))
+;;     this))
+
+;; (defgeneric sparql-tests-compare (sparql-tests2)
+;;   (:method ((this sparql-tests2))
+;;     (when (sparql-tests-verbose-p this)
+;;       (inform "~%Comparing%"))
+;;     (loop for test in (sparql-tests-entries this)
+;; 	  with compare = 0
+;; 	  with skipped = 0
+;; 	  with comparing-succeeded = 0
+;; 	  with comparing-failed = 0
+;; 	  do (inform "haa1")
+;; 	  when (or (slot-value-with-default test 'not-implemented-p nil)
+;; 		   (sparql-test-failed-p test)
+;; 		   (sparql-tests-skip-test-p test (sparql-tests-skip-run-list this))
+;; 		   (not (sparql-query-evaluation-test-p test)))
+;; 	  do (progn (incf skipped) (inform "  Skipping ~A" test))
+;; 	  else
+;; 	  do (progn
+;; 	       (setf *current-sparql-test2* test)
+;; 	       (sparql-test-execute test :compared)
+;; 	       (incf compare)
+;; 	       (inform "haa")
+;; 	       (cond ((sparql-test-comparing-succeeded-p test)
+;; 		      (inform "haa3")
+;; 		      (incf comparing-succeeded))
+;; 		     (t
+;; 		      (inform "haa3")
+;; 		      (incf comparing-failed))))
+;; 	  do (inform "haa2")
+;; 	  finally (when (sparql-tests-verbose-p this)
+;; 		    (inform "~%Total ~D tests~%Skipped ~D tests.~%Compared ~D tests.~%Comparing succeeded for ~D tests.~%Comparing failed for ~D tests." (length (sparql-tests-entries this)) skipped compare comparing-succeeded comparing-failed)))
+;;     this))
+
+;; (defgeneric sparql-tests-complete (sparql-tests2)
+;;   (:method ((this sparql-tests2))
+;;     (when (sparql-tests-verbose-p this)
+;;       (inform "~%Completing%"))
+;;     (loop for test in (sparql-tests-entries this)
+;; 	  with complete = 0
+;; 	  do (progn
+;; 	       (setf *current-sparql-test2* test)
+;; 	       (sparql-test-execute test :completed)
+;; 	       (incf complete)
+;; 	       (inform "~%Total ~D tests~%Completed ~D tests." (length (sparql-tests-entries this)) complete)))
+;;     this))
+
+;; (defgeneric sparql-tests-execute (sparql-tests2)
+;;   (:method ((this sparql-tests2))
+;;     (sparql-tests-compare this)))
+
