@@ -8,6 +8,7 @@
 
 (defvar *sparql-test-set*)
 (defvar *current-sparql-test*)
+(defvar *collect-sparql-test-set-script* nil)
 
 ;;; Classes
 
@@ -291,28 +292,20 @@
 
 (defgeneric sparql-test-collect-results (sparql-test)
   (:method ((this sparql-test))
-    (append (list 
-	     (list :type (sparql-test-type this))
-	     (list :suite (sparql-test-suite this))
-	     (list :collection (sparql-test-collection this))
-	     (list :name (sparql-test-name this))
-	     (list :implementedp (not (sparql-test-not-implemented-p this))))
-	    (sparql-test-collect-results-of-execution this))))
-
-(defgeneric sparql-test-collect-results-of-execution (sparql-test)
-  (:method ((this sparql-query-evaluation-test))
-    (append (call-next-method)
-	    (list (list :running-succeeded-p (sparql-test-running-succeeded-p this))
-		  (list :comparing-succeeded-p (sparql-test-comparing-succeeded-p this)))))
-  (:method ((this sparql-syntax-test))
-    (append (call-next-method)
-	    (list
-	     (list :parsing-succeeded-p (sparql-test-parsing-succeeded-p this))
-	     (list :translation-succeeded-p (sparql-test-translation-succeeded-p this))
-	     (list :initialization-succeeded-p (sparql-test-initialization-succeeded-p this))
-	     (list :rule-type (sparql-test-rule-type this)))))
-  (:method ((this sparql-test))
-    (list (list :failedp (sparql-test-failed-p this)))))
+    (flet ((sv (slot) (if (and (slot-exists-p this slot) (slot-boundp this slot)) (slot-value this slot) :unbound)))
+      (list 
+       (list :type (sv 'type))
+       (list :suite (sv 'suite))
+       (list :collection (sv 'collection))
+       (list :name (sv 'name))
+       (list :failedp (sv 'failedp))
+       (list :implementedp (let ((v (sv 'not-implemented-p))) (if (eq v :unbound) :unbound (not v))))
+       (list :parsing-succeeded-p (sv 'parsing-succeeded-p))
+       (list :translation-succeeded-p (sv 'translation-succeeded-p))
+       (list :initialization-succeeded-p (sv 'initialization-succeeded-p))
+       (list :rule-type (sv 'rule-type))
+       (list :running-succeeded-p (sv 'running-succeeded-p))
+       (list :comparing-succeeded-p (sv 'comparing-succeeded-p))))))
 
 ;;; Phases
 
@@ -408,8 +401,8 @@
     (call-next-method)))
 
 (defmethod sparql-test-complete-phase :around ((this sparql-syntax-test) &key forcep verbosep)
-  (when (or forcep (sparql-test-phase-pre-test this :completed (sparql-test-set-skip-complete-list (sparql-test-test-set this)) verbosep))
-    (call-next-method)))
+  (declare (ignorable forcep verbosep))
+  (call-next-method))
 
 ;;; Test execute method
 
@@ -422,10 +415,12 @@
 	    do (progn
 		 (when verbosep (inform "Phase ~A for ~A" phase this))
 		 (case phase
+		   (:created)
 		   (:parsed (sparql-test-parse-phase this :forcep forcep :verbosep verbosep))
 		   (:ran (sparql-test-run-phase this :forcep forcep :verbosep verbosep))
 		   (:compared (sparql-test-compare-phase this :forcep forcep :verbosep verbosep))
-		   (:complete (sparql-test-complete-phase this :forcep forcep :verbosep verbosep))))))))
+		   (:completed (sparql-test-complete-phase this :forcep forcep :verbosep verbosep))
+		   (t (error* "Illegal phase ~A for test ~A" phase this))))))))
 
 ;;;
 ;;; Test sets
@@ -454,6 +449,7 @@
 		    (directory (expand-instans-file-name (format nil "~A/tests/data-sparql11/*/manifest.ttl" root))))))
     (when (sparql-test-set-verbose-p this)
       (inform "Manifest files:~{~%  ~A~}" (sparql-test-set-manifests this)))
+    (init-sparql-test-set-script)
     (skip-tests this)
     (sparql-test-set-collect-tests this)))
 
@@ -502,10 +498,9 @@
 	return t
 	finally (return nil)))
 
-(defvar *collect-sparql-test-set-script* nil)
-
 (defun init-sparql-test-set-script ()
-  (setf *collect-sparql-test-set-script*
+  (or *collect-sparql-test-set-script*
+      (setf *collect-sparql-test-set-script*
 "PREFIX dawgt: <http://www.w3.org/2001/sw/DataAccess/tests/test-dawg#>
 PREFIX ent: <http://www.w3.org/ns/entailment/>
 PREFIX mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#>
@@ -623,7 +618,7 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
        BIND(strafter(str(?test), \"#\") AS ?name)
        BIND(str(<>) AS ?base)
 };
-"))
+")))
 
 (defgeneric sparql-test-set-convert-manifests-to-csv-file (sparql-test-set)
   (:method ((this sparql-test-set))
@@ -769,5 +764,16 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
 	  do (sparql-test-execute test :verbosep verbosep :forcep forcep :target-phase target-phase))))
 
 (defun init-sparql-test-set ()
-  (init-sparql-test-set-script)
   (setf *sparql-test-set* (make-instance 'sparql-test-set)))
+
+(defun test-sparql ()
+  (init-sparql-test-set)
+  (sparql-test-set-execute-tests *sparql-test-set* :verbosep t))
+
+(defun sparql-test-set-results-to-csv (test-set output-file)
+  (let* ((tests (sparql-test-set-tests test-set))
+	 (fields (mapcar #'first (sparql-test-results (first tests)))))
+    (with-open-file (output output-file :direction :output :if-exists :supersede)
+      (format output "~&~(~{~A~^,~}~)~%" fields)
+      (loop for test in tests do (format output "~(~{~A~^,~}~)~%" (mapcar #'second (sparql-test-results test)))))))
+
