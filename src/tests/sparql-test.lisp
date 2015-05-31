@@ -430,7 +430,7 @@
 ;;;
 
 (define-class sparql-test-set ()
-  ((root-directory :accessor sparql-test-set-root-directory :initarg :root-directory :initform "instans-sparql-conformance-tests")
+  ((root-directory :accessor sparql-test-set-root-directory :initarg :root-directory)
    (csv-file :accessor sparql-test-set-csv-file :initarg :csv-file)
    (collector-rules-file :accessor sparql-test-set-collector-rules-file :initarg :collector-rules-file)
    (manifests :accessor sparql-test-set-manifests :initarg :manifests)
@@ -443,13 +443,16 @@
    (verbosep :accessor sparql-test-set-verbose-p :initarg :verbosedp :initform t)))
 
 (defmethod initialize-instance :after ((this sparql-test-set) &key manifests csv-file collector-rules-file &allow-other-keys)
-  (let ((root (sparql-test-set-root-directory this)))
-    (unless csv-file (setf (sparql-test-set-csv-file this) (expand-instans-file-name (format nil "~A/tests/sparql-test-set/sparql-test-set.csv" root))))
-    (unless collector-rules-file (setf (sparql-test-set-collector-rules-file this) (expand-instans-file-name (format nil "~A/tests/input/collect-sparql-test-set-info.rq" root))))
+  (let* ((instans-home (sb-ext:posix-getenv "INSTANS_HOME"))
+	 (root (format nil "~A/instans-sparql-conformance-tests" instans-home)))
+    (setf (sparql-test-set-root-directory this) root)
+    (inform "root = ~S" root)
+    (unless csv-file (setf (sparql-test-set-csv-file this) (format nil "~A/tests/sparql-test-set/sparql-test-set.csv" root)))
+    (unless collector-rules-file (setf (sparql-test-set-collector-rules-file this) (format nil "~A/tests/input/collect-sparql-test-set-info.rq" root)))
     (unless manifests
       (setf (sparql-test-set-manifests this)
-	    (append (directory (expand-instans-file-name (format nil "~A/tests/data-r2/*/manifest.ttl" root)))
-		    (directory (expand-instans-file-name (format nil "~A/tests/data-sparql11/*/manifest.ttl" root))))))
+	    (append (directory (format nil "~A/tests/data-r2/*/manifest.ttl" root))
+		    (directory (format nil "~A/tests/data-sparql11/*/manifest.ttl" root)))))
     (when (sparql-test-set-verbose-p this)
       (inform "Manifest files:~{~%  ~A~}" (sparql-test-set-manifests this)))
     (init-sparql-test-set-script)
@@ -769,10 +772,6 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
 (defun init-sparql-test-set ()
   (setf *sparql-test-set* (make-instance 'sparql-test-set)))
 
-(defun test-sparql ()
-  (init-sparql-test-set)
-  (sparql-test-set-execute-tests *sparql-test-set* :verbosep t))
-
 (defun sparql-test-set-results-to-csv (test-set output-file)
   (let* ((tests (sparql-test-set-tests test-set))
 	 (fields (mapcar #'first (sparql-test-results (first tests)))))
@@ -786,4 +785,10 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
 							     ((eq value :unbound) "")
 							     ((and (stringp value) (eql 0 (search "mf:" value))) (subseq value 3))
 							     (t value))))))))
+
+(defun run-sparql-test-suites (file)
+  (let ((test-set (make-instance 'sparql-test-set)))
+    (sparql-test-set-execute-tests test-set :verbosep t)
+    (sparql-test-set-results-to-csv test-set file)))
+
 
