@@ -22,7 +22,7 @@
    (name :accessor sparql-test-name :initarg :name)
    (directory :accessor sparql-test-directory)
    (instans :accessor sparql-test-instans :initform nil)
-   (not-implemented-p :accessor sparql-test-not-implemented-p :initarg :not-implemented-p)
+   (not-implemented-p :accessor sparql-test-not-implemented-p :initarg :not-implemented-p :initform nil)
    (output-directory :accessor sparql-test-output-directory :initform "test-output")
    (base :accessor sparql-test-base :initarg :base)
    (output-options-stream :accessor sparql-test-output-options-stream :initarg :output-options-stream :initform nil)
@@ -82,7 +82,7 @@
   (ensure-directories-exist (sparql-test-output-directory this)))
 
 (defmethod reinitialize-instance ((this sparql-test) &key &allow-other-keys)
-  (slot-makunbound this 'not-implemented-p)
+  (setf (sparql-test-not-implemented-p this) nil)
   (setf (sparql-test-phases this) (list :created)))
 
 (defmethod initialize-instance :after ((this sparql-syntax-test) &key &allow-other-keys)
@@ -294,11 +294,14 @@
   (:method ((this sparql-test))
     (flet ((sv (slot) (if (and (slot-exists-p this slot) (slot-boundp this slot)) (slot-value this slot) :unbound)))
       (list 
+       (list :syntax-test-p (typep this 'sparql-syntax-test))
+       (list :negative-syntax-test-p (typep this 'sparql-negative-syntax-test))
+       (list :query-evaluation-test-p (typep this 'sparql-query-evaluation-test))
        (list :type (sv 'type))
        (list :suite (sv 'suite))
        (list :collection (sv 'collection))
        (list :name (sv 'name))
-       (list :failedp (sv 'failedp))
+       (list :failedp (sparql-test-failed-p this))
        (list :implementedp (let ((v (sv 'not-implemented-p))) (if (eq v :unbound) :unbound (not v))))
        (list :parsing-succeeded-p (sv 'parsing-succeeded-p))
        (list :translation-succeeded-p (sv 'translation-succeeded-p))
@@ -775,5 +778,12 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
 	 (fields (mapcar #'first (sparql-test-results (first tests)))))
     (with-open-file (output output-file :direction :output :if-exists :supersede)
       (format output "~&~(~{~A~^,~}~)~%" fields)
-      (loop for test in tests do (format output "~(~{~A~^,~}~)~%" (mapcar #'second (sparql-test-results test)))))))
+      (loop for test in tests do (format output "~{~A~^,~}~%"
+					 (loop for item in (sparql-test-results test)
+					       for value = (second item)
+					       collect (cond ((eq value T) "True")
+							     ((eq value nil) "False")
+							     ((eq value :unbound) "")
+							     ((and (stringp value) (eql 0 (search "mf:" value))) (subseq value 3))
+							     (t value))))))))
 
