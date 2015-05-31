@@ -23,7 +23,7 @@
    (directory :accessor sparql-test-directory)
    (instans :accessor sparql-test-instans :initform nil)
    (not-implemented-p :accessor sparql-test-not-implemented-p :initarg :not-implemented-p :initform nil)
-   (output-directory :accessor sparql-test-output-directory :initform "test-output")
+   (output-directory :accessor sparql-test-output-directory :initform "output/")
    (base :accessor sparql-test-base :initarg :base)
    (output-options-stream :accessor sparql-test-output-options-stream :initarg :output-options-stream :initform nil)
    (results :accessor sparql-test-results :initform nil)))
@@ -256,7 +256,7 @@
 
 (defgeneric sparql-test-add-outputs (sparql-test)
   (:method ((this sparql-query-evaluation-test))
-    (case (sparql-test-type this)
+    (case (sparql-test-rule-type this)
       (SELECT
        (multiple-value-bind (output-file file-type) (sparql-test-output-file-name-and-type this)
 	 (when output-file
@@ -272,12 +272,15 @@
 	   (let ((instans (sparql-test-instans this)))
 	     (setf (instans-construct-output-processor instans) (create-construct-output-processor instans output-file file-type))))))
       (ASK)
-      (DESCRIBE))))
+      (DESCRIBE)
+      (MODIFY)
+      (t (error* "Illegal rule-type ~A in ~A" (sparql-test-rule-type this) this)))))
 
 (defgeneric sparql-test-run-system (sparql-test)
   (:method ((this sparql-query-evaluation-test))
     (let* ((instans (sparql-test-instans this))
 	   (result (catch 'sparql-op-not-implemented-yet (run-input-processors instans t))))
+      (instans-close-open-streams instans)
       (when (eq result :sparql-op-not-implemented-yet)
 	(instans-add-status instans 'instans-feature-not-implemented-yet))
       result)))
@@ -286,10 +289,46 @@
   (:method ((this sparql-test))
     this))
 
-(defgeneric sparql-test-compare-datafile (sparql-test)
-  (:method ((this sparql-test))
-    this))
+(defun maybe-convert-result-file-to-ttl (instans input-file input-file-type output-file)
+  (case input-file-type
+    (:srx
+     (let ((results (with-open-file (input input-file :direction :input)
+		     (parse-srx-stream instans input input-file))))
+       (with-open-file (output output-file :direction :output :if-exists :supersede)
+	 (output-results-in-ttl results output))
+       output-file))
+    (t (inform "Cannot convert yet ~A" input-file)
+       nil)))
 
+(defgeneric sparql-test-compare-datafile (sparql-test)
+  (:method ((this sparql-query-evaluation-test))
+    (let ((resultfile (sparql-test-resultfile this))
+	  (instans (sparql-test-instans this)))
+      (when resultfile
+	(unless (multiple-value-bind (dir namebase type)
+		    (split-path-to-name-and-type-strings resultfile)		    
+		  (declare (ignore dir))
+		  (let* ((resulttype (intern-keyword (string-upcase type)))
+			 (output-dir (sparql-test-output-directory this))
+			 (output-ttl-file (format nil "~A/~A.ttl" output-dir namebase)))
+		    (case (sparql-test-rule-type this)
+		      (SELECT
+           ;;; If the results file is not ttl-file, we must create a comparable ttl file (if it does not exist already)
+		       (setf resultfile 
+			     (cond ((eq resulttype :ttl) resultfile)
+				   (t
+				    (let ((ttl-resultfile (format nil "~A/~A-converted.ttl" output-dir namebase)))
+				      (maybe-convert-result-file-to-ttl instans resultfile resulttype ttl-resultfile)))))
+		       (when resultfile (sparql-compare-ttl-result-files resultfile output-ttl-file)))
+		      (CONSTRUCT
+		       (unless (eq resulttype :ttl)
+			 (error* "Not a ttl resultfile ~A" resultfile))
+		       (sparql-compare-ttl-result-files resultfile output-ttl-file))
+		      ((ASK DESCRIBE MODIFY) nil))))
+		  (instans-add-status instans 'instans-rule-comparing-failed)))))
+    (:method ((this sparql-test))
+      this))
+  
 (defgeneric sparql-test-collect-results (sparql-test)
   (:method ((this sparql-test))
     (flet ((sv (slot) (if (and (slot-exists-p this slot) (slot-boundp this slot)) (slot-value this slot) :unbound)))
@@ -365,6 +404,8 @@
   (:method ((this sparql-query-evaluation-test) &key &allow-other-keys)
     (let ((instans (sparql-test-instans this)))
       (sparql-test-compare-datafile this)
+      (unless (instans-has-status instans 'instans-rule-comparing-failed)
+	(instans-add-status instans 'instans-rule-comparing-succeeded))
       (setf (sparql-test-comparing-succeeded-p this) (instans-has-status instans 'instans-rule-comparing-succeeded))
       (sparql-test-add-phase this :compared)))
   (:method ((this sparql-test) &key &allow-other-keys)
@@ -447,7 +488,7 @@
 	 (root (format nil "~A/instans-sparql-conformance-tests" instans-home)))
     (setf (sparql-test-set-root-directory this) root)
     (inform "root = ~S" root)
-    (unless csv-file (setf (sparql-test-set-csv-file this) (format nil "~A/tests/sparql-test-set/sparql-test-set.csv" root)))
+    (unless csv-file (setf (sparql-test-set-csv-file this) (format nil "~A/tests/input/sparql-test-set.csv" root)))
     (unless collector-rules-file (setf (sparql-test-set-collector-rules-file this) (format nil "~A/tests/input/collect-sparql-test-set-info.rq" root)))
     (unless manifests
       (setf (sparql-test-set-manifests this)
@@ -480,7 +521,8 @@
 					     ("data-sparql11" "subquery" "subquery08")
 					     ("data-sparql11" "subquery" "subquery09")
 					     ("data-sparql11" "subquery" "subquery10")
-					     )))
+						))
+  (setf (sparql-test-set-skip-compare-list tests) (sparql-test-set-skip-run-list tests)))
 
 (defgeneric sparql-test-set-print (sparql-test-set &optional stream)
   (:method ((this sparql-test-set) &optional (stream *error-output*))
@@ -788,7 +830,18 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
 
 (defun run-sparql-test-suites (file)
   (let ((test-set (make-instance 'sparql-test-set)))
+    (setf *sparql-test-set* test-set)
     (sparql-test-set-execute-tests test-set :verbosep t)
     (sparql-test-set-results-to-csv test-set file)))
 
-
+(defun run-suite-collection-name (test-set &optional suite collection name)
+  (let ((needs-reinitialization-p (not (null test-set))))
+    (unless test-set (setf test-set (make-instance 'sparql-test-set)))
+    (setf *sparql-test-set* test-set)
+    (loop for test in (sparql-test-set-tests test-set)
+	  do (when (and (or (null suite) (equal suite (sparql-test-suite test)))
+			(or (null collection) (equal collection (sparql-test-collection test)))
+			(or (null name) (equal name (sparql-test-name test))))
+	       (setf *current-sparql-test* test)
+	       (when needs-reinitialization-p (reinitialize-instance test))
+	       (sparql-test-execute test :verbosep t)))))

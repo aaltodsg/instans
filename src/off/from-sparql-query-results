@@ -26,3 +26,774 @@
 	  ;; 		       (format output-stream "~%~:(~A~) triples not ~(~A~):" result-label2 result-label1)
 	  ;; 		       (show-triples observed-minus-expected)
 	  ;; 		       (values nil nil)))))))))
+
+;;; Cut sparql-test stuff off 2015-05-31
+
+(defun test-read-write-srx (in-file out-file)
+  (let* ((i (make-instance 'instans))
+	 (res1 (parse-results-file i in-file)))
+    (with-open-file (stream out-file :direction :output :if-exists :supersede)
+      (output-results-in-srx res1 stream))
+    (let ((res2 (parse-results-file i out-file)))
+      (unless (sparql-results-compare res1 res2)
+      (print-sparql-results res1 :stream *error-output*)
+      (print-sparql-results res2 :stream *error-output*)
+      (sparql-results-compare res1 res2 :verbosep t :result-label1 in-file :result-label2 out-file)))))
+
+(defun test-srx-compare (in-file out-file &key (stream *error-output*))
+  (let ((i (make-instance 'instans)) res1 res2)
+    (setf res1 (parse-results-file i in-file))
+    (with-open-file (stream out-file :direction :output :if-exists :supersede)
+      (output-results-in-srx res1 stream))
+    (setf res2 (parse-results-file i out-file))
+;    (format stream "~&res2 = ~S~%" res2)
+    (unless (sparql-results-compare res1 res2)
+      (format stream "~&Comparing results in ~S to a copy~%~%" in-file)
+      (print-sparql-results res1 :stream stream)
+      (print-sparql-results res2 :stream stream)
+      (sparql-results-compare res1 res2 :verbosep t))
+    (cond ((slot-boundp res1 'results)
+	   (add-sparql-result-values res2 (loop for var in (sparql-query-results-variables res1) collect (string (gensym))))
+	   (when (sparql-results-compare res1 res2)
+	     (format stream "~&Comparing results in ~S to a copy with an extra result~%~%" in-file)
+	     (sparql-results-compare res1 res2 :verbosep t))
+	   (unless (null (sparql-query-results-results res1))
+	     (setf res2 (parse-results-file i out-file))
+	     (setf (sparql-query-results-results res2) (cdr (sparql-query-results-results res2)))
+	     (setf (sparql-query-results-tail res2) (if (sparql-query-results-results res2) (last (sparql-query-results-results res2))))
+	     (when (sparql-results-compare res1 res2)
+	       (format stream "~&Comparing results in ~S to a copy with a missing result~%~%" in-file)
+	       (sparql-results-compare res1 res2 :verbosep t))))
+	  ((slot-boundp res1 'boolean)
+	   (setf (sparql-boolean-result-value (sparql-query-results-boolean res2)) (not (sparql-boolean-result-value (sparql-query-results-boolean res2))))
+	   (when (sparql-results-compare res1 res2)
+	     (format stream "~&Comparing results in ~S to a copy with an inverted value~%~%" in-file)
+	     (sparql-results-compare res1 res2 :verbosep t))))))
+
+(defun test-compare-all-srx-files ()
+  (loop for file in (directory "../tests/data-r2/*/*.srx")
+        do (inform "~%File ~A~%" file)
+        do (test-srx-compare (namestring file) "x.srx")))
+
+
+(defun tests-from-manifest (directory &key (rules-file (format nil "~A/tests/input/evaluation-test.rq" (find-instans-root-directory))) (verbosep nil) select-output-name select-output-append-p)
+  (let* ((base (format nil "file://~A" (namestring directory)))
+	 (args (format nil "-b ~A~A -r ~A --input=~A/manifest.ttl" base (if select-output-name (format nil " --select-output~A=~A" (if select-output-append-p "-append" "") select-output-name) "") rules-file directory)))
+    (when verbosep (inform "(main ~S)" args))
+    (main args)))
+
+;(defun tests-from-manifests (&key (rules-file (format nil "~A/tests/input/evaluation-test.rq" (find-instans-root-directory))) select-output-name verbosep)
+(defun tests-from-manifests (&key (rules-file (format nil "~A/tests/input/gettestfiles.rq" (find-instans-root-directory))) select-output-name verbosep)
+  (loop for manifest in (append (directory (format nil "~A/tests/data-r2/*/manifest.ttl" (find-instans-root-directory)))
+				(directory (format nil "~A/tests/data-sparql11/*/manifest.ttl" (find-instans-root-directory))))
+        for appendp = nil then (not (null select-output-name))
+        for dir = (directory-namestring manifest)
+        do (tests-from-manifest dir :rules-file rules-file :select-output-name select-output-name :select-output-append-p appendp :verbosep verbosep)))
+
+(define-class sparql-old-test ()
+  ((test-set :accessor sparql-old-test-test-set :initarg :test-set)
+   (type :accessor sparql-old-test-type :initarg :type)
+   (suite :accessor sparql-old-test-suite :initarg :suite)
+   (collection :accessor sparql-old-test-collection :initarg :collection)
+   (name :accessor sparql-old-test-name :initarg :name)
+   (queryfile :accessor sparql-old-test-queryfile :initarg :queryfile)
+   (datafile :accessor sparql-old-test-datafile :initarg :datafile)
+   (graphdatafiles :accessor sparql-old-test-graphdatafiles :initarg :graphdatafiles)
+   (resultfile :accessor sparql-old-test-resultfile :initarg :resultfile)
+   (resultgraphs :accessor sparql-old-test-resultgraphs :initarg :resultgraphs)
+   (error-message :accessor sparql-old-test-error-message :initform nil)
+   (completed :accessor sparql-old-test-completed :initform nil)
+   (implemented :accessor sparql-old-test-implemented :initform t)
+   (negative :accessor sparql-old-test-negative :initarg :negative)
+   (parse :accessor sparql-old-test-parse :initform nil)
+   (translate :accessor sparql-old-test-translate :initform nil)
+   (initialization :accessor sparql-old-test-initialization :initform nil)
+   (run :accessor sparql-old-test-run :initform nil)
+   (comparable :accessor sparql-old-test-comparable :initform nil)
+   (compare :accessor sparql-old-test-compare :initform nil)
+   (pass :accessor sparql-old-test-pass :initform nil)))
+
+(defgeneric sparql-old-test-successful-p (sparql-old-test)
+  (:method ((this sparql-old-test))
+    (cond ((not (sparql-old-test-completed this)) (error* "Test ~A not completed yet!" (sparql-old-test-name this)))
+	  ((not (sparql-old-test-implemented this)) nil)
+	  ((sparql-old-test-negative this) (not (sparql-old-test-parse this)))
+	  ((not (sparql-old-test-parse this)) nil)
+	  ((not (sparql-old-test-translate this)) nil)
+	  ((not (sparql-old-test-initialization this)) nil)
+	  ((not (sparql-old-test-run this)) nil)
+	  ((not (sparql-old-test-compare this)) (not (sparql-old-test-comparable this)))
+	  (t t))))
+
+(define-class sparql-old-test-set ()
+  ((entries :accessor sparql-old-test-set-entries :initarg :entries :initform nil)
+   (fields :accessor sparql-old-test-set-fields
+	   :allocation :class
+	   :initform '(suite collection name queryfile datafile implemented negative parse translate run comparable compare pass))))
+
+(defun sparql-old-test-fields (test) (sparql-old-test-set-fields (sparql-old-test-test-set test)))
+
+(defgeneric add-sparql-old-test (sparql-old-test-set &rest keys &key type negative suite collection name queryfile datafile graphdatafile resultfile resultgraphfile resultgraphlabel)
+  (:method ((this sparql-old-test-set) &rest keys &key type negative suite collection name queryfile datafile graphdatafile resultfile resultgraphfile resultgraphlabel)
+    (declare (ignorable keys))
+;    (inform "enter add-sparql-old-test ~A" keys)
+    (flet ((string=* (x y)
+	     (cond ((null x) (null y))
+		   ((null y) nil)
+		   (t (string= x y)))))
+      (let ((matching (find-if #'(lambda (test)
+				   (and (string=* (sparql-old-test-name test) name)
+					(string=* (sparql-old-test-suite test) suite)
+					(string=* (sparql-old-test-collection test) collection)
+					(string=* (sparql-old-test-queryfile test) queryfile)))
+			       (sparql-old-test-set-entries this))))
+;	(inform "matching = ~A" matching)
+	(cond ((null matching)
+	       (push-to-end (setf matching (make-instance 'sparql-old-test
+							  :test-set this
+							  :type type :negative negative :suite suite :collection collection :name name
+							  :queryfile queryfile :datafile datafile
+							  :graphdatafiles (and graphdatafile (list graphdatafile))
+							  :resultfile resultfile
+							  :resultgraphs (and resultgraphfile (list (list resultgraphfile resultgraphlabel)))))
+			    (sparql-old-test-set-entries this)))
+	      (t
+	       (setf (sparql-old-test-datafile matching) (or (sparql-old-test-datafile matching) datafile))
+	       (setf (sparql-old-test-resultfile matching) (or (sparql-old-test-resultfile matching) resultfile))
+	       (when graphdatafile
+		 (push-to-end-new graphdatafile (sparql-old-test-graphdatafiles matching) :test #'equal))
+	       (when resultgraphfile
+		 (push-to-end-new (list resultgraphfile resultgraphlabel) (sparql-old-test-resultgraphs matching)
+				  :test #'(lambda (a b)
+					    (and (equal (first a) (first b)) (equal (second a) (second b))))))
+;	       (describe matching)
+	       ))
+	(setf (sparql-old-test-comparable matching) (not (null (or (sparql-old-test-resultfile matching) (sparql-old-test-resultgraphs matching)))))))
+					;    (inform "exit add-sparql-old-test ~A" keys)
+    ))
+
+(defgeneric print-sparql-old-test-set (sparql-old-test-set &key output output-type)
+  (:method ((this sparql-old-test-set) &key output (output-type :csv))
+    (let (stream)
+      (unless output (setf output *error-output*))
+      (unwind-protect
+	   (progn
+	     (setf stream
+		   (cond ((typep output 'stream) stream)
+			 (t ;(inform "open-file ~A" output)
+			    (open-file output :direction :output :if-exists :supersede :fmt "print-sparql-old-test-set: open ~{~A~^ ~}"))))
+	     (print-sparql-old-test-headers this :stream stream :output-type output-type)
+	     (loop for test-number from 1
+		   for test in (sparql-old-test-set-entries this)
+		   do (print-sparql-old-test test :stream stream :output-type output-type :test-number test-number))
+	     (print-sparql-old-test-trailers this :stream stream :output-type output-type))
+	(unless (typep output 'stream)
+;	  (inform "closing ~A" stream)
+	  (close-stream stream "print-sparql-old-test-set: close ~A"))))))
+
+(defgeneric print-sparql-old-test-headers (sparql-old-test-set &key stream output-type)
+  (:method ((this sparql-old-test-set) &key stream (output-type :csv))
+    (case output-type
+      (:txt)
+      (:lisp (error* "Not implemented yet"))
+      (:csv (format stream "~{~A~^,~}" (sparql-old-test-set-fields this)))
+      (:html ;(inform "(sparql-old-test-set-fields this) = ~A, stream = ~A" (sparql-old-test-set-fields this) stream)
+	     (format stream "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\">
+<html>
+<head>
+<meta charset=\"utf-8\"> 
+<title>Syntax tests</title>
+<style type=\"text/css\" title=\"currentStyle\">
+  @import \"DataTables/media/css/demo_page.css\";
+  @import \"DataTables/media/css/demo_table.css\";
+  @import \"DataTables/extras/ColumnFilterWidgets/media/css/ColumnFilterWidgets.css\";
+</style>
+<style type=\"text/css\">
+table {
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 1px solid black;
+}
+
+#Summary table th {
+  width: 4em;
+}
+
+#Summary table td {
+  height: 1.5em;
+  vertical-align: bottom;
+}
+
+.succeeded { background: #BDFF9D;
+}
+
+.failed { background: #FF4D4D;
+}
+
+.succeeded { background: #BDFF9D;
+}
+
+.failed { background: #FF4D4D;
+}
+
+.note { background: #66CCFF;
+}
+
+table, tr, th, td {
+  text-align: left;
+  vertical-align: top;
+}
+</style>
+<script type=\"text/javascript\" src=\"DataTables/media/js/jquery.js\"></script>
+<script type=\"text/javascript\" src=\"DataTables/media/js/jquery.dataTables.js\"></script>
+<script type=\"text/javascript\" src=\"DataTables/extras/ColumnFilterWidgets/media/js/ColumnFilterWidgets.js\"></script>
+<script type=\"text/javascript\" src=\"DataTables/extras/ColReorder/media/js/ColReorder.js\"></script>
+<script type=\"text/javascript\">
+	$(document).ready( function () {
+
+      var suitesCollections = [''];
+      var suitesCollectionsHash = new Object();
+    $('#TestResults').dataTable( { \"bPaginate\": false, \"sDom\": 'W<\"clear\">ilfrtp', \"oColumnFilterWidgets\": { \"aiExclude\": [ 3, 4, 5 ] } } );
+    function updateCountsSuiteCollection(testResults, suiteCollection) {
+      var allTests = 0;
+      var passYesTests = 0;
+      var passNoTests = 0;
+      var implementYesTests = 0;
+      var implementNoTests = 0;
+      var negativeSyntaxTests = 0;
+      var positiveSyntaxTests = 0;
+      var parseYesNegativeSyntaxTests = 0;
+      var parseNoNegativeSyntaxTests = 0;
+      var parseYesPositiveSyntaxTests = 0;
+      var parseNoPositiveSyntaxTests = 0;
+      var translateYesTests = 0;
+      var translateNoTests = 0;
+      var initializeYesTests = 0;
+      var initializeNoTests = 0;
+      var runYesTests = 0;
+      var runNoTests = 0;
+      var comparableYesTests = 0;
+      var comparableNoTests = 0;
+      var compareYesTests = 0;
+      var compareNoTests = 0;
+//      alert('updateCountsSuiteCollection ' + suiteCollection);
+      var trSel = (suiteCollection != '' ? 'tr.'+suiteCollection : 'tr');
+      $(testResults).find(trSel+':visible').each(function () {
+          allTests = allTests + 1;
+          $(this).find('td.pass').each(function () {
+            if ($(this).html() == 't') passYesTests = passYesTests + 1;
+            else passNoTests = passNoTests + 1;
+          });
+          $(this).find('td.implemented').each(function () {
+            if ($(this).html() == 't') implementYesTests = implementYesTests + 1;
+            else implementNoTests = implementNoTests + 1;
+          });
+          $(this).find('td.negative').each(function () {
+            if ($(this).html() == 't') {
+              negativeSyntaxTests = negativeSyntaxTests + 1;
+              $(this).parent().find('td.parse').each(function () {
+                if ($(this).html() == 't') parseYesNegativeSyntaxTests = parseYesNegativeSyntaxTests + 1;
+                else parseNoNegativeSyntaxTests = parseNoNegativeSyntaxTests + 1;
+              });
+            } else {
+              positiveSyntaxTests = positiveSyntaxTests + 1;
+              $(this).parent().find('td.parse').each(function () {
+              if ($(this).html() == 't') {
+                parseYesPositiveSyntaxTests = parseYesPositiveSyntaxTests + 1;
+                $(this).parent().find('td.translate').each(function () {
+                  if ($(this).html() == 't') {
+                    translateYesTests = translateYesTests + 1;
+                    $(this).parent().find('td.run').each(function () {
+                      if ($(this).html() == 't') {
+                        runYesTests = runYesTests + 1;
+                        $(this).parent().find('td.comparable').each(function () {
+                          if ($(this).html() == 't') {
+                            comparableYesTests = comparableYesTests + 1;
+                            $(this).parent().find('td.compare').each(function () {
+                            if ($(this).html() == 't') {
+                              compareYesTests = compareYesTests + 1;
+                            } else compareNoTests = compareNoTests + 1;
+                          });
+                          } else comparableNoTests = comparableNoTests + 1;
+                      });
+                      } else runNoTests = runNoTests + 1;
+                    });
+                  } else translateNoTests = translateNoTests + 1;
+                });
+              } else parseNoPositiveSyntaxTests = parseNoPositiveSyntaxTests + 1;
+              });
+            }
+          });
+        });
+        $('#'+suiteCollection+'-pass-yes').html(passYesTests);  
+        $('#'+suiteCollection+'-pass-no').html(passNoTests);  
+        $('#'+suiteCollection+'-pass-sum').html(passYesTests + passNoTests);  
+        $('#'+suiteCollection+'-implemented-yes').html(implementYesTests);  
+        $('#'+suiteCollection+'-implemented-no').html(implementNoTests);  
+        $('#'+suiteCollection+'-implemented-sum').html(implementYesTests + implementNoTests);  
+        $('#'+suiteCollection+'-negativeSyntax-yes').html(negativeSyntaxTests);  
+        $('#'+suiteCollection+'-negativeSyntax-no').html(positiveSyntaxTests);  
+        $('#'+suiteCollection+'-negativeSyntax-sum').html(negativeSyntaxTests + positiveSyntaxTests);  
+        $('#'+suiteCollection+'-parseNegative-yes').html(parseYesNegativeSyntaxTests);  
+        $('#'+suiteCollection+'-parseNegative-no').html(parseNoNegativeSyntaxTests);  
+        $('#'+suiteCollection+'-parseNegative-sum').html(parseYesNegativeSyntaxTests + parseNoNegativeSyntaxTests);  
+        $('#'+suiteCollection+'-parsePositive-yes').html(parseYesPositiveSyntaxTests);  
+        $('#'+suiteCollection+'-parsePositive-no').html(parseNoPositiveSyntaxTests);  
+        $('#'+suiteCollection+'-parsePositive-sum').html(parseYesPositiveSyntaxTests + parseNoPositiveSyntaxTests);  
+        $('#'+suiteCollection+'-translate-yes').html(translateYesTests);  
+        $('#'+suiteCollection+'-translate-no').html(translateNoTests);  
+        $('#'+suiteCollection+'-translate-sum').html(translateYesTests + translateNoTests);  
+        $('#'+suiteCollection+'-run-yes').html(runYesTests);  
+        $('#'+suiteCollection+'-run-no').html(runNoTests);
+        $('#'+suiteCollection+'-run-sum').html(runYesTests + runNoTests);  
+        $('#'+suiteCollection+'-comparable-yes').html(comparableYesTests);  
+        $('#'+suiteCollection+'-comparable-no').html(comparableNoTests);  
+        $('#'+suiteCollection+'-comparable-sum').html(comparableYesTests + comparableNoTests);  
+        $('#'+suiteCollection+'-compare-yes').html(compareYesTests);  
+        $('#'+suiteCollection+'-compare-no').html(compareNoTests);  
+        $('#'+suiteCollection+'-compare-sum').html(compareYesTests + compareNoTests);  
+    }
+    function addSummaryRow(suiteCollection) {
+      $('#Summary').append('<tr><td>'+suiteCollection+'</td><td class=\"succeeded\"><span id=\"'+suiteCollection+'-pass-yes\" class=\"yes\"></span></td><td class=\"failed\"><span id=\"'+suiteCollection+'-pass-no\" class=\"no\"></span></td><td><span id=\"'+suiteCollection+'-pass-sum\" class=\"sum\"></span></td><td><span id=\"'+suiteCollection+'-implemented-yes\" class=\"yes\"></span></td><td class=\"failed\"><span id=\"'+suiteCollection+'-implemented-no\" class=\"no\"></span></td><td><span id=\"'+suiteCollection+'-implemented-sum\" class=\"sum\"></span></td><td><span id=\"'+suiteCollection+'-negativeSyntax-yes\" class=\"yes\"></span></td><td><span id=\"'+suiteCollection+'-negativeSyntax-no\" class=\"no\"></span></td><td><span id=\"'+suiteCollection+'-negativeSyntax-sum\" class=\"sum\"></span></td><td class=\"failed\"><span id=\"'+suiteCollection+'-parseNegative-yes\" class=\"yes\"></span></td><td class=\"succeeded\"><span id=\"'+suiteCollection+'-parseNegative-no\" class=\"no\"></span></td><td><span id=\"'+suiteCollection+'-parseNegative-sum\" class=\"sum\"></span></td><td><span id=\"'+suiteCollection+'-parsePositive-yes\" class=\"yes\"></span></td><td class=\"failed\"><span id=\"'+suiteCollection+'-parsePositive-no\" class=\"no\"></span></td><td><span id=\"'+suiteCollection+'-parsePositive-sum\" class=\"sum\"></span></td><td><span id=\"'+suiteCollection+'-translate-yes\" class=\"yes\"></span></td><td class=\"failed\"><span id=\"'+suiteCollection+'-translate-no\" class=\"no\"></span></td><td><span id=\"'+suiteCollection+'-translate-sum\" class=\"sum\"></span></td><td><span id=\"'+suiteCollection+'-run-yes\" class=\"yes\"></span></td><td class=\"failed\"><span id=\"'+suiteCollection+'-run-no\" class=\"no\"></span></td><td><span id=\"'+suiteCollection+'-run-sum\" class=\"sum\"></span></td><td><span id=\"'+suiteCollection+'-comparable-yes\" class=\"yes\"></span></td><td class=\"succeeded\"><span id=\"'+suiteCollection+'-comparable-no\" class=\"no\"></span></td><td><span id=\"'+suiteCollection+'-comparable-sum\" class=\"sum\"></span></td><td class=\"succeeded\"><span id=\"'+suiteCollection+'-compare-yes\" class=\"yes\"></span></td><td class=\"failed\"><span id=\"'+suiteCollection+'-compare-no\" class=\"no\"></span></td><td><span id=\"'+suiteCollection+'-compare-sum\" class=\"sum\"></span></td></tr>');
+      $('#Summary tr td span').each(function () {
+        if ($(this).html() == '0') {
+          $(this).parent().removeClass('succeeded');
+          $(this).parent().removeClass('failed');
+        }
+      });
+    }
+    function updateCounts(testResults) {
+      $('#Summary tr').detach();
+      $('#Summary').append('<tr><th></th><th colspan=\"3\">Pass</th><th colspan=\"3\">Implemented</th><th colspan=\"3\">Negative syntax</th><th colspan=\"3\">Parse negative (of <sup class=\"note\">[1]</sup>)</th><th colspan=\"3\">Parse positive (of <sup class=\"note\">[1]</sup>)</th><th colspan=\"3\">Translate (of <sup class=\"note\">[2]</sup>)</th><th colspan=\"3\">Run (of <sup class=\"note\">[3]</sup>)</th><th colspan=\"3\">Comparable (of <sup class=\"note\">[4]</sup>)</th><th colspan=\"3\">Compare (of <sup class=\"note\">[5]</sup>)</th></tr>');
+      $('#Summary').append('<tr><th></th><th>Yes</th><th>No</th><th>Sum</th><th>Yes<sup class=\"note\">[1]</sup></th><th>No</th><th>Sum</th><th>Yes</th><th>No</th><th>Sum</th><th>Yes</th><th>No</th><th>Sum</th><th>Yes<sup class=\"note\">[2]</sup></th><th>No</th><th>Sum</th><th>Yes<sup class=\"note\">[3]</sup></th><th>No</th><th>Sum</th><th>Yes<sup class=\"note\">[4]</sup></th><th>No</th><th>Sum</th><th>Yes<sup class=\"note\">[5]</sup></th><th>No</th><th>Sum</th><th>Yes</th><th>No</th><th>Sum</th></tr>');
+      addSummaryRow('');
+      updateCountsSuiteCollection(testResults, '');
+      $(testResults).find('tr:visible').each(function () {
+        if ($(this).attr('id')) {
+          var suiteCollectionName = $(this).attr('id');
+          var suiteCollection = suiteCollectionName.slice(0, suiteCollectionName.indexOf('_'));
+	  if (!suitesCollectionsHash[suiteCollection]) {
+//            alert('Found ' + suiteCollectionName + ', suiteCollection = ' + suiteCollection);
+	    suitesCollectionsHash[suiteCollection] = true;
+	    suitesCollections.push(suiteCollection);
+            addSummaryRow(suiteCollection);
+            updateCountsSuiteCollection(testResults, suiteCollection);
+	  }
+        }
+      });
+      suitesCollections.reverse();
+    }
+    $('#TestResults').each(function () { updateCounts(this); });
+    $('#TestResults').on('draw.dt', function () { updateCounts(this);});
+} );
+</script>
+</head>
+<body>
+<h2>Summary</h2>
+<table id=\"Summary\">
+</table>
+<h2>Tests</h2>
+<table id=\"TestResults\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"display\" width=\"100%\">
+<thead>
+<tr>
+  <th class=\"test-number\">Number</th>
+~{  ~{<th class=\"~(~A~)\">~(~A~)</th>~}~^~%~}
+</tr>
+</thead>
+<tbody>~%" (mapcar #'(lambda (f) (list f f)) (sparql-old-test-set-fields this))))
+      (t (error* "Unknown output-type ~A" output-type)))))
+
+(defgeneric print-sparql-old-test-trailers (sparql-old-test-set &key stream output-type)
+  (:method ((this sparql-old-test-set) &key stream (output-type :csv))
+    (case output-type
+      (:txt)
+      (:lisp)
+      (:csv)
+      (:html (format stream "~%<tbody>
+</table>
+<hr/>
+</body>
+</html>~%"))
+      (t (error* "Unknown output-type ~A" output-type)))))
+
+(defgeneric print-sparql-old-test (sparql-old-test &key stream output-type test-number)
+  (:method ((this sparql-old-test) &key stream (output-type :csv) test-number)
+    (flet ((sparql-value-to-string* (v) (if (stringp v) v (sparql-value-to-string v))))
+      (case output-type
+	(:txt (format stream "~&sparql-old-test:~%~{  ~{~(~A~) = ~A~}~^~%~}~%" (mapcar #'(lambda (field) (list field (slot-value this field))) (sparql-old-test-fields this))))
+	(:lisp (error* "Not implemented yet"))
+	(:csv (format stream "~&~{~A~^,~}~%" (mapcar #'(lambda (f) (sparql-value-to-string* (slot-value this f))) (sparql-old-test-fields this))))
+	(:html (format stream "~&<tr class=\"~(~A~)-~(~A~)\" id=\"~(~A~)-~(~A~)_~(~A~)\">~%<td class=\"test-number\">~A</td>~%~{~{  <td class=\"~(~A~)\">~(~A~)</td>~}</td>~^~%~}~%</tr>~%"
+		       (sparql-old-test-suite this) (sparql-old-test-collection this)(sparql-old-test-suite this) (sparql-old-test-collection this) (sparql-old-test-name this) (if test-number test-number "") (mapcar #'(lambda (f) (list f (slot-value this f))) (sparql-old-test-fields this))))
+	(t (error* "Unknown output-type ~A" output-type))))))
+
+;(defun evaluation-test (rule-file data-file &key graph-data-file select-results-file construct-results-file (output-directory "."))
+
+(defgeneric expand-sparql-old-test-path (sparql-old-test pathname)
+  (:method ((this sparql-old-test) pathname)
+    (and pathname (format nil "~Atests/~A/~A/~A" (find-instans-root-directory) (sparql-old-test-suite this) (sparql-old-test-collection this) pathname))))
+
+(defgeneric run-one-sparql-old-test (sparql-old-test &key output-dir-name log-file print-queryfile print-datafile print-resultfile)
+  (:method ((this sparql-old-test) &key (output-dir-name "cmpoutput") log-file print-queryfile print-datafile (print-resultfile nil))
+    (unless (char= (char output-dir-name (1- (length output-dir-name))) #\/)
+      (setf output-dir-name (format nil "~A/" output-dir-name)))
+    (let (log-stream)
+      (unwind-protect
+	   (progn
+	     (setf (sparql-old-test-completed this) nil)
+	     (setf log-stream (if log-file
+				  (open-file log-file :direction :output :if-exists :append :if-does-not-exist :create :fmt "run-one-sparql-old-test: open ~{~A~^ ~}")
+				  *error-output*))
+	     (format log-stream "~&---------------~%")
+	     (format log-stream "~&~A-~A-~A~%" (sparql-old-test-suite this) (sparql-old-test-collection this) (sparql-old-test-name this))
+;	     (print-sparql-old-test this :stream log-stream :output-type :txt)
+	     (format log-stream "~&---------------~%")
+	     (let* ((queryfile (expand-sparql-old-test-path this (sparql-old-test-queryfile this)))
+		    (output-directory (expand-sparql-old-test-path this output-dir-name))
+		    (datafile (expand-sparql-old-test-path this (sparql-old-test-datafile this)))
+		    (graph-datafiles (mapcar #'(lambda (file) (expand-sparql-old-test-path this file)) (sparql-old-test-graphdatafiles this)))
+		    (resultfile (expand-sparql-old-test-path this (sparql-old-test-resultfile this)))
+		    (resultfilebase (if resultfile (subseq (file-namestring resultfile) 0 (position #\. (file-namestring resultfile) :from-end t))))
+		    (resulttype (and resultfile (intern-keyword (string-upcase (pathname-type (parse-namestring resultfile))))))
+;		    (resultgraphs (mapcar #'(lambda (x) (list (expand-sparql-old-test-path this (first x)) (second x))) (sparql-old-test-resultgraphs this)))
+		    output-ttl-file compare-result
+		    (instans-iri (parse-iri (format nil "file://~A" queryfile)))
+		    (instans (create-instans instans-iri))
+		    (base (parse-iri (format nil "file://~A" (directory-namestring queryfile)))))
+	       (ensure-directories-exist output-directory)
+					;		   (inform "~&~A~%" (probe-file output-directory))
+					;		   (trace translate-sparql-algebra-to-rete)
+	       (when (and print-queryfile queryfile)
+		 (inform "Query ~A:~%~A~%" queryfile (file-contents-to-string queryfile)))
+	       ;;; Add rules and test for parsing, translation and initialization
+	       (inform "Trying to add rules in ~A" (sparql-old-test-name this))
+	       (instans-add-rules instans queryfile)
+					;		   (untrace)
+	       (setf (sparql-old-test-parse this) (instans-has-status instans (intern-instans "INSTANS-RULE-PARSING-SUCCEEDED")))
+	       (inform "Test ~A parse = ~A" (sparql-old-test-name this) (sparql-old-test-parse this))
+	       (setf (sparql-old-test-translate this) (instans-has-status instans (intern-instans "INSTANS-RULE-TRANSLATION-SUCCEEDED")))
+	       (setf (sparql-old-test-initialization this) (instans-has-status instans (intern-instans "INSTANS-RULE-INITIALIZATION-SUCCEEDED")))
+	       (let* ((runp (and (sparql-old-test-parse this) (sparql-old-test-translate this)))
+		      (rule-types (instans-rule-types instans))
+		      (select-rules-p (member 'select-node rule-types))
+		      (ask-rules-p (member 'ask-node rule-types))
+		      (describe-rules-p (member 'describe-node rule-types))
+		      (construct-rules-p (member 'construct-node rule-types))
+		      (modify-rules-p (member 'modify-node rule-types)))
+		 (when runp
+                   ;;; Set select and construct output processors
+		   (cond ((< 1 (length rule-types))
+			  (inform "Query file contains several kinds of rules ~A" queryfile)
+			  (setf runp nil))
+			 ((= 1 (length rule-types))
+			  (cond (select-rules-p
+				 (when resultfile
+				   (setf output-ttl-file (format nil "~A~A.ttl" output-directory resultfilebase))
+				   (setf (instans-select-output-processor instans) (create-select-output-processor instans output-ttl-file :ttl))))
+				((or ask-rules-p describe-rules-p modify-rules-p)
+				 nil)
+				(construct-rules-p
+				 (when resultfile
+				   (setf output-ttl-file (format nil "~A~A.ttl" output-directory resultfilebase))
+				   (setf (instans-construct-output-processor instans) (create-construct-output-processor instans output-ttl-file :ttl))))))))
+		 (when runp
+		   (handler-case
+		       (progn
+			 (when datafile
+			   (when print-datafile
+			     (inform "Datafile ~A:~%~A~%" datafile (file-contents-to-string datafile)))
+			   (instans-add-stream-input-processor instans datafile :base base :input-type (intern-keyword (string-upcase (file-type datafile)))))
+			 (loop for graph-datafile in graph-datafiles
+			       do (instans-add-stream-input-processor instans graph-datafile :base base :input-type (intern-keyword (string-upcase (file-type graph-datafile))))))
+		     (t (e)
+		       (inform "Adding datafile(s) failed in test ~A: ~A" (sparql-old-test-name this) e)
+		       (setf runp nil))))
+		   ;;; Run the tests, check for status
+		 (when runp
+		   (instans-run instans)
+		   (instans-close-open-streams instans)
+		   (setf (sparql-old-test-run this) (instans-has-status instans 'instans-rule-running-succeeded))
+		   (setf (sparql-old-test-implemented this) (not (instans-has-status instans 'instans-feature-not-implemented-yet))))
+		 (when (and (sparql-old-test-run this) (sparql-old-test-comparable this))
+		   (cond (select-rules-p
+			    ;;; If the results file is not ttl-file, we must create a comparable ttl file (if it does not exist already)
+			  (setf resultfile 
+				(cond ((eq resulttype :ttl) resultfile)
+				      (t
+				       (let* ((fn (file-namestring resultfile))
+					      (ttl-resultfile (format nil "~A~A-converted.ttl" output-directory (subseq fn 0 (position #\. fn :from-end t)))))
+					;					   (or (probe-file ttl-resultfile)
+					 (maybe-convert-result-file-to-ttl instans resultfile resulttype ttl-resultfile)))))
+			  (unless (null resultfile)
+			    (setf compare-result (sparql-compare-ttl-result-files resultfile output-ttl-file))))
+			 (construct-rules-p 
+			  (unless (eq resulttype :ttl)
+			    (error* "Not a ttl resultfile ~A" resultfile))
+			  (setf compare-result (sparql-compare-ttl-result-files resultfile output-ttl-file)))
+			 ((or ask-rules-p describe-rules-p modify-rules-p)
+			  (setf compare-result nil)))
+		   (setf (sparql-old-test-compare this) compare-result)
+		   (inform "Compare result ~A -> ~A" resultfile compare-result)
+		   (when (and (not (or ask-rules-p describe-rules-p modify-rules-p)) (not compare-result) resultfile print-resultfile)
+		     (inform "Expected results ~A:~%~A~%" resultfile (file-contents-to-string resultfile))
+		     (inform "Actual results ~A:~%~A~%" output-ttl-file (file-contents-to-string output-ttl-file))))))
+	     (setf (sparql-old-test-completed this) t)
+	     (setf (sparql-old-test-pass this) (sparql-old-test-successful-p this))
+	     (print-sparql-old-test this :output-type :csv :stream log-stream)
+	     )
+	(when log-file (close-stream log-stream "run-sparql-old-test: closing ~A"))))))
+
+(defgeneric run-sparql-old-test-set (sparql-old-test-set &key output-dir-name names-of-tests-to-run names-of-tests-to-avoid name-of-first-test-to-start-at log-file)
+  (:method ((this sparql-old-test-set) &key (output-dir-name "cmpoutput") names-of-tests-to-run
+				  (names-of-tests-to-avoid (list "dawg-delete-insert-01" "dawg-delete-insert-05b" ;; These loop on INSTANS
+								 "md5-01" "md5-02" "sha1-01" "sha1-02" "sha256-01" "sha256-02" "sha512-01" "sha512-02" ;; Not implemented
+								 ))
+				  name-of-first-test-to-start-at log-file)
+    (when (and log-file (probe-file log-file)) (delete-file log-file))
+    (let ((entries (sparql-old-test-set-entries this)))
+      (when name-of-first-test-to-start-at
+	(loop for test = (first entries)
+	      while (not (search name-of-first-test-to-start-at (sparql-old-test-name test) :test #'equalp))
+	      do (pop entries)))
+      (loop for test in entries
+	    for test-name = (sparql-old-test-name test)
+	    when (and (or (null names-of-tests-to-run) (find test-name names-of-tests-to-run :test #'(lambda (x y) (search y x :test #'equalp))))
+		      (not (find test-name names-of-tests-to-avoid :test #'(lambda (x y) (search y x :test #'equalp)))))
+	    do (run-one-sparql-old-test test :output-dir-name output-dir-name :log-file log-file)))))
+
+(defvar *sparql-old-test-set* nil)
+
+(defun rst (&optional suite collection name)
+  (loop for test in (sparql-old-test-set-entries (or *sparql-old-test-set* (parse-tests)))
+	when (and (or (null suite) (equal suite (sparql-old-test-suite test)))
+		  (or (null collection) (equal collection (sparql-old-test-collection test)))
+		  (or (null name) (equal name (sparql-old-test-name test))))
+	do (progn
+	     (inform "Running ~A-~A-~A" (sparql-old-test-suite test) (sparql-old-test-collection test) (sparql-old-test-name test))
+	     (run-one-sparql-old-test test :log-file nil :print-queryfile t :print-datafile t :print-resultfile t)
+	     (print-sparql-old-test test :stream *error-output* :output-type :txt))))
+
+(defun parse-tests (&key (rules-file (format nil "~A/tests/input/gettestfiles.rq" (find-instans-root-directory)))
+		      (tests-csv-file (format nil "~A/tests/sparql-old-test-set/sparql-old-test-set.csv" (find-instans-root-directory))))
+  (tests-from-manifests :rules-file rules-file :select-output-name tests-csv-file)
+  (setf *sparql-old-test-set* (parse-csv-tests tests-csv-file)))
+
+(defun csv-file-to-alist (csv-file &key key-fields (key-test #'equal)
+				     (data-field-merge #'(lambda (field-key new-value old-values)
+							   (declare (ignorable field-key))
+							   (append old-values (list new-value))))
+				     (data-field-initial-value nil))
+  (let ((alist nil)
+	(headers nil)
+	(key-indices nil)
+	(firstp t)
+	(line-count 0)
+	(unique-key-count 0))
+    (csv-parser:map-csv-file csv-file
+			     #'(lambda (line)
+				 (cond (firstp
+					(setf firstp nil)
+					(setf headers line)
+					(setf key-indices (loop for key-field in key-fields
+								for key-index = (position key-field line :test #'equal)
+								when (null key-index)
+								do (error* "Missing key field ~A in CSV headers ~A" key-field headers)
+								else
+								collect key-index)))
+				       (t
+					(incf line-count)
+					(multiple-value-bind (key-fields named-data-fields)
+					    (loop for field in line
+						  for index from 0
+						  when (find index key-indices :test #'eql) collect field into key-fields
+						  else collect (list (nth index headers) field) into named-data-fields
+						  finally (return (values key-fields named-data-fields)))
+					  (let ((item (assoc key-fields alist :test key-test))
+						(prev-data-fields nil))
+					    (cond ((null item)
+					;						   (inform "First hit for ~A" key-fields)
+						   (incf unique-key-count)
+						   (setf item (list key-fields))
+						   (setf prev-data-fields (loop repeat (length named-data-fields) collect data-field-initial-value))
+						   (push-to-end item alist))
+						  (t
+					;						   (inform "New hit for ~A" key-fields)
+						   (setf prev-data-fields (second item))))
+					    (setf (cdr item)
+						  (list (mapcar #'(lambda (k a b) (funcall data-field-merge k a b))
+								(mapcar #'first named-data-fields) (mapcar #'second named-data-fields) prev-data-fields)))))))))
+    (assert (= (length alist) unique-key-count))
+    (values alist headers line-count unique-key-count)))
+
+(defun simple-field-merge (field-key new-value old-value-or-values)
+  (declare (ignorable field-key))
+; (let ((v
+  (cond ((equal new-value "UNBOUND") old-value-or-values)
+	((equal old-value-or-values "UNBOUND") new-value)
+	((equal new-value old-value-or-values) new-value)
+	((and (listp old-value-or-values) (member new-value old-value-or-values :test #'equal)) old-value-or-values)
+	(t (cons new-value old-value-or-values))))
+      ;; )
+  ;; (unless (null v) (inform "v = ~S" v))
+  ;; v))
+
+(defun parse-csv-tests (csv-file &key (skip-lines 1))
+  (let ((tests (make-instance 'sparql-old-test-set)))
+;    (inform "test-iri-list ~A" test-iri-list)
+    (csv-parser:map-csv-file csv-file #'(lambda (line)
+					  (destructuring-bind (type negative suite collection name queryfile datafile graphdatafile resultfile resultgraphfile resultgraphlabel)
+					      (mapcar #'(lambda (x) (if (string= "UNBOUND" x) nil x)) line)
+					;					    (inform "resultfile=~A" resultfile)
+					    (add-sparql-old-test tests
+							     :type type :negative (parse-xsd-boolean negative) :suite suite :collection collection :name name
+							     :queryfile queryfile :datafile datafile :graphdatafile graphdatafile
+							     :resultfile resultfile :resultgraphfile resultgraphfile :resultgraphlabel resultgraphlabel)))
+			     :skip-lines skip-lines)
+    tests))
+
+(defun categorize-query-file (filename test-type)
+  (let* ((instans (create-instans)))
+    (instans-add-rules instans filename)
+    (let ((types (instans-rule-types instans)))
+      (cond ((null types)
+	     (unless (member test-type '("mf:NegativeSyntaxTest" "mf:NegativeSyntaxTest11" "mf:NegativeUpdateSyntaxTest11") :test #'equal)
+	       (inform "Null rule types in ~A (test-type ~A)" filename test-type))
+	     nil)
+	    ((null (cdr types)) (car types))
+	    (t (inform "Several rule types in ~A: ~A" filename types)
+	       types)))))
+
+(defun categorize-data-file (filename)
+  (let ((type (and (file-type filename) (intern-keyword (string-upcase (file-type filename))))))
+    type))
+
+(defun categorize-result-file (filename)
+  (let ((type (and (file-type filename) (intern-keyword (string-upcase (file-type filename))))))
+    (assert* type "Null type in datafile ~A" filename)
+    type))
+
+(defun categorize-result-graph-label (field)
+  (cond ((http-iri-string-p field) :http-iri)
+	((file-iri-string-p field) :file-iri)
+	(t field)))
+
+(defun splice-list (list from below &optional by)
+  (loop for i from from below below by by
+        collect (nth i list)))
+
+(defun categorize-tests (&optional (key-length 4))
+  (multiple-value-bind (test-alist headers) (csv-file-to-alist "/Users/enu/instans/tests/sparql-old-test-set/sparql-old-test-set.csv" :key-fields '("type" "suite" "collection" "name") :data-field-merge #'simple-field-merge)
+;    (inform "headers = ~S" headers)
+    (let ((*print-right-margin* 200)
+	  (instans-root-dir (find-instans-root-directory)))
+      ;; (loop for test in (splice-list test-alist 0 (length test-alist) 20)
+      ;; 	    do (inform "key = ~S~%data = ~S~%" (first test) (second test)))
+      (labels ((abstract-field (test-type dir field field-name)
+		 (unless (listp field) (setf field (list field)))
+		 (let ((v
+			;; (loop for f in field
+			;;       collect (case field-name
+			;; 		(:queryfile (categorize-query-file (format nil "~A/~A" instans-root-dir (subseq f 1 (1- (length f))))))
+			;; 		((:datafile :resultgraphdata)
+			;; 		 (categorize-data-file (format nil "~A/~A" instans-root-dir (subseq f 1 (1- (length f))))))
+			;; 		(:resultdata
+			;; 		 (categorize-result-file (format nil "~A/~A" instans-root-dir (subseq f 1 (1- (length f))))))
+			;; 		(t f))))
+			(loop for f in field
+			      collect
+;			     (informing (format nil "in dir ~S field-name ~S f ~S -> ~~S" dir field-name f)
+					(case field-name
+					  (:queryfile (categorize-query-file (format nil "~A/~A" dir f) test-type))
+					  ((:datafile :graphfile)
+					   (categorize-data-file (format nil "~A/~A" dir f)))
+					  ((:resultfile :resultgraphfile)
+					   (categorize-result-file (format nil "~A/~A" dir f)))
+					  (:resultgraphlabel (categorize-result-graph-label f))
+					  (t f))
+;					)
+			     ))
+		       )
+;		   (inform "abstract-field -> ~S" v)
+		   v))
+	       (abstract-test (test)
+		 (let* ((key (first test))
+			(test-type (first key))
+			(dir (format nil "~A/tests/~A/~A" instans-root-dir (second key) (third key)))
+			(data
+			 (loop for field in (second test)
+			       for field-name in (nthcdr 4 (mapcar #'(lambda (x) (intern-keyword (string-upcase x))) headers))
+			       collect (abstract-field test-type dir field field-name))))
+;		   (inform "key = ~S~%data = ~S" key data)
+		   (list key data))))
+	(let* ((abstract-test-alist (loop for test in test-alist
+;					  do (inform "test: ~A" test)
+					  collect (abstract-test test))))
+	  ;; (loop for atest in abstract-test-alist
+	  ;; 	for ctest in test-alist
+	  ;; 	do (inform "key = ~S~%cdata = ~S~%adata = ~A~%" (first atest) (second ctest) (second atest)))
+	  (let ((category-alist nil))
+	    (labels ((categorize-test (test)
+		       (let* ((key (first test))
+			      (data (second test))
+			      (category-key (butlast key (- 4 key-length)))
+			      (category-data data)
+			      (item (assoc category-key category-alist :test #'equal)))
+;			 (inform "old-key=~A, old-data=~A~%new-key=~A, new-data=~A" key data category-key category-data)
+			 (cond ((null item)
+				(push-to-end (list category-key category-data) category-alist))
+			       ((not (find category-data (rest item) :test #'equal))
+				(setf (cdr (last item)) (list category-data))))
+			 )))
+	      (loop for test in abstract-test-alist do (categorize-test test))
+	      (values category-alist headers))))))))
+
+(defun show-categorize-tests (&optional (key-length 3))
+  (multiple-value-bind (category-alist headers) (categorize-tests key-length)
+;    (inform "Headers: ~{~A~^ ~}" headers)
+    (let ((*print-right-margin* 250))
+      ;; (loop for test in category-alist
+      ;; 	    do (inform "~A ~{~A~^-~}:~{~%  ~S~}" (caar test) (cdar test) (rest test)))
+      (values category-alist headers))))
+
+ ;; (let ((*print-right-margin* 300) (c (show-categorize-tests 2))) (loop for test in c for dl = (mapcar #'(lambda (d) (list d (position-if #'(lambda (x) x) d :from-end t)))  (rest test)) do (inform "~A~30T~{~A~^-~}~{~45T~{~S ~D~}~^~%~}" (caar test) (cdar test) dl)))
+
+
+(defun sct ()
+  (multiple-value-bind (ct headers) (show-categorize-tests 2)
+    (let ((*print-right-margin* 300))
+      (inform "headers: ~S" headers)
+      (loop for test in ct
+	    for dl = (mapcar #'(lambda (d) (let ((pos (position-if #'(lambda (x) x) d :from-end t)))
+					     (list d (if pos (1+ pos) 0))))
+			     (rest test))
+	    for m = (apply #'max (mapcar #'second dl))
+	    do (inform "~A~30T~{~A~^-~} ~D ~{~48T~{~S ~D~}~^~%~}" (caar test) (cdar test) m dl)))))
+
+(defvar *oink* nil)
+
+(defun process-sparql-old-test-suite (&key (rules-file (format nil "~A/tests/input/gettestfiles.rq" (find-instans-root-directory)))
+				    (tests-csv-file (format nil "~A/tests/sparql-old-test-set/sparql-old-test-set.csv" (find-instans-root-directory)))
+				    (results-type :html)
+				    (results-file (format nil "~A/tests/sparql-old-test-set/sparql-old-test-set-results.~(~A~)" (find-instans-root-directory) results-type))
+				    (log-file (format nil "~A/tests/sparql-old-test-set/sparql-old-test-set-log" (find-instans-root-directory))))
+  (let ((sparql-old-test-set (or *sparql-old-test-set* (parse-tests :rules-file rules-file :tests-csv-file tests-csv-file)))
+	(*oink* t))
+    (declare (special *oink*))
+    (run-sparql-old-test-set sparql-old-test-set :log-file log-file)
+    (print-sparql-old-test-set sparql-old-test-set :output-type results-type :output results-file)))
+
+(defun psts ()
+  (process-sparql-old-test-suite :results-file nil :results-type :txt :log-file nil))
+
+(defun maybe-convert-result-file-to-ttl (instans input-file input-file-type output-file)
+  (case input-file-type
+    (:srx
+     (let ((results (with-open-file (input input-file :direction :input)
+		     (parse-srx-stream instans input input-file))))
+       (with-open-file (output output-file :direction :output :if-exists :supersede)
+	 (output-results-in-ttl results output))
+       output-file))
+    (t (inform "Cannot convert yet ~A" input-file)
+       nil)))
