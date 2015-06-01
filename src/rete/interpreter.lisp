@@ -284,7 +284,7 @@
 
 (defgeneric instans-close-open-streams (instans)
   (:method ((this instans))
-    (handler-case 
+;    (handler-case 
 	(progn
 	  (loop for ip in (instans-input-processors this)
 		do (when (instans-stream-input-processor-p ip)
@@ -293,8 +293,9 @@
 	    (close-output-processor (instans-select-output-processor this)))
 	  (when (instans-construct-output-processor this)
 	    (close-output-processor (instans-construct-output-processor this))))
-      (t (e)
-	(instans-add-status this 'instans-rule-running-failed (list (format nil "~A" e)))))))
+      ;; (t (e)
+      ;; 	 (instans-add-status this 'instans-rule-running-failed (list (format nil "~A" e)))))
+  ))
 
 (defgeneric process-query-input (instans-input-processor inputs &key graph ops)
   (:method ((this instans-input-processor) inputs &key graph ops)

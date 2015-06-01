@@ -242,6 +242,7 @@
 
 (defgeneric output-results-in-srx (query-results stream)
   (:method ((this sparql-query-results) stream)
+;    (describe this)
     (xml-emitter:with-xml-output (stream)
       (xml-emitter:with-tag ("sparql" '(("xmlns" "http://www.w3.org/2005/sparql-results#")))
 	(xml-emitter:with-tag ("head")
@@ -298,6 +299,7 @@
 
 (defgeneric output-results-in-ttl (query-results stream)
   (:method ((this sparql-query-results) stream)
+;    (describe this)
     (format stream "@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
 @prefix rs:      <http://www.w3.org/2001/sw/DataAccess/tests/result-set#> .
 @prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
@@ -313,7 +315,9 @@
 							  (list (list (subseq (uniquely-named-object-name (sparql-binding-variable b)) 1)
 								      (sparql-value-to-string (sparql-binding-value b))))))
 						 (sparql-result-bindings solution)))
-		    (sparql-query-results-results this)))))
+		    (slot-value-with-default this 'results nil)
+		    ;(sparql-query-results-results this)
+		    ))))
 
 ;;; Doing SELECT output
 

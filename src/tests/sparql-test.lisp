@@ -300,32 +300,45 @@
     (t (inform "Cannot convert yet ~A" input-file)
        nil)))
 
+(defgeneric sparql-test-different-semantics-p (sparql-test)
+  (:method ((this sparql-query-evaluation-test))
+    (if (find-if #'(lambda (item)
+		     (and (or (null (first item)) (equal (first item) (sparql-test-suite this)))
+			  (or (null (second item)) (equal (second item) (sparql-test-collection this)))
+			  (or (null (third item)) (equal (third item) (sparql-test-name this)))))
+		 (sparql-test-set-different-semantics (sparql-test-test-set this))) t))
+  (:method ((this sparql-test))
+    (declare (ignore this))
+    nil))
+  
+
 (defgeneric sparql-test-compare-datafile (sparql-test)
   (:method ((this sparql-query-evaluation-test))
-    (let ((resultfile (sparql-test-resultfile this))
-	  (instans (sparql-test-instans this)))
-      (when resultfile
-	(unless (multiple-value-bind (dir namebase type)
-		    (split-path-to-name-and-type-strings resultfile)		    
-		  (declare (ignore dir))
-		  (let* ((resulttype (intern-keyword (string-upcase type)))
-			 (output-dir (sparql-test-output-directory this))
-			 (output-ttl-file (format nil "~A/~A.ttl" output-dir namebase)))
-		    (case (sparql-test-rule-type this)
-		      (SELECT
+    (unless (sparql-test-different-semantics-p this)
+      (let ((resultfile (sparql-test-resultfile this))
+	    (instans (sparql-test-instans this)))
+	(when resultfile
+	  (unless (multiple-value-bind (dir namebase type)
+		      (split-path-to-name-and-type-strings resultfile)		    
+		    (declare (ignore dir))
+		    (let* ((resulttype (intern-keyword (string-upcase type)))
+			   (output-dir (sparql-test-output-directory this))
+			   (output-ttl-file (format nil "~A/~A.ttl" output-dir namebase)))
+		      (case (sparql-test-rule-type this)
+			(SELECT
            ;;; If the results file is not ttl-file, we must create a comparable ttl file (if it does not exist already)
-		       (setf resultfile 
-			     (cond ((eq resulttype :ttl) resultfile)
-				   (t
-				    (let ((ttl-resultfile (format nil "~A/~A-converted.ttl" output-dir namebase)))
-				      (maybe-convert-result-file-to-ttl instans resultfile resulttype ttl-resultfile)))))
-		       (when resultfile (sparql-compare-ttl-result-files resultfile output-ttl-file)))
-		      (CONSTRUCT
-		       (unless (eq resulttype :ttl)
-			 (error* "Not a ttl resultfile ~A" resultfile))
-		       (sparql-compare-ttl-result-files resultfile output-ttl-file))
-		      ((ASK DESCRIBE MODIFY) nil))))
-		  (instans-add-status instans 'instans-rule-comparing-failed)))))
+			 (setf resultfile 
+			       (cond ((eq resulttype :ttl) resultfile)
+				     (t
+				      (let ((ttl-resultfile (format nil "~A/~A-converted.ttl" output-dir namebase)))
+					(maybe-convert-result-file-to-ttl instans resultfile resulttype ttl-resultfile)))))
+			 (when resultfile (sparql-compare-ttl-result-files resultfile output-ttl-file)))
+			(CONSTRUCT
+			 (unless (eq resulttype :ttl)
+			   (error* "Not a ttl resultfile ~A" resultfile))
+			 (sparql-compare-ttl-result-files resultfile output-ttl-file))
+			((ASK DESCRIBE MODIFY) nil))))
+	    (instans-add-status instans 'instans-rule-comparing-failed))))))
     (:method ((this sparql-test))
       this))
   
@@ -346,6 +359,7 @@
        (list :translation-succeeded-p (sv 'translation-succeeded-p))
        (list :initialization-succeeded-p (sv 'initialization-succeeded-p))
        (list :rule-type (sv 'rule-type))
+       (list :different-semantics-p (sparql-test-different-semantics-p this))
        (list :running-succeeded-p (sv 'running-succeeded-p))
        (list :comparing-succeeded-p (sv 'comparing-succeeded-p))))))
 
@@ -385,6 +399,7 @@
     ;;; Run instans
       (sparql-test-run-system this)
     ;;; Set status
+;      (loop for status in (instans-status instans) do (describe status))
       (cond ((instans-has-status instans 'instans-feature-not-implemented-yet)
 	     (setf (sparql-test-not-implemented-p this) t))
 	    ((not (or (instans-has-status instans 'instans-rule-running-succeeded)
@@ -477,6 +492,9 @@
    (collected-tests-csv-file :accessor sparql-test-set-collected-tests-csv-file)
    (results-csv-file :accessor sparql-test-set-results-csv-file)
    (manifests :accessor sparql-test-set-manifests)
+   (different-semantics :accessor sparql-test-set-different-semantics
+			:initform '(("data-r2" "algebra" "nested-opt-1")
+				    ("data-r2" "algebra" "nested-opt-2")))
    (skip-parse-list :accessor sparql-test-set-skip-parse-list :initarg :skip-parse-list :initform nil)
    (skip-run-list :accessor sparql-test-set-skip-run-list :initarg :skip-run-list :initform nil)
    (skip-compare-list :accessor sparql-test-set-skip-compare-list :initarg :skip-compare-list :initform nil)
@@ -486,6 +504,9 @@
    (tests :accessor sparql-test-set-tests)))
 
 (defmethod initialize-instance :after ((this sparql-test-set) &key root-directory &allow-other-keys)
+  (when (char= #\/ (aref root-directory (1- (length root-directory))))
+    (setf root-directory (subseq root-directory 0 (1- (length root-directory))))
+    (setf (sparql-test-set-root-directory this) root-directory))
   (setf (sparql-test-set-collector-rules-file this) (format nil "~A/tools/collect-tests-from-manifests.rq" root-directory))
   (setf (sparql-test-set-collected-tests-csv-file this) (format nil "~A/suites/tests-from-manifests.csv" root-directory))
   (setf (sparql-test-set-results-csv-file this) (format nil "~A/suites/results.csv" root-directory))
@@ -829,17 +850,26 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
 (defun run-sparql-test-suites (suites-dir)
   (let ((test-set (make-instance 'sparql-test-set :root-directory suites-dir)))
     (setf *sparql-test-set* test-set)
-    (sparql-test-set-execute-tests test-set :verbosep t)
-    (sparql-test-set-results-to-csv test-set)))
+    (let ((saved-sparql-error-op *sparql-error-op*))
+      (sparql-inform-and-throw-on-errors)
+      (unwind-protect
+	   (sparql-test-set-execute-tests test-set :verbosep t)
+	(setf *sparql-error-op* saved-sparql-error-op))
+      (sparql-test-set-results-to-csv test-set))))
 
-(defun run-suite-collection-name (test-set &optional suite collection name)
+(defun run-suite-collection-name (test-set &key root-directory suite collection name)
   (let ((needs-reinitialization-p (not (null test-set))))
-    (unless test-set (setf test-set (make-instance 'sparql-test-set)))
+    (unless test-set (setf test-set (make-instance 'sparql-test-set :root-directory root-directory)))
     (setf *sparql-test-set* test-set)
-    (loop for test in (sparql-test-set-tests test-set)
-	  do (when (and (or (null suite) (equal suite (sparql-test-suite test)))
-			(or (null collection) (equal collection (sparql-test-collection test)))
-			(or (null name) (equal name (sparql-test-name test))))
-	       (setf *current-sparql-test* test)
-	       (when needs-reinitialization-p (reinitialize-instance test))
-	       (sparql-test-execute test :verbosep t)))))
+    (let ((saved-sparql-error-op *sparql-error-op*))
+      (sparql-inform-and-throw-on-errors)
+      (unwind-protect
+	   (loop for test in (sparql-test-set-tests test-set)
+		 do (when (and (or (null suite) (equal suite (sparql-test-suite test)))
+			       (or (null collection) (equal collection (sparql-test-collection test)))
+			       (or (null name) (equal name (sparql-test-name test))))
+		      (setf *current-sparql-test* test)
+		      (when needs-reinitialization-p (reinitialize-instance test))
+		      (sparql-test-execute test :verbosep t)))
+	(setf *sparql-error-op* saved-sparql-error-op))
+    *current-sparql-test*)))
