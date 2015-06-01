@@ -495,8 +495,8 @@
 		:usage "Execute a system command. PATH should name an executable program."
 		(sb-ext:run-program value nil :pty *error-output* :search t))
 	       (run-sparql-conformance-tests
-		:options ("--run-sparql-conformance-tests==CSV_OUTPUT_FILE")
-		:usage "Run sparql test suites. The output is written into CSV_OUTPUT_FILE"
+		:options ("--run-sparql-conformance-tests==TEST_DIR")
+		:usage "Run sparql test suites. Test suites should be in TEST_DIR/suites. The result is written into TEST_DIR/suites/results.csv"
 		(inform "Value = ~S" value)
 		(run-sparql-test-suites value))
 	       )

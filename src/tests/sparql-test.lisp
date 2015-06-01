@@ -472,33 +472,28 @@
 
 (define-class sparql-test-set ()
   ((root-directory :accessor sparql-test-set-root-directory :initarg :root-directory)
-   (csv-file :accessor sparql-test-set-csv-file :initarg :csv-file)
-   (collector-rules-file :accessor sparql-test-set-collector-rules-file :initarg :collector-rules-file)
-   (manifests :accessor sparql-test-set-manifests :initarg :manifests)
+   (collector-script :accessor sparql-test-set-collector-script)
+   (collector-rules-file :accessor sparql-test-set-collector-rules-file)
+   (collected-tests-csv-file :accessor sparql-test-set-collected-tests-csv-file)
+   (results-csv-file :accessor sparql-test-set-results-csv-file)
+   (manifests :accessor sparql-test-set-manifests)
    (skip-parse-list :accessor sparql-test-set-skip-parse-list :initarg :skip-parse-list :initform nil)
    (skip-run-list :accessor sparql-test-set-skip-run-list :initarg :skip-run-list :initform nil)
    (skip-compare-list :accessor sparql-test-set-skip-compare-list :initarg :skip-compare-list :initform nil)
    (skip-complete-list :accessor sparql-test-set-skip-complete-list :initarg :skip-complete-list :initform nil)
    (headers :accessor sparql-test-set-headers :initarg :headers)
-   (tests :accessor sparql-test-set-tests :initarg :tests)
-   (verbosep :accessor sparql-test-set-verbose-p :initarg :verbosedp :initform t)))
+   (verbosep :accessor sparql-test-set-verbose-p :initarg :verbosep :initform t)
+   (tests :accessor sparql-test-set-tests)))
 
-(defmethod initialize-instance :after ((this sparql-test-set) &key manifests csv-file collector-rules-file &allow-other-keys)
-  (let* ((instans-home (sb-ext:posix-getenv "INSTANS_HOME"))
-	 (root (format nil "~A/instans-sparql-conformance-tests" instans-home)))
-    (setf (sparql-test-set-root-directory this) root)
-    (inform "root = ~S" root)
-    (unless csv-file (setf (sparql-test-set-csv-file this) (format nil "~A/tests/input/sparql-test-set.csv" root)))
-    (unless collector-rules-file (setf (sparql-test-set-collector-rules-file this) (format nil "~A/tests/input/collect-sparql-test-set-info.rq" root)))
-    (unless manifests
-      (setf (sparql-test-set-manifests this)
-	    (append (directory (format nil "~A/tests/data-r2/*/manifest.ttl" root))
-		    (directory (format nil "~A/tests/data-sparql11/*/manifest.ttl" root)))))
-    (when (sparql-test-set-verbose-p this)
-      (inform "Manifest files:~{~%  ~A~}" (sparql-test-set-manifests this)))
-    (init-sparql-test-set-script)
-    (skip-tests this)
-    (sparql-test-set-collect-tests this)))
+(defmethod initialize-instance :after ((this sparql-test-set) &key root-directory &allow-other-keys)
+  (setf (sparql-test-set-collector-rules-file this) (format nil "~A/tools/collect-tests-from-manifests.rq" root-directory))
+  (setf (sparql-test-set-collected-tests-csv-file this) (format nil "~A/suites/tests-from-manifests.csv" root-directory))
+  (setf (sparql-test-set-results-csv-file this) (format nil "~A/suites/results.csv" root-directory))
+  (setf (sparql-test-set-manifests this) (directory (format nil "~A/suites/data-*/*/manifest.ttl" root-directory)))
+  (when (sparql-test-set-verbose-p this) (inform "Manifest files:~{~%  ~A~}" (sparql-test-set-manifests this)))
+  (init-sparql-test-set-script this)
+  (skip-tests this)
+  (sparql-test-set-collect-tests this))
 
 (defun skip-tests (tests)
   (setf (sparql-test-set-skip-run-list tests) '("delete-insert"
@@ -546,9 +541,11 @@
 	return t
 	finally (return nil)))
 
-(defun init-sparql-test-set-script ()
-  (or *collect-sparql-test-set-script*
-      (setf *collect-sparql-test-set-script*
+(defun init-sparql-test-set-script (test-set)
+  (setf *collect-sparql-test-set-script*
+	(setf (sparql-test-set-collector-script test-set)
+	      (let ((su (format nil "~A/suites" (sparql-test-set-root-directory test-set))))
+		(format nil
 "PREFIX dawgt: <http://www.w3.org/2001/sw/DataAccess/tests/test-dawg#>
 PREFIX ent: <http://www.w3.org/ns/entailment/>
 PREFIX mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#>
@@ -573,8 +570,8 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
 
        ?test mf:action ?queryfile1
        FILTER(!isblank(?queryfile1))
-       BIND(strbefore(strafter(str(<>), \"/tests/\"), \"/\") AS ?suite)
-       BIND(strbefore(strafter(strafter(str(<>), \"/tests/\"), \"/\"),\"/\") AS ?collection)
+       BIND(strbefore(strafter(str(<>), \"~A/\"), \"/\") AS ?suite)
+       BIND(strbefore(strafter(strafter(str(<>), \"~A/\"), \"/\"),\"/\") AS ?collection)
        BIND(strafter(str(?test), \"#\") AS ?name)
        BIND(str(<>) AS ?base)
        BIND(strafter(str(?queryfile1), ?base) AS ?queryfile)
@@ -591,8 +588,8 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
        OPTIONAL { ?a qt:graphData ?graphfiles1 }
        OPTIONAL { ?test mf:result ?resultfile1 FILTER(!isblank(?resultfile1)) }
 
-       BIND(strbefore(strafter(str(<>), \"/tests/\"), \"/\") AS ?suite)
-       BIND(strbefore(strafter(strafter(str(<>), \"/tests/\"), \"/\"),\"/\") AS ?collection)
+       BIND(strbefore(strafter(str(<>), \"~A/\"), \"/\") AS ?suite)
+       BIND(strbefore(strafter(strafter(str(<>), \"~A/\"), \"/\"),\"/\") AS ?collection)
        BIND(strafter(str(?test), \"#\") AS ?name)
        BIND(str(<>) AS ?base)
        BIND(strafter(str(?queryfile1), ?base) AS ?queryfile)
@@ -616,8 +613,8 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
        OPTIONAL { ?r1 ut:graphData [ ut:graph ?resultgraphfiles1; rdfs:label ?resultgraphlabels ] }
        OPTIONAL { ?r1 ut:result ?updateresult }
 
-       BIND(strbefore(strafter(str(<>), \"/tests/\"), \"/\") AS ?suite)
-       BIND(strbefore(strafter(strafter(str(<>), \"/tests/\"), \"/\"),\"/\") AS ?collection)
+       BIND(strbefore(strafter(str(<>), \"~A/\"), \"/\") AS ?suite)
+       BIND(strbefore(strafter(strafter(str(<>), \"~A/\"), \"/\"),\"/\") AS ?collection)
        BIND(strafter(str(?test), \"#\") AS ?name)
        BIND(str(<>) AS ?base)
 
@@ -638,8 +635,8 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
        OPTIONAL { ?a qt:data ?datafile1 }
        OPTIONAL { ?test mf:result ?resultfile1 FILTER(!isblank(?resultfile1)) }
 
-       BIND(strbefore(strafter(str(<>), \"/tests/\"), \"/\") AS ?suite)
-       BIND(strbefore(strafter(strafter(str(<>), \"/tests/\"), \"/\"),\"/\") AS ?collection)
+       BIND(strbefore(strafter(str(<>), \"~A/\"), \"/\") AS ?suite)
+       BIND(strbefore(strafter(strafter(str(<>), \"~A/\"), \"/\"),\"/\") AS ?collection)
        BIND(strafter(str(?test), \"#\") AS ?name)
        BIND(str(<>) AS ?base)
        BIND(strafter(str(?queryfile1), ?base) AS ?queryfile)
@@ -651,8 +648,8 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
 SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlabels ?resultfile ?resultgraphfiles ?resultgraphlabels ?updateresult ?queryserviceendpoint ?queryservicedata ?entailmentprofile ?entailmentregime WHERE {
        ?test rdf:type ?type
        FILTER(?type = mf:ProtocolTest)
-       BIND(strbefore(strafter(str(<>), \"/tests/\"), \"/\") AS ?suite)
-       BIND(strbefore(strafter(strafter(str(<>), \"/tests/\"), \"/\"),\"/\") AS ?collection)
+       BIND(strbefore(strafter(str(<>), \"~A/\"), \"/\") AS ?suite)
+       BIND(strbefore(strafter(strafter(str(<>), \"~A/\"), \"/\"),\"/\") AS ?collection)
        BIND(strafter(str(?test), \"#\") AS ?name)
        BIND(str(<>) AS ?base)
 };
@@ -661,19 +658,20 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
 SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?graphlabels ?resultfile ?resultgraphfiles ?resultgraphlabels ?updateresult ?queryserviceendpoint ?queryservicedata ?entailmentprofile ?entailmentregime WHERE {
        ?test rdf:type ?type
        FILTER(?type = mf:ServiceDescriptionTest)
-       BIND(strbefore(strafter(str(<>), \"/tests/\"), \"/\") AS ?suite)
-       BIND(strbefore(strafter(strafter(str(<>), \"/tests/\"), \"/\"),\"/\") AS ?collection)
+       BIND(strbefore(strafter(str(<>), \"~A/\"), \"/\") AS ?suite)
+       BIND(strbefore(strafter(strafter(str(<>), \"~A/\"), \"/\"),\"/\") AS ?collection)
        BIND(strafter(str(?test), \"#\") AS ?name)
        BIND(str(<>) AS ?base)
 };
-")))
+" su su su su su su su su su su su su))))
+  (inform "~A" (sparql-test-set-collector-script test-set)))
 
 (defgeneric sparql-test-set-convert-manifests-to-csv-file (sparql-test-set)
   (:method ((this sparql-test-set))
-    (let ((csv-file (sparql-test-set-csv-file this))
+    (let ((collected-tests-csv-file (sparql-test-set-collected-tests-csv-file this))
 	  (collector-rules-file (sparql-test-set-collector-rules-file this)))
       (when (sparql-test-set-verbose-p this)
-	(inform "Converting manifests to a csv file ~A~%" csv-file))
+	(inform "Converting manifests to a csv file ~A~%" collected-tests-csv-file))
       (when (sparql-test-set-verbose-p this)
 	(inform "  Writing rules to file ~A~%" collector-rules-file))
       (with-open-file (query collector-rules-file :direction :output :if-exists :supersede)
@@ -681,7 +679,7 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
       (loop for manifest in (sparql-test-set-manifests this)
 	    for firstp = t then nil
 	    for cmd = (format nil "-b ~A --prefix-encoding=true --print-prefix-encodings=false ~A=~A --rules=~A --input-blocks=~A"
-			      manifest (if firstp "--select-output" "--select-output-append") csv-file collector-rules-file manifest)
+			      manifest (if firstp "--select-output" "--select-output-append") collected-tests-csv-file collector-rules-file manifest)
 	    when (sparql-test-set-verbose-p this) do (inform "  instans ~A" cmd)
 	    do (main cmd)))
     this))
@@ -690,10 +688,10 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
   (:method ((this sparql-test-set))
     (sparql-test-set-convert-manifests-to-csv-file this)
     (when (sparql-test-set-verbose-p this)
-      (inform "~%Create tests from file ~A~%" (sparql-test-set-csv-file this)))
+      (inform "~%Create tests from file ~A~%" (sparql-test-set-collected-tests-csv-file this)))
     (let ((lines nil)
 	  (end nil))
-      (csv-parser:map-csv-file (sparql-test-set-csv-file this)
+      (csv-parser:map-csv-file (sparql-test-set-collected-tests-csv-file this)
 			       #'(lambda (line)
 				   (cond ((null lines)
 					  (setf lines (list line))
@@ -814,10 +812,10 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
 (defun init-sparql-test-set ()
   (setf *sparql-test-set* (make-instance 'sparql-test-set)))
 
-(defun sparql-test-set-results-to-csv (test-set output-file)
+(defun sparql-test-set-results-to-csv (test-set)
   (let* ((tests (sparql-test-set-tests test-set))
 	 (fields (mapcar #'first (sparql-test-results (first tests)))))
-    (with-open-file (output output-file :direction :output :if-exists :supersede)
+    (with-open-file (output (sparql-test-set-results-csv-file test-set) :direction :output :if-exists :supersede)
       (format output "~&~(~{~A~^,~}~)~%" fields)
       (loop for test in tests do (format output "~{~A~^,~}~%"
 					 (loop for item in (sparql-test-results test)
@@ -828,11 +826,11 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
 							     ((and (stringp value) (eql 0 (search "mf:" value))) (subseq value 3))
 							     (t value))))))))
 
-(defun run-sparql-test-suites (file)
-  (let ((test-set (make-instance 'sparql-test-set)))
+(defun run-sparql-test-suites (suites-dir)
+  (let ((test-set (make-instance 'sparql-test-set :root-directory suites-dir)))
     (setf *sparql-test-set* test-set)
     (sparql-test-set-execute-tests test-set :verbosep t)
-    (sparql-test-set-results-to-csv test-set file)))
+    (sparql-test-set-results-to-csv test-set)))
 
 (defun run-suite-collection-name (test-set &optional suite collection name)
   (let ((needs-reinitialization-p (not (null test-set))))

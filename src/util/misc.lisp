@@ -7,6 +7,34 @@
 
 (define-output-function inform)
 
+;; (defun replace-by (subseq1 subseq2 sequence)
+;;   (let* ((ls1 (length subseq1))
+;; ;	 (ls2 (length subseq2))
+;; 	 (ls (length sequence))
+;; 	 (steps (loop for index = 0 then (+ hit ls1)
+;; 		      for prevhit = nil then hit
+;; 		      for hit = (and (< index ls) (search subseq1 sequence :start2 index))
+;; 		      while hit
+;; 		      collect (if prevhit (- hit prevhit) hit))))
+;;     (inform "steps = ~A" steps)
+;;     (cond ((null steps)
+;; 	   sequence)
+;; 	  (t
+;; 	   (let ((to nil)
+;; 		 (from (coerce sequence 'list))
+;; 		 (replacement (coerce subseq2 'list)))
+;; 	     (inform "from = ~A, to = ~A" from to)
+;; 	     (loop for step in steps
+;; 		   for popafter = 0 then ls1
+;; 		   do (inform "step = ~a" step)
+;; 		   do (loop repeat (- step popafter) do (push (pop from) to))
+;; 		   do (loop for item in replacement do (push item to))
+;; 		   do (setf from (nthcdr ls1 from))
+;; 		   do (inform "from = ~A, to = ~A" from to))
+;; 	     (loop while from do (push (pop from) to))
+;; 	     (inform "from = ~A, to = ~A" from to)
+;; 	     (coerce (nreverse to) (type-of sequence)))))))
+
 ;;; This retains the order and possible duplicates of the arguments.
 (defun list-union (list1 list2 &key (test #'eql))
   (cond ((null list1) list2)
