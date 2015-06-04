@@ -301,6 +301,11 @@
 		:usage "Write SELECT results in SPARQL XML result set format to OUTPUT."
 		(setf select-output-name value)
 		(setf select-output-type :srx))
+	       (select-output-ttl
+		:options ("--select-output-ttl=OUTPUT")
+		:usage "Write SELECT results in TTL format to OUTPUT."
+		(setf select-output-name value)
+		(setf select-output-type :ttl))
 	       (construct-output
 		:options ("--construct-output=FILE")
 		:usage "Write CONSTRUCT results to FILE. Output format is based on the file name suffix."
@@ -446,7 +451,7 @@
 			"various outputs and names during the execution of INSTANS, but the name does"
 			"not bear any actual semantics.")
 		(setf (instans-name instans) value))
-	       (reporting
+	       (report
 		:options ("--report=KINDS")
 		:usage ("The kinds of rules you want to get reported; a ':' separated list of"
 			"(select|construct|modify|all|rete-add|rete-remove|queue|rdf-operations|execute|memoryN|memoriesN)."
@@ -455,14 +460,14 @@
 		:hiddenp t
 		(setf reporting (loop for kind in (parse-colon-separated-values value)
 				      when (eq kind :all)
-				      append '(:select :construct :modify :all :rete-add :rete-remove :queue :rdf-operations :execute)
+				      append '(:select t :construct t :modify t :all t :rete-add t :rete-remove t :queue t :rdf-operations t :execute t)
 				      else when (eql 0 (search "MEMORY" (string kind)))
 				      append (prog1 (list :memory-summaries) (parse-integer (string kind) :start 6))
 				      else when (eql 0 (search "MEMORIES" (string kind)))
 				      append (prog1 (list :memory-sizes) (parse-integer (string kind) :start 8))
-				      else append (list kind)))
-		(loop for kind in reporting
-		      unless (member kind '(:select :construct :modify :rete-add :rete-remove :queue :call-succ-nodes :all :memory :memories :rdf-operations :execute))
+				      else append (list kind t)))
+		(loop for tail on reporting by #'cddr
+		      unless (member (first tail) '(:select :construct :modify :rete-add :rete-remove :queue :call-succ-nodes :all :memory :memories :rdf-operations :execute))
 		      do (usage))
 		(initialize-reporting instans reporting))
 	       (prefix-encoding
@@ -497,7 +502,6 @@
 	       (run-sparql-conformance-tests
 		:options ("--run-sparql-conformance-tests==TEST_DIR")
 		:usage "Run sparql test suites. Test suites should be in TEST_DIR/suites. The result is written into TEST_DIR/suites/results.csv"
-		(inform "Value = ~S" value)
 		(run-sparql-test-suites value))
 	       )
 	     (unless executedp (execute))

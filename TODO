@@ -1,3 +1,11 @@
+- 2015-06-03
+  - If select results are written as ttl, be sure to write the variables
+    - Will fix algebra/filter-nested-2 and algebra/opt-filter-2, join-scope-1
+  - Prefix : missing from results, even though it is defined in rules. Should we add the definition from rules?
+  - Variable name case: should we keep the case in the SPARQL file and test not case sensitive, or what?
+    + Maybe change eat-var-name NOT TO upcase string + add print-name to uniquely-named-object and upcase the name for comparison.
+    - Will fix boolean-effective-value tests except for one of them
+
 - Check that ?s ?p ?p works properly
 - Change (AS var expr) to (AS expr var)
 - Aquamacs home directory

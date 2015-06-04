@@ -132,7 +132,7 @@
 (defgeneric print-sparql-results (sparql-query-results &key stream)
   (:method ((this sparql-query-results) &key (stream *standard-output*))
     (when (slot-boundp this 'variables)
-      (format stream "Variables: ~{~A~^ ~}~%" (mapcar #'(lambda (var) (subseq (uniquely-named-object-name var) 1)) (sparql-query-results-variables this))))
+      (format stream "Variables: ~{~A~^ ~}~%" (mapcar #'(lambda (var) (subseq (uniquely-named-object-pretty-name var) 1)) (sparql-query-results-variables this))))
     (when (slot-boundp this 'links)
       (format stream "Links: ~{~A~^ ~}~%" (mapcar #'(lambda (link) link) (sparql-query-results-links this))))
     (when (slot-boundp this 'boolean)

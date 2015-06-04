@@ -49,7 +49,8 @@
    (value :accessor rdf-literal-value :initarg :value)))
 
 (define-class uniquely-named-object ()
-  ((name :accessor uniquely-named-object-name :initarg :name)))
+  ((name :accessor uniquely-named-object-name :initarg :name)
+   (pretty-name :accessor uniquely-named-object-pretty-name :initarg :pretty-name :initform nil)))
 
 (define-class rdf-blank-node (rdf-term uniquely-named-object) ())
 
@@ -114,6 +115,9 @@
 	  (when descriptor
 	    (setf (rdf-literal-value this) (funcall (type-descriptor-value-parser descriptor) (rdf-literal-string this)))))))))
 
+(defmethod initialize-instance :after ((this uniquely-named-object) &key pretty-name &allow-other-keys)
+  (unless pretty-name (setf (uniquely-named-object-pretty-name this) (uniquely-named-object-name this))))
+
 ;;; END initialize-instance :after
 
 ;;; BEGIN print-object
@@ -133,7 +137,7 @@
   (format stream ">"))
 
 (defmethod print-object ((this uniquely-named-object) stream)
-  (format stream "#<~A ~A>" (type-of this) (uniquely-named-object-name this)))
+  (format stream "#<~A ~A>" (type-of this) (uniquely-named-object-pretty-name this)))
 
 (defmethod print-object ((this sparql-op) stream)
   (format stream "#<~A ~:[~;hidden ~]\"~A\" (~{~A~^ ~}) returns ~A>"
@@ -220,10 +224,10 @@
     (or (eq o1 o2)
 	(equal (uniquely-named-object-name o1) (uniquely-named-object-name o2)))))
 
-(defgeneric make-uniquely-named-object (factory name &rest keys &key &allow-other-keys)
-  (:method ((factory uniquely-named-object-factory) name &rest keys &key &allow-other-keys)
+(defgeneric make-uniquely-named-object (factory name &rest keys &key pretty-name &allow-other-keys)
+  (:method ((factory uniquely-named-object-factory) name &rest keys &key pretty-name &allow-other-keys)
     (or (gethash name (slot-value factory 'objects-by-name))
-	(let ((object (apply #'make-instance (slot-value factory 'object-type) :name name keys)))
+	(let ((object (apply #'make-instance (slot-value factory 'object-type) :name name :pretty-name pretty-name keys)))
 	  (setf (gethash name (slot-value factory 'objects-by-name)) object)
 	  object))))
 

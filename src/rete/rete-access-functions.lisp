@@ -86,7 +86,7 @@
 
 (defgeneric make-named-blank-node (instans name)
   (:method ((this instans) name)
-    (make-uniquely-named-object (instans-named-blank-node-factory this) name)))
+    (make-uniquely-named-object (instans-named-blank-node-factory this) (string-upcase name) :pretty-name name)))
 
 (defgeneric generate-anonymous-blank-node (instans)
   (:method ((this instans))
@@ -94,7 +94,7 @@
 
 (defgeneric make-sparql-var (instans name)
   (:method ((this instans) name)
-    (make-uniquely-named-object (instans-var-factory this) name)))
+    (make-uniquely-named-object (instans-var-factory this) (string-upcase name) :pretty-name name)))
 
 (defgeneric generate-sparql-var (instans &optional name-prefix)
   (:method ((this instans) &optional name-prefix)

@@ -238,7 +238,7 @@
   (loop for ch = (peekch lexer)
 	while (var-name-other-char-p ch)
 	do (chbuf-put-char buf (get-char lexer))
-	finally (return-input-token lexer terminal-type (string-upcase (canonize-string lexer buf)))))
+	finally (return-input-token lexer terminal-type (canonize-string lexer buf))))
 
 (defun get-char-if-looking-at-with-eof-error (lexer ch eof-fmt &rest args)
   (cond ((null (peekch lexer))

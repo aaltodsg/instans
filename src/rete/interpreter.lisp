@@ -1034,7 +1034,7 @@
      (rule-instance-queue-modify-count queue)))
 
 (defun operation-report-p (instans kind)
-  (member kind (instans-report-operation-kinds instans)))
+  (getf (instans-report-operation-kinds instans) kind))
 
 (defgeneric rule-node-name-pretty (rule-node)
   (:method ((this rule-node))

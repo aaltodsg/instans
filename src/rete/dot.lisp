@@ -37,7 +37,7 @@
   (:method ((this minus-node)) (dot-default-pretty-name-format "-"))
   (:method ((this filter-node)) (dot-default-pretty-name-format "F"))
   (:method ((this filter-memory)) (dot-default-pretty-name-format "FM"))
-  (:method ((this bind-node)) (dot-default-pretty-name-format (format nil "B[~A]" (uniquely-named-object-name (bind-variable this)))))
+  (:method ((this bind-node)) (dot-default-pretty-name-format (format nil "B[~A]" (uniquely-named-object-pretty-name (bind-variable this)))))
   (:method ((this aggregate-join-node)) (dot-default-pretty-name-format "AJ"))
   (:method ((this select-node)) (dot-default-pretty-name-format "S"))
   (:method ((this construct-node)) (dot-default-pretty-name-format "C"))
@@ -49,7 +49,7 @@
 
 (defun dot-pretty-triple-pattern (node)
   (format nil "~{~a~^ ~}" (mapcar #'(lambda (x) (cond ((sparql-var-p x)
-						       (string-downcase (string (uniquely-named-object-name (reverse-resolve-binding (node-instans node) x)))))
+						       (string-downcase (string (uniquely-named-object-pretty-name (reverse-resolve-binding (node-instans node) x)))))
 						      ((or (rdf-iri-p x) (rdf-literal-p x))
 						       (html-entities:encode-entities (sparql-value-to-string x :instans (node-instans node))))
 						      (t x)))
@@ -118,7 +118,7 @@
     (loop for var in canonic-vars
 ;	  do (inform "var = ~S" var)
 	  unless (null var)
-	  collect (uniquely-named-object-name (car (rassoc var alist))))))
+	  collect (uniquely-named-object-pretty-name (car (rassoc var alist))))))
 
 (defgeneric dot-node-tooltip (node)
   (:method ((this node))
@@ -219,7 +219,7 @@
 	       (bindings (with-output-to-string (str)
 			   (format str "Bindings:")
 			   (loop for (from . to) in (instans-bindings instans)
-				 do (format str "~%  ~A -> ~A" (uniquely-named-object-name from) (uniquely-named-object-name to)))))
+				 do (format str "~%  ~A -> ~A" (uniquely-named-object-pretty-name from) (uniquely-named-object-pretty-name to)))))
 	       (sparql-algebra (with-output-to-string (str)
 				 (loop for expr in (instans-canonic-algebra-expr-list instans)
 ;				       do (inform "algebra-expr:~%~A" expr)

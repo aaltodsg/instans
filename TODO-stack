@@ -1,3 +1,8 @@
+- Add initialization of pretty-name where needed
+- Change calls of uniquely-named-object-name to uniquely-named-object-pretty-name when appropriate
++ Add field pretty-name to uniquely-named-object-name
+- Change eat-var-name NOT TO upcase string + add print-name to uniquely-named-object and upcase the name for comparison.
+
 - Fix field labeling sparql-tests.csv headers vs. class fields
 - Make methods for testing
   + Success/failure handling

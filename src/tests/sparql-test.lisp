@@ -261,14 +261,14 @@
        (multiple-value-bind (output-file file-type) (sparql-test-output-file-name-and-type this)
 	 (when output-file
 	   (when (sparql-test-output-options-stream this)
-	     (format (sparql-test-output-options-stream this) "--select-output-~(~A~)=~A" file-type output-file))
+	     (format (sparql-test-output-options-stream this) " --select-output-~(~A~)=~A" file-type output-file))
 	   (let ((instans (sparql-test-instans this)))
 	     (setf (instans-select-output-processor instans) (create-select-output-processor instans output-file file-type))))))
       (CONSTRUCT
        (multiple-value-bind (output-file file-type) (sparql-test-output-file-name-and-type this)
 	 (when output-file
 	   (when (sparql-test-output-options-stream this)
-	     (format (sparql-test-output-options-stream this) "--construct-output-~(~A~)=~A" file-type output-file))
+	     (format (sparql-test-output-options-stream this) " --construct-output-~(~A~)=~A" file-type output-file))
 	   (let ((instans (sparql-test-instans this)))
 	     (setf (instans-construct-output-processor instans) (create-construct-output-processor instans output-file file-type))))))
       (ASK)
@@ -365,7 +365,7 @@
 
 ;;; Phases
 
-(defgeneric sparql-test-parse-phase (sparql-test &key &allow-other-keys)
+(defgeneric sparql-test-parse-phase (sparql-test &key verbosep &allow-other-keys)
   (:method ((this sparql-syntax-test) &key &allow-other-keys)
     (let ((instans (or (sparql-test-instans this) (setf (sparql-test-instans this) (create-instans (sparql-test-base this))))))
     ;;; Add rules
@@ -383,13 +383,12 @@
 		 (setf (sparql-test-rule-type this) (intern-instans (subseq type 0 (search "-NODE" type :from-end t :test #'equal))))))
 	      (t
 	       (error* "Several rule types in test query file ~A: ~A" (sparql-test-queryfile this) rule-types))))
-      (inform "  Parsed ~(~A~) -> ~{~(~A~)~^ ~}, ~{~(~A~)~^ ~}" this (mapcar #'(lambda (st) (subseq (string (type-of st)) 8)) (instans-status (sparql-test-instans this))) (sparql-test-phases this))
       (sparql-test-add-phase this :parsed)))
   (:method ((this sparql-test) &key &allow-other-keys)
     (declare (ignore this))
     nil))
 
-(defgeneric sparql-test-run-phase (sparql-test &key &allow-other-keys)
+(defgeneric sparql-test-run-phase (sparql-test &key verbosep &allow-other-keys)
   (:method ((this sparql-query-evaluation-test) &key &allow-other-keys)
     (let ((instans (sparql-test-instans this)))
     ;;; Add inputs
@@ -406,7 +405,6 @@
 		      (instans-has-status instans 'instans-rule-running-failed)))
 	     (instans-add-status instans 'instans-rule-running-succeeded)))
       (setf (sparql-test-running-succeeded-p this) (instans-has-status instans 'instans-rule-running-succeeded))
-      (inform "  Ran ~(~A~) -> ~{~(~A~)~^ ~}, ~{~(~A~)~^ ~}" this (mapcar #'(lambda (st) (subseq (string (type-of st)) 8)) (instans-status (sparql-test-instans this))) (sparql-test-phases this))
       (sparql-test-add-phase this :ran)))
   (:method ((this sparql-test) &key &allow-other-keys)
     (declare (ignore this))
@@ -437,31 +435,35 @@
 
 (defun sparql-test-phase-pre-test (test phase skip-list verbosep)
   (cond ((sparql-test-failed-p test)
-	 (when verbosep (inform "Test ~A already failed, skipping." test))
+	 (when verbosep (inform "Phase ~A for ~(~A~): Already failed, skipping." phase test))
 	 nil)
 	((sparql-test-set-skip-test-p test skip-list)
-	 (when verbosep (inform "Test ~A in ~(~A~) skip list, skipping" phase test))
+	 (when verbosep (inform  "Phase ~A for ~(~A~): In skip list, skipping" phase test))
 	 nil)
 	((member phase (sparql-test-phases test))
-	 (when verbosep (inform "Test ~A: phase ~A alread done, skipping" test phase))
+	 (when verbosep (inform "Phase ~A for ~(~A~): Phase alread done, skipping" phase test))
 	 nil)
 	(t t)))
 
 (defmethod sparql-test-parse-phase :around ((this sparql-syntax-test) &key forcep verbosep)
   (when (or forcep (sparql-test-phase-pre-test this :parsed (sparql-test-set-skip-parse-list (sparql-test-test-set this)) verbosep))
-    (call-next-method)))
+    (call-next-method)
+    (when verbosep (inform "Phase PARSED for ~(~A~) executed -> ~{~(~A~)~^ ~}, ~{~(~A~)~^ ~}" this (mapcar #'(lambda (st) (subseq (string (type-of st)) 8)) (instans-status (sparql-test-instans this))) (sparql-test-phases this)))))
 
 (defmethod sparql-test-run-phase :around ((this sparql-syntax-test) &key forcep verbosep)
   (when (or forcep (sparql-test-phase-pre-test this :ran (sparql-test-set-skip-run-list (sparql-test-test-set this)) verbosep))
-    (call-next-method)))
+    (when verbosep (inform "Phase RAN for ~(~A~) executed -> ~{~(~A~)~^ ~}, ~{~(~A~)~^ ~}" this (mapcar #'(lambda (st) (subseq (string (type-of st)) 8)) (instans-status (sparql-test-instans this))) (sparql-test-phases this)))    (call-next-method)))    
 
 (defmethod sparql-test-compare-phase :around ((this sparql-syntax-test) &key forcep verbosep)
   (when (or forcep (sparql-test-phase-pre-test this :compared (sparql-test-set-skip-compare-list (sparql-test-test-set this)) verbosep))
-    (call-next-method)))
+    (call-next-method)
+    (when verbosep (inform "Phase COMPARED for ~(~A~) executed -> ~{~(~A~)~^ ~}, ~{~(~A~)~^ ~}" this (mapcar #'(lambda (st) (subseq (string (type-of st)) 8)) (instans-status (sparql-test-instans this))) (sparql-test-phases this)))
+))
 
 (defmethod sparql-test-complete-phase :around ((this sparql-syntax-test) &key forcep verbosep)
   (declare (ignorable forcep verbosep))
-  (call-next-method))
+  (call-next-method)
+  (when verbosep (inform "Phase COMPLETED for ~(~A~) executed." this)))
 
 ;;; Test execute method
 
@@ -472,7 +474,7 @@
 	    while (<= (position phase phases) (position target-phase phases))
 	    when verbosep
 	    do (progn
-		 (when verbosep (inform "Phase ~A for ~A" phase this))
+;		 (when verbosep (inform "Phase ~A for ~A" phase this))
 		 (case phase
 		   (:created)
 		   (:parsed (sparql-test-parse-phase this :forcep forcep :verbosep verbosep))
@@ -494,7 +496,9 @@
    (manifests :accessor sparql-test-set-manifests)
    (different-semantics :accessor sparql-test-set-different-semantics
 			:initform '(("data-r2" "algebra" "nested-opt-1")
-				    ("data-r2" "algebra" "nested-opt-2")))
+				    ("data-r2" "algebra" "nested-opt-2")
+				    ("data-r2" "algebra" "opt-filter-1")
+				    ("data-r2" "algebra" "opt-filter-2")))
    (skip-parse-list :accessor sparql-test-set-skip-parse-list :initarg :skip-parse-list :initform nil)
    (skip-run-list :accessor sparql-test-set-skip-run-list :initarg :skip-run-list :initform nil)
    (skip-compare-list :accessor sparql-test-set-skip-compare-list :initarg :skip-compare-list :initform nil)
@@ -511,7 +515,7 @@
   (setf (sparql-test-set-collected-tests-csv-file this) (format nil "~A/suites/tests-from-manifests.csv" root-directory))
   (setf (sparql-test-set-results-csv-file this) (format nil "~A/suites/results.csv" root-directory))
   (setf (sparql-test-set-manifests this) (directory (format nil "~A/suites/data-*/*/manifest.ttl" root-directory)))
-  (when (sparql-test-set-verbose-p this) (inform "Manifest files:~{~%  ~A~}" (sparql-test-set-manifests this)))
+  (when (sparql-test-set-verbose-p this) (inform "Found ~D manifest files in ~A" (length (sparql-test-set-manifests this)) root-directory))
   (init-sparql-test-set-script this)
   (skip-tests this)
   (sparql-test-set-collect-tests this))
@@ -685,7 +689,19 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
        BIND(str(<>) AS ?base)
 };
 " su su su su su su su su su su su su))))
-  (inform "~A" (sparql-test-set-collector-script test-set)))
+  ;; (inform "~A" (sparql-test-set-collector-script test-set))
+  )
+
+(defun filename-cut-prefix (prefix filename)
+  (let* ((prefix-string (if (pathnamep prefix) (namestring prefix) prefix))
+	 (filename-string (if (pathnamep filename) (namestring filename) filename))
+	 (index (search prefix-string filename-string)))
+    (cond ((not (eql index 0))
+	   filename)
+	  ((pathnamep filename)
+	   (pathname (subseq filename-string (length prefix-string))))
+	  (t
+	   (subseq filename-string (length prefix-string))))))
 
 (defgeneric sparql-test-set-convert-manifests-to-csv-file (sparql-test-set)
   (:method ((this sparql-test-set))
@@ -694,14 +710,16 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
       (when (sparql-test-set-verbose-p this)
 	(inform "Converting manifests to a csv file ~A~%" collected-tests-csv-file))
       (when (sparql-test-set-verbose-p this)
-	(inform "  Writing rules to file ~A~%" collector-rules-file))
+	(inform "Writing rules to file ~A~%" collector-rules-file))
       (with-open-file (query collector-rules-file :direction :output :if-exists :supersede)
 	(format query "~A~%" *collect-sparql-test-set-script*))
-      (loop for manifest in (sparql-test-set-manifests this)
+      (loop with suitesdir = (format nil "~A/suites/" (sparql-test-set-root-directory this))
+	    for manifest in (sparql-test-set-manifests this)
 	    for firstp = t then nil
 	    for cmd = (format nil "-b ~A --prefix-encoding=true --print-prefix-encodings=false ~A=~A --rules=~A --input-blocks=~A"
 			      manifest (if firstp "--select-output" "--select-output-append") collected-tests-csv-file collector-rules-file manifest)
-	    when (sparql-test-set-verbose-p this) do (inform "  instans ~A" cmd)
+	    do (inform "Converting manifest ~A" (filename-cut-prefix suitesdir manifest))
+	    ;; when (sparql-test-set-verbose-p this) do (inform "  instans ~A" cmd)
 	    do (main cmd)))
     this))
 
@@ -857,7 +875,7 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
 	(setf *sparql-error-op* saved-sparql-error-op))
       (sparql-test-set-results-to-csv test-set))))
 
-(defun run-suite-collection-name (test-set &key root-directory suite collection name)
+(defun run-suite-collection-name (test-set &key root-directory suite collection name show-options-p)
   (let ((needs-reinitialization-p (not (null test-set))))
     (unless test-set (setf test-set (make-instance 'sparql-test-set :root-directory root-directory)))
     (setf *sparql-test-set* test-set)
@@ -870,6 +888,12 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
 			       (or (null name) (equal name (sparql-test-name test))))
 		      (setf *current-sparql-test* test)
 		      (when needs-reinitialization-p (reinitialize-instance test))
-		      (sparql-test-execute test :verbosep t)))
+		      (cond ((null show-options-p)
+			     (sparql-test-execute test :verbosep t))
+			    (t
+			     (inform "Options: ~A"
+				     (with-output-to-string (str)
+				       (setf (sparql-test-output-options-stream test) str)
+				       (sparql-test-execute test :verbosep t)))))))
 	(setf *sparql-error-op* saved-sparql-error-op))
     *current-sparql-test*)))
