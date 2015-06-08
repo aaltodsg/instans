@@ -184,9 +184,11 @@
     (add-input-processor instans processor)
     instans))
 
-(defun instans-run (instans &key select-output-name (select-output-type :csv) construct-output-name (construct-output-type :trig))
+(defun instans-run (instans &key select-output-name (select-output-type :csv) ask-output-name (ask-output-type :srx) construct-output-name (construct-output-type :trig))
   (unless (instans-select-output-processor instans)
     (setf (instans-select-output-processor instans) (create-select-output-processor instans select-output-name select-output-type)))
+  (when (and ask-output-type (not (instans-ask-output-processor instans)))
+    (setf (instans-ask-output-processor instans) (create-ask-output-processor instans ask-output-name ask-output-type)))
   (unless (instans-construct-output-processor instans)
     (setf (instans-construct-output-processor instans) (create-construct-output-processor instans construct-output-name construct-output-type)))
 ;  (handler-case

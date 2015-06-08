@@ -144,6 +144,8 @@
 	 (executedp nil)
 	 (execute-immediately-p t)
 	 (directory (parse-iri (format nil "file://~A" (expand-dirname (or *default-main-dir* ".")))))
+	 (ask-output-name nil)
+	 (ask-output-type nil)
 	 (select-output-name nil)
 	 (select-output-type :csv)
 	 (select-output-append-p nil)
@@ -168,12 +170,16 @@
 		     for (key value) = param
 		     collect (if (member key colon-expand-fields) (list key (parse-colon-separated-values value)) param)))
 	     (set-output-processors ()
+	       (when (and ask-output-type ask-output-name (null (instans-ask-output-processor instans)))
+		 (inform "ask-output-type ~A ask-output-name ~A" ask-output-type ask-output-name)
+		 (setf (instans-ask-output-processor instans) (create-ask-output-processor instans ask-output-name ask-output-type)))
 	       (when (and select-output-type (null (instans-select-output-processor instans)))
 		 (setf (instans-select-output-processor instans) (create-select-output-processor instans select-output-name select-output-type :appendp select-output-append-p)))
 	       (when (and construct-output-type (null (instans-construct-output-processor instans)))
 		 (setf (instans-construct-output-processor instans) (create-construct-output-processor instans construct-output-name construct-output-type :appendp construct-output-append-p))))
 	     (execute ()
 	       (instans-run instans
+			    :ask-output-name ask-output-name :ask-output-type ask-output-type
 			    :select-output-name select-output-name :select-output-type select-output-type
 			    :construct-output-name construct-output-name :construct-output-type construct-output-type))
 	     (maybe-execute ()
@@ -280,6 +286,21 @@
 		:usage "Use URL as the graph."
 		(if (string= (string-downcase value) "default") nil (setf graph (parse-iri value))))
 	       (t :usage ("" "Output options:" ""))
+	       (ask-output
+		:options ("--ask-output=FILE")
+		:usage "Write ASK results to FILE. Output is based on the file name suffix."
+		(setf ask-output-name value)
+		(setf ask-output-type (intern-keyword (string-upcase (pathname-type (parse-namestring value))))))
+	       (ask-output-ttl
+		:options ("--ask-output-ttl=OUTPUT")
+		:usage "Write ASK results in SPARQL XML result set format to OUTPUT."
+		(setf ask-output-name value)
+		(setf ask-output-type :ttl))
+	       (ask-output-srx
+		:options ("--ask-output-srx=OUTPUT")
+		:usage "Write ASK results in SPARQL XML result set format to OUTPUT."
+		(setf ask-output-name value)
+		(setf ask-output-type :srx))
 	       (select-output
 		:options ("--select-output=FILE")
 		:usage "Write SELECT results to FILE. Output is based on the file name suffix."

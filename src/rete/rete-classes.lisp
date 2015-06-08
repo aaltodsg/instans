@@ -307,6 +307,7 @@
    (queue-execution-policy :accessor instans-queue-execution-policy :initarg :queue-execution-policy :initform :repeat-first)
    (allowed-queue-execution-policies :accessor instans-allowed-queue-execution-policies :allocation :class :initform '(:first :snapshot :repeat-first :repeat-snapshot))
 					;   (default-rete-input-op :accessor instans-default-rete-input-op :initarg :default-rete-input-op :initform :add)
+   (ask-output-processor :accessor instans-ask-output-processor :initarg :ask-output-processor :initform nil)
    (select-output-processor :accessor instans-select-output-processor :initarg :select-output-processor :initform nil)
    (construct-output-processor :accessor instans-construct-output-processor :initarg :construct-output-processor :initform nil)
    (select-compare-function :accessor instans-select-compare-function :initarg :select-compare-function :initform nil)

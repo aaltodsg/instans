@@ -71,6 +71,10 @@
 		        finally (return (create-sparql-result bindings)))))
       (add-sparql-result this result))))
 
+(defgeneric set-sparql-result-boolean (query-result value)
+  (:method ((this sparql-query-results) value)
+    (setf (sparql-query-results-boolean this) (create-sparql-boolean-result value))))
+
 (defgeneric sparql-results-compare (query-results1 query-results2 &key order-dependent-p verbosep output-stream result-label1 result-label2 handle-error-values-p)
   (:method ((query-results1 sparql-query-results) (query-results2 sparql-query-results) &key order-dependent-p verbosep (output-stream *error-output*) (result-label1 "") (result-label2 "") (handle-error-values-p t))
     (format output-stream "~&sparql-results-compare ~A ~A~%" result-label1 result-label2)

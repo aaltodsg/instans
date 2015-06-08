@@ -198,8 +198,15 @@
 		(slot-value-with-default this 'initialization-succeeded-p t)))))
 
 (defmethod sparql-test-failed-p ((this sparql-negative-syntax-test))
+  ;; (let ((x (call-next-method))
+  ;; 	(y (slot-value-with-default this 'parsing-succeeded-p nil)))
+    ;; (inform "(call-next-method) = ~A, (slot-value-with-default this 'parsing-succeeded-p nil) = ~A~% = ~A"
+    ;; 	    x
+    ;; 	    y
+    ;; 	    (or (call-next-method)
+    ;; 		(slot-value-with-default this 'parsing-succeeded-p nil))))
   (or (call-next-method)
-      (not (slot-value-with-default this 'parsing-succeeded-p t))))
+      (slot-value-with-default this 'parsing-succeeded-p nil)))
 
 (defmethod sparql-test-failed-p ((this sparql-query-evaluation-test))
   (or (call-next-method)
@@ -271,7 +278,13 @@
 	     (format (sparql-test-output-options-stream this) " --construct-output-~(~A~)=~A" file-type output-file))
 	   (let ((instans (sparql-test-instans this)))
 	     (setf (instans-construct-output-processor instans) (create-construct-output-processor instans output-file file-type))))))
-      (ASK)
+      (ASK
+       (multiple-value-bind (output-file file-type) (sparql-test-output-file-name-and-type this)
+	 (when output-file
+	   (when (sparql-test-output-options-stream this)
+	     (format (sparql-test-output-options-stream this) " --ask-output-~(~A~)=~A" file-type output-file))
+	   (let ((instans (sparql-test-instans this)))
+	     (setf (instans-ask-output-processor instans) (create-ask-output-processor instans output-file file-type))))))
       (DESCRIBE)
       (MODIFY)
       (t (error* "Illegal rule-type ~A in ~A" (sparql-test-rule-type this) this)))))
@@ -325,7 +338,7 @@
 			   (output-dir (sparql-test-output-directory this))
 			   (output-ttl-file (format nil "~A/~A.ttl" output-dir namebase)))
 		      (case (sparql-test-rule-type this)
-			(SELECT
+			((ASK SELECT)
            ;;; If the results file is not ttl-file, we must create a comparable ttl file (if it does not exist already)
 			 (setf resultfile 
 			       (cond ((eq resulttype :ttl) resultfile)
@@ -337,7 +350,11 @@
 			 (unless (eq resulttype :ttl)
 			   (error* "Not a ttl resultfile ~A" resultfile))
 			 (sparql-compare-ttl-result-files resultfile output-ttl-file))
-			((ASK DESCRIBE MODIFY) nil))))
+			;; (ASK
+			;;  (unless (eq resulttype :ttl)
+			;;    (error* "Not a ttl resultfile ~A" resultfile))
+			;;  (sparql-compare-ttl-result-files resultfile output-ttl-file))
+			((DESCRIBE MODIFY) nil))))
 	    (instans-add-status instans 'instans-rule-comparing-failed))))))
     (:method ((this sparql-test))
       this))
@@ -495,10 +512,18 @@
    (results-csv-file :accessor sparql-test-set-results-csv-file)
    (manifests :accessor sparql-test-set-manifests)
    (different-semantics :accessor sparql-test-set-different-semantics
-			:initform '(("data-r2" "algebra" "nested-opt-1")
-				    ("data-r2" "algebra" "nested-opt-2")
-				    ("data-r2" "algebra" "opt-filter-1")
-				    ("data-r2" "algebra" "opt-filter-2")))
+			:initform '(("data-r2" "algebra" "nested-opt-1" "Order of adding triples affects the result")
+				    ("data-r2" "algebra" "nested-opt-2" "Order of adding triples affects the result")
+				    ("data-r2" "algebra" "opt-filter-1" "Order of adding triples affects the result")
+				    ("data-r2" "algebra" "opt-filter-2" "Order of adding triples affects the result")
+				    ("data-r2" "type-promotion" "type-promotion-23" "Number types are different in INSTANS")
+				    ("data-r2" "type-promotion" "type-promotion-24" "Number types are different in INSTANS")
+				    ("data-r2" "type-promotion" "type-promotion-25" "Number types are different in INSTANS")
+				    ("data-r2" "type-promotion" "type-promotion-26" "Number types are different in INSTANS")
+				    ("data-r2" "type-promotion" "type-promotion-27" "Number types are different in INSTANS")
+				    ("data-r2" "type-promotion" "type-promotion-28" "Number types are different in INSTANS")
+				    ("data-r2" "type-promotion" "type-promotion-29" "Number types are different in INSTANS")
+				    ("data-r2" "type-promotion" "type-promotion-30" "Number types are different in INSTANS")))
    (skip-parse-list :accessor sparql-test-set-skip-parse-list :initarg :skip-parse-list :initform nil)
    (skip-run-list :accessor sparql-test-set-skip-run-list :initarg :skip-run-list :initform nil)
    (skip-compare-list :accessor sparql-test-set-skip-compare-list :initarg :skip-compare-list :initform nil)

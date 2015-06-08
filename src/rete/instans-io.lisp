@@ -78,6 +78,11 @@
    (solutions :accessor instans-select-output-processor-solutions :initform nil)
    (solutions-tail :accessor instans-select-output-processor-solutions-tail :initform nil)))
 
+;; Select output processors collect SELECT solutions
+
+(define-class instans-ask-output-processor (instans-output-processor)
+  ((boolean :accessor instans-ask-output-processor-boolean :initform nil)))
+
 ;; Construct output processors collect CONSTRUCT statements
 
 (define-class instans-construct-output-processor (instans-output-processor) ())
@@ -120,7 +125,7 @@
 
 ;;; Creating output processors
 
-(defun make-instans-output-processor-output-stream (output-name appendp)
+(defun make-instans-output-processor-output-stream (output-name &optional appendp)
   (cond ((or (null output-name) (string= "-" output-name))
 	 *standard-output*)
 	(appendp
@@ -160,6 +165,25 @@
 				  :stream (make-instans-output-processor-output-stream output-name appendp)))
 		  (t (error* "Unknown select output writer type ~S" output-type)))))
     (make-instance 'instans-select-output-processor
+		   :instans instans
+		   :output-name output-name
+		   :writer writer)))
+
+(defun create-ask-output-processor (instans output-name output-type)
+  ;; (inform "create-ask-output-processor ~A ~A" output-name appendp)
+  (let ((writer (case output-type
+		  (:srx
+		   (make-instance 'instans-srx-writer
+				  :name output-name
+				  :results (make-instance 'sparql-query-results)
+				  :stream (make-instans-output-processor-output-stream output-name)))
+		  (:ttl
+		   (make-instance 'instans-ttl-writer
+				  :name output-name
+				  :results (make-instance 'sparql-query-results)
+				  :stream (make-instans-output-processor-output-stream output-name)))
+		  (t (error* "Unknown ask output writer type ~S" output-type)))))
+    (make-instance 'instans-ask-output-processor
 		   :instans instans
 		   :output-name output-name
 		   :writer writer)))
@@ -211,7 +235,10 @@
 	(setf (instans-select-output-processor-variables-written-p this) t))
       (loop for solution in (instans-select-output-processor-solutions this)
 	    do (write-solution writer (instans-output-processor-instans this) solution))
-      (setf (instans-select-output-processor-solutions this) nil))))
+      (setf (instans-select-output-processor-solutions this) nil)))
+  (:method ((this instans-ask-output-processor))
+    (let ((writer (instans-output-processor-writer this)))
+      (write-boolean writer (instans-ask-output-processor-boolean this)))))
 
 ;;; Closing output processors
 
@@ -304,19 +331,22 @@
 @prefix rs:      <http://www.w3.org/2001/sw/DataAccess/tests/result-set#> .
 @prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 
-[]      rdf:type    rs:ResultSet ;
-        ~{rs:resultVariable \"~A\" ;~^~%        ~}
-        ~{rs:solution [ ~{ rs:binding ~{ [ rs:variable \"~A\"; rs:value    ~A ]~}~^;~%                      ~}
-                    ];~^~%        ~} .~%"
-	    (mapcar #'(lambda (v) (subseq (uniquely-named-object-pretty-name v) 1)) (sparql-query-results-variables this))
-	    (mapcar #'(lambda (solution) (mapcan #'(lambda (b)
-						     (and (not (sparql-unbound-p (sparql-binding-value b)))
-							  (list (list (subseq (uniquely-named-object-pretty-name (sparql-binding-variable b)) 1)
-								      (sparql-value-to-string (sparql-binding-value b))))))
-						 (sparql-result-bindings solution)))
-		    (slot-value-with-default this 'results nil)
-		    ;(sparql-query-results-results this)
-		    ))))
+[]      rdf:type    rs:ResultSet ;")
+    (cond ((slot-boundp this 'variables)
+	   (format stream "        ~{rs:resultVariable \"~A\" ;~^~%        ~}"
+		   (mapcar #'(lambda (v) (subseq (uniquely-named-object-pretty-name v) 1)) (sparql-query-results-variables this)))
+	   (when (slot-boundp this 'results)
+	     (format stream "        ~{rs:solution [ ~{ rs:binding ~{ [ rs:variable \"~A\"; rs:value    ~A ]~}~^;~%                      ~}
+                    ];~^~%        ~}~%"
+		     (mapcar #'(lambda (solution) (mapcan #'(lambda (b)
+							      (and (not (sparql-unbound-p (sparql-binding-value b)))
+								   (list (list (subseq (uniquely-named-object-pretty-name (sparql-binding-variable b)) 1)
+									       (sparql-value-to-string (sparql-binding-value b))))))
+							  (sparql-result-bindings solution)))
+			     (sparql-query-results-results this)))))
+	  ((slot-boundp this 'boolean)
+	   (format stream "        rs:boolean \"~:[false~;true~]\"^^xsd:boolean" (sparql-query-results-boolean this))))
+    (format stream " .")))
 
 ;;; Doing SELECT output
 
@@ -333,6 +363,11 @@
 	      (t
 	       (setf (cdr (instans-select-output-processor-solutions-tail this)) newtail)
 	       (setf (instans-select-output-processor-solutions-tail this) newtail)))))))
+
+(defgeneric ask-output (instans-ask-output-processor node token)
+  (:method ((this instans-ask-output-processor) node token)
+    (declare (ignorable node token))
+    (setf (instans-ask-output-processor-boolean this) t)))
 
 (defgeneric write-variables (instans-writer variables)
   (:method ((this instans-csv-writer) variables)
@@ -357,6 +392,10 @@
   (:method ((this instans-sparql-query-results-writer) instans values)
     (declare (ignorable instans))
     (add-sparql-result-values (instans-sparql-query-results-writer-results this) values)))
+
+(defgeneric write-boolean (instans-writer value)
+  (:method ((this instans-sparql-query-results-writer) value)
+    (set-sparql-result-boolean (instans-sparql-query-results-writer-results this) value)))
 
 (defun solution-bindings (node token)
   (let* ((vars (solution-modifiers-project-vars node))

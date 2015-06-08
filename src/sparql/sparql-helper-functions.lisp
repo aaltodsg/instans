@@ -338,7 +338,7 @@
 	((typep x 'xsd-integer-value) *xsd-integer-iri*)
 	((typep x 'xsd-decimal-value) *xsd-decimal-iri*)
 ;	  ((typep x 'xsd-float-value) *xsd-float-iri-string*)
-	((typep x 'xsd-double-value) *xsd-double-iri-string*)
+	((typep x 'xsd-double-value) *xsd-double-iri*)
 	((typep x 'xsd-datetime-value) *xsd-datetime-iri*)
 	((rdf-literal-p x)
 	 (cond ((rdf-literal-type x) (rdf-literal-type x))

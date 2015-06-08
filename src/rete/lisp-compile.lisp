@@ -22,7 +22,7 @@
 	;; do (inform "compiling ~A" node)
 	do (cond ((filter-node-p node)
 		  (let ((filter-lambda `(lambda ,(sparql-var-lisp-names (node-use node)) ;(let ((v 
-					  (eq ,(sparql-expr-to-lisp (filter-test node)) t))))
+					  (eq (sparql-call "ebv" ,(sparql-expr-to-lisp (filter-test node))) t))))
 		    (setf (filter-test-lambda node) filter-lambda)
 		    (setf (filter-test-func node) (compile nil filter-lambda))))
 		 ((bind-node-p node)
