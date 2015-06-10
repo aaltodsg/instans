@@ -1,0 +1,22 @@
+PREFIX dawgt: <http://www.w3.org/2001/sw/DataAccess/tests/test-dawg#>
+PREFIX ent: <http://www.w3.org/ns/entailment/>
+PREFIX mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#>
+PREFIX mfx: <http://jena.hpl.hp.com/2005/05/test-manifest-extra#>
+PREFIX pr: <http://www.w3.org/ns/owl-profile/>
+PREFIX qt: <http://www.w3.org/2001/sw/DataAccess/tests/test-query#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sd: <http://www.w3.org/ns/sparql-service-description#>
+PREFIX sparql: <http://www.w3.org/ns/sparql#>
+PREFIX ut: <http://www.w3.org/2009/sparql/tests/test-update#>
+
+SELECT ?type ?suite ?collection WHERE {
+       BIND(strbefore(strafter(str(<>), "tests/"), "/") AS ?suite)
+       BIND(strbefore(strafter(strafter(str(<>), "tests/"), "/"),"/") AS ?collection)
+       BIND(strafter(str(?test), "#") AS ?name)
+       BIND(str(<>) AS ?base)
+       ?test rdf:type ?type
+       FILTER (?type != mf:Manifest)
+       FILTER NOT EXISTS { ?test2 rdf:type ?type FILTER (?test2 != ?test) }
+}
+

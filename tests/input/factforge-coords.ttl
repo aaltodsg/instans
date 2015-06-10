@@ -1,0 +1,19 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+BASE <http://instans.org/>
+PREFIX : <http:instans.org/default#>
+PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX ssn: <http://purl.oclc.org/NET/ssnx/ssn#>
+PREFIX ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
+PREFIX omgeo: <http://www.ontotext.com/owlim/geo#>
+PREFIX ff: <http://factforge.net/>
+_:5 geo:lat 60.158775; geo:long 24.88149 .
+_:9 geo:lat 60.187458; geo:long 24.821272 .
+_:13 geo:lat 60.187634; geo:long 24.821491 .
+# _:17 geo:lat 60.187595; geo:long 24.821255 .
+# _:21 geo:lat 60.187595; geo:long 24.821255 .
+# _:25 geo:lat 60.186623; geo:long 24.820017 .
+# _:29 geo:lat 60.158775; geo:long 24.88149 .
+# _:33 geo:lat 60.187458; geo:long 24.821272 .
+# _:37 geo:lat 60.187634; geo:long 24.821491 .
+# _:41 geo:lat 60.187595; geo:long 24.821255 .

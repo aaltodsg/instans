@@ -1,0 +1,6 @@
+PREFIX datetime: <http://instans.org/extensions/datetime#>
+
+SELECT * {
+       BIND(now() AS ?now)
+       BIND(datetime:datetime_in_seconds(?now) AS ?sec)
+}
