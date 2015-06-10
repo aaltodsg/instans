@@ -516,6 +516,7 @@
 				    ("data-r2" "algebra" "nested-opt-2" "Order of adding triples affects the result")
 				    ("data-r2" "algebra" "opt-filter-1" "Order of adding triples affects the result")
 				    ("data-r2" "algebra" "opt-filter-2" "Order of adding triples affects the result")
+				    ("data-r2" "expr-builtin" "dawg-str-1" "Literals and values are handled differently in INSTANS. str(\"01\"^^xsd:integer) == \"1\"")
 				    ("data-r2" "type-promotion" "type-promotion-23" "Number types are different in INSTANS")
 				    ("data-r2" "type-promotion" "type-promotion-24" "Number types are different in INSTANS")
 				    ("data-r2" "type-promotion" "type-promotion-25" "Number types are different in INSTANS")
