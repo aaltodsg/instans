@@ -26,6 +26,7 @@
 (define-class instans-nq-input-processor (instans-stream-input-processor) ())
 (define-class instans-turtle-input-processor (instans-stream-input-processor) ())
 (define-class instans-trig-input-processor (instans-stream-input-processor) ())
+(define-class instans-lisp-input-processor (instans-stream-input-processor) ())
 
 (define-class instans-agent-input-processor (instans-input-processor)
   ((source :accessor instans-agent-input-processor-source :initarg :source)))
@@ -44,6 +45,8 @@
   ((stream :accessor instans-stream-writer-stream :initarg :stream :initform nil)))
 
 (define-class instans-construct-stream-writer (instans-stream-writer instans-construct-writer) ())
+
+(define-class instans-construct-stream-lisp-writer (instans-construct-stream-writer) ())
 
 (define-class instans-agent-writer (instans-construct-writer)
   ((destinations :accessor instans-agent-writer-destinations :initarg :destinations :initform nil)))
@@ -93,6 +96,7 @@
 
 (define-class instans-nt-output-processor (instans-n-statement-output-processor) ())
 (define-class instans-nq-output-processor (instans-n-statement-output-processor) ())
+(define-class instans-lisp-output-processor (instans-n-statement-output-processor) ())
 
 (define-class instans-trig-output-processor (instans-construct-output-processor)
   ((current-graph :accessor instans-trig-output-processor-current-graph :initform nil)
@@ -101,6 +105,7 @@
    (graph-subject-predicate-object-trie :accessor instans-trig-output-processor-graph-subject-predicate-object-trie :initform (make-instance 'trie))))
 
 (define-class instans-turtle-output-processor (instans-trig-output-processor) ())
+(define-class instans-lisp-block-output-processor (instans-trig-output-processor) ())
 
 ;;; Print-object
 
@@ -197,12 +202,15 @@
   ;; (inform "create-construct-stream-output-processor ~A ~A" output-name appendp)
   (setf appendp (and appendp (or (null output-name) (string= "-" output-name) (probe-file output-name))))
   (let* ((stream (make-instans-output-processor-output-stream output-name appendp))
-	 (writer (make-instance 'instans-construct-stream-writer :name output-name :stream stream)))
+	 (writer (case output-type
+		   (:lisp (make-instance 'instans-construct-stream-lisp-writer :name output-name :stream stream))
+		   (t (make-instance 'instans-construct-stream-writer :name output-name :stream stream)))))
     (case output-type
       ((:ttl :turtle) (make-instance 'instans-turtle-output-processor :instans instans :output-name output-name :writer writer))
       (:trig (make-instance 'instans-trig-output-processor :instans instans :output-name output-name :writer writer))
       (:nt (make-instance 'instans-nt-output-processor :instans instans :output-name output-name :writer writer))
       (:nq (make-instance 'instans-nq-output-processor :instans instans :output-name output-name :writer writer))
+      (:lisp (make-instance 'instans-lisp-output-processor :instans instans :output-name output-name :writer writer))
       (t (error* "Unknown construct output processor type ~S" output-type)))))
 
 (defun create-construct-agent-output-processor (instans output-name output-type destinations)
@@ -433,6 +441,9 @@
 ))
 
 (defgeneric write-statements (instans-writer statements)
+  (:method ((this instans-construct-stream-lisp-writer) statements)
+    (loop for statement in statements
+	  do (format (instans-stream-writer-stream this) "~&~A~%" (rdf-statement-creating-form statement))))
   (:method ((this instans-construct-stream-writer) statements)
     (loop for (s p o g) in statements
 	 do (format (instans-stream-writer-stream this) "~&~A ~A ~A~@[ ~A~]~%" s p o g)))
@@ -441,6 +452,20 @@
 	  do (agent-send agent statements))))
 
 (defgeneric write-graph-subject-predicate-object-trie (instans-writer instans trie &key wrap-default-p)
+  (:method ((this instans-construct-stream-lisp-writer) (instans instans) trie &key wrap-default-p)
+    (declare (ignorable wrap-default-p))
+    (let* ((statements (list nil))
+	   (tail statements))
+      (trie-map trie #'(lambda (path)
+			 (setf (cdr tail) (list (list (second path) (third path) (fourth path) (first path))))
+			 (setf tail (cdr tail))))
+      ;; (trie-print trie)
+      ;; (inform "trie paths = ~S" (trie-paths trie))
+      (pop statements)
+      (let ((stream (instans-stream-writer-stream this)))
+	(format stream "~&(rdf-block")
+	(loop for statement in statements do (format stream "~&    ~A~%" (rdf-statement-creating-form statement)))
+	(format stream ")~%"))))
   (:method ((this instans-construct-stream-writer) (instans instans) trie &key (wrap-default-p t))
 ;    (trie-print trie *error-output*)
     (let ((stream (instans-stream-writer-stream this))
