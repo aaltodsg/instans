@@ -1,0 +1,43 @@
+Removing unnecessary adding of stuff into parser stack and result stack. The following files are affected:
+
+(./TODO-stack)
+(./src/cl-ll1/datastruct.lisp)
+(./src/cl-ll1/debug.lisp)
+./src/cl-ll1/ebnf2ll1.lisp
+./src/cl-ll1/generator.lisp
+./src/cl-ll1/printing.lisp
+./src/cl-ll1/with-ll1-parser.lisp
+./src/instans.asd
+./src/main/compile-sparql-file.lisp
+./src/main/main.lisp
+./src/parser/sparql-parser.lisp
+./src/parser/trig-parser.lisp
+
+================
+From TODO-stack:
+
+- Implement NO-RESULT, which avoids pushing the production into the the stack
+- Trying to find out, why stack grows in trig parsing
+  + Is it a problem of LL-parsing?
+    * For example the following grammar
+      1: A -> B A
+      2: B -> c
+    + Does parsing cccccccccc produce a stack containing ten incarnations of rule 1?
+      * Yes, the executed actions are there if any.
+    + Should not push actions with no results, to avoid growing stack.
+  + Trying to get the parser printed
++ Detecting, why trig-parser makes result-stack grow unnecessarily
+  + Tracked down the problem to prog1, which does not handle multiple values like progn
+  * Trying to detect the production that causes this:
+    * executing prefixid adds a nil into result stack, though the RESULT operation has (values) as its last operation.
+    * where is result-func* fields of a production set, and where is result-func compiled?
+      * trying to print the actual situation of production 37 (prefixid), does it have a result-func?
+================
+
+Eliminating unnecessary stuff from result stack:
++ Replace prog1 by multiple-value-prog1 in
+
+Eliminating unnecessary stuff from parse stack:
+- cl-ll1/ebnf2ll1.lisp
+  - Add default-result
+- 
