@@ -39,6 +39,7 @@
 (define-class ll-parser (grammar)
   ((lexer :accessor ll-parser-lexer :initarg :lexer)
    (subscribe :accessor ll-parser-subscribe :initarg :subscribe :initform nil)
+   (parse :accessor ll-parser-parse :initarg :parse :initform #'ll-parse)
    (stack :accessor ll-parser-stack :initform nil)
    (result-stack :accessor ll-parser-result-stack :initform nil)
    (saved-input-token :accessor ll-parser-saved-input-token :initform nil)

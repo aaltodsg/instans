@@ -644,7 +644,7 @@
 
 (defgeneric parse (ll-parser)
   (:method ((this ll-parser))
-    (ll-parse this)))
+    (funcall (ll-parser-parse this) this)))
 
 ;;; -------------------- Generate an LL(1) grammar --------------------
 

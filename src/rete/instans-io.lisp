@@ -24,10 +24,12 @@
 ;;; These are for different RDF encodings
 (define-class instans-nt-input-processor (instans-stream-input-processor) ())
 (define-class instans-nq-input-processor (instans-stream-input-processor) ())
-(define-class instans-nl-input-processor (instans-stream-input-processor) ())
 (define-class instans-trig-input-processor (instans-stream-input-processor) ())
 (define-class instans-turtle-input-processor (instans-stream-input-processor) ())
-(define-class instans-lisp-block-input-processor (instans-stream-input-processor) ())
+
+(define-class instans-lisp-input-processor (instans-stream-input-processor) ())
+(define-class instans-nl-input-processor (instans-lisp-input-processor) ())
+(define-class instans-lisp-block-input-processor (instans-lisp-input-processor) ())
 
 (define-class instans-agent-input-processor (instans-input-processor)
   ((source :accessor instans-agent-input-processor-source :initarg :source)))
