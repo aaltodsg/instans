@@ -1,0 +1,67 @@
+mf:PositiveSyntaxTest         data-r2 1         ((SELECT-NODE) NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL) 1
+                                                ((NIL) NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL) 1
+                                                ((ASK-NODE) NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL) 1
+                                                ((CONSTRUCT-NODE) NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL) 1
+                                                ((DESCRIBE-NODE) NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL) 1
+mf:NegativeSyntaxTest         data-r2 1         ((NIL) NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL) 1
+mf:PositiveSyntaxTest11       data-sparql11 1   ((SELECT-NODE) NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL) 1
+mf:NegativeSyntaxTest11       data-sparql11 1   ((NIL) NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL) 1
+                                                ((CONSTRUCT-NODE) NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL) 1
+                                                ((NIL) NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL) 1
+                                                ((ASK-NODE) NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL) 1
+mf:PositiveUpdateSyntaxTest11 data-sparql11 1   ((NIL) NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL) 1
+                                                ((MODIFY-NODE) NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL) 1
+mf:NegativeUpdateSyntaxTest11 data-sparql11 1   ((NIL) NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL) 1
+                                                ((MODIFY-NODE) NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL) 1
+                                                ((SELECT-NODE) NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL) 1
+mf:QueryEvaluationTest        data-r2 4         ((SELECT-NODE) (:TTL) NIL (:SRX) NIL NIL NIL NIL NIL NIL NIL) 4
+                                                ((SELECT-NODE) (:TTL) (:TTL) (:SRX) NIL NIL NIL NIL NIL NIL NIL) 4
+                                                ((ASK-NODE) (:TTL) NIL (:SRX) NIL NIL NIL NIL NIL NIL NIL) 4
+                                                ((NIL) (:TTL) NIL (:SRX) NIL NIL NIL NIL NIL NIL NIL) 4
+                                                ((SELECT-NODE) (:TTL) NIL (:TTL) NIL NIL NIL NIL NIL NIL NIL) 4
+                                                ((CONSTRUCT-NODE) (:TTL) NIL (:TTL) NIL NIL NIL NIL NIL NIL NIL) 4
+                                                ((SELECT-NODE) NIL NIL (:TTL) NIL NIL NIL NIL NIL NIL NIL) 4
+                                                ((SELECT-NODE) NIL (:TTL) (:TTL) NIL NIL NIL NIL NIL NIL NIL) 4
+                                                ((SELECT-NODE) (:TTL) (:TTL) (:TTL) NIL NIL NIL NIL NIL NIL NIL) 4
+                                                ((SELECT-NODE) (:TTL) (:TTL :TTL :TTL :TTL) (:TTL) NIL NIL NIL NIL NIL NIL NIL) 4
+                                                ((SELECT-NODE) (:TTL) NIL (:RDF) NIL NIL NIL NIL NIL NIL NIL) 4
+                                                ((ASK-NODE) (:TTL) NIL (:TTL) NIL NIL NIL NIL NIL NIL NIL) 4
+mf:QueryEvaluationTest        data-sparql11 4   ((SELECT-NODE) (:TTL) NIL (:SRX) NIL NIL NIL NIL NIL NIL NIL) 4
+                                                ((ASK-NODE) (:TTL) NIL (:SRX) NIL NIL NIL NIL NIL NIL NIL) 4
+                                                ((NIL) (:TTL) NIL (:SRX) NIL NIL NIL NIL NIL NIL NIL) 4
+                                                ((CONSTRUCT-NODE) (:TTL) NIL (:TTL) NIL NIL NIL NIL NIL NIL NIL) 4
+                                                ((CONSTRUCT-NODE) NIL NIL (:TTL) NIL NIL NIL NIL NIL NIL NIL) 4
+                                                ((SELECT-NODE) (:TTL) NIL (:TSV) NIL NIL NIL NIL NIL NIL NIL) 4
+                                                ((SELECT-NODE) (:TTL) (:TTL) (:SRX) NIL NIL NIL NIL NIL NIL NIL) 4
+                                                ((SELECT-NODE) (:NT) NIL (:SRX) NIL NIL NIL NIL NIL NIL NIL) 4
+                                                ((SELECT-NODE) (:TTL) NIL (:SRJ) NIL NIL NIL NIL NIL NIL NIL) 4
+                                                ((ASK-NODE) (:TTL) NIL (:SRJ) NIL NIL NIL NIL NIL NIL NIL) 4
+                                                ((SELECT-NODE) NIL (:TTL :TTL) (:SRX) NIL NIL NIL NIL NIL NIL NIL) 4
+                                                ((SELECT-NODE) NIL (:TTL) (:SRX) NIL NIL NIL NIL NIL NIL NIL) 4
+                                                ((NIL) NIL (:TTL :TTL :TTL) (:SRX) NIL NIL NIL NIL NIL NIL NIL) 4
+                                                ((SELECT-NODE) NIL NIL (:SRX) NIL NIL NIL NIL NIL NIL NIL) 4
+                                                ((SELECT-NODE) NIL (:RDF) (:SRX) NIL NIL NIL NIL NIL NIL NIL) 4
+                                                ((SELECT-NODE) (:RDF) (:RDF) (:SRX) NIL NIL NIL NIL NIL NIL NIL) 4
+                                                ((SELECT-NODE) (:RDF) NIL (:SRX) NIL NIL NIL NIL NIL NIL NIL) 4
+mf:UpdateEvaluationTest       data-sparql11 7   ((NIL) (:TTL) NIL (:TTL) (:TTL) (:HTTP-IRI) NIL NIL NIL NIL NIL) 6
+                                                ((NIL) (:TTL) NIL (:TTL) (:TTL :TTL) (:HTTP-IRI :HTTP-IRI) NIL NIL NIL NIL NIL) 6
+                                                ((NIL) (:TTL) NIL (:TTL) (:TTL) (:HTTP-IRI :HTTP-IRI) NIL NIL NIL NIL NIL) 6
+                                                ((MODIFY-NODE) NIL NIL (:TTL) NIL NIL ("ut:success") NIL NIL NIL NIL) 7
+                                                ((MODIFY-NODE) NIL NIL NIL (:TTL) (:HTTP-IRI) ("ut:success") NIL NIL NIL NIL) 7
+                                                ((MODIFY-NODE) (:TTL) NIL (:TTL) NIL NIL NIL NIL NIL NIL NIL) 4
+                                                ((MODIFY-NODE) (:TTL) NIL (:TTL) (:TTL) (:HTTP-IRI) NIL NIL NIL NIL NIL) 6
+                                                ((MODIFY-NODE) (:TTL) NIL (:TTL) (:TTL :TTL) (:HTTP-IRI :HTTP-IRI) NIL NIL NIL NIL NIL) 6
+                                                ((MODIFY-NODE) NIL NIL NIL (:TTL) (:HTTP-IRI :HTTP-IRI) NIL NIL NIL NIL NIL) 6
+                                                ((MODIFY-NODE) NIL NIL NIL (:TTL) (:HTTP-IRI) NIL NIL NIL NIL NIL) 6
+                                                ((MODIFY-NODE) NIL NIL NIL (:TTL :TTL) (:HTTP-IRI :HTTP-IRI) NIL NIL NIL NIL NIL) 6
+                                                ((MODIFY-NODE) NIL NIL NIL (:TTL) (:HTTP-IRI) ("ut:Success") NIL NIL NIL NIL) 7
+                                                ((MODIFY-NODE) NIL NIL NIL (:TTL :TTL :TTL) (:HTTP-IRI :HTTP-IRI :HTTP-IRI) NIL NIL NIL NIL NIL) 6
+                                                ((NIL) (:TTL) NIL NIL (:TTL :TTL) (:HTTP-IRI :HTTP-IRI) NIL NIL NIL NIL NIL) 6
+                                                ((NIL) (:TTL) NIL (:TTL) NIL NIL NIL NIL NIL NIL NIL) 4
+                                                ((NIL) (:TTL) NIL NIL NIL NIL NIL NIL NIL NIL NIL) 2
+                                                ((NIL) (:TTL) NIL NIL (:TTL) (:HTTP-IRI) NIL NIL NIL NIL NIL) 6
+                                                ((NIL) NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL) 1
+                                                ((NIL) NIL NIL NIL (:TTL) (:HTTP-IRI) NIL NIL NIL NIL NIL) 6
+mf:CSVResultFormatTest        data-sparql11 4   ((SELECT-NODE) (:TTL) NIL (:CSV) NIL NIL NIL NIL NIL NIL NIL) 4
+mf:ProtocolTest               data-sparql11 0   (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL) 0
+mf:ServiceDescriptionTest     data-sparql11 0   (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL) 0
