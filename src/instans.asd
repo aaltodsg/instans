@@ -76,7 +76,8 @@
 	       			     (:file "trig-parser" :depends-on ("lexer"))
 	       			     (:file "sparql-parser" :depends-on ("lexer"))
 				     (:file "srx-parser")
-				     (:file "parsers" :depends-on ("n-statements-parser" "trig-parser" "sparql-parser" "srx-parser"))))
+				     (:file "lisp-parser")
+				     (:file "parsers" :depends-on ("n-statements-parser" "trig-parser" "sparql-parser" "srx-parser" "lisp-parser"))))
 	       (:module "rete" :depends-on ("util" "sparql" "parser")
 			:components  (
 				      (:file "rete-classes")

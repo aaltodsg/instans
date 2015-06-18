@@ -1,0 +1,25 @@
+Here we implement reading and writing triples/quads as lisp expressions. You can read and write either single triples/quads or a list of them.
+
+New files:
+- parser/lisp-parser.lisp
+  - make-lisp-parser
+
+Old files affected:
+- instans.asd
+  + Add parser/lisp-parser.lisp
+- main/main.lisp
+  - In main, add new options for reading and writing lisp
+- rete/instans-io.lisp
+  - Add define-class instans-lisp-input-processor (instans-stream-input-processor)
+  - Add define-class instans-construct-stream-lisp-writer (instans-construct-stream-writer)
+  - Add define-class instans-lisp-output-processor (instans-n-statement-output-processor)
+  - In create-construct-stream-output-processor, add :lisp as output type
+  - In write-statements, add writing of lisp
+- main/main.lisp
+  - In main, add new options for reading and writing lisp
+- main/compile-sparql-file.lisp
+  - In instans-add-stream-input-processor, add :lisp as input type
+- parser/parsers.lisp
+  ? In make-rdf-parser, add lisp input
+- sparql/sparql-helper-functions.lisp
+  ? Add a function for readable writing triples/quads

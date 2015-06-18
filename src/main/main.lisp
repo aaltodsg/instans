@@ -273,6 +273,12 @@
 		(instans-add-stream-input-processor instans (expand-iri directory value)
 						    :graph graph :base base :input-type :nt)
 		(maybe-execute))
+	       (input-lisp
+		:options ("--input-lisp=INPUT")
+		:usage "Read RDF in Lisp format from INPUT."
+		(instans-add-stream-input-processor instans (expand-iri directory value)
+						    :graph graph :base base :input-type :lisp)
+		(maybe-execute))
 	       (base
 		:options ("--base=URL" ("-b" "URL"))
 		:usage "Use URL as the base."
