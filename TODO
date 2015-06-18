@@ -1,5 +1,6 @@
 - Make stores and indices use collision lists: branch hashtable-fix
 - Fix stacks in parser: branch parser-stacks
+- Writing and reading triples as lisp expressions: branch lisp-triples
 =====================
 - 2015-06-03
   - If select results are written as ttl, be sure to write the variables
