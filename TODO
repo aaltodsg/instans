@@ -1,3 +1,6 @@
+- Make stores and indices use collision lists: branch hashtable-fix
+- Fix stacks in parser: branch parser-stacks
+=====================
 - 2015-06-03
   - If select results are written as ttl, be sure to write the variables
     - Will fix algebra/filter-nested-2 and algebra/opt-filter-2, join-scope-1
