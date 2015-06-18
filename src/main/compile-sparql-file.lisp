@@ -140,9 +140,10 @@
       (case input-type
 	(:trig (values 'instans-trig-input-processor #'make-trig-parser))
 	(:ttl (values 'instans-turtle-input-processor #'make-turtle-parser))
-	(:lbl (values 'instans-lisp-block-input-processor #'make-turtle-parser))
+	(:lbl (values 'instans-lisp-block-input-processor #'make-lisp-block-parser))
 	(:nt (values 'instans-nt-input-processor #'make-n-triples-parser))
 	(:nq (values 'instans-nq-input-processor #'make-n-quads-parser))
+	(:nl (values 'instans-nl-input-processor #'make-n-statements-lisp-parser))
 	(t (error* "Unknown input type ~S" input-type)))
     (let* ((input-unit (instans-rdf-input-unit instans))
 	   (processor (make-instance processor-type
@@ -171,7 +172,6 @@
 	   (prefix-callback (and (member input-type '(:trig :ttl))
 				 (list :prefix-callback #'(lambda (prefix expansion) (instans-store-prefix-binding instans prefix expansion))))))
       (setf parser (apply parser-creator instans input-stream :base base :graph graph :subscribe subscribe (append callback prefix-callback)))
-					;      (make-turtle-parser )
       (setf (instans-stream-input-processor-parser processor) parser)
       (add-input-processor instans processor)
       instans)))

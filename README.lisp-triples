@@ -19,6 +19,6 @@ Old files affected:
 - main/main.lisp
   - In main, add new options for reading and writing lisp
 - main/compile-sparql-file.lisp
-  - In instans-add-stream-input-processor, add :lisp as input type
+  - In instans-add-stream-input-processor, add :nl or :lbl as input type
 - parser/parsers.lisp
   ? In make-rdf-parser, add lisp input
