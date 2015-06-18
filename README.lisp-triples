@@ -5,9 +5,9 @@ New files:
   - make-lisp-parser
 
 Old files affected:
-- instans.asd
++ instans.asd
   + Add parser/lisp-parser.lisp
-- rete/instans-io.lisp
++ rete/instans-io.lisp
   + Add define-class instans-lisp-input-processor (instans-stream-input-processor)
   + Add define-class instans-construct-stream-lisp-writer (instans-construct-stream-writer)
   + Add define-class instans-lisp-output-processor (instans-n-statement-output-processor)
@@ -16,9 +16,20 @@ Old files affected:
   + In write-statements, add writing of lisp
 - sparql/sparql-helper-functions.lisp
   + Add a function for lisp readable writing statements
-- main/main.lisp
-  - In main, add new options for reading and writing lisp
-- main/compile-sparql-file.lisp
-  - In instans-add-stream-input-processor, add :nl or :lbl as input type
-- parser/parsers.lisp
++ main/main.lisp
+  + In main, add new options for reading and writing lisp
++ main/compile-sparql-file.lisp
+  + In instans-add-stream-input-processor, add :nl or :lbl as input type
+? parser/parsers.lisp
   ? In make-rdf-parser, add lisp input
+
+Test:
+- Convert :nt to :nl
+- Convert :nl to :nt
+- Convert :nq to :nl
+- Convert :nl to :nq
+- Convert :ttl to :lbl
+- Convert :lbl to :ttl
+- Convert :trig to :lbl
+- Convert :lbl to :trig
+
