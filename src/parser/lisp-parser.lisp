@@ -10,16 +10,14 @@
    (instans :accessor rdf-lisp-parser-instans :initarg :instans)
    (callback :accessor rdf-lisp-parser-callback :initarg :callback)))
 
-(defmethod initialize-instance :after ((this rdf-lisp-parser) &key &allow-other-keys)
-  (setf (ll-parser-parse this)
-	#'(lambda (parser)
-	    (let* ((*parser* parser)
-		   (stream (rdf-lisp-parser-stream parser))
-		   (form (read stream nil :eof)))
-	      (cond ((eq form :eof)
-		     (ll-parser-success))
-		    (t
-		     (apply (rdf-lisp-parser-callback this) (eval form))))))))
+(defmethod parse ((this rdf-lisp-parser))
+  (let* ((*parser* this)
+	 (stream (rdf-lisp-parser-stream this))
+	 (form (read stream nil :eof)))
+    (cond ((eq form :eof)
+	   (ll-parser-success))
+	  (t
+	   (apply (rdf-lisp-parser-callback this) (eval form))))))
 
 (define-class rdf-n-statement-lisp-parser (rdf-lisp-parser) ())
 (define-class rdf-lisp-block-parser (rdf-lisp-parser) ())
