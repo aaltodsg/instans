@@ -7,20 +7,18 @@ New files:
 Old files affected:
 - instans.asd
   + Add parser/lisp-parser.lisp
-- main/main.lisp
-  - In main, add new options for reading and writing lisp
 - rete/instans-io.lisp
-  - Add define-class instans-lisp-input-processor (instans-stream-input-processor)
-  - Add define-class instans-construct-stream-lisp-writer (instans-construct-stream-writer)
-  - Add define-class instans-lisp-output-processor (instans-n-statement-output-processor)
-  - Add define-class instans-lisp-block-output-processor (instans-trig-output-processor)
-  - In create-construct-stream-output-processor, add :lisp as output type
-  - In write-statements, add writing of lisp
+  + Add define-class instans-lisp-input-processor (instans-stream-input-processor)
+  + Add define-class instans-construct-stream-lisp-writer (instans-construct-stream-writer)
+  + Add define-class instans-lisp-output-processor (instans-n-statement-output-processor)
+  + Add define-class instans-lisp-block-output-processor (instans-trig-output-processor)
+  + In create-construct-stream-output-processor, add :lisp as output type
+  + In write-statements, add writing of lisp
+- sparql/sparql-helper-functions.lisp
+  + Add a function for lisp readable writing statements
 - main/main.lisp
   - In main, add new options for reading and writing lisp
 - main/compile-sparql-file.lisp
   - In instans-add-stream-input-processor, add :lisp as input type
 - parser/parsers.lisp
   ? In make-rdf-parser, add lisp input
-- sparql/sparql-helper-functions.lisp
-  ? Add a function for lisp readable writing terms

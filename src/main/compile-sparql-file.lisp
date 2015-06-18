@@ -140,6 +140,7 @@
       (case input-type
 	(:trig (values 'instans-trig-input-processor #'make-trig-parser))
 	(:ttl (values 'instans-turtle-input-processor #'make-turtle-parser))
+	(:lbl (values 'instans-lisp-block-input-processor #'make-turtle-parser))
 	(:nt (values 'instans-nt-input-processor #'make-n-triples-parser))
 	(:nq (values 'instans-nq-input-processor #'make-n-quads-parser))
 	(t (error* "Unknown input type ~S" input-type)))

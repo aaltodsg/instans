@@ -24,9 +24,10 @@
 ;;; These are for different RDF encodings
 (define-class instans-nt-input-processor (instans-stream-input-processor) ())
 (define-class instans-nq-input-processor (instans-stream-input-processor) ())
-(define-class instans-turtle-input-processor (instans-stream-input-processor) ())
+(define-class instans-nl-input-processor (instans-stream-input-processor) ())
 (define-class instans-trig-input-processor (instans-stream-input-processor) ())
-(define-class instans-lisp-input-processor (instans-stream-input-processor) ())
+(define-class instans-turtle-input-processor (instans-stream-input-processor) ())
+(define-class instans-lisp-block-input-processor (instans-stream-input-processor) ())
 
 (define-class instans-agent-input-processor (instans-input-processor)
   ((source :accessor instans-agent-input-processor-source :initarg :source)))
@@ -96,7 +97,7 @@
 
 (define-class instans-nt-output-processor (instans-n-statement-output-processor) ())
 (define-class instans-nq-output-processor (instans-n-statement-output-processor) ())
-(define-class instans-lisp-output-processor (instans-n-statement-output-processor) ())
+(define-class instans-nl-output-processor (instans-n-statement-output-processor) ())
 
 (define-class instans-trig-output-processor (instans-construct-output-processor)
   ((current-graph :accessor instans-trig-output-processor-current-graph :initform nil)
@@ -203,14 +204,15 @@
   (setf appendp (and appendp (or (null output-name) (string= "-" output-name) (probe-file output-name))))
   (let* ((stream (make-instans-output-processor-output-stream output-name appendp))
 	 (writer (case output-type
-		   (:lisp (make-instance 'instans-construct-stream-lisp-writer :name output-name :stream stream))
+		   ((:nl :lbl) (make-instance 'instans-construct-stream-lisp-writer :name output-name :stream stream))
 		   (t (make-instance 'instans-construct-stream-writer :name output-name :stream stream)))))
     (case output-type
       ((:ttl :turtle) (make-instance 'instans-turtle-output-processor :instans instans :output-name output-name :writer writer))
       (:trig (make-instance 'instans-trig-output-processor :instans instans :output-name output-name :writer writer))
+      (:lbl (make-instance 'instans-lisp-block-output-processor :instans instans :output-name output-name :writer writer))
       (:nt (make-instance 'instans-nt-output-processor :instans instans :output-name output-name :writer writer))
       (:nq (make-instance 'instans-nq-output-processor :instans instans :output-name output-name :writer writer))
-      (:lisp (make-instance 'instans-lisp-output-processor :instans instans :output-name output-name :writer writer))
+      (:nl (make-instance 'instans-nl-output-processor :instans instans :output-name output-name :writer writer))
       (t (error* "Unknown construct output processor type ~S" output-type)))))
 
 (defun create-construct-agent-output-processor (instans output-name output-type destinations)

@@ -238,8 +238,9 @@
 		:options ("--input=INPUT" ("-i" "INPUT") ("-t" "INPUT") )
 		:usage ("Read RDF from a file or an URL. The suffix of INPUT is used to determine the"
 			"type of the input. The recognized file formats are TriG (type '.trig'), Turtle"
-			"(type '.ttl' or '.turtle'), N-Triples (type '.nt' or '.n-triples'), and N-Quads"
-			"(type '.nt' or '.n-quads'). If INPUT does not have a file type, use the type"
+			"(type '.ttl' or '.turtle'), N-Triples (type '.nt' or '.n-triples'), N-Quads"
+			"(type '.nt' or '.n-quads'), N-Lisp (type '.nl', '.n-lisp'), or Lisp-Block (type '.lbl')"
+                        ". If INPUT does not have a file type, use the type"
 			"specific input options below.")
 		(instans-add-stream-input-processor instans (expand-iri directory value)
 						    :graph graph :base base :subscribe debug
@@ -261,6 +262,12 @@
 		(instans-add-stream-input-processor instans (expand-iri directory value)
 						    :graph graph :base base :input-type :ttl)
 		(maybe-execute))
+	       (input-lisp-block
+		:options ("--input-lisp-block=INPUT" "--input-lbl=INPUT")
+		:usage "Read RDF in Turtle format from INPUT."
+		(instans-add-stream-input-processor instans (expand-iri directory value)
+						    :graph graph :base base :input-type :lbl)
+		(maybe-execute))
 	       (input-nq
 		:options ("--input-nq=INPUT" "--input-n-quads=INPUT")
 		:usage "Read RDF in N-Quads format from INPUT."
@@ -273,11 +280,11 @@
 		(instans-add-stream-input-processor instans (expand-iri directory value)
 						    :graph graph :base base :input-type :nt)
 		(maybe-execute))
-	       (input-lisp
-		:options ("--input-lisp=INPUT")
-		:usage "Read RDF in Lisp format from INPUT."
+	       (input-nlisp
+		:options ("--input-nlisp=INPUT")
+		:usage "Read RDF in N-Lisp format from INPUT."
 		(instans-add-stream-input-processor instans (expand-iri directory value)
-						    :graph graph :base base :input-type :lisp)
+						    :graph graph :base base :input-type :nl)
 		(maybe-execute))
 	       (base
 		:options ("--base=URL" ("-b" "URL"))
@@ -356,6 +363,11 @@
 		:usage "Write CONSTRUCT results as Turtle to OUTPUT."
 		(setf construct-output-name value)
 		(setf construct-output-type :ttl))
+	       (construct-output-lisp-block
+		:options ("--construct-output-lisp-block=OUTPUT")
+		:usage "Write CONSTRUCT results as Lisp blocks to OUTPUT."
+		(setf construct-output-name value)
+		(setf construct-output-type :lbl))
 	       (construct-output-nq
 		:options ("--construct-output-nq=OUTPUT" "--construct-output-n-quads=OUTPUT")
 		:usage "Write CONSTRUCT results as N-Quads to OUTPUT."
@@ -366,6 +378,11 @@
 		:usage "Write CONSTRUCT results as N-Triples to OUTPUT."
 		(setf construct-output-name value)
 		(setf construct-output-type :nt))
+	       (construct-output-nlisp
+		:options ("--construct-output-nl=OUTPUT" "--construct-output-n-lisp=OUTPUT")
+		:usage "Write CONSTRUCT results as N-Lisp to OUTPUT."
+		(setf construct-output-name value)
+		(setf construct-output-type :nl))
 	       (t :usage ("" "Execution control options:" ""))
 	       (execute
 		:options ("--execute" "-e")
