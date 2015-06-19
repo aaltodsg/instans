@@ -199,6 +199,9 @@
 (defmacro current-instans ()
   `*instans*)
 
+(defmacro rdf-block (&body body)
+  `(list ,@body))
+
 (defmacro sparql-call (name &rest args)
   (multiple-value-bind (library-name op-name)
       (split-sparql-op-prefixed-name name)

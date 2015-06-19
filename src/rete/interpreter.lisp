@@ -276,6 +276,7 @@
       (cond ((ll-parser-failed-p ll-parser)
 	     (instans-add-status instans 'instans-rdf-parsing-failed (ll-parser-error-messages ll-parser))
 	     (setf (instans-input-processor-status this) :failed)
+	     (loop for msg in (ll-parser-error-messages ll-parser) do (inform msg))
 	     (unless (instans-runnable-p instans)
 	       (instans-close-open-streams instans)))
 	    ((ll-parser-succeeded-p ll-parser)

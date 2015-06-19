@@ -164,6 +164,7 @@
 							   )))
 		       (:block (list :block-callback #'(lambda (inputs)
 							 (process-query-input processor inputs)
+							 ;; (inform "block ~D" (length inputs))
 							 (ll-parser-yields)
 							 inputs
 							 )))
