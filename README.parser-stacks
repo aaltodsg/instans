@@ -38,6 +38,11 @@ Eliminating unnecessary stuff from result stack:
 + Replace prog1 by multiple-value-prog1 in
 
 Eliminating unnecessary stuff from parse stack:
-- cl-ll1/ebnf2ll1.lisp
-  - Add default-result
-- 
+- Add a field to grammar that tells if we want to ignore unnecessary results.
+- Add a table for grammar symbol, which tells if the result of that symbol is needed in parsing
+- After expansing the grammar, propagate the information on whether the result of a production is used and based on this, set the ignore-result-p fields of productions.
+  - If the result form contains variable $i, mark for the i'th RHS grammar symbol that its result is needed.
+  - Mark all productions for nonterminals, whose results are needed.
+- During parsing, don't put onto control stack those non-terminals, whose results are not needed.
+- What about actions with side effects only?
+  - Add a keyword :ACTION that can be used instead of :RESULT, which overrides the propagation above and marks that the operation should be done no matter what.
