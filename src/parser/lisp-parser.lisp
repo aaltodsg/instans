@@ -18,7 +18,7 @@
       (cond ((eq form :eof)
 	     (ll-parser-success))
 	    (t
-	     (apply (rdf-lisp-parser-callback this) (eval form))
+	     (funcall (rdf-lisp-parser-callback this) (eval form))
 	     this)))))
 
 (define-class rdf-n-statements-lisp-parser (rdf-lisp-parser) ())

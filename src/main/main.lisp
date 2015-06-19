@@ -263,7 +263,7 @@
 						    :graph graph :base base :input-type :ttl)
 		(maybe-execute))
 	       (input-lisp-block
-		:options ("--input-lisp-block=INPUT" "--input-lbl=INPUT")
+		:options ("--input-lisp-blocks=INPUT" "--input-lbl=INPUT")
 		:usage "Read RDF in Turtle format from INPUT."
 		(instans-add-stream-input-processor instans (expand-iri directory value)
 						    :graph graph :base base :input-type :lbl)
