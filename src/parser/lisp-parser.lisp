@@ -11,15 +11,17 @@
    (callback :accessor rdf-lisp-parser-callback :initarg :callback)))
 
 (defmethod parse ((this rdf-lisp-parser))
-  (let* ((*parser* this)
-	 (stream (rdf-lisp-parser-stream this))
-	 (form (read stream nil :eof)))
-    (cond ((eq form :eof)
-	   (ll-parser-success))
-	  (t
-	   (apply (rdf-lisp-parser-callback this) (eval form))))))
+  (catch 'parsed
+    (let* ((*parser* this)
+	   (stream (rdf-lisp-parser-stream this))
+	   (form (read stream nil :eof)))
+      (cond ((eq form :eof)
+	     (ll-parser-success))
+	    (t
+	     (apply (rdf-lisp-parser-callback this) (eval form))
+	     this)))))
 
-(define-class rdf-n-statement-lisp-parser (rdf-lisp-parser) ())
+(define-class rdf-n-statements-lisp-parser (rdf-lisp-parser) ())
 (define-class rdf-lisp-block-parser (rdf-lisp-parser) ())
 
 (defun make-n-statements-lisp-parser (instans input-stream &key triple-callback &allow-other-keys)

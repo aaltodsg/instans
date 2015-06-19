@@ -18,7 +18,7 @@
 
 @prefix : <http://instans.org/> .
 
-<eve:x> {	eve:eve0 a eem:ObjectEvent ;
+eve:x {	eve:eve0 a eem:ObjectEvent ;
 		eem:hasEventID "eve0" ;
 		<http://www.w3.org/2000/01/rdf-schema#label> "An ObjectEvent with event ID eve0" ;
 		eem:eventOccurredAt "2014-04-04T17:32:08.187+02:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
@@ -147,4 +147,3 @@ eve:eve19 eem:eventRecordedAt "2014-04-04T17:38:06+02:00"^^<http://www.w3.org/20
 eve:eve20 eem:eventRecordedAt "2014-04-04T17:38:09+02:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
 }
 :this :is :last .
-

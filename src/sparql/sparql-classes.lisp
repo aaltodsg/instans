@@ -276,14 +276,19 @@
 	(t
 	 (maphash #'(lambda (key value) (inform "~A -> ~A" key value)) (sparql-op-library-ops (find-sparql-op-library library-name :sparql-ops sparql-ops))))))
 
+(defun create-initial-prefix-alist ()
+  (list (cons "rdf" "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+	(cons "xsd" "http://www.w3.org/2001/XMLSchema#")))
+
+
 (defun initialize-globals ()
   (setf *sparql-unbound* (make-instance 'sparql-unbound))
   (setf *sparql-distinct* (make-instance 'sparql-distinct))
-  (setf *rdf-first* (make-instance 'rdf-iri :string "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"))
-  (setf *rdf-rest* (make-instance 'rdf-iri :string "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"))
-  (setf *rdf-nil* (make-instance 'rdf-iri :string "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"))
-  (setf *rdf-type* (make-instance 'rdf-iri :string "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"))
-  (setf *rdf-lang-string-iri* (make-instance 'rdf-iri :string "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"))
+  (setf *rdf-first* (parse-iri "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"))
+  (setf *rdf-rest* (parse-iri "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"))
+  (setf *rdf-nil* (parse-iri "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"))
+  (setf *rdf-type* (parse-iri "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"))
+  (setf *rdf-lang-string-iri* (parse-iri "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"))
   (setf *xsd-value-type-descriptors* (make-instance 'type-descriptors))
   (setf *sparql-ops* (make-instance 'sparql-ops))
   (setf *sparql-standard-op-library* (add-sparql-op-library :prefix "" :iri-string "http://www.w3.org/TR/sparql11-query/#SparqlOps#"))
@@ -292,12 +297,8 @@
   (setf *instans-datetime-extension-op-library* (add-sparql-op-library :prefix "datetime" :iri-string "http://instans.org/extensions/datetime#"))
   (setf *instans-op-library* (add-sparql-op-library :prefix "instans" :iri-string "http://instans.org/extensions/instans#")))
 
-(defun create-initial-prefix-alist ()
-  (list (cons "rdf" "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
-	(cons "xsd" "http://www.w3.org/2001/XMLSchema#")))
-
-(eval-when (:load-toplevel :execute)
-  (initialize-globals))
+;; (eval-when (:load-toplevel :execute)
+;;   (initialize-globals))
 
 ;;; Misc
 

@@ -447,7 +447,7 @@
 (defgeneric write-statements (instans-writer statements)
   (:method ((this instans-construct-stream-lisp-writer) statements)
     (loop for statement in statements
-	  do (format (instans-stream-writer-stream this) "~&~A~%" (rdf-statement-creating-form statement))))
+	  do (format (instans-stream-writer-stream this) "~&~S~%" (rdf-statement-creating-form statement))))
   (:method ((this instans-construct-stream-writer) statements)
     (loop for (s p o g) in statements
 	 do (format (instans-stream-writer-stream this) "~&~A ~A ~A~@[ ~A~]~%" s p o g)))

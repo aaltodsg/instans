@@ -5,6 +5,9 @@
 
 (in-package #:instans)
 
+(eval-when (:load-toplevel :execute)
+  (initialize-globals))
+
 ;;; TODO:
 ;;; Should the name in define-xsd-value-type be a string (for xsd:dateTime)?
 

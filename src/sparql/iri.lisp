@@ -157,10 +157,11 @@
     ;; (inform "recompose-iri (parts ~S) -> ~S" parts iri)
     iri))
 
-(defun iri-to-string (iri &optional prefixes)
+(defun iri-to-string (iri &optional prefixes no-brackets-p)
   (cond ((null prefixes)
 	 (with-output-to-string (str)
-	   (format str "<")
+	   (unless no-brackets-p
+	     (format str "<"))
 	   (when (rdf-iri-scheme iri)
 	     (format str "~A:" (rdf-iri-scheme iri)))
 	   (when (rdf-iri-authority iri)
@@ -171,7 +172,8 @@
 	     (format str "?~A" (rdf-iri-query iri)))
 	   (when (rdf-iri-fragment iri)
 	     (format str "#~A" (rdf-iri-fragment iri)))
-	   (format str ">")))
+	   (unless no-brackets-p
+	     (format str ">"))))
 	(t
 	 (let ((str (with-output-to-string (str)
 		      (when (rdf-iri-scheme iri)

@@ -281,7 +281,7 @@
 						    :graph graph :base base :input-type :nt)
 		(maybe-execute))
 	       (input-nlisp
-		:options ("--input-nlisp=INPUT")
+		:options ("--input-n-lisp=INPUT" "--input-nl=INPUT")
 		:usage "Read RDF in N-Lisp format from INPUT."
 		(instans-add-stream-input-processor instans (expand-iri directory value)
 						    :graph graph :base base :input-type :nl)
