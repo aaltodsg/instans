@@ -26,6 +26,7 @@
 
 (define-class memory (node)
   ((store :accessor memory-store :initform nil)
+   (store-count :accessor store-count :initform 0) ;;; Replaces an old method in store.lisp
    (store-count-report-limit :accessor memory-store-count-report-limit :initform 0)
    (store-put-count :accessor memory-store-put-count :initform 0)
    (store-remove-count :accessor memory-store-remove-count :initform 0)))
