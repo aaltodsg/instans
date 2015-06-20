@@ -468,7 +468,7 @@
       (pop statements)
       (let ((stream (instans-stream-writer-stream this)))
 	(unless (null statements)
-	  (format stream "~&(rdf-block")
+	  (format stream "~&(LIST")
 	  (loop for statement in statements do (format stream "~&    ~S~%" (rdf-statement-creating-form statement)))
 	  (format stream ")~%")))))
   (:method ((this instans-construct-stream-writer) (instans instans) trie &key (wrap-default-p t))

@@ -24,10 +24,10 @@ Old files affected:
   ? In make-rdf-parser, add lisp input
 
 Test:
-- Convert :trig to :nl, then :nl to :nl.
-  - tests/input/passthrough.rq
-  - Check fixpoint.
-  - Make a lisp function, that parses a :nl input and a :triq input and checks that the triples are equal
++ Convert :trig to :nl, then :nl to :nl.
+  + tests/input/passthrough.rq
+  + Check fixpoint.
+- Make a lisp function, that parses a :nl input and a :triq input and checks that the triples are equal
 - Convert :nt to :nl
 - Convert :nl to :nt
 - Convert :nq to :nl

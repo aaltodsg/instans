@@ -501,17 +501,17 @@
 			"(select|construct|modify|all|rete-add|rete-remove|queue|rdf-operations|execute|memoryN|memoriesN)."
 			"Here memoryN means a string like 'memory100' having an integer after 'memory'. This means that the interval of reporting is 100 rounds"
 			"of execution. MemoryN reports the changes in total sizes of memories and memoriesN reports (in csv format) the sizes of different memories.")
-		:hiddenp t
+		;; :hiddenp nil
 		(setf reporting (loop for kind in (parse-colon-separated-values value)
 				      when (eq kind :all)
 				      append '(:select t :construct t :modify t :all t :rete-add t :rete-remove t :queue t :rdf-operations t :execute t)
 				      else when (eql 0 (search "MEMORY" (string kind)))
-				      append (prog1 (list :memory-summaries) (parse-integer (string kind) :start 6))
+				      append (list :memory-summaries (parse-integer (string kind) :start 6))
 				      else when (eql 0 (search "MEMORIES" (string kind)))
-				      append (prog1 (list :memory-sizes) (parse-integer (string kind) :start 8))
+				      append (list :memory-sizes (parse-integer (string kind) :start 8))
 				      else append (list kind t)))
 		(loop for tail on reporting by #'cddr
-		      unless (member (first tail) '(:select :construct :modify :rete-add :rete-remove :queue :call-succ-nodes :all :memory :memories :rdf-operations :execute))
+		      unless (member (first tail) '(:select :construct :modify :rete-add :rete-remove :queue :call-succ-nodes :all :memory-summaries :memory-sizes :rdf-operations :execute))
 		      do (usage))
 		(initialize-reporting instans reporting))
 	       (prefix-encoding

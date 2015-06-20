@@ -29,7 +29,3 @@
 
 (defun make-lisp-block-parser (instans input-stream &key block-callback &allow-other-keys)
   (make-instance 'rdf-n-statements-lisp-parser :instans instans :stream input-stream :callback block-callback))
-
-
-
-
