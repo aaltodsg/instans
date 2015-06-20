@@ -291,6 +291,10 @@
 		   (t
 		    (lexer-error this error-msg))))))))
 
+;; (defgeneric canonize-string (lexer buf &optional start end)
+;;   (:method ((this abstract-sparql-rdf-lexer) buf &optional (start 0) (end (chbuf-index buf)))
+;;     (characters-to-string (chbuf-contents buf) start end)))
+
 (defgeneric canonize-string (lexer buf &optional start end)
   (:method ((this abstract-sparql-rdf-lexer) buf &optional (start 0) (end (chbuf-index buf)))
     (let* ((table (lexer-string-table this))
