@@ -101,3 +101,7 @@ Before we start, lets compile and run tests. 586 tests passed as before.
 Now we are ready. Lets add a collision list to the store.
 
 Done. After making the code for store-tokens to produce a fresh list, passes 586 tests as before!
+
+But the stuff does not work with Mikko's inputs! It seems that token-equal does not work.
+
+NOTE! In add-token etc. we could replace the pattern (unless (store-get-token ..) (store-put-token ...) ...) by something that does the test only once.
