@@ -372,7 +372,7 @@
 	    collect (list (first item) delta new-count) into store-sizes-delta-alist
 	    finally (progn
 		      (setf store-sizes-delta-alist (sort store-sizes-delta-alist #'> :key #'second))
-		      (cond ((zerop (second (first store-sizes-delta-alist)))
+		      (cond ((eql 0 (second (first store-sizes-delta-alist)))
 			     (format stream "~%Store sizes did not grow"))
 			    (t
 			     (format stream "~%Largest gains in store sizes:")
@@ -388,8 +388,8 @@
 	    collect (list (first item) delta new-count) into index-sizes-delta-alist
 	    finally (when index-sizes-delta-alist
 		      (setf index-sizes-delta-alist (sort index-sizes-delta-alist #'> :key #'second))
-		      (cond ((zerop (second (first index-sizes-delta-alist)))
-			     (format stream "~%Index sizes did not grow"))
+		      (cond ((eql 0 (second (first index-sizes-delta-alist)))
+				    (format stream "~%Index sizes did not grow"))
 			    (t
 			     (format stream "~%Largest gains in index sizes:")
 			     (loop for i from 0
