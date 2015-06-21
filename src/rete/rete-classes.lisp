@@ -26,7 +26,6 @@
 
 (define-class memory (node)
   ((store :accessor memory-store :initform nil)
-   (store-count :accessor store-count :initform 0) ;;; Replaces an old method in store.lisp
    (store-count-report-limit :accessor memory-store-count-report-limit :initform 0)
    (store-put-count :accessor memory-store-put-count :initform 0)
    (store-remove-count :accessor memory-store-remove-count :initform 0)))
@@ -290,6 +289,8 @@
    (indices :accessor instans-indices :initform nil)
    (memory-sizes-report-interval :accessor instans-memory-sizes-report-interval :initform nil)
    (memory-sizes-report-counter :accessor instans-memory-sizes-report-counter :initform 0)
+   (memory-sizes-report-delta-p :accessor instans-memory-sizes-report-delta-p :initform nil)
+   (memory-sizes-report-stream :accessor instans-memory-sizes-report-stream :initform t)
    (memory-summaries-report-interval :accessor instans-memory-summaries-report-interval :initform nil)
    (memory-summaries-report-counter :accessor instans-memory-summaries-report-counter :initform 0)
    (store-sizes-alist :accessor instans-store-sizes-alist :initform 0)
