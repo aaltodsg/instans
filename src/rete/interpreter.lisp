@@ -389,7 +389,7 @@
 	    finally (when index-sizes-delta-alist
 		      (setf index-sizes-delta-alist (sort index-sizes-delta-alist #'> :key #'second))
 		      (cond ((eql 0 (second (first index-sizes-delta-alist)))
-				    (format stream "~%Index sizes did not grow"))
+			     (format stream "~%Index sizes did not grow"))
 			    (t
 			     (format stream "~%Largest gains in index sizes:")
 			     (loop for i from 0
