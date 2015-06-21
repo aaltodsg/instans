@@ -160,6 +160,7 @@
 	 ;; expected
 	 debug
 	 reporting
+	 report-memory-sizes-file
 	 rete-html-file)
     (labels ((valid-value-p (value accepted-values &key test)
 	       (or (funcall test value accepted-values)
@@ -491,6 +492,15 @@
 		      unless (member (first tail) '(:select :construct :modify :rete-add :rete-remove :queue :call-succ-nodes :all :memory-summaries :memory-sizes :rdf-operations :execute))
 		      do (usage))
 		(initialize-reporting instans reporting))
+	       (report-sizes-file
+		:options ("--report-sizes-file=FILE")
+		:usage ("The CSV file to contain the sizes")
+		(setf report-memory-sizes-file value)
+		(unless (getf reporting :memory-sizes)
+		  (setf reporting (cons :memory-sizes (cons 1 reporting))))
+		(setf (instans-memory-sizes-report-stream instans) (open-file report-memory-sizes-file :direction :output :if-exists :supersede :fmt "main: open ~{~A~^ ~}"))
+		(initialize-reporting instans reporting)
+		(report-memory-sizes-headers instans))
 	       (prefix-encoding
 		:options ("--prefix-encoding=BOOL")
 		:usage ("If true, use known prefixes when printing IRIs. If false (the default), print IRIs as such.")
@@ -530,4 +540,6 @@
 	(when time-output-stream
 	  (output-time "Done")
 	  (close-stream-not-stdout-stderr time-output-stream))
+	(when report-memory-sizes-file
+	  (close-stream-not-stdout-stderr (instans-memory-sizes-report-stream instans)))
 	(instans-close-open-streams instans)))))
