@@ -102,10 +102,11 @@ fi
 echo "Creating Makefile"
 { 
 if [ $LISPTYPE=sbcl ]; then
+    INSTANS_HOME=`pwd`
     cat <<EOF
 DYNAMIC_SPACE_SIZE=$DYNAMIC_SPACE_SIZE
 VERSION := \$(subst SBCL ,,\$(shell sbcl --version))
-CACHE=\$(subst VERSION,\$(VERSION),\$(HOME)/.cache/common-lisp/sbcl-VERSION-macosx-x64\$(HOME)/instans/)
+CACHE=\$(subst VERSION,\$(VERSION),${HOME}/.cache/common-lisp/sbcl-VERSION-macosx-x64${INSTANS_HOME})
 EOF
 fi
 cat <<EOF
@@ -131,7 +132,13 @@ all: \$(EXECUTABLE)
                     --load-system instans \\
                     --eval '(in-package :instans)'
 
-.PHONY: all
+show-cache:
+	ls -d \$(CACHE)
+
+cache-contents:
+	ls -lR \$(CACHE)
+
+.PHONY: all show-cache cache-contents
 EOF
 if [ $LISPTYPE=sbcl ]; then
 cat <<EOF
