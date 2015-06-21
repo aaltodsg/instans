@@ -1,0 +1,7 @@
+store-count
+inner-token
+store-get-token
+store-put-token
+store-remove-token
+store-tokens
+store-clear
