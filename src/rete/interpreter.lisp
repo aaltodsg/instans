@@ -288,6 +288,8 @@
 	(progn
 	  (loop for ip in (instans-input-processors this)
 		do (when (instans-stream-input-processor-p ip)
+		     (inform "lexer-string-table: ~D items"
+			     (hash-table-count (bindings-table-hash-table (lexer-string-table (ll-parser-lexer (instans-stream-input-processor-parser ip))))))
 		     (close-stream (lexer-input-stream (ll-parser-lexer (instans-stream-input-processor-parser ip))) "instans-close-open-streams: close ~A")))
 	  (when (instans-ask-output-processor this)
 	    (close-output-processor (instans-ask-output-processor this)))

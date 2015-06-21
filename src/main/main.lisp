@@ -542,4 +542,9 @@
 	  (close-stream-not-stdout-stderr time-output-stream))
 	(when report-memory-sizes-file
 	  (close-stream-not-stdout-stderr (instans-memory-sizes-report-stream instans)))
-	(instans-close-open-streams instans)))))
+	(instans-close-open-streams instans)
+	(let ((factories (list (instans-var-factory instans) (instans-anonymous-blank-node-factory instans) (instans-named-blank-node-factory instans))))
+	  (loop for factory in factories
+		do (inform "~A: ~D names (~D)" factory (slot-value factory 'name-counter) (hash-table-count (slot-value factory 'objects-by-name))))))
+      )))
+
