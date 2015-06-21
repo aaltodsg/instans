@@ -160,6 +160,7 @@
 	 ;; expected
 	 debug
 	 reporting
+	 report-memory-sizes-file
 	 rete-html-file)
     (labels ((valid-value-p (value accepted-values &key test)
 	       (or (funcall test value accepted-values)
@@ -478,19 +479,28 @@
 			"(select|construct|modify|all|rete-add|rete-remove|queue|rdf-operations|execute|memoryN|memoriesN)."
 			"Here memoryN means a string like 'memory100' having an integer after 'memory'. This means that the interval of reporting is 100 rounds"
 			"of execution. MemoryN reports the changes in total sizes of memories and memoriesN reports (in csv format) the sizes of different memories.")
-		:hiddenp t
+		;; :hiddenp nil
 		(setf reporting (loop for kind in (parse-colon-separated-values value)
 				      when (eq kind :all)
 				      append '(:select t :construct t :modify t :all t :rete-add t :rete-remove t :queue t :rdf-operations t :execute t)
 				      else when (eql 0 (search "MEMORY" (string kind)))
-				      append (prog1 (list :memory-summaries) (parse-integer (string kind) :start 6))
+				      append (list :memory-summaries (parse-integer (string kind) :start 6))
 				      else when (eql 0 (search "MEMORIES" (string kind)))
-				      append (prog1 (list :memory-sizes) (parse-integer (string kind) :start 8))
+				      append (list :memory-sizes (parse-integer (string kind) :start 8))
 				      else append (list kind t)))
 		(loop for tail on reporting by #'cddr
-		      unless (member (first tail) '(:select :construct :modify :rete-add :rete-remove :queue :call-succ-nodes :all :memory :memories :rdf-operations :execute))
+		      unless (member (first tail) '(:select :construct :modify :rete-add :rete-remove :queue :call-succ-nodes :all :memory-summaries :memory-sizes :rdf-operations :execute))
 		      do (usage))
 		(initialize-reporting instans reporting))
+	       (report-sizes-file
+		:options ("--report-sizes-file=FILE")
+		:usage ("The CSV file to contain the sizes")
+		(setf report-memory-sizes-file value)
+		(unless (getf reporting :memory-sizes)
+		  (setf reporting (cons :memory-sizes (cons 1 reporting))))
+		(setf (instans-memory-sizes-report-stream instans) (open-file report-memory-sizes-file :direction :output :if-exists :supersede :fmt "main: open ~{~A~^ ~}"))
+		(initialize-reporting instans reporting)
+		(report-memory-sizes-headers instans))
 	       (prefix-encoding
 		:options ("--prefix-encoding=BOOL")
 		:usage ("If true, use known prefixes when printing IRIs. If false (the default), print IRIs as such.")
@@ -530,4 +540,6 @@
 	(when time-output-stream
 	  (output-time "Done")
 	  (close-stream-not-stdout-stderr time-output-stream))
+	(when report-memory-sizes-file
+	  (close-stream-not-stdout-stderr (instans-memory-sizes-report-stream instans)))
 	(instans-close-open-streams instans)))))
