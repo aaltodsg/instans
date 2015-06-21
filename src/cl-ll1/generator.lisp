@@ -615,7 +615,8 @@
 				    ;; 	(inform "Exec ~A~%Args ~A" (with-output-to-string (stream) (print-production p (grammar-terminals parser) stream)) (mapcar #'ppx args))))
 				    (let* ((threwp t)
 					   (values (multiple-value-list (catch 'parsed
-									  (prog1 (apply result-func p args)
+;									  (prog1 (apply result-func p args)
+									  (multiple-value-prog1 (apply result-func p args)
 									    (setf threwp nil))))))
 				      (when (ll-parser-print-snapshot-p parser)
 					(print-snapshot input-token)
