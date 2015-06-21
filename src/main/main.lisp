@@ -483,12 +483,12 @@
 				      when (eq kind :all)
 				      append '(:select t :construct t :modify t :all t :rete-add t :rete-remove t :queue t :rdf-operations t :execute t)
 				      else when (eql 0 (search "MEMORY" (string kind)))
-				      append (prog1 (list :memory-summaries) (parse-integer (string kind) :start 6))
+				      append (list :memory-summaries (parse-integer (string kind) :start 6))
 				      else when (eql 0 (search "MEMORIES" (string kind)))
-				      append (prog1 (list :memory-sizes) (parse-integer (string kind) :start 8))
+				      append (list :memory-sizes (parse-integer (string kind) :start 8))
 				      else append (list kind t)))
 		(loop for tail on reporting by #'cddr
-		      unless (member (first tail) '(:select :construct :modify :rete-add :rete-remove :queue :call-succ-nodes :all :memory :memories :rdf-operations :execute))
+		      unless (member (first tail) '(:select :construct :modify :rete-add :rete-remove :queue :call-succ-nodes :all :memory-summaries :memory-sizes :rdf-operations :execute))
 		      do (usage))
 		(initialize-reporting instans reporting))
 	       (prefix-encoding
