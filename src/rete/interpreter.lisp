@@ -347,7 +347,6 @@
 		     (t
 		      (error* "Illegal op ~S" op)))))))))
 
-
 (defgeneric initialize-reporting (instans reporting)
   (:method ((this instans) reporting)
     (setf (instans-report-operation-kinds this) reporting)
@@ -359,9 +358,13 @@
       (let ((store-sizes-alist (loop for (node . store) in (instans-stores this) collect (list node store (hash-table-count store)))))
 	(setf (instans-store-sizes-alist this) store-sizes-alist))
       (let ((index-sizes-alist (loop for index in (instans-indices this) collect (list index (hash-table-count (hash-token-index-table index))))))
-	(setf (instans-index-sizes-alist this) index-sizes-alist)))))
+	(setf (instans-index-sizes-alist this) index-sizes-alist))
+      ;; (inform "~A" (instans-store-sizes-alist this))
+      ;; (inform "~A" (instans-index-sizes-alist this))
+      )))
+      
 
-(defgeneric report-sizes (instans)
+(defgeneric report-memory-summaries (instans)
  (:method ((this instans))
     (let ((stream (instans-default-output this)))
       (loop for item in (instans-store-sizes-alist this)
@@ -372,7 +375,7 @@
 	    collect (list (first item) delta new-count) into store-sizes-delta-alist
 	    finally (progn
 		      (setf store-sizes-delta-alist (sort store-sizes-delta-alist #'> :key #'second))
-		      (cond ((zerop (second (first store-sizes-delta-alist)))
+		      (cond ((eql 0 (second (first store-sizes-delta-alist)))
 			     (format stream "~%Store sizes did not grow"))
 			    (t
 			     (format stream "~%Largest gains in store sizes:")
@@ -388,7 +391,7 @@
 	    collect (list (first item) delta new-count) into index-sizes-delta-alist
 	    finally (when index-sizes-delta-alist
 		      (setf index-sizes-delta-alist (sort index-sizes-delta-alist #'> :key #'second))
-		      (cond ((zerop (second (first index-sizes-delta-alist)))
+		      (cond ((eql 0 (second (first index-sizes-delta-alist)))
 			     (format stream "~%Index sizes did not grow"))
 			    (t
 			     (format stream "~%Largest gains in index sizes:")
@@ -410,6 +413,27 @@
 	(format stream "queue-select-count = ~S~%" (rule-instance-queue-select-count queue))
 	(format stream "queue-modify-count = ~S~%" (rule-instance-queue-modify-count queue))))))
 
+(defgeneric report-memory-sizes-headers (instans)
+  (:method ((this instans))
+    (let ((store-names (loop for item in (instans-store-sizes-alist this) collect (node-name (first item))))
+	  (index-names (loop for item in (instans-index-sizes-alist this) collect (hash-token-index-id (first item)))))
+      (format (instans-memory-sizes-report-stream this) "~&~(~{~A~^,~}~)~%" (append store-names index-names)))))
+
+(defgeneric report-memory-sizes (instans)
+  (:method ((this instans))
+    (let* ((deltap (instans-memory-sizes-report-delta-p this))
+	   (store-sizes (loop for item in (instans-store-sizes-alist this)
+			      for count = (third item)
+			      for new-count = (hash-table-count (second item))
+			      do (setf (third item) new-count)
+			      collect (if deltap (- new-count count) new-count)))
+	   (index-sizes (loop for item in (instans-index-sizes-alist this)
+			      for count = (second item)
+			      for new-count = (hash-table-count (hash-token-index-table (first item)))
+			      do (setf (second item) new-count)
+			      collect (if deltap (- new-count count) new-count))))
+      (format (instans-memory-sizes-report-stream this) "~&~{~A~^,~}~%" (append store-sizes index-sizes)))))
+
 (defgeneric execute-rules (instans &optional policy)
   (:method ((this instans) &optional policy)
     (unless policy (setf policy (instans-queue-execution-policy this)))
@@ -417,8 +441,12 @@
 ;      (inform "(instans-size-report-interval this) = ~A" (instans-size-report-interval this))
       (when (instans-memory-summaries-report-interval this)
 	(when (zerop (mod (instans-memory-summaries-report-counter this) (instans-memory-summaries-report-interval this)))
-	  (report-sizes this))
+	  (report-memory-summaries this))
 	(incf (instans-memory-summaries-report-counter this)))
+      (when (instans-memory-sizes-report-interval this)
+	(when (zerop (mod (instans-memory-sizes-report-counter this) (instans-memory-sizes-report-interval this)))
+	  (report-memory-sizes this))
+	(incf (instans-memory-sizes-report-counter this)))
       (if (operation-report-p this :execute) 
 	  (format (instans-default-output this) "~&~A: Execute rules with policy ~A~%~%" (instans-name this) policy))
       (case policy
