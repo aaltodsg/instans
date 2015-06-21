@@ -42,6 +42,13 @@
 	    do (setf key (mix (mix (get-hashkey var) (get-hashkey value)) key)))
       (cons (list nil key) new-token))))
 
+(defvar *token-value-types*)
+
+(defmethod make-token :before ((this node) prev-token new-vars new-values)
+  (declare (ignorable this prev-token new-vars))
+  (loop for value in new-values
+        do (pushnew (if (stringp value) 'string (type-of value)) *token-value-types*)))
+
 ;;; We can freely skip the first item of token, since it should be (nil key)!
 (defun token-value (node token var)
   (declare (ignore node))

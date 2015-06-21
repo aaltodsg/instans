@@ -132,6 +132,7 @@
 				   (,usage)))))))))
 
 (defun main (args)
+  (setf *token-value-types* nil)
   ;; (cond ((null args)
   ;; 	 (setf args sb-ext:*posix-argv*))
   ;; 	(t
@@ -527,6 +528,8 @@
 	       )
 	     (unless executedp (execute))
 	     instans)
+	(with-open-file (str "instans-token-types" :direction :output :if-exists :supersede)
+	  (format str "~{~A~%~}" *token-value-types*))
 	(when time-output-stream
 	  (output-time "Done")
 	  (close-stream-not-stdout-stderr time-output-stream))
