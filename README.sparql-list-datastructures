@@ -1,0 +1,3 @@
+Here we replace make all sparql data values simple lisp types, i.e., scalars, strings or structs with list type.
+
+The goal is to make hashing easier, more correct and faster.
