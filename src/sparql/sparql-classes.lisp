@@ -127,8 +127,8 @@
 (defmethod print-object ((this sparql-error) stream)
   (format stream "#<~A \"~A\">" (type-of this) (apply #'format nil (sparql-error-format this)  (sparql-error-message-arguments this))))
 
-(defmethod print-object ((this rdf-iri) stream)
-  (format stream "#<~A ~A>" (type-of this) (rdf-iri-string this)))
+;; (defmethod print-object ((this rdf-iri) stream)
+;;   (format stream "#<~A ~A>" (type-of this) (rdf-iri-string this)))
 
 (defmethod print-object ((this rdf-literal) stream)
   (format stream "#<~A \"~A\"" (type-of this) (rdf-literal-string this))
@@ -147,19 +147,16 @@
 
 ;;; END print-object
 
-(defgeneric compute-hashkey (hashkeyed)
-  (:method ((this rdf-iri))
-    (sxhash (rdf-iri-string this)))
-  (:method ((this rdf-literal))
-    (cond ((rdf-literal-lang this)
-	   (mix (sxhash (rdf-literal-string this)) (sxhash (string-upcase (rdf-literal-lang this)))))
-	  ((rdf-literal-type this)
-	   (mix (sxhash (rdf-literal-string this)) (get-hashkey (rdf-literal-type this))))
-	  (t (sxhash (rdf-literal-string this)))))
-  (:method ((this uniquely-named-object))
-    (sxhash (uniquely-named-object-name this)))
-  (:method ((this sparql-unbound))
-    (sxhash this)))
+(defun compute-hashkey (this)
+  (cond ((rdf-iri-p this) (sxhash (rdf-iri-string this)))
+	((rdf-literal-p this)
+	 (cond ((rdf-literal-lang this)
+		(mix (sxhash (rdf-literal-string this)) (sxhash (string-upcase (rdf-literal-lang this)))))
+	       ((rdf-literal-type this)
+		(mix (sxhash (rdf-literal-string this)) (get-hashkey (rdf-literal-type this))))
+	       (t (sxhash (rdf-literal-string this)))))
+	((uniquely-named-object-p this) (sxhash (uniquely-named-object-name this)))
+	((sparql-unbound-p this) (sxhash this))))
 
 ;; (defun get-hashkey (x)
 ;;   (cond ((typep x 'hashkeyed)
