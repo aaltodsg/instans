@@ -532,9 +532,8 @@
 		(sb-ext:run-program value nil :pty *error-output* :search t))
 	       (run-sparql-conformance-tests
 		:options ("--run-sparql-conformance-tests==TEST_DIR")
-		:usage "Run sparql test suites. Test suites should be in TEST_DIR/suites. The result is written into TEST_DIR/suites/results.csv"
-		(run-sparql-test-suites value))
-	       )
+		:usage "Run sparql test suites. Test suites should be in TEST_DIR/suites. The result is written into TEST_DIR/suites/results.csv. Execution time is written in TEST_DIR/suites/execution-time.txt"
+		(run-sparql-test-suites value)))
 	     (unless executedp (execute))
 	     instans)
 	(when time-output-stream
@@ -543,3 +542,7 @@
 	(when report-memory-sizes-file
 	  (close-stream-not-stdout-stderr (instans-memory-sizes-report-stream instans)))
 	(instans-close-open-streams instans)))))
+
+
+
+

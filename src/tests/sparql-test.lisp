@@ -26,8 +26,14 @@
    (output-directory :accessor sparql-test-output-directory :initform "output/")
    (base :accessor sparql-test-base :initarg :base)
    (output-options-stream :accessor sparql-test-output-options-stream :initarg :output-options-stream :initform nil)
+   (start-time :accessor sparql-test-start-time :initform nil)
+   (end-time :accessor sparql-test-end-time :initform nil)
    (results :accessor sparql-test-results :initform nil)))
 					; One of :not-completed, :succeeded, :failed
+
+(defgeneric sparql-test-id (test)
+  (:method ((this sparql-test))
+    (format nil "~(~A-~A-~A~)" (sparql-test-suite this) (sparql-test-collection this) (sparql-test-name this))))
 
 (define-class sparql-syntax-test (sparql-test)
   ((queryfile :accessor sparql-test-queryfile :initarg :queryfile)
@@ -378,7 +384,8 @@
        (list :rule-type (sv 'rule-type))
        (list :different-semantics-p (sparql-test-different-semantics-p this))
        (list :running-succeeded-p (sv 'running-succeeded-p))
-       (list :comparing-succeeded-p (sv 'comparing-succeeded-p))))))
+       (list :comparing-succeeded-p (sv 'comparing-succeeded-p))
+       (list :time (let ((start (sv 'start-time)) (end (sv 'end-time))) (and (numberp start) (numberp end) (- end start))))))))
 
 ;;; Phases
 
@@ -494,12 +501,14 @@
 ;		 (when verbosep (inform "Phase ~A for ~A" phase this))
 		 (case phase
 		   (:created)
-		   (:parsed (sparql-test-parse-phase this :forcep forcep :verbosep verbosep))
+		   (:parsed (setf (sparql-test-start-time this) (get-internal-run-time))
+			    (sparql-test-parse-phase this :forcep forcep :verbosep verbosep))
 		   (:ran (sparql-test-run-phase this :forcep forcep :verbosep verbosep))
 		   (:compared (sparql-test-compare-phase this :forcep forcep :verbosep verbosep))
-		   (:completed (sparql-test-complete-phase this :forcep forcep :verbosep verbosep))
+		   (:completed (setf (sparql-test-end-time this) (get-internal-run-time))
+			       (sparql-test-complete-phase this :forcep forcep :verbosep verbosep))
 		   (t (error* "Illegal phase ~A for test ~A" phase this))))))))
-
+      
 ;;;
 ;;; Test sets
 ;;;
@@ -510,6 +519,7 @@
    (collector-rules-file :accessor sparql-test-set-collector-rules-file)
    (collected-tests-csv-file :accessor sparql-test-set-collected-tests-csv-file)
    (results-csv-file :accessor sparql-test-set-results-csv-file)
+   (results-execution-time-file :accessor sparql-test-set-execution-time-file)
    (manifests :accessor sparql-test-set-manifests)
    (different-semantics :accessor sparql-test-set-different-semantics
 			:initform '(("data-r2" "algebra" "nested-opt-1" "Order of adding triples affects the result")
@@ -540,6 +550,7 @@
   (setf (sparql-test-set-collector-rules-file this) (format nil "~A/tools/collect-tests-from-manifests.rq" root-directory))
   (setf (sparql-test-set-collected-tests-csv-file this) (format nil "~A/suites/tests-from-manifests.csv" root-directory))
   (setf (sparql-test-set-results-csv-file this) (format nil "~A/suites/results.csv" root-directory))
+  (setf (sparql-test-set-execution-time-file this) (format nil "~A/suites/execution-time.txt" root-directory))
   (setf (sparql-test-set-manifests this) (directory (format nil "~A/suites/data-*/*/manifest.ttl" root-directory)))
   (when (sparql-test-set-verbose-p this) (inform "Found ~D manifest files in ~A" (length (sparql-test-set-manifests this)) root-directory))
   (init-sparql-test-set-script this)
@@ -874,6 +885,11 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
     (loop for test in (sparql-test-set-tests this)
 	  do (sparql-test-execute test :verbosep verbosep :forcep forcep :target-phase target-phase))))
 
+(defgeneric sparql-test-set-print-times (sparql-test-set stream)
+  (:method ((this sparql-test-set) stream)
+    (loop for test in (sparql-test-set-tests this)
+	  do (format stream "~&~A: time was ~A~%" (sparql-test-id test) (- (sparql-test-end-time test) (sparql-test-start-time test))))))
+
 (defun init-sparql-test-set ()
   (setf *sparql-test-set* (make-instance 'sparql-test-set)))
 
@@ -885,6 +901,7 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
       (loop for test in tests do (format output "~{~A~^,~}~%"
 					 (loop for item in (sparql-test-results test)
 					       for value = (second item)
+;					       do (inform "~A: ~A" (sparql-test-id test) item)
 					       collect (cond ((eq value T) "True")
 							     ((eq value nil) "False")
 							     ((eq value :unbound) "")
@@ -892,14 +909,18 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
 							     (t value))))))))
 
 (defun run-sparql-test-suites (suites-dir)
-  (let ((test-set (make-instance 'sparql-test-set :root-directory suites-dir)))
+  (let ((test-set (make-instance 'sparql-test-set :root-directory suites-dir))
+	(start-time (get-internal-run-time)))
     (setf *sparql-test-set* test-set)
     (let ((saved-sparql-error-op *sparql-error-op*))
       (sparql-inform-and-throw-on-errors)
       (unwind-protect
 	   (sparql-test-set-execute-tests test-set :verbosep t)
 	(setf *sparql-error-op* saved-sparql-error-op))
-      (sparql-test-set-results-to-csv test-set))))
+      (sparql-test-set-results-to-csv test-set))
+    (let ((end-time (get-internal-run-time)))
+      (with-open-file (str (sparql-test-set-execution-time-file test-set) :direction :output :if-exists :supersede)
+	(format str "~S~%" (/ (float (- end-time start-time)) (float internal-time-units-per-second)))))))
 
 (defun run-suite-collection-name (test-set &key root-directory suite collection name show-options-p)
   (let ((needs-reinitialization-p (not (null test-set))))
