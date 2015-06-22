@@ -27,13 +27,14 @@
   ((format :accessor sparql-error-format :initarg :format :initform nil)
    (arguments :accessor sparql-error-message-arguments :initarg :arguments :initform nil)))
 
-(define-class hashkeyed () ((hashkey :accessor hashkeyed-hashkey :initform nil)))
+;(define-class hashkeyed () ((hashkey :accessor hashkeyed-hashkey :initform nil)))
 
 ;(define-class rdf-term (hashkeyed) ())
 
 ;;; Should we canonize IRIs?
-(define-class rdf-iri (hashkeyed)
+(define-class rdf-iri ()
   ((string :accessor rdf-iri-string :initarg :string)
+   (hashkey :accessor rdf-iri-hashkey :initform nil)
    (scheme :accessor rdf-iri-scheme :initarg :scheme :initform nil)
    (authority :accessor rdf-iri-authority :initarg :authority :initform nil)
    (path :accessor rdf-iri-path :initarg :path :initform nil)
@@ -42,8 +43,9 @@
 ;   (had-dot-segments-p :accessor rdf-iri-had-dot-segments-p :initarg :had-dot-segments-p :initform nil)
 ))
 
-(define-class rdf-literal (hashkeyed)
+(define-class rdf-literal ()
   ((string :accessor rdf-literal-string :initarg :string :initform nil)
+   (hashkey :accessor rdf-literal-hashkey :initform nil)
    (type :accessor rdf-literal-type :initarg :type :initform nil)
    (lang :accessor rdf-literal-lang :initarg :lang :initform nil)
    (value :accessor rdf-literal-value :initarg :value)))
@@ -159,11 +161,23 @@
   (:method ((this sparql-unbound))
     (sxhash this)))
 
+;; (defun get-hashkey (x)
+;;   (cond ((typep x 'hashkeyed)
+;; 	 (when (null (hashkeyed-hashkey x))
+;; 	   (setf (hashkeyed-hashkey x) (compute-hashkey x)))
+;; 	 (hashkeyed-hashkey x))
+;; 	(t
+;; 	 (sxhash x))))
+
 (defun get-hashkey (x)
-  (cond ((typep x 'hashkeyed)
-	 (when (null (hashkeyed-hashkey x))
-	   (setf (hashkeyed-hashkey x) (compute-hashkey x)))
-	 (hashkeyed-hashkey x))
+  (cond ((rdf-iri-p x)
+	 (when (null (rdf-iri-hashkey x))
+	   (setf (rdf-iri-hashkey x) (compute-hashkey x)))
+	 (rdf-iri-hashkey x))
+	((rdf-literal-p x)
+	 (when (null (rdf-literal-hashkey x))
+	   (setf (rdf-literal-hashkey x) (compute-hashkey x)))
+	 (rdf-literal-hashkey x))
 	(t
 	 (sxhash x))))
 

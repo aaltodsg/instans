@@ -152,7 +152,7 @@
       (push ":" parts)
       (push (rdf-iri-scheme iri) parts))
     (setf (rdf-iri-string iri) (apply #'concatenate 'string parts))
-    (setf (hashkeyed-hashkey iri) nil)
+    (setf (rdf-iri-hashkey iri) nil)
     ;; (describe iri)
     ;; (inform "recompose-iri (parts ~S) -> ~S" parts iri)
     iri))
