@@ -29,10 +29,10 @@
 
 (define-class hashkeyed () ((hashkey :accessor hashkeyed-hashkey :initform nil)))
 
-(define-class rdf-term (hashkeyed) ())
+;(define-class rdf-term (hashkeyed) ())
 
 ;;; Should we canonize IRIs?
-(define-class rdf-iri (rdf-term)
+(define-class rdf-iri (hashkeyed)
   ((string :accessor rdf-iri-string :initarg :string)
    (scheme :accessor rdf-iri-scheme :initarg :scheme :initform nil)
    (authority :accessor rdf-iri-authority :initarg :authority :initform nil)
@@ -42,7 +42,7 @@
 ;   (had-dot-segments-p :accessor rdf-iri-had-dot-segments-p :initarg :had-dot-segments-p :initform nil)
 ))
 
-(define-class rdf-literal (rdf-term)
+(define-class rdf-literal (hashkeyed)
   ((string :accessor rdf-literal-string :initarg :string :initform nil)
    (type :accessor rdf-literal-type :initarg :type :initform nil)
    (lang :accessor rdf-literal-lang :initarg :lang :initform nil)
@@ -52,17 +52,17 @@
   ((name :accessor uniquely-named-object-name :initarg :name)
    (pretty-name :accessor uniquely-named-object-pretty-name :initarg :pretty-name :initform nil)))
 
-(define-class rdf-blank-node (rdf-term uniquely-named-object) ())
+(define-class rdf-blank-node (uniquely-named-object) ())
 
 (define-class rdf-anonymous-blank-node (rdf-blank-node) ())
 
 (define-class rdf-named-blank-node (rdf-blank-node) ())
 
-(define-class sparql-var (uniquely-named-object hashkeyed) ())
+(define-class sparql-var (uniquely-named-object) ())
 
 (define-class internal-var (sparql-var) ())
 
-(define-class sparql-unbound (rdf-term) ())
+(define-class sparql-unbound () ())
 
 (define-class sparql-distinct () ())
 
@@ -167,35 +167,38 @@
 	(t
 	 (sxhash x))))
 
-(defgeneric rdf-plain-literal-p (term)
-  (:method ((this rdf-literal))
-    (not (slot-boundp this 'type)))
-  (:method ((this rdf-term)) nil))
+(defun rdf-plain-literal-p (term)
+  (and (rdf-literal-p term)
+       (not (slot-boundp term 'type))))
 
-(defgeneric rdf-simple-literal-p (term)
-  (:method ((this rdf-literal))
-    (not (or (slot-boundp this 'type) (slot-boundp this 'lang))))
-  (:method ((this rdf-term)) nil))
+(defun rdf-simple-literal-p (term)
+  (and (rdf-literal-p term)
+       (not (or (slot-boundp term 'type) (slot-boundp term 'lang)))))
 
-(defgeneric rdf-term-as-string (term)
-  (:method ((this rdf-iri)) (format nil "~A" (rdf-iri-string this)))
-  (:method ((this rdf-literal)) (rdf-literal-to-string this))
-  (:method ((this rdf-blank-node)) (uniquely-named-object-name this))
-  (:method ((this sparql-unbound)) "UNBOUND")
-  (:method ((this rdf-term)) (format nil "~A" this)))
+(defun rdf-term-p (x) (typep x 'rdf-term))
+
+(defun rdf-term-as-string (term)
+  (cond ((rdf-iri-p term) (format nil "~A" (rdf-iri-string term)))
+	((rdf-literal-p term) (rdf-literal-to-string term))
+	((rdf-blank-node-p term) (uniquely-named-object-name term))
+	((sparql-unbound-p term) "UNBOUND")
+	((rdf-term-p term) (format nil "~A" term))
+	(t (error* "Not an rdf-term ~A" term))))
+
+;(defun rdf-blank-node-p (x) (typep x 'rdf-blank-node))
 
 ;;; Note! This is not SPARQL operation RDFterm-equal
-(defgeneric rdf-term-equal (a b)
-  (:method ((i1 rdf-iri) (i2 rdf-iri)) (rdf-iri= i1 i2))
-  (:method ((b1 rdf-blank-node) (b2 rdf-blank-node)) (string= (uniquely-named-object-name b1) (uniquely-named-object-name b2)))
-  (:method ((l1 rdf-literal) (l2 rdf-literal)) (or (and (string= (rdf-literal-string l1) (rdf-literal-string l2))
-							(cond ((rdf-literal-lang l1)
-							       (and (rdf-literal-lang l2) (string-equal (rdf-literal-lang l1) (rdf-literal-lang l2))))
-							      ((rdf-literal-type l1)
-							       (and (rdf-literal-type l2) (rdf-iri= (rdf-literal-type l1) (rdf-literal-type l2))))
-							      (t (error* "A literal with neither a type nor a lang ~S" l1))))
-						   (signal-sparql-error "rdf-term-equal: Literals ~S and ~S are not the same term" l1 l2)))
-  (:method ((t1 rdf-term) (t2 rdf-term)) (declare (ignorable t1 t2)) nil))
+(defun rdf-term-equal (t1 t2)
+  (cond ((rdf-iri-p t1) (and (rdf-iri-p t2) (rdf-iri= t1 t2)))
+	((rdf-blank-node-p t1) (and (rdf-blank-node-p t2) (string= (uniquely-named-object-name t1) (uniquely-named-object-name t2))))
+	((rdf-literal-p t1) (and (rdf-literal-p t2) (or (and (string= (rdf-literal-string t1) (rdf-literal-string t2))
+							     (cond ((rdf-literal-lang t1)
+								    (and (rdf-literal-lang t2) (string-equal (rdf-literal-lang t1) (rdf-literal-lang t2))))
+								   ((rdf-literal-type t1)
+								    (and (rdf-literal-type t2) (rdf-iri= (rdf-literal-type t1) (rdf-literal-type t2))))
+								   (t (error* "A literal with neither a type nor a lang ~S" t1))))
+							(signal-sparql-error "rdf-term-equal: Literals ~S and ~S are not the same term" t1 t2))))
+	(t nil)))
 
 (defun create-rdf-literal-with-type (string type-iri)
   (let ((type-descriptor (find-type-descriptor (rdf-iri-string type-iri))))

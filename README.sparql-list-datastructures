@@ -1,3 +1,30 @@
 Here we replace make all sparql data values simple lisp types, i.e., scalars, strings or structs with list type.
 
 The goal is to make hashing easier, more correct and faster.
+
+The following types of values are used in tokens (+ marks that this has been handled or was OK originally):
+
+SCALARS:
++ (integer 0 4611686018427387903)
++ bit
++ boolean
++ double-float
++ fixnum
++ null
++ single-float
+STRING:
++ string
+
+OBJECTS:
+- rdf-term:
+  * Make a deftype rdf-term (or rdf-iri rdf-literal rdf-anonymous-blank-node rdf-named-blank-node sparql-unbound)
+  - rdf-anonymous-blank-node
+  - rdf-iri
+  - rdf-literal
+  - rdf-named-blank-node
+  - sparql-unbound
+Other:
+- group
++ datetime
+  * Transformed to defstruct, 586 tests OK
+
