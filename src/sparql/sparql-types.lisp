@@ -19,7 +19,8 @@
 (define-xsd-value-type "float" single-float)
 (define-xsd-value-type "double" double-float)
 (define-xsd-value-type "string" string)
-(define-xsd-value-type "dateTime" datetime)
+(defun datetime-cons-p (x) (and (consp x) (eq (car x) 'datetime)))
+(define-xsd-value-type "dateTime" (satisfies datetime-cons-p))
 
 ;; (deftype xsd-number-value () (or xsd-integer-value xsd-decimal-value xsd-float-value xsd-double-value))
 ;; (deftype xsd-value () (or xsd-boolean-value xsd-integer-value xsd-decimal-value xsd-float-value xsd-double-value xsd-string-value xsd-datetime-value))

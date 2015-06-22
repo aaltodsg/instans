@@ -314,7 +314,7 @@
 						 ((rdf-blank-node-p value)
 					;(inform "writing blank ~A~%" (uniquely-named-object-pretty-name value))
 						  (xml-emitter:with-simple-tag ("bnode") (xml-emitter:xml-as-is (uniquely-named-object-pretty-name value))))
-						 ((typep value 'datetime)
+						 ((typep value 'xsd-datetime-value)
 						  (xml-emitter:with-tag ("literal" (list (list "datatype" *xsd-datetime-iri-string*)))
 						    (xml-emitter:xml-as-is (datetime-canonic-string value))))
 						 ((typep value 'double-float)
