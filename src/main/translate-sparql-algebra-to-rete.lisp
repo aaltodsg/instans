@@ -100,7 +100,7 @@
 			     ;; 	    (let ((var-aggr-list (aggregate-join-var-aggr-list prev)))
 			     ;; 	      (setf (first (nth (- (second form) 1) var-aggr-list)) var)))
 			     ;; 	   (t
-;			     (inform "translate-satr: bind-form ~A = ~A" expr form)
+			     (inform "translate-satr: bind-form ~A = ~A" expr form)
 			     (setf prev (make-or-share-instance 'bind-node :prev prev :variable var
 								:form form :form-parameters (collect-expression-variables form)))
 				    ;; ))
@@ -236,6 +236,7 @@
 				     (instans-var (gensym "INSTANS"))
 				     (construct-lambda `(lambda (,instans-var ,@(mapcar #'sparql-var-lisp-name construct-parameters))
 							  ,@(translate-template instans construct-clause 'output-quad-or-triple instans-var t))))
+				(inform "construct-clause ~A~%construct-lambda ~A" construct-clause construct-lambda)
 				(make-or-share-instance 'construct-node :prev (translate where-clause prev dataset)
 							:comment comment
 							:construct-template construct-clause

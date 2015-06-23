@@ -6,7 +6,8 @@
 (in-package #:instans)
 
 (defun sparql-expr-to-lisp (expr)
-  (cond ((consp expr)
+  (cond ((rdf-term-p expr) expr)
+	((consp expr)
 	 (let ((sparql-op (first expr))
 	       (args-in-lisp (mapcar #'sparql-expr-to-lisp (rest expr))))
 	   ;; (cond ((sparql-form-p sparql-op) (apply (sparql-op-lisp-name sparql-op) args-in-lisp)))
@@ -17,18 +18,17 @@
 
 (defun lisp-compile-nodes (new-nodes)
   ;;; Take this in use at some point
-  ;(inform "compiling ~S~%" algebra-expr)
   (loop for node in new-nodes
-	;; do (inform "compiling ~A" node)
+	do (inform "compiling ~A" node)
 	do (cond ((filter-node-p node)
 		  (let ((filter-lambda `(lambda ,(sparql-var-lisp-names (node-use node)) ;(let ((v 
 					  (eq (sparql-call "ebv" ,(sparql-expr-to-lisp (filter-test node))) t))))
 		    (setf (filter-test-lambda node) filter-lambda)
 		    (setf (filter-test-func node) (compile nil filter-lambda))))
 		 ((bind-node-p node)
-		  ;;		      (inform "bind-form ~A = ~A" node (bind-form node))
+		  (inform "bind-form ~A = ~A" node (bind-form node))
 		  (let ((bind-lambda `(lambda ,(sparql-var-lisp-names (node-use node)) ,(sparql-expr-to-lisp (bind-form node)))))
-		    ;; (inform "bind-lambda = ~S" bind-lambda)
+		    (inform "bind-lambda = ~S" bind-lambda)
 		    (setf (bind-form-lambda node) bind-lambda)
 		    (setf (bind-form-func node) (compile nil bind-lambda))))
 		 ((aggregate-join-node-p node)
@@ -96,11 +96,10 @@
 		    (setf (aggregate-join-aggr-remove-func node) (compile nil aggr-remove-lambda))
 		    ))
 		 ((modify-node-p node)
-		  ;; (inform "compiling modify-delete-lambda ~S~%modify-delete-template = ~S" (modify-delete-lambda node) (modify-delete-template node))
-		  ;; (inform "compiling modify-insert-lambda ~S~%modify-insert-template = ~S" (modify-insert-lambda node) (modify-insert-template node))
+		  (inform "compiling modify-delete-lambda ~S~%modify-delete-template = ~S" (modify-delete-lambda node) (modify-delete-template node))
+		  (inform "compiling modify-insert-lambda ~S~%modify-insert-template = ~S" (modify-insert-lambda node) (modify-insert-template node))
 		  (setf (modify-delete-func node) (and (modify-delete-template node) (compile nil (modify-delete-lambda node))))
 		  (setf (modify-insert-func node) (and (modify-insert-template node) (compile nil (modify-insert-lambda node)))))
 		 ((construct-node-p node)
-;		  (inform "compiling construct-lambda ~S~%construct-template = ~S" (construct-lambda node) (construct-template node))
+		  (inform "compiling construct-lambda ~S~%construct-template = ~S" (construct-lambda node) (construct-template node))
 		  (setf (construct-func node) (and (construct-template node) (compile nil (construct-lambda node))))))))
-

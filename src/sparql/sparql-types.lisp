@@ -35,6 +35,8 @@
 (deftype xsd-number-value () '(or xsd-integer-value xsd-decimal-value xsd-float-value xsd-double-value))
 (deftype xsd-value () '(or xsd-boolean-value xsd-integer-value xsd-decimal-value xsd-float-value xsd-double-value xsd-string-value xsd-datetime-value))
 ;(deftype rdf-blank-node () '(or rdf-named-blank-node rdf-anonymous-blank-node))
+(defun rdf-iri-cons-p (x) (and (consp x) (eq (car x) 'rdf-iri)))
+(deftype rdf-iri () '(satisfies rdf-iri-cons-p))
 (deftype rdf-term () '(or rdf-iri rdf-literal rdf-blank-node sparql-unbound))
 (deftype term-or-value () '(or xsd-value rdf-term))
 (deftype term-or-value-or-group () '(or term-or-value group))

@@ -53,7 +53,7 @@
 
 (defun parse-iri (string)
   (let ((chars (coerce string 'list))
-	(result (make-instance 'rdf-iri :string string)))
+	(result (make-rdf-iri :string string)))
     (flet ((result-component (x) (coerce x 'string)))
       (unless (null chars)
 	(when (alpha-char-p (first chars))
