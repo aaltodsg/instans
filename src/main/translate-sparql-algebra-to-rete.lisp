@@ -100,11 +100,9 @@
 			     ;; 	    (let ((var-aggr-list (aggregate-join-var-aggr-list prev)))
 			     ;; 	      (setf (first (nth (- (second form) 1) var-aggr-list)) var)))
 			     ;; 	   (t
-			     (inform "translate-satr: bind-form ~A = ~A" expr form)
-			     (setf prev (make-or-share-instance 'bind-node :prev prev :variable var
-								:form form :form-parameters (collect-expression-variables form)))
-				    ;; ))
-			   prev))
+;			     (inform "translate-satr: bind-form ~A = ~A" expr form)
+			     (setf prev (make-or-share-instance 'bind-node :prev prev :variable var :form form :form-parameters (collect-expression-variables form))))
+			   prev)
 		   (FILTER (setf prev (translate (second args) prev dataset))
 			   (let ((f (first args)))
 			     (cond ((eq f T)
@@ -231,37 +229,22 @@
 			       (apply #'make-or-share-instance 'describe-node :comment comment :prev (if ggp (translate ggp prev dataset) (make-or-share-instance 'beta-memory :prev nil)) args)))
 		   (CONSTRUCT (let* ((comment (getf args :comment))
 				     (where-clause (getf args :where))
-				     (construct-clause (getf args :construct-template))
-				     (construct-parameters (collect-expression-variables construct-clause))
-				     (instans-var (gensym "INSTANS"))
-				     (construct-lambda `(lambda (,instans-var ,@(mapcar #'sparql-var-lisp-name construct-parameters))
-							  ,@(translate-template instans construct-clause 'output-quad-or-triple instans-var t))))
-				(inform "construct-clause ~A~%construct-lambda ~A" construct-clause construct-lambda)
+				     (construct-clause (getf args :construct-template)))
 				(make-or-share-instance 'construct-node :prev (translate where-clause prev dataset)
 							:comment comment
 							:construct-template construct-clause
-							:construct-parameters construct-parameters
-							:construct-lambda construct-lambda)))
+							:construct-parameters (collect-expression-variables construct-clause))))
 		   (DELETE-INSERT ;(inform "translating ~S" expr)
 				  (let* ((comment (getf args  :comment))
 					 (where-clause (getf args :where))
 					 (delete-clause (getf args :delete-clause))
-					 (delete-parameters (collect-expression-variables delete-clause))
-					 (instans-var (gensym "INSTANS"))
-					 (delete-lambda (if delete-clause `(lambda (,instans-var ,@(mapcar #'sparql-var-lisp-name delete-parameters))
-									     ,@(translate-template instans delete-clause 'rete-remove instans-var nil))))
-					 (insert-clause (getf args :insert-clause))
-					 (insert-parameters (collect-expression-variables insert-clause))
-					 (insert-lambda (if insert-clause `(lambda (,instans-var ,@(mapcar #'sparql-var-lisp-name insert-parameters))
-									     ,@(translate-template instans insert-clause 'rete-add instans-var t)))))
+					 (insert-clause (getf args :insert-clause)))
 				    (make-or-share-instance 'modify-node :prev (translate where-clause prev dataset) 
 							    :comment comment
 							    :delete-template delete-clause
-							    :delete-parameters delete-parameters
-							    :delete-lambda delete-lambda
+							    :delete-parameters (collect-expression-variables delete-clause)
 							    :insert-template insert-clause
-							    :insert-parameters insert-parameters
-							    :insert-lambda insert-lambda)))
+							    :insert-parameters (collect-expression-variables insert-clause))))
 		   (INLINEDATA
 		    (let* ((beta-memory (cond ((typep prev 'beta-memory) prev)
 					      (t (make-or-share-instance 'beta-memory :prev prev))))
@@ -320,7 +303,24 @@
 	 (if (member expr blanks :test #'uniquely-named-object-equal) blanks (cons expr blanks)))
 	(t blanks)))
 
-(defun translate-template (instans template op instans-var allow-blanks-p)
+(defun translate-sparql-expr (instans template)
+  (let ((iri-vars nil)
+	(literal-vars nil))
+    (labels ((tr (expr)
+	       (cond ((sparql-var-p expr) (sparql-var-lisp-name expr))
+		     ((rdf-iri-p expr) (let ((var (get-constant-iri instans expr))) (push-to-end-new var iri-vars) var))
+		     ((rdf-literal-p expr) (let ((var (get-constant-literal instans expr))) (push-to-end-new var literal-vars) var))
+		     ((rdf-blank-node-p expr) expr)
+		     ((datetimep expr) `(create-datetime ,(datetime-canonic-string expr)))
+		     ((consp expr)
+		      (cons (car expr) (loop for x in (cdr expr) collect (tr x))))
+		     (t expr))))
+      (let* ((inner (tr template))
+	     (specials (append iri-vars literal-vars)))
+	`(,@(if specials `((declare (special ,@specials))))
+	    ,inner)))))
+
+(defun translate-triples-op-template (instans template op instans-var allow-blanks-p)
   (let* ((blanks (collect-blanks template))
 	 (blank-var-alist (loop for blank in blanks collect (cons blank (gensym (string (uniquely-named-object-name blank))))))
 	 (iri-vars nil)
@@ -341,9 +341,10 @@
 	       do (push-to-end `(unless (or ,@(mapcar #'(lambda (var) `(sparql-unbound-p ,(sparql-var-lisp-name var))) pattern-vars))
 				  (,op ,instans-var
 				       ,@(loop for term in triple-pattern
-					       do (inform "translate-template, term = ~A" term)
+;					       do (inform "translate-triples-op-template, term = ~A" term)
 					       collect (cond ((sparql-var-p term) (sparql-var-lisp-name term))
-							     ((rdf-iri-p term) (inform "~A iri" term) (let ((var (get-constant-iri instans term))) (push-to-end-new var iri-vars) var))
+							     ((rdf-iri-p term) ;(inform "~A iri" term)
+							      (let ((var (get-constant-iri instans term))) (push-to-end-new var iri-vars) var))
 							     ((rdf-literal-p term) (let ((var (get-constant-literal instans term))) (push-to-end-new var literal-vars) var))
 							     ((rdf-blank-node-p term) (cdr (assoc term blank-var-alist)))
 							     ((datetimep term) `(create-datetime ,(datetime-canonic-string term)))
