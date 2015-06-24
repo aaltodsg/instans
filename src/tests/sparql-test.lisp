@@ -35,10 +35,6 @@
   (:method ((this sparql-test))
     (format nil "~(~A-~A-~A~)" (sparql-test-suite this) (sparql-test-collection this) (sparql-test-name this))))
 
-(defgeneric sparql-test-pathname (test)
-  (:method ((this sparql-test))
-    (format nil "~(~A/~A/~A~)" (sparql-test-suite this) (sparql-test-collection this) (sparql-test-name this))))
-
 (define-class sparql-syntax-test (sparql-test)
   ((queryfile :accessor sparql-test-queryfile :initarg :queryfile)
    (parsing-succeeded-p :accessor sparql-test-parsing-succeeded-p)
@@ -495,29 +491,9 @@
 
 ;;; Test execute method
 
-(defvar *show-lambda-tests* nil)
-
-(defun init-show-lambda-tests ()
-  (setf *show-lambda-tests*
-	(list ;"data-r2/algebra/join-combo-1" "data-sparql11/functions/strbefore02"
-	 "data-r2/construct/construct-5"
-	 "data-r2/distinct/distinct-star-1"
-	 "data-r2/open-world/open-eq-05"
-	 "data-r2/open-world/open-eq-06"
-	 "data-r2/open-world/date-1"
-	 "data-r2/open-world/date-2"
-	 "data-r2/open-world/date-3"
-	 "data-r2/reduced/reduced-1"
-	 "data-sparql11/functions/strbefore02"
-	 "data-sparql11/functions/strafter02"
-	 "data-sparql11/grouping/group04")))
-
 (defgeneric sparql-test-execute (sparql-test &key target-phase forcep verbosep)
   (:method ((this sparql-test) &key (target-phase :completed) forcep verbosep)
-    (let* ((phases (sparql-test-available-phases this))
-	   (*show-lambdas* (not (null (member (sparql-test-pathname this) *show-lambda-tests* :test #'equalp)))))
-      (declare (special *show-lambdas*))
-      (inform "sparql-test-execute ~A, *show-lambdas* = ~S" (sparql-test-pathname this) *show-lambdas*)
+    (let* ((phases (sparql-test-available-phases this)))
       (loop for phase in phases
 	    while (<= (position phase phases) (position target-phase phases))
 	    when verbosep
@@ -933,7 +909,6 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
 							     (t value))))))))
 
 (defun run-sparql-test-suites (suites-dir)
-  (init-show-lambda-tests)
   (let ((test-set (make-instance 'sparql-test-set :root-directory suites-dir))
 	(start-time (get-internal-run-time)))
     (setf *sparql-test-set* test-set)
