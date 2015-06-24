@@ -176,6 +176,7 @@
 	    (setf (rule-instance-queue-construct-count queue) 0)
 	    (setf (rule-instance-queue-modify-count queue) 0)
 	    (initialize-constant-iris this)
+	    (initialize-constant-literals this)
 	    (initialize-stores-and-indices this)
 	    (initialize-data this)
 	    (loop while (rule-instance-queue-head queue) do (execute-rules this))

@@ -316,7 +316,9 @@
 	   (item (assoc string (instans-constant-iri-var-alist this) :test #'string=)))
       (when (null item)
 	(setf item (list string (intern-instans string)))
-	(push-to-end item (instans-constant-iri-var-alist this)))
+	(push-to-end item (instans-constant-iri-var-alist this))
+;	(when *show-lambdas* (inform "(instans-constant-iri-var-alist this) = ~S" (instans-constant-iri-var-alist this)))
+		)
       (second item))))
 
 (defgeneric get-constant-literal (instans literal)
@@ -327,7 +329,9 @@
 	(setf item (append (list string (intern-instans string) (rdf-literal-string literal))
 			   (if (rdf-literal-lang literal) (list :lang (rdf-literal-lang literal))
 			       (if (rdf-literal-type literal) (list :type (get-constant-iri this (rdf-literal-type literal)))))))
-	(push-to-end item (instans-constant-literal-var-alist this)))
+	(push-to-end item (instans-constant-literal-var-alist this))
+;	(when *show-lambdas* (inform "(instans-constant-literal-var-alist this) = ~S" (instans-constant-literal-var-alist this)))
+)
       (second item))))
 
 (defgeneric instans-policies (instans)
