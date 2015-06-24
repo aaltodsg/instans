@@ -532,7 +532,7 @@
 		(sb-ext:run-program value nil :pty *error-output* :search t))
 	       (run-sparql-conformance-tests
 		:options ("--run-sparql-conformance-tests==TEST_DIR")
-		:usage "Run sparql test suites. Test suites should be in TEST_DIR/suites. The result is written into TEST_DIR/suites/results.csv. Execution time is written in TEST_DIR/suites/execution-time.txt"
+		:usage "Run sparql test suites. Test suites should be in TEST_DIR/suites. The result is written into TEST_DIR/results/results.csv. Execution time is written in TEST_DIR/results/execution-time.txt"
 		(run-sparql-test-suites value)))
 	     (unless executedp (execute))
 	     instans)
