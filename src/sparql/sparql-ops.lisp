@@ -46,14 +46,13 @@
   (:method ((v rdf-literal))
     (cond ((rdf-plain-literal-p v)
 	   (not (zerop (length (rdf-literal-string v)))))
-	  ((null (rdf-literal-value v))
+	  (t
 	   (let* ((type-iri (rdf-literal-type v))
 		  (type-descriptor (find-type-descriptor (rdf-iri-string type-iri))))
 	     (if (or (subtypep (type-descriptor-lisp-type type-descriptor) 'xsd-number-value)
 		     (eq (type-descriptor-lisp-type type-descriptor) 'xsd-boolean-value))
 		 nil
-		 (signal-sparql-error "EBV: ~A cannot be used as an ebv" v))))
-	  (t (sparql-call "ebv" (rdf-literal-value v)))))) ;;; This should never happen.
+		 (signal-sparql-error "EBV: ~A cannot be used as an ebv" v)))))))
 
 ;; XQuery Unary Operators
 ;; ======================

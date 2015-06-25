@@ -182,7 +182,7 @@
 		(signal-sparql-error "~A: Arg1 type ~A not compatible" ',op-name (rdf-literal-type arg1)))
 	       (t 
 		,(if (eq return-type 'literal-or-string)
-		     `(make-instance 'rdf-literal :string (,string-operation (rdf-literal-string arg1) arg2) :lang (rdf-literal-lang arg1))
+		     `(make-rdf-literal :string (,string-operation (rdf-literal-string arg1) arg2) :lang (rdf-literal-lang arg1))
 		     `(,string-operation (rdf-literal-string arg1) arg2)))))
        (:method ((arg1 rdf-literal) (arg2 rdf-literal))
 	 (cond ((not (rdf-literal-lang arg1))
@@ -193,7 +193,7 @@
 		(signal-sparql-error "~A: Incompatible lang tags in ~A and ~A" ',op-name arg1 arg2))
 	       (t
 		,(if (eq return-type 'literal-or-string)
-		     `(make-instance 'rdf-literal :string (,string-operation (rdf-literal-string arg1) (rdf-literal-string arg2)) :lang (rdf-literal-lang arg1))
+		     `(make-rdf-literal :string (,string-operation (rdf-literal-string arg1) (rdf-literal-string arg2)) :lang (rdf-literal-lang arg1))
 		     `(,string-operation (rdf-literal-string arg1) (rdf-literal-string arg2)))))))))
 
 (defmacro current-instans ()
