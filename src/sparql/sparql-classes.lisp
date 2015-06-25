@@ -45,12 +45,22 @@
 
 ;(defun make-rdf-iri (&key string) (make-instance 'rdf-iri :string string))
 
-(define-class rdf-literal ()
-  ((string :accessor rdf-literal-string :initarg :string :initform nil)
-   (hashkey :accessor rdf-literal-hashkey :initform nil)
-   (type :accessor rdf-literal-type :initarg :type :initform nil)
-   (lang :accessor rdf-literal-lang :initarg :lang :initform nil)
-   (value :accessor rdf-literal-value :initarg :value)))
+;; (define-class rdf-literal ()
+;;   ((string :accessor rdf-literal-string :initarg :string :initform nil)
+;;    (hashkey :accessor rdf-literal-hashkey :initform nil)
+;;    (type :accessor rdf-literal-type :initarg :type :initform nil)
+;;    (lang :accessor rdf-literal-lang :initarg :lang :initform nil)
+;;    (value :accessor rdf-literal-value :initarg :value)))
+
+(defstruct (rdf-lang-literal (:include rdf-literal) :named (:type list))
+  (hashkey)
+  (string)
+  (lang))
+
+(defstruct (rdf-typed-literal :named (:type list))
+  (hashkey)
+  (string)
+  (type))
 
 (define-class uniquely-named-object ()
   ((name :accessor uniquely-named-object-name :initarg :name)
@@ -110,14 +120,14 @@
 
 ;;; BEGIN initialize-instance :after
 
-(defmethod initialize-instance :after ((this rdf-literal) &key (value nil value-present-p) &allow-other-keys)
-  (declare (ignorable value))
-  (unless value-present-p
-    (let ((type (rdf-literal-type this)))
-      (when type
-	(let ((descriptor (find-type-descriptor (rdf-iri-string type))))
-	  (when descriptor
-	    (setf (rdf-literal-value this) (funcall (type-descriptor-value-parser descriptor) (rdf-literal-string this)))))))))
+;; (defmethod initialize-instance :after ((this rdf-literal) &key (value nil value-present-p) &allow-other-keys)
+;;   (declare (ignorable value))
+;;   (unless value-present-p
+;;     (let ((type (rdf-literal-type this)))
+;;       (when type
+;; 	(let ((descriptor (find-type-descriptor (rdf-iri-string type))))
+;; 	  (when descriptor
+;; 	    (setf (rdf-literal-value this) (funcall (type-descriptor-value-parser descriptor) (rdf-literal-string this)))))))))
 
 (defmethod initialize-instance :after ((this uniquely-named-object) &key pretty-name &allow-other-keys)
   (unless pretty-name (setf (uniquely-named-object-pretty-name this) (uniquely-named-object-name this))))
@@ -132,13 +142,13 @@
 ;; (defmethod print-object ((this rdf-iri) stream)
 ;;   (format stream "#<~A ~A>" (type-of this) (rdf-iri-string this)))
 
-(defmethod print-object ((this rdf-literal) stream)
-  (format stream "#<~A \"~A\"" (type-of this) (rdf-literal-string this))
-  (when (rdf-literal-lang this)
-    (format stream "@\"~A\"" (rdf-literal-lang this)))
-  (when (rdf-literal-type this)
-    (format stream "^^~A" (rdf-iri-string (rdf-literal-type this))))
-  (format stream ">"))
+;; (defmethod print-object ((this rdf-literal) stream)
+;;   (format stream "#<~A \"~A\"" (type-of this) (rdf-literal-string this))
+;;   (when (rdf-literal-lang this)
+;;     (format stream "@\"~A\"" (rdf-literal-lang this)))
+;;   (when (rdf-literal-type this)
+;;     (format stream "^^~A" (rdf-iri-string (rdf-literal-type this))))
+;;   (format stream ">"))
 
 (defmethod print-object ((this uniquely-named-object) stream)
   (format stream "#<~A ~A>" (type-of this) (uniquely-named-object-pretty-name this)))
@@ -151,6 +161,10 @@
 
 (defun compute-hashkey (this)
   (cond ((rdf-iri-p this) (sxhash (rdf-iri-string this)))
+	((rdf-lang-literal-p this)
+	 (mix (sxhash (rdf-literal-string this)) (sxhash (string-upcase (rdf-literal-lang this)))))
+	((rdf-typed-literal-p this)
+	 (mix (sxhash (rdf-literal-string this)) (get-hashkey (rdf-literal-type this))))
 	((rdf-literal-p this)
 	 (cond ((rdf-literal-lang this)
 		(mix (sxhash (rdf-literal-string this)) (sxhash (string-upcase (rdf-literal-lang this)))))
@@ -158,7 +172,8 @@
 		(mix (sxhash (rdf-literal-string this)) (get-hashkey (rdf-literal-type this))))
 	       (t (sxhash (rdf-literal-string this)))))
 	((uniquely-named-object-p this) (sxhash (uniquely-named-object-name this)))
-	((sparql-unbound-p this) (sxhash this))))
+	((sparql-unbound-p this) (sxhash this))
+	(t (error* "Unexpected value for hashing ~S" this))))
 
 ;; (defun get-hashkey (x)
 ;;   (cond ((typep x 'hashkeyed)
@@ -173,20 +188,24 @@
 	 (when (null (rdf-iri-hashkey x))
 	   (setf (rdf-iri-hashkey x) (compute-hashkey x)))
 	 (rdf-iri-hashkey x))
-	((rdf-literal-p x)
-	 (when (null (rdf-literal-hashkey x))
-	   (setf (rdf-literal-hashkey x) (compute-hashkey x)))
-	 (rdf-literal-hashkey x))
+	((rdf-lang-literal-p x)
+	 (when (null (rdf-lang-literal-hashkey x))
+	   (setf (rdf-lang-literal-hashkey x) (compute-hashkey x)))
+	 (rdf-lang-literal-hashkey x))
+	((rdf-typed-literal-p x)
+	 (when (null (rdf-typed-literal-hashkey x))
+	   (setf (rdf-typed-literal-hashkey x) (compute-hashkey x)))
+	 (rdf-typed-literal-hashkey x))
 	(t
 	 (sxhash x))))
 
 (defun rdf-plain-literal-p (term)
-  (and (rdf-literal-p term)
-       (not (slot-boundp term 'type))))
+  (rdf-lang-literal-p term))
+;;; Note: we do not have any literals with no lang or type
 
-(defun rdf-simple-literal-p (term)
-  (and (rdf-literal-p term)
-       (not (or (slot-boundp term 'type) (slot-boundp term 'lang)))))
+;; (defun rdf-simple-literal-p (term)
+;;   (and (rdf-literal-p term)
+;;        (not (or (slot-boundp term 'type) (slot-boundp term 'lang)))))
 
 (defun rdf-term-p (x) (typep x 'rdf-term))
 
@@ -204,13 +223,12 @@
 (defun rdf-term-equal (t1 t2)
   (cond ((rdf-iri-p t1) (and (rdf-iri-p t2) (rdf-iri= t1 t2)))
 	((rdf-blank-node-p t1) (and (rdf-blank-node-p t2) (string= (uniquely-named-object-name t1) (uniquely-named-object-name t2))))
-	((rdf-literal-p t1) (and (rdf-literal-p t2) (or (and (string= (rdf-literal-string t1) (rdf-literal-string t2))
-							     (cond ((rdf-literal-lang t1)
-								    (and (rdf-literal-lang t2) (string-equal (rdf-literal-lang t1) (rdf-literal-lang t2))))
-								   ((rdf-literal-type t1)
-								    (and (rdf-literal-type t2) (rdf-iri= (rdf-literal-type t1) (rdf-literal-type t2))))
-								   (t (error* "A literal with neither a type nor a lang ~S" t1))))
-							(signal-sparql-error "rdf-term-equal: Literals ~S and ~S are not the same term" t1 t2))))
+	((rdf-lang-literal-p t1) (and (rdf-lang-literal-p t2)
+				      (string= (rdf-lang-literal-string t1) (rdf-lang-literal-string t2))
+				      (string= (rdf-lang-literal-lang t1) (rdf-lang-literal-lang t2))))
+	((rdf-typed-literal-p t1) (and (rdf-typed-literal-p t2)
+				       (string= (rdf-typed-literal-string t1) (rdf-typed-literal-string t2))
+				       (rdf-iri= (rdf-typed-literal-type t1) (rdf-typed-literal-type t2))))
 	(t nil)))
 
 (defun create-rdf-literal-with-type (string type-iri)
@@ -218,14 +236,14 @@
 ;    (inform "create-rdf-literal-with-type ~S ~S, ~S" string type-iri (and type-descriptor (type-descriptor-value-parser type-descriptor)))
 ;    (describe type-descriptor)
     (cond ((null type-descriptor)
-	   (make-instance 'rdf-literal :string string :type type-iri))
+	   (make-rdf-typed-literal :string string :type type-iri))
 	  (t (multiple-value-bind (value msg)
 		 (funcall (type-descriptor-value-parser type-descriptor) string :errorp nil)
 	       (cond ((null msg) value)
 		     (t nil)))))))
 
 (defun create-rdf-literal-with-lang (string lang)
-  (make-instance 'rdf-literal :string string :lang lang :type *rdf-lang-string-iri*))
+  (make-rdf-lang-literal :string string :lang lang :type *rdf-lang-string-iri*))
 
 (defgeneric rdf-literal-to-string (rdf-literal)
   (:method ((this rdf-literal))

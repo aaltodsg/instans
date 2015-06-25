@@ -24,6 +24,7 @@
    (instans :accessor sparql-test-instans :initform nil)
    (not-implemented-p :accessor sparql-test-not-implemented-p :initarg :not-implemented-p :initform nil)
    (output-directory :accessor sparql-test-output-directory :initform "output/")
+   (compare-verbose-p :accessor sparql-test-compare-verbose-p :initform nil :initarg :compare-verbose-p)
    (base :accessor sparql-test-base :initarg :base)
    (output-options-stream :accessor sparql-test-output-options-stream :initarg :output-options-stream :initform nil)
    (start-time :accessor sparql-test-start-time :initform nil)
@@ -351,15 +352,15 @@
 				     (t
 				      (let ((ttl-resultfile (format nil "~A/~A-converted.ttl" output-dir namebase)))
 					(maybe-convert-result-file-to-ttl instans resultfile resulttype ttl-resultfile)))))
-			 (when resultfile (sparql-compare-ttl-result-files resultfile output-ttl-file)))
+			 (when resultfile (sparql-compare-ttl-result-files resultfile output-ttl-file :verbosep (sparql-test-compare-verbose-p this))))
 			(CONSTRUCT
 			 (unless (eq resulttype :ttl)
 			   (error* "Not a ttl resultfile ~A" resultfile))
-			 (sparql-compare-ttl-result-files resultfile output-ttl-file))
+			 (sparql-compare-ttl-result-files resultfile output-ttl-file :verbosep (sparql-test-compare-verbose-p this)))
 			;; (ASK
 			;;  (unless (eq resulttype :ttl)
 			;;    (error* "Not a ttl resultfile ~A" resultfile))
-			;;  (sparql-compare-ttl-result-files resultfile output-ttl-file))
+			;;  (sparql-compare-ttl-result-files resultfile output-ttl-file :verbosep (sparql-test-compare-verbose-p this)))
 			((DESCRIBE MODIFY) nil))))
 	    (instans-add-status instans 'instans-rule-comparing-failed))))))
     (:method ((this sparql-test))
@@ -491,8 +492,9 @@
 
 ;;; Test execute method
 
-(defgeneric sparql-test-execute (sparql-test &key target-phase forcep verbosep)
-  (:method ((this sparql-test) &key (target-phase :completed) forcep verbosep)
+(defgeneric sparql-test-execute (sparql-test &key target-phase forcep verbosep compare-verbose-p)
+  (:method ((this sparql-test) &key (target-phase :completed) forcep verbosep compare-verbose-p)
+    (setf (sparql-test-compare-verbose-p this) compare-verbose-p)
     (let* ((phases (sparql-test-available-phases this)))
       (loop for phase in phases
 	    while (<= (position phase phases) (position target-phase phases))
@@ -521,6 +523,7 @@
    (results-csv-file :accessor sparql-test-set-results-csv-file)
    (results-execution-time-file :accessor sparql-test-set-execution-time-file)
    (manifests :accessor sparql-test-set-manifests)
+   (use-existing-manifest-csv-file-p :accessor sparql-test-set-use-existing-manifest-csv-file-p :initarg :use-existing-manifest-csv-file-p :initform t)
    (different-semantics :accessor sparql-test-set-different-semantics
 			:initform '(("data-r2" "algebra" "nested-opt-1" "Order of adding triples affects the result")
 				    ("data-r2" "algebra" "nested-opt-2" "Order of adding triples affects the result")
@@ -762,7 +765,9 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
 
 (defgeneric sparql-test-set-collect-tests (sparql-test-set)
   (:method ((this sparql-test-set))
-    (sparql-test-set-convert-manifests-to-csv-file this)
+    (unless (and (sparql-test-set-use-existing-manifest-csv-file-p this)
+		 (probe-file (sparql-test-set-collected-tests-csv-file this)))
+      (sparql-test-set-convert-manifests-to-csv-file this))
     (when (sparql-test-set-verbose-p this)
       (inform "~%Create tests from file ~A~%" (sparql-test-set-collected-tests-csv-file this)))
     (let ((lines nil)
@@ -880,10 +885,10 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
 	    (inform "~%In total ~D tests~%" (length tests))))))
     this))
 
-(defgeneric sparql-test-set-execute-tests (sparql-test-set &key verbosep forcep target-phase)
-  (:method ((this sparql-test-set) &key verbosep forcep (target-phase :completed))
+(defgeneric sparql-test-set-execute-tests (sparql-test-set &key verbosep forcep target-phase compare-verbose-p)
+  (:method ((this sparql-test-set) &key verbosep forcep (target-phase :completed) compare-verbose-p)
     (loop for test in (sparql-test-set-tests this)
-	  do (sparql-test-execute test :verbosep verbosep :forcep forcep :target-phase target-phase))))
+	  do (sparql-test-execute test :verbosep verbosep :forcep forcep :target-phase target-phase :compare-verbose-p compare-verbose-p))))
 
 (defgeneric sparql-test-set-print-times (sparql-test-set stream)
   (:method ((this sparql-test-set) stream)
@@ -908,39 +913,42 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
 							     ((and (stringp value) (eql 0 (search "mf:" value))) (subseq value 3))
 							     (t value))))))))
 
-(defun run-sparql-test-suites (suites-dir)
+(defun run-sparql-test-suites (suites-dir &key compare-verbose-p)
   (let ((test-set (make-instance 'sparql-test-set :root-directory suites-dir))
 	(start-time (get-internal-run-time)))
     (setf *sparql-test-set* test-set)
     (let ((saved-sparql-error-op *sparql-error-op*))
       (sparql-inform-and-throw-on-errors)
       (unwind-protect
-	   (sparql-test-set-execute-tests test-set :verbosep t)
+	   (sparql-test-set-execute-tests test-set :verbosep t :compare-verbose-p compare-verbose-p)
 	(setf *sparql-error-op* saved-sparql-error-op))
       (sparql-test-set-results-to-csv test-set))
     (let ((end-time (get-internal-run-time)))
       (with-open-file (str (sparql-test-set-execution-time-file test-set) :direction :output :if-exists :supersede)
 	(format str "~S~%" (/ (float (- end-time start-time)) (float internal-time-units-per-second)))))))
 
-(defun run-suite-collection-name (test-set &key root-directory suite collection name show-options-p)
+(defun run-suite-collection-name (test-set &key root-directory suite collection name show-options-p (compare-verbose-p t))
   (let ((needs-reinitialization-p (not (null test-set))))
     (unless test-set (setf test-set (make-instance 'sparql-test-set :root-directory root-directory)))
     (setf *sparql-test-set* test-set)
+    (inform "test-set = ~S" test-set)
     (let ((saved-sparql-error-op *sparql-error-op*))
       (sparql-inform-and-throw-on-errors)
       (unwind-protect
 	   (loop for test in (sparql-test-set-tests test-set)
-		 do (when (and (or (null suite) (equal suite (sparql-test-suite test)))
-			       (or (null collection) (equal collection (sparql-test-collection test)))
-			       (or (null name) (equal name (sparql-test-name test))))
+		 ;; do (inform "~S ~S ~S" (sparql-test-suite test) (sparql-test-collection test) (sparql-test-name test))
+		 when (and (or (null suite) (equal suite "") (equalp (sparql-test-suite test) suite))
+			   (or (null collection) (equal collection "") (equalp (sparql-test-collection test) collection))
+			   (or (null name) (equal name "") (equalp (sparql-test-name test) name)))
+		 do (progn
 		      (setf *current-sparql-test* test)
 		      (when needs-reinitialization-p (reinitialize-instance test))
 		      (cond ((null show-options-p)
-			     (sparql-test-execute test :verbosep t))
+			     (sparql-test-execute test :verbosep t :compare-verbose-p compare-verbose-p))
 			    (t
 			     (inform "Options: ~A"
 				     (with-output-to-string (str)
 				       (setf (sparql-test-output-options-stream test) str)
-				       (sparql-test-execute test :verbosep t)))))))
+				       (sparql-test-execute test :verbosep t :compare-verbose-p compare-verbose-p)))))))
 	(setf *sparql-error-op* saved-sparql-error-op))
-    *current-sparql-test*)))
+      *current-sparql-test*)))

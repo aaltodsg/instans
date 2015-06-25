@@ -169,7 +169,7 @@
 	     (parse-parameters (string &key colon-expand-fields)
 	       (loop for param in (parse-spec-string string)
 		     for (key value) = param
-		     collect (if (member key colon-expand-fields) (list key (parse-colon-separated-values value)) param)))
+		     collect (if (member key colon-expand-fields) (list key (intern-colon-separated-keywords value)) param)))
 	     (set-output-processors ()
 	       (when (and ask-output-type ask-output-name (null (instans-ask-output-processor instans)))
 		 (inform "ask-output-type ~A ask-output-name ~A" ask-output-type ask-output-name)
@@ -400,7 +400,7 @@
 			"\"execute-repeat-first\". Operation \"flush\" flushes all pending output."
 			"You can use \"event\" as a shorthand form \"add:execute:remove:execute\"."
 			"The default operations list is \"add:execute\".")
-		(set-instans-rdf-operations instans (parse-colon-separated-values value)))
+		(set-instans-rdf-operations instans (intern-colon-separated-keywords value)))
 	       (allow-rule-instance-removal
 		:options ("--allow-rule-instance-removal=BOOL")
 		:usage ("If true (the default), adding or removing RDF input removes rule instances that have"
@@ -461,7 +461,7 @@
 		(loop for kind in debug
 		      unless (member kind '(:parser :token :parse-operations :phases :triples))
 		      do (usage))
-		(setf debug (parse-colon-separated-values value)))
+		(setf debug (intern-colon-separated-keywords value)))
 	       (rete-html
 		:options ("--rete-html=FILE")
 		:usage ("Create an HTML page about the Rete network. The HTML page contains the SPARQL query,"
@@ -480,7 +480,7 @@
 			"Here memoryN means a string like 'memory100' having an integer after 'memory'. This means that the interval of reporting is 100 rounds"
 			"of execution. MemoryN reports the changes in total sizes of memories and memoriesN reports (in csv format) the sizes of different memories.")
 		;; :hiddenp nil
-		(setf reporting (loop for kind in (parse-colon-separated-values value)
+		(setf reporting (loop for kind in (intern-colon-separated-keywords value)
 				      when (eq kind :all)
 				      append '(:select t :construct t :modify t :all t :rete-add t :rete-remove t :queue t :rdf-operations t :execute t)
 				      else when (eql 0 (search "MEMORY" (string kind)))
@@ -531,9 +531,14 @@
 		:usage "Execute a system command. PATH should name an executable program."
 		(sb-ext:run-program value nil :pty *error-output* :search t))
 	       (run-sparql-conformance-tests
-		:options ("--run-sparql-conformance-tests==TEST_DIR")
-		:usage "Run sparql test suites. Test suites should be in TEST_DIR/suites. The result is written into TEST_DIR/results/results.csv. Execution time is written in TEST_DIR/results/execution-time.txt"
-		(run-sparql-test-suites value)))
+		:options ("--run-sparql-conformance-tests==TEST_DIR[[:suite][:collection][:name]]")
+		:usage "Run sparql test suites. Test suites should be in TEST_DIR/suites. If suite, collection, and/or name is present, run only the matching tests. The result is written into TEST_DIR/results/results.csv. Execution time is written in TEST_DIR/results/execution-time.txt"
+		(run-sparql-test-suites value))
+	       (run-suite-collection-name
+		:options ("--run-suite-collection-name==TEST_DIR[[:suite][:collection][:name]]")
+		:usage "Run sparql test suites. Test suites should be in TEST_DIR/suites. If suite, collection, and/or name is present, run only the matching tests. The result is written into TEST_DIR/results/results.csv. Execution time is written in TEST_DIR/results/execution-time.txt"
+		(multiple-value-bind (test-dir suite collection name) (values-list (parse-colon-separated-strings value))
+		  (run-suite-collection-name nil :root-directory test-dir :suite suite :collection collection :name name))))
 	     (unless executedp (execute))
 	     instans)
 	(when time-output-stream

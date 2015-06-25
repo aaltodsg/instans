@@ -172,7 +172,7 @@
 	(sparql-results-compare res1 res2 :verbosep t :result-label1 file1 :result-label2 file2 :output-stream output-stream))
     (t (e) (values nil nil (format nil "~A" e)))))
 
-(defun sparql-compare-ttl-result-files (file1 file2 &key output-stream)
+(defun sparql-compare-ttl-result-files (file1 file2 &key output-stream verbosep)
   (declare (ignorable output-stream))
   (let* ((graph1 nil)
 	 (res1 (parse-rdf-file file1 :document-callback #'(lambda (statements) (setf graph1 statements))))
@@ -185,5 +185,5 @@
 	   (inform "Parsing of ~A failed: ~A" file2 (ll-parser-error-messages res2))
 	   nil)
 	  (t
-	   (rdf-graphs-isomorphic-p graph1 graph2)))))
+	   (rdf-graphs-isomorphic-p graph1 graph2 :verbosep verbosep)))))
 
