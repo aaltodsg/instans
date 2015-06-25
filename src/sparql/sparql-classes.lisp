@@ -64,13 +64,17 @@
 (defun rdf-typed-literal-p (x)
   (and (rdf-literal-p x) (not (null (rdf-literal-type x)))))
 
-(define-class uniquely-named-object ()
-  ((name :accessor uniquely-named-object-name :initarg :name)
-   (pretty-name :accessor uniquely-named-object-pretty-name :initarg :pretty-name :initform nil)))
+(defstruct (uniquely-named-object :named (:type list) (:predicate uniquely-named-object-p))
+  (kind)
+  (name)
+  (pretty-name))
 
-(define-class rdf-blank-node (uniquely-named-object) ())
+(defstruct (rdf-blank-node :named (:type list) (:include uniquely-named-object) (:conc-name rdf-blank-node-)))
+
+(defstruct (rdf-anonymous-blank-node :named (:type list) (:include uniquely-named-object) (:conc-name rdf-blank-node-)))
 
 (define-class rdf-anonymous-blank-node (rdf-blank-node) ())
+
 
 (define-class rdf-named-blank-node (rdf-blank-node) ())
 
@@ -152,8 +156,8 @@
 ;;     (format stream "^^~A" (rdf-iri-string (rdf-literal-type this))))
 ;;   (format stream ">"))
 
-(defmethod print-object ((this uniquely-named-object) stream)
-  (format stream "#<~A ~A>" (type-of this) (uniquely-named-object-pretty-name this)))
+;; (defmethod print-object ((this uniquely-named-object) stream)
+;;   (format stream "#<~A ~A>" (type-of this) (uniquely-named-object-pretty-name this)))
 
 (defmethod print-object ((this sparql-op) stream)
   (format stream "#<~A ~:[~;hidden ~]\"~A\" (~{~A~^ ~}) returns ~A>"
