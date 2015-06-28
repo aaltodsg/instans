@@ -45,12 +45,12 @@
   (make-instance 'sparql-link :href href))
 
 (defun find-result-binding (result variable)
-  (find-if #'(lambda (b) (equal variable (uniquely-named-object-name (sparql-binding-variable b)))) (sparql-result-bindings result)))
+  (find-if #'(lambda (b) (equal variable (instans-var-name (sparql-binding-variable b)))) (sparql-result-bindings result)))
 
 (defgeneric set-query-variables (query-results variables)
   (:method ((this sparql-query-results) variables)
     (when (slot-boundp this 'variables)
-      (unless (every #'uniquely-named-object-equal (sparql-query-results-variables this) variables)
+      (unless (every #'instans-var-equal (sparql-query-results-variables this) variables)
 	(error* "Trying to set different variables ~S to ~S; variables were ~S" variables this (sparql-query-results-variables this))))
     (setf (sparql-query-results-variables this) variables)))
 
@@ -102,7 +102,7 @@
 		      (flet ((show-solutions (sl) (loop for s in sl
 							do (loop for b in (sparql-result-bindings s)
 								 do (format output-stream "~%  ~A -> ~A~%"
-									    (uniquely-named-object-name (sparql-binding-variable b))
+									    (instans-var-name (sparql-binding-variable b))
 									    (sparql-value-to-string (sparql-binding-value b)))))))
 			(let ((result1-minus-result2 (set-difference result-list1 result-list2 :test #'sparql-result-equal-extended))
 			      (result2-minus-result1 (set-difference result-list2 result-list1 :test #'sparql-result-equal-extended)))
@@ -136,7 +136,7 @@
 (defgeneric print-sparql-results (sparql-query-results &key stream)
   (:method ((this sparql-query-results) &key (stream *standard-output*))
     (when (slot-boundp this 'variables)
-      (format stream "Variables: ~{~A~^ ~}~%" (mapcar #'(lambda (var) (subseq (uniquely-named-object-pretty-name var) 1)) (sparql-query-results-variables this))))
+      (format stream "Variables: ~{~A~^ ~}~%" (mapcar #'(lambda (var) (subseq (instans-var-pretty-name var) 1)) (sparql-query-results-variables this))))
     (when (slot-boundp this 'links)
       (format stream "Links: ~{~A~^ ~}~%" (mapcar #'(lambda (link) link) (sparql-query-results-links this))))
     (when (slot-boundp this 'boolean)

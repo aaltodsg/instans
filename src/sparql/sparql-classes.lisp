@@ -31,8 +31,10 @@
 
 ;(define-class rdf-term (hashkeyed) ())
 
+
+
 ;;; Should we canonize IRIs?
-(defstruct (rdf-iri :named (:predicate rdf-iri-p) (:type list))
+(defstruct (rdf-iri :named (:predicate rdf-iri-p) );(:type list))
   (string)
   (hashkey)
   (scheme)
@@ -52,7 +54,7 @@
 ;;    (lang :accessor rdf-literal-lang :initarg :lang :initform nil)
 ;;    (value :accessor rdf-literal-value :initarg :value)))
 
-(defstruct (rdf-literal :named (:predicate rdf-literal-p) (:type list))
+(defstruct (rdf-literal :named (:predicate rdf-literal-p) );(:type list))
   (string)
   (hashkey)
   (type)
@@ -64,28 +66,77 @@
 (defun rdf-typed-literal-p (x)
   (and (rdf-literal-p x) (not (null (rdf-literal-type x)))))
 
-(defstruct (uniquely-named-object :named (:type list) (:predicate uniquely-named-object-p))
-  (kind)
+;; Types
+
+(defstruct (instans-var :named (:predicate instans-var-p) ); (:type list))
   (name)
-  (pretty-name))
+  (pretty-name)
+  (kind))
 
-(defstruct (rdf-blank-node :named (:type list) (:include uniquely-named-object) (:conc-name rdf-blank-node-)))
+(defstruct (instans-var-factory :named (:predicate instans-var-factory-p) ); (:type list))
+  (objects)
+  (counter -1)
+  (kind)
+  (instans))
 
-(defstruct (rdf-anonymous-blank-node :named (:type list) (:include uniquely-named-object) (:conc-name rdf-blank-node-)))
+(defvar *sparql-unbound*)
 
-(define-class rdf-anonymous-blank-node (rdf-blank-node) ())
+(defstruct (sparql-unbound :named (:predicate sparql-unbound-p)) ); (:type list))
 
+(defvar *sparql-distinct*)
 
-(define-class rdf-named-blank-node (rdf-blank-node) ())
+(defstruct (sparql-distinct :named (:predicate sparql-distinct-p) ) );(:type list)))
 
-(define-class sparql-var (uniquely-named-object) ())
+;; Creation
 
-(define-class internal-var (sparql-var) ())
+(defun create-instans-var-factory (instans kind)
+  (make-instans-var-factory :objects (make-hash-table :test #'equal) :kind kind :instans instans))
 
-(define-class sparql-unbound () ())
+(defun create-instans-var (factory &key name kind pretty-name)
+  (let* ((hashtable (instans-var-factory-objects factory))
+	 (elem (gethash name hashtable)))
+    (or elem
+	(progn
+	  (setf elem (make-instans-var :name name :kind kind :pretty-name (or pretty-name name)))
+	  (setf (gethash name hashtable) elem)
+	  elem))))
 
-(define-class sparql-distinct () ())
+(defun generate-instans-var (factory &key kind name-prefix)
+  (let* ((hashtable (instans-var-factory-objects factory))
+	 (generated-name (format nil "~@[~A~]~D" name-prefix (incf (instans-var-factory-counter factory))))
+	 (elem (gethash generated-name hashtable)))
+    (cond ((null elem)
+	   (setf elem (make-instans-var :name generated-name :kind kind :pretty-name generated-name))
+	   (setf (gethash generated-name hashtable) elem))
+	  (t
+	   (error* "INSTANS internal error: Object with name ~A already exists" generated-name)))))
 
+(defun make-named-blank-node (instans name)
+  (create-instans-var (instans-rdf-named-blank-node-factory instans) :name (string-upcase name) :kind 'rdf-named-blank-node :pretty-name name))
+
+(defun generate-anonymous-blank-node (instans)
+  (generate-instans-var (instans-rdf-anonymous-blank-node-factory instans) :kind 'rdf-anonymous-blank-node :name-prefix "_:"))
+
+(defun make-sparql-var (instans name)
+  (create-instans-var (instans-sparql-var-factory instans) :name (string-upcase name) :kind 'sparql-var :pretty-name name))
+
+(defun generate-sparql-var (instans &optional name-prefix)
+  (generate-instans-var (instans-sparql-var-factory instans) :kind 'sparql-var :name-prefix name-prefix))
+
+;; Predicates
+
+(defun sparql-var-p (x)
+  (and (instans-var-p x) (eq (instans-var-kind x) 'sparql-var)))
+
+(defun rdf-named-blank-node-p (x)
+  (and (instans-var-p x) (eq (instans-var-kind x) 'rdf-named-blank-node)))
+
+(defun rdf-anonymous-blank-node-p (x)
+  (and (instans-var-p x) (eq (instans-var-kind x) 'rdf-anonymous-blank-node)))
+
+(defun rdf-blank-node-p (x)
+  (and (instans-var-p x) (member (instans-var-kind x) '(rdf-anonymous-blank-node rdf-named-blank-node))))
+  
 (define-class type-descriptor ()
   ((iri :accessor type-descriptor-iri :initarg :iri)
    (iri-string :accessor type-descriptor-iri-string :initarg :iri-string)
@@ -94,11 +145,6 @@
 
 (define-class type-descriptors ()
   ((string-map :accessor type-descriptors-string-map :initform (make-hash-table :test #'equal))))
-
-(define-class uniquely-named-object-factory ()
-  ((object-type :initarg :object-type)
-   (name-counter :initform -1)
-   (objects-by-name :initform (make-hash-table))))
 
 (define-class sparql-op ()
   ((name :accessor sparql-op-name :initarg :name)
@@ -135,9 +181,6 @@
 ;; 	  (when descriptor
 ;; 	    (setf (rdf-literal-value this) (funcall (type-descriptor-value-parser descriptor) (rdf-literal-string this)))))))))
 
-(defmethod initialize-instance :after ((this uniquely-named-object) &key pretty-name &allow-other-keys)
-  (unless pretty-name (setf (uniquely-named-object-pretty-name this) (uniquely-named-object-name this))))
-
 ;;; END initialize-instance :after
 
 ;;; BEGIN print-object
@@ -156,23 +199,20 @@
 ;;     (format stream "^^~A" (rdf-iri-string (rdf-literal-type this))))
 ;;   (format stream ">"))
 
-;; (defmethod print-object ((this uniquely-named-object) stream)
-;;   (format stream "#<~A ~A>" (type-of this) (uniquely-named-object-pretty-name this)))
-
 (defmethod print-object ((this sparql-op) stream)
   (format stream "#<~A ~:[~;hidden ~]\"~A\" (~{~A~^ ~}) returns ~A>"
 	  (type-of this) (sparql-op-hiddenp this) (sparql-op-name this) (sparql-op-arguments this) (sparql-op-returns this)))
 
 ;;; END print-object
 
-(defun compute-hashkey (this)
-  (cond ((rdf-iri-p this) (sxhash (rdf-iri-string this)))
-	((rdf-literal-p this)
-	 (mix (mix (sxhash (rdf-literal-string this)) (sxhash (string-upcase (rdf-literal-lang this))))
-	      (get-hashkey (rdf-literal-type this))))
-	((uniquely-named-object-p this) (sxhash (uniquely-named-object-name this)))
-	((sparql-unbound-p this) (sxhash this))
-	(t (error* "Unexpected value for hashing ~S" this))))
+(defun compute-hashkey (x)
+  (cond ((rdf-iri-p x) (sxhash (rdf-iri-string x)))
+	((rdf-literal-p x)
+	 (mix (mix (sxhash (rdf-literal-string x)) (sxhash (string-upcase (rdf-literal-lang x))))
+	      (get-hashkey (rdf-literal-type x))))
+	((instans-var-p x) (sxhash (instans-var-name x)))
+	((sparql-unbound-p x) (sxhash x))
+	(t (error* "Unexpected value for hashing ~S" x))))
 
 ;; (defun get-hashkey (x)
 ;;   (cond ((typep x 'hashkeyed)
@@ -208,7 +248,7 @@
 (defun rdf-term-as-string (term)
   (cond ((rdf-iri-p term) (format nil "~A" (rdf-iri-string term)))
 	((rdf-literal-p term) (rdf-literal-to-string term))
-	((rdf-blank-node-p term) (uniquely-named-object-name term))
+	((rdf-blank-node-p term) (rdf-blank-node-name term))
 	((sparql-unbound-p term) "UNBOUND")
 	((rdf-term-p term) (format nil "~A" term))
 	(t (error* "Not an rdf-term ~A" term))))
@@ -218,7 +258,7 @@
 ;;; Note! This is not SPARQL operation RDFterm-equal
 (defun rdf-term-equal (t1 t2)
   (cond ((rdf-iri-p t1) (and (rdf-iri-p t2) (rdf-iri= t1 t2)))
-	((rdf-blank-node-p t1) (and (rdf-blank-node-p t2) (string= (uniquely-named-object-name t1) (uniquely-named-object-name t2))))
+	((rdf-blank-node-p t1) (and (rdf-blank-node-p t2) (string= (rdf-blank-node-name t1) (rdf-blank-node-name t2))))
 	((rdf-literal-p t1) (equal t1 t2))
 	(t nil)))
 
@@ -243,27 +283,8 @@
 		      (if (rdf-literal-type this) (append '(#\^ #\^ #\<) (coerce (rdf-iri-string (rdf-literal-type this)) 'list) '(#\>)))))
 	  'string))
 
-(defgeneric uniquely-named-object-equal (o1 o2)
-  (:method ((o1 uniquely-named-object) (o2 uniquely-named-object))
-    (or (eq o1 o2)
-	(equal (uniquely-named-object-name o1) (uniquely-named-object-name o2)))))
-
-(defgeneric make-uniquely-named-object (factory name &rest keys &key pretty-name &allow-other-keys)
-  (:method ((factory uniquely-named-object-factory) name &rest keys &key pretty-name &allow-other-keys)
-    (or (gethash name (slot-value factory 'objects-by-name))
-	(let ((object (apply #'make-instance (slot-value factory 'object-type) :name name :pretty-name pretty-name keys)))
-	  (setf (gethash name (slot-value factory 'objects-by-name)) object)
-	  object))))
-
-(defgeneric generate-object-with-unique-name (factory &rest keys &key name-prefix &allow-other-keys)
-  (:method ((factory uniquely-named-object-factory) &rest keys &key name-prefix &allow-other-keys)
-    (let ((generated-name (format nil "~@[~A~]~D" name-prefix (incf (slot-value factory 'name-counter)))))
-      (cond ((null (gethash generated-name (slot-value factory 'objects-by-name)))
-	     (remf keys :name-prefix)
-	     (let ((object (apply #'make-instance (slot-value factory 'object-type) :name generated-name keys)))
-	       (setf (gethash generated-name (slot-value factory 'objects-by-name)) object)))
-	    (t
-	     (error* "Object with name ~A already exists" generated-name))))))
+(defun instans-var-equal (o1 o2)
+  (equal (instans-var-name o1) (instans-var-name o2)))
 
 (defun find-type-descriptor (iri-string &optional (type-descriptors *xsd-value-type-descriptors*))
   (gethash iri-string (type-descriptors-string-map type-descriptors)))
@@ -301,8 +322,8 @@
 	 (maphash #'(lambda (key value) (inform "~A -> ~A" key value)) (sparql-op-library-ops (find-sparql-op-library library-name :sparql-ops sparql-ops))))))
 
 (defun initialize-globals ()
-  (setf *sparql-unbound* (make-instance 'sparql-unbound))
-  (setf *sparql-distinct* (make-instance 'sparql-distinct))
+  (setf *sparql-unbound* (make-sparql-unbound))
+  (setf *sparql-distinct* (make-sparql-distinct))
   (setf *rdf-first* (make-rdf-iri :string "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"))
   (setf *rdf-rest* (make-rdf-iri :string "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"))
   (setf *rdf-nil* (make-rdf-iri :string "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"))
@@ -327,7 +348,7 @@
 
 (defun sparql-var-equal (v1 v2)
   (and (sparql-var-p v1) (sparql-var-p v2)
-       (uniquely-named-object-equal v1 v2)))
+       (instans-var-equal v1 v2)))
 
 (defun sparql-var-list-difference (l1 l2)
   (list-difference l1 l2 :test #'sparql-var-equal))

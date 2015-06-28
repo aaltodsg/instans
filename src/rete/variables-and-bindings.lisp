@@ -23,7 +23,7 @@
 
 ;;; Bindings and variables
 (defun resolve-binding (instans from)
-  (cdr (assoc from (instans-bindings instans) :test #'uniquely-named-object-equal)))
+  (cdr (assoc from (instans-bindings instans) :test #'instans-var-equal)))
 
 ;; (defun resolve-binding (instans from)
 ;;   (cdr (assoc from (instans-bindings instans) :test #'sparql-var-equal)))

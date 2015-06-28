@@ -212,7 +212,3 @@
 (defmacro sparql-unbound ()
   `*sparql-unbound*)
 
-(defvar *sparql-distinct*)
-
-(defmacro sparql-distinct ()
-  `*sparql-distinct*)

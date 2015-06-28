@@ -273,7 +273,7 @@
   (:method ((a xsd-boolean-value) (b xsd-boolean-value)) (eq a b))
   (:method ((a xsd-datetime-value) (b xsd-datetime-value)) (datetime= a b))
   (:method ((i1 rdf-iri) (i2 rdf-iri)) (rdf-iri= i1 i2))
-  (:method ((b1 rdf-blank-node) (b2 rdf-blank-node)) (string= (uniquely-named-object-name b1) (uniquely-named-object-name b2)))
+  (:method ((b1 rdf-blank-node) (b2 rdf-blank-node)) (string= (rdf-blank-node-name b1) (rdf-blank-node-name b2)))
   (:method ((l1 rdf-literal) (l2 rdf-literal)) (and (string= (rdf-literal-string l1) (rdf-literal-string l2))
 						    (cond ((rdf-literal-lang l1)
 							   (and (rdf-literal-lang l2) (string= (rdf-literal-lang l1) (rdf-literal-lang l2))))

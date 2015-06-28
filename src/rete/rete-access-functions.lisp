@@ -70,7 +70,10 @@
   (when (and (instans-use-quad-store-p this) (null (instans-quad-store this)))
     (setf (instans-quad-store this) (make-instance 'list-quad-store)))
   (setf (instans-rule-instance-queue this) (make-instance 'rule-instance-queue :instans this))
-  (setf (instans-triple-pattern-matcher this) (make-instance 'triple-pattern-matcher :instans this)))
+  (setf (instans-triple-pattern-matcher this) (make-instance 'triple-pattern-matcher :instans this))
+  (setf (instans-sparql-var-factory this) (create-instans-var-factory this 'sparql-var))
+  (setf (instans-rdf-anonymous-blank-node-factory this) (create-instans-var-factory this 'rdf-anonymous-blank-node))
+  (setf (instans-rdf-named-blank-node-factory this) (create-instans-var-factory this 'rdf-named-blank-node)))
 
 (defmethod initialize-instance :after ((this aggregate-join-node) &key group aggr-exprs &allow-other-keys)
   (setf (aggregate-join-group-var this) (third group))
@@ -83,22 +86,6 @@
 ;  (describe this))
 
 ;;; Var and blank creationg
-
-(defgeneric make-named-blank-node (instans name)
-  (:method ((this instans) name)
-    (make-uniquely-named-object (instans-named-blank-node-factory this) (string-upcase name) :pretty-name name)))
-
-(defgeneric generate-anonymous-blank-node (instans)
-  (:method ((this instans))
-    (generate-object-with-unique-name (instans-anonymous-blank-node-factory this) :name-prefix "_:")))
-
-(defgeneric make-sparql-var (instans name)
-  (:method ((this instans) name)
-    (make-uniquely-named-object (instans-var-factory this) (string-upcase name) :pretty-name name)))
-
-(defgeneric generate-sparql-var (instans &optional name-prefix)
-  (:method ((this instans) &optional name-prefix)
-    (generate-object-with-unique-name (instans-var-factory this) :name-prefix name-prefix)))
 
 ;;; Node access
 
@@ -346,21 +333,21 @@
   (:method ((this aggregate-sum)) (aggregate-sum this))
   (:method ((this aggregate-avg))
     (if (zerop (aggregate-count this))
-	(sparql-unbound)
+	*sparql-unbound*
 	(sparql-call "/" (aggregate-sum this) (aggregate-count this))))
   (:method ((this aggregate-min))
     (cond ((null (aggregate-history this))
-	   (sparql-unbound))
+	   *sparql-unbound*)
 	  (t
 	   (first (aggregate-history this)))))
   (:method ((this aggregate-max))
     (cond ((null (aggregate-history this))
-	   (sparql-unbound))
+	   *sparql-unbound*)
 	  (t
 	   (first (aggregate-history this)))))
   (:method ((this aggregate-sample))
     (cond ((null (aggregate-history this))
-	   (sparql-unbound))
+	   *sparql-unbound*)
 	  (t
 	   (first (aggregate-history this)))))
   (:method ((this aggregate-group-concat))

@@ -92,8 +92,14 @@
 ;; 	   ;(append (list sparql-op group-var index) args)
 ;; 	   (cons sparql-op args)))))
 
+(defun rdf-blank-node-name (var)
+  (instans-var-name var))
+
+(defun sparql-var-name (var)
+  (instans-var-name var))
+  
 (defun sparql-var-lisp-name (var)
-  (intern-instans (string (uniquely-named-object-name var))))
+  (intern-instans (string (sparql-var-name var))))
 
 (defun sparql-var-lisp-names (var-list)
   (mapcar #'sparql-var-lisp-name var-list))
@@ -177,7 +183,7 @@
 						    for items-from-table2 = (gethash (quad-hash-key item1) table2)
 						    for items-from-table2-vars = (mapcar #'(lambda (item) (filter #'rdf-blank-node-p item)) items-from-table2)
 						    for new-var-mappings = (apply #'mapcar #'list item1-vars items-from-table2-vars)
-						    for old-var-mappings = (mapcar #'(lambda (v1) (assoc v1 var-mappings12 :test #'uniquely-named-object-equal)) item1-vars)
+						    for old-var-mappings = (mapcar #'(lambda (v1) (assoc v1 var-mappings12 :test #'instans-var-equal)) item1-vars)
 						    ;; do (inform "item1 = [~{~S~^ ~}]~%item1-vars = ~S,~%items-from-table2 = {~{[~{~S~^ ~}]~^~%                    ~}},~%items-from-table2-vars = ~S"
 						    ;; 	       item1 item1-vars items-from-table2 items-from-table2-vars)
 						    ;; do (inform "new-var-mappings = ~S" new-var-mappings)
@@ -196,7 +202,7 @@
 									      ;; (inform "  var-mappings12 = ~S" var-mappings12)
 									      )
 									     (t
-									      (let ((merge (intersection (rest old-mapping) (rest new-mapping) :test #'uniquely-named-object-equal)))
+									      (let ((merge (intersection (rest old-mapping) (rest new-mapping) :test #'instans-var-equal)))
 										;; (inform "  merge ~S" merge)
 										(cond ((null merge)
 										       (return-from rdf-graphs-isomorphic-p nil))
@@ -219,7 +225,7 @@
 				 (unify non-constant-graph2 table1 var-mappings21)))))))))))))
 
 (defun replace-quad-blanks (quad mappings)
-  (loop for x in quad collect (if (rdf-blank-node-p x) (rest (assoc x mappings :test #'uniquely-named-object-equal)) x)))
+  (loop for x in quad collect (if (rdf-blank-node-p x) (rest (assoc x mappings :test #'instans-var-equal)) x)))
 
 (defun generate-mappings-and-test (mappings predicate)
   (labels ((generate (tail result)
@@ -301,7 +307,7 @@
 ;; 				       for items-from-table2 = (gethash (quad-hash-key item1) table2)
 ;; 				       for items-from-table2-vars = (mapcar #'(lambda (item) (filter #'rdf-blank-node-p item)) items-from-table2)
 ;; 				       for new-var-mappings = (apply #'mapcar #'list item1-vars items-from-table2-vars)
-;; 				       for old-var-mappings = (mapcar #'(lambda (v1) (assoc v1 var-mappings12 :test #'uniquely-named-object-equal)) item1-vars)
+;; 				       for old-var-mappings = (mapcar #'(lambda (v1) (assoc v1 var-mappings12 :test #'instans-var-equal)) item1-vars)
 ;; 				       do (inform "item1 = [~{~S~^ ~}]~%item1-vars = ~S,~%items-from-table2 = {~{[~{~S~^ ~}]~^~%                    ~}},~%items-from-table2-vars = ~S"
 ;; 						  item1 item1-vars items-from-table2 items-from-table2-vars)
 ;; 				       do (inform "new-var-mappings = ~S" new-var-mappings)
@@ -320,7 +326,7 @@
 ;; 								 (inform "  var-mappings12 = ~S" var-mappings12)
 ;; 								 )
 ;; 								(t
-;; 								 (let ((merge (intersection (rest old-mapping) (rest new-mapping) :test #'uniquely-named-object-equal)))
+;; 								 (let ((merge (intersection (rest old-mapping) (rest new-mapping) :test #'instans-var-equal)))
 ;; 								   (inform "  merge ~S" merge)
 ;; 								   (cond ((null merge)
 ;; 									  (return-from rdf-graphs-isomorphic-p-old nil))
@@ -373,7 +379,7 @@
 		  (format nil "\"~A\"" (rdf-literal-string x)))))
 	  ((rdf-iri-p x)
 	   (iri-to-string x (and instans (instans-encode-prefixes-p instans) (instans-prefixes-sorted instans))))
-	  ((rdf-blank-node-p x) (uniquely-named-object-name x))
+	  ((rdf-blank-node-p x) (rdf-blank-node-name x))
 	  ((sparql-unbound-p x) "UNBOUND")
 	  (t (format nil "~A" x)))))
 	   

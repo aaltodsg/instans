@@ -93,7 +93,7 @@
 	   (group-expr nil)
 	   (group-var nil)
 	   (expr-var-list nil))
-      (when (eq project '*) (setf project (filter #'(lambda (x) (char= (char (uniquely-named-object-name x) 0) #\?)) scope-vars)))
+      (when (eq project '*) (setf project (filter #'(lambda (x) (char= (char (instans-var-name x) 0) #\?)) scope-vars)))
       (labels ((contains-aggregates-p (form) (and (consp form) (or (aggregate-function-name-p (first form)) (some #'contains-aggregates-p (rest form)))))
 	       (samplify (expr)
 					;	       (inform "samplify ~S" expr)
@@ -119,11 +119,11 @@
 		 (loop with valid-project-vars = (loop for item in group-by when (sparql-var-p item) collect item else when (as-form-p item) collect (second item))
 		    for pr in project
 		    when (sparql-var-p pr) 
-		    do (when (not (member pr valid-project-vars :test #'uniquely-named-object-equal))
+		    do (when (not (member pr valid-project-vars :test #'instans-var-equal))
 			 (sparql-parse-error "Cannot project non-group key var ~A" pr))
 		    else when (not (let ((e (third pr)))
 				     (if (sparql-var-p e)
-					 (member e valid-project-vars :test #'uniquely-named-object-equal)
+					 (member e valid-project-vars :test #'instans-var-equal)
 					 (and (consp e) (aggregate-function-name-p (first e))))))
 		    do (sparql-parse-error "Cannot project ~A" pr))
 		 (loop for item in project
@@ -155,7 +155,7 @@
 	(loop for item in project
 	   when (sparql-var-p item)
 	   ;; do (cond ((not (find-sparql-var item scope-vars))
-	   ;; 	    (sparql-parse-error "Variable ~S not in SELECT" (uniquely-named-object-name item)))
+	   ;; 	    (sparql-parse-error "Variable ~S not in SELECT" (instans-var-name item)))
 	   ;; 	   (t
 	   ;; 	    (push-to-end item project-vars)))
 	   ;; Note! Variables not declared inside SELECT are OK!
@@ -306,13 +306,13 @@
 	       (cond ((not blank-nodes-allowed-p)
 		      (sparql-parse-error "Blank node (~A) not allowed here" name))
 		     ((not replace-blank-nodes-by-vars-p)
-		      (or (find-if #'(lambda (var) (string= (uniquely-named-object-name var) name)) blanks)
+		      (or (find-if #'(lambda (var) (string= (instans-var-name var) name)) blanks)
 			  (let ((blank (make-named-blank-node instans name)))
 ;			    (inform "Not replacing blanks by vars, created ~S" blank)
 			    (push blank blanks)
 			    blank)))
 		     (t
-		      (or (find-if #'(lambda (var) (string= (uniquely-named-object-name var) name)) blanks)
+		      (or (find-if #'(lambda (var) (string= (instans-var-name var) name)) blanks)
 			  (let ((var (make-var name)))
 			    ;; (inform "Created ~S" var)
 			    (push var blanks)
@@ -321,7 +321,7 @@
 	       (cond ((consp expr)
 		      (cons (replace-blank-nodes-by-vars (car expr)) (replace-blank-nodes-by-vars (cdr expr))))
 		     ((rdf-blank-node-p expr)
-		      (or (find-if #'(lambda (var) (string= (uniquely-named-object-name var) (uniquely-named-object-name expr)) blanks)
+		      (or (find-if #'(lambda (var) (string= (instans-var-name var) (instans-var-name expr)) blanks)
 			  (let ((var (generate-sparql-var instans)))
 			    ;; (inform "Created ~S" var)
 			    (push var blanks)
@@ -409,7 +409,7 @@
 				(ban-blanks))
 			      (loop for var in bgp-vars
 				 when (and (member var blanks) (member var other-bgp-blanks))
-				 do (sparql-parse-error "Blank node ~S used in separate basic graph patterns" (uniquely-named-object-name var))
+				 do (sparql-parse-error "Blank node ~S used in separate basic graph patterns" (instans-var-name var))
 				 else do (push var bgp-blanks))
 			      (add-vars bgp-vars)
 			      (join e)))
@@ -612,7 +612,7 @@
 	 (InlineDataFull ::= ((:OR (NIL-TERMINAL :RESULT (progn nil)) (|(-TERMINAL| (:REP0 Var) |)-TERMINAL| :RESULT $1)) |{-TERMINAL|
 			      (:REP0 (:OR (|(-TERMINAL| (:REP0 DataBlockValue) |)-TERMINAL| :RESULT $1) (NIL-TERMINAL :RESULT (progn nil)))) |}-TERMINAL|
 			      :RESULT (list 'INLINEDATA $0 $2)))
-	 (DataBlockValue ::= (:OR iri RDFLiteral NumericLiteral BooleanLiteral (UNDEF-TERMINAL :RESULT (sparql-unbound))))
+	 (DataBlockValue ::= (:OR iri RDFLiteral NumericLiteral BooleanLiteral (UNDEF-TERMINAL :RESULT *sparql-unbound*)))
 	 (MinusGraphPattern ::= (MINUS-TERMINAL GroupGraphPattern :RESULT (list 'MINUS $1)))
 	 (GroupOrUnionGraphPattern ::= (GroupGraphPattern (:REP0 (UNION-TERMINAL GroupGraphPattern :RESULT $1)) :RESULT (if (null $1) $0 (cons 'UNION (cons $0 $1)))))
 	 (Filter ::= (FILTER-TERMINAL Constraint :RESULT (list 'FILTER $1)))
@@ -620,7 +620,7 @@
 	 (FunctionCall ::= (iri ArgList) :RESULT (create-call-through-iri $0 $1))
 	 (ArgList ::= (:OR (NIL-TERMINAL :RESULT (progn nil))
 			   (|(-TERMINAL| (:OPT DISTINCT-TERMINAL) (Expression (:REP0 (|,-TERMINAL| Expression :RESULT $1)) :RESULT (cons $0 $1)) |)-TERMINAL|
-					 :RESULT (if (opt-yes-p $1) (cons (sparql-distinct) $2) $2))))
+					 :RESULT (if (opt-yes-p $1) (cons *sparql-distinct* $2) $2))))
 	 (ExpressionList ::= (:OR (NIL-TERMINAL :RESULT (progn nil)) (|(-TERMINAL| (Expression (:REP0 (|,-TERMINAL| Expression :RESULT $1)) :RESULT (cons $0 $1)) |)-TERMINAL| :RESULT $1)))
 	 (ConstructTemplate ::= ((|{-TERMINAL| :RESULT (blank-translation-settings :allowedp t :replacep nil)) (:OPT ConstructTriples) |}-TERMINAL|
 				 :RESULT (progn (blank-translation-settings :allowedp t :replacep t) (list (cons 'BGP (get-triples))))))

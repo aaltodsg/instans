@@ -49,7 +49,7 @@
   (loop for item in (cdr token)
 	when (equal var (car item))
 	return (second item)
-	finally (return (sparql-unbound))))
+	finally (return *sparql-unbound*)))
 
 (defsetf token-value (node token var) (new-value)
   `(progn ,node
@@ -92,7 +92,7 @@
 	    (loop for item in token
 		  collect (cond ((consp item)
 				 (destructuring-bind (var value) item
-				   (let ((varstr (cond ((sparql-var-p var) (uniquely-named-object-name (reverse-resolve-binding (node-instans node) var)))
+				   (let ((varstr (cond ((sparql-var-p var) (sparql-var-name (reverse-resolve-binding (node-instans node) var)))
 						       ((null var) "key")
 						       (t var))))
 				     (format nil "~A -> ~A" varstr (sparql-value-to-string value :instans (node-instans node))))))
