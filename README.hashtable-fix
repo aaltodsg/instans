@@ -1,0 +1,107 @@
+In this feature branch we fix hashtable problems and maybe reimplement token storing and indexing.
+
+In master, there is a problem with hashtables that are used for token storing and indexing. Long
+time ago we decided to compute hash keys for tokens and use these hash keys for storing tokens with
+no checking of collisions. This was a hack, but it worked well for a long time with no bugs and thus
+it was completely forgotten. Now with Mikko's stream processing examples we have finally started to
+get collisions and it is time to fix this.
+
+We should rethink how tokens are stored and indexed. Is the current approach sane?
+
+1) Finding code to fix
+
+To begin with, we collect all files that refer to hashtable or gethash. We get
+
+src/main/compile-sparql-file.lisp: sane
+src/parser/srx-parser.lisp: sane
+src/rete/indices.lisp: tainted
+- just trusting on a sxhash based key is not safe
+src/rete/interpreter.lisp: tainted
+- create-stores-and-indices: maybe fix calls
+- add-initial-data: maybe fix calls
+  - uses join-beta-index and join-alpha-index, which are tainted
+- initialize-reporting: maybe fix calls
+- report-sizes: maybe fix calls
+- add/remove(-alpha/beta)-token: Check index handling calls
+- aggregate-join-get-group: Check index handling calls
+- process-query-input: tainted
+src/rete/store.lisp: tainted
+- store-get-token: tainted
+  * We should use collision list here.
+  * The entry in the hashtable should contain a list of tokens with the same hashkey.
+  * We should filter the token from these entries.
+  * We can then (hopefully) drop all checks.
+src/rete/triple-pattern-matcher.lisp: tainted
+- gethash-or-else-update: tainted
+  * We should use collision list here.
+  * The entry in the hashtable should contain a list of tokens with the same hashkey.
+  * We should filter the token from these entries.
+src/sparql/sparql-classes.lisp: tainted
+- hashkeyed: tainted
+- compute-hashkey: tainted
+- get-hashkey: tainted
+- rdf-term: tainted
+- sparql-var: tainted
+- make-uniquely-named-object: sane
+- find-type-descriptor: sane
+- add-sparql-op-library: sane
+- find-sparql-op-library: sane
+- add-sparql-op: sane
+- find-sparql-op: sane
+- list-sparql-ops: sane
+src/sparql/sparql-helper-functions.lisp: tainted
+- quad-hash-key: tainted
+- rdf-graphs-isomorphic-p: tainted
+src/sparql/sparql-macros.lisp: sane
+- define-xsd-value-type: sane
+src/util/misc.lisp: sane
+- maph: sane
+src/util/table-bindings.lisp: tainted
+- hash-characters: tainted
+- add-table-binding: tainted
+- get-table-binding: tainted
+
+To summarize, the tainted code uses sxhash-based numbers as keys to hashtables. This must be
+accompanied by collision lists.
+
+2) Order of fixing this.
+
+Since the grievances have started in token store, maybe we should start there. It should be rather
+easy, because all methods have token, not the dangerous sxhash number, as a parameter. Thus no changes
+to calls should be required.
+
+To be safe, lets find all the calls to the store methods to see how store is used.
+
+The methods can be listed in zsh: fgrep defgeneric src/rete/store.lisp|awk '{print $2}':
+
+store-count
+inner-token
+store-get-token
+store-put-token
+store-remove-token
+store-tokens
+store-clear
+
+To get the calls, we run in zsh: fgrep -fl <(fgrep defgeneric src/rete/store.lisp|awk '{print $2}') src/**/*.lisp
+
+(src/cl-ll1/datastruct.lisp, wrong hit)
+(src/cl-ll1/generator.lisp, wrong hit)
+(src/parser/sparql-parser.lisp, wrong hit)
+src/rete/interpreter.lisp
+- The calls are OK.
+(src/rete/rete-classes.lisp, wrong hit)
+src/rete/store.lisp
+- The methods are defined here
+
+A regexp for finding the uses in a file:
+'^[^;]*[^a-z0-9-](store-count|inner-token|store-get-token|store-put-token|store-remove-token|store-tokens|store-clear)[^a-z0-9-]'
+
+Before we start, lets compile and run tests. 586 tests passed as before.
+
+Now we are ready. Lets add a collision list to the store.
+
+Done. After making the code for store-tokens to produce a fresh list, passes 586 tests as before!
+
+But the stuff does not work with Mikko's inputs! It seems that token-equal does not work.
+
+NOTE! In add-token etc. we could replace the pattern (unless (store-get-token ..) (store-put-token ...) ...) by something that does the test only once.
