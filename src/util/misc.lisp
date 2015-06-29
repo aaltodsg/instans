@@ -153,10 +153,16 @@
   (let ((data (drakma:http-request iri-string)))
     (cond ((stringp data) data) (t (coerce (mapcar #'code-char (coerce data 'list)) 'string)))))
 
-(defun parse-colon-separated-values (string)
+(defun intern-colon-separated-keywords (string)
   (loop while (> (length string) 0)
         collect (let ((pos (or (position #\: string) (length string))))
 		  (prog1 (intern-keyword (string-upcase (subseq string 0 pos)))
+		    (setf string (subseq string (min (length string) (1+ pos))))))))
+
+(defun parse-colon-separated-strings (string)
+  (loop while (> (length string) 0)
+        collect (let ((pos (or (position #\: string) (length string))))
+		  (prog1 (subseq string 0 pos)
 		    (setf string (subseq string (min (length string) (1+ pos))))))))
 
 (defun parse-spec-string (string)
