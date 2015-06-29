@@ -8,6 +8,49 @@ get collisions and it is time to fix this.
 
 We should rethink how tokens are stored and indexed. Is the current approach sane?
 
+Take 2: Trying to use http://www.sbcl.org/manual/index.html#Hash-Table-Extensions
+
+- First, we should test that this thing works. It should be pretty easy. For example (see src/util/hashtable-extension-test.lisp):
+  a) Make a hash function that return a few values: 0 for lists, 1 for numbers, 2 for other
+  b) Make a comparison function, which calls eql
+
+(defun my-hash-table-test (a b) (eql a b))
+
+(defun my-hash-function (x) (cond ((numberp x) 0)
+       			    	    ((listp x) 1)
+						  (t 2)))
+
+(sb-ext:define-hash-table-test my-hash-table-test my-hash-function)
+
+(defun my-hash-table-experiment (n)
+  (let ((table (make-hash-table :test #'my-hash-table-test)))
+    (loop for i from 0 below n
+      for item = (gethash i table)
+        when item
+	  do (format t "~&!!!Got item = ~S~%" item)
+	    else do (setf (gethash i table) (list i)))
+    (loop for i from 0 below n
+      for item = (gethash i table)
+        do (format t "~&Got item = ~S~%" item)
+	  do (setf (cdr item) (list i)))
+    (loop for i from 0 below n
+      for item = (gethash i table)
+        do (format t "~&Got item = ~S~%" item))))
+
+   Seems to work
+
+- Second, get rid of the mutable variables that are added to tokens. These come from
+  * exists-start-node
+  * optional-start-node
+  * filter memory
+  * group
+
+We can use 1) "Finding code to fix" below to.
+
+----------------------------------------------------------------------------------------------------
+
+Take 1: Did not complete this, because it would be messy.
+
 1) Finding code to fix
 
 To begin with, we collect all files that refer to hashtable or gethash. We get
