@@ -40,10 +40,27 @@ Take 2: Trying to use http://www.sbcl.org/manual/index.html#Hash-Table-Extension
    Seems to work
 
 - Second, get rid of the mutable variables that are added to tokens. These come from
-  * exists-start-node
-  * optional-start-node
-  * filter memory
-  * group
+  a) existence-start-node (active-p-var, counter-var)
+     add-initial-data: (make-token this (make-singleton-token) (list active-p-var counter-var) (list nil 0))
+  b) exists-start-node, optional-start-node
+     add-token: (make-token this token (list active-p-var counter-var) (list t 0))
+                (setf (token-value this new-token active-p-var) nil)
+     remove-token: (setf (token-value this stored-token (existence-active-p-var this)) t)
+                   (setf (token-value this stored-token (existence-active-p-var this)) nil)
+  c) exists-end-node, optional-end-node
+     add-token: (incf (token-value this token (existence-counter-var start-node)))
+     remove-token (decf (token-value this token (existence-counter-var start-node)))
+  d) filter memory (prev-value-var)
+     (setf token (make-token this token (list prev-value-var) (list new-value)))
+     (setf (token-value this stored-token prev-value-var) new-value)
+  e) group
+     aggregate-join-get-group: (make-token this token (list (aggregate-join-group-var this)) (list group))
+
+  Items a-c can be fixed by adding token-indexed tables to nodes:
+  * existence-start-node-status: token -> (active-p, counter)
+  Item d similarly:
+  * filter-memory-previous-value: token -> value
+  Item e must still requires some effort. Has to research, how this is supposed to work...
 
 We can use 1) "Finding code to fix" below to.
 

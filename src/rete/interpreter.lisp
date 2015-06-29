@@ -668,10 +668,10 @@
 		    collect (intern-keyword (string-upcase var-name)) into name-keywords
 		    collect (resolve-binding instans (make-sparql-var instans (format nil "?~A" (string-upcase var-name)))) into canonic-vars
 		    finally (progn ;(inform "name-keywords = ~S~&canonic-vars = ~S" name-keywords canonic-vars)
-				   (loop for binding in bindings
-				  for service-token = (loop for name-keyword in name-keywords
-							    collect (cdr (assoc :value (rest (assoc name-keyword binding)))) into values
-							    finally (return (make-token this nil canonic-vars values)))
+			      (loop for binding in bindings
+				    for service-token = (loop for name-keyword in name-keywords
+							      collect (cdr (assoc :value (rest (assoc name-keyword binding)))) into values
+							      finally (return (make-token this nil canonic-vars values)))
 ;				  do (inform "service-token = ~S" service-token)
 				  do (index-put-token (service-node-index this) key service-token)
 				  do (push service-token service-tokens)))))))
