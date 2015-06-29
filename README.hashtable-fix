@@ -53,14 +53,24 @@ Take 2: Trying to use http://www.sbcl.org/manual/index.html#Hash-Table-Extension
   d) filter memory (prev-value-var)
      (setf token (make-token this token (list prev-value-var) (list new-value)))
      (setf (token-value this stored-token prev-value-var) new-value)
-  e) group
+  e) aggregate-join-node:
      aggregate-join-get-group: (make-token this token (list (aggregate-join-group-var this)) (list group))
 
   Items a-c can be fixed by adding token-indexed tables to nodes:
   * existence-start-node-status: token -> (active-p, counter)
   Item d similarly:
   * filter-memory-previous-value: token -> value
-  Item e must still requires some effort. Has to research, how this is supposed to work...
+  Item e:
+  * aggregate-join-node-token-group: token -> group
+
+  A solution:
+  - Refactor into two token-related base classes: token-store and token-map. The former we get by renaming memory to token-store. For the latter,
+    token-map has a hashtable from tokens to items, which are (i) (active-p . counter) -pairs in existence start node and (ii) prev-value in filter-memory.
+    Rename filter-memory to filter-with-previous-value or something.
+  - Creating token-store: make-hash-table :test #'token= :hash-function #'token-hash
+  - Creating token-map: make-hash-table :test #'token= :hash-function #'token-hash
+  - Indices: make-hash-table :test #'rdf-term-list= :hash-function #'rdf-term-list-hash
+    Replace key in parameters of index functions by rdf-term-list
 
 We can use 1) "Finding code to fix" below to.
 
@@ -75,7 +85,7 @@ To begin with, we collect all files that refer to hashtable or gethash. We get
 src/main/compile-sparql-file.lisp: sane
 src/parser/srx-parser.lisp: sane
 src/rete/indices.lisp: tainted
-- just trusting on a sxhash based key is not safe
+- 
 src/rete/interpreter.lisp: tainted
 - create-stores-and-indices: maybe fix calls
 - add-initial-data: maybe fix calls
