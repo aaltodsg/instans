@@ -61,10 +61,13 @@
 
 ;;; Assertions
 
+(defvar *assert-warn-only-p* t)
+
 (defmacro assert* (test fmt &rest args)
   `(unless ,test
      (warn ,fmt ,@args)
-     (error* ,fmt ,@args)))
+     ,@(unless *assert-warn-only-p*
+	       `((error* ,fmt ,@args)))))
 
 ;;(defvar *checkit* nil)
 ;;(setf *checkit* nil)
@@ -74,7 +77,7 @@
 (defmacro checkit (test fmt &rest args)
   (cond ((null *checkit*) nil)
 	(t
-	 `(assert* ,test ,fmt ,@args))))
+	 `(assert* ,test ,(format nil "CHECKIT: ~A" fmt) ,@args))))
 
 (defmacro when-checkit (form)
   (if *checkit* form nil))
