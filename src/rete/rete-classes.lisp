@@ -36,9 +36,17 @@
 (define-class subgraph-end-node (node)
   ((start-node :accessor subgraph-start-node :initarg :start-node)))
 
+(define-class token-map ()
+  ((map :accessor token-map-map :initform nil)))
+
+(define-class existence-start-node-token-state ()
+  ((counter :accessor existence-start-node-token-state-counter :initarg :counter)
+   (active-p :accessor existence-start-node-token-state-active-p :initarg :activep)))
+
 (define-class existence-start-node (subgraph-start-node beta-memory)
   ((counter-var :accessor existence-counter-var :initarg :counter-var)
-   (active-p-var :accessor existence-active-p-var :initarg :active-p-var)))
+   (active-p-var :accessor existence-active-p-var :initarg :active-p-var)
+   (map :accessor existence-start-node-token-map :initform (make-instance 'token-map))))
 
 (define-class existence-end-node (subgraph-end-node) ())
 

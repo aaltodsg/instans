@@ -564,42 +564,64 @@
       (let* ((active-p-var (existence-active-p-var this))
 	     (counter-var (existence-counter-var this))
 	     ;;; Order in the new token is ((nil key) (counter-var 0) (active-p nil) ..)
-	     (new-token (make-token this token (list active-p-var counter-var) (list t 0)))) ;;; Node is active; zero hits
+;	     (new-token (make-token this token (list active-p-var counter-var) (list t 0))) ;;; Node is active; zero hits
+	     (new-token (make-token this token (list active-p-var counter-var) (list :illegal :illegal))) ;;; This is a hack for start-node-token.
+	     (state (make-instance 'existence-start-node-token-state :counter 0 :activep t)) ;;; Node is active; zero hits
+	     )
 	(store-put-token this new-token)
+	(token-map-put (existence-start-node-token-map this) new-token state)
 ;	(inform "~%add-token ~S: this=~%, kind=~A" this (exists-kind this))
 ;	(instans-show-rete-status (node-instans this) this new-token "~%Before children calls")
 	(let ((next (car (node-succ this))))
 	  (cond ((typep next 'join-node)
-		 (add-beta-token next new-token stack))
+		 (add-beta-token next new-token stack)
+		 )
 		(t
-		 (add-token next new-token stack))))
-	(setf (token-value this new-token active-p-var) nil) ;;; Deactivate this node
+		 (add-token next new-token stack)
+		 )))
+;	(setf (token-value new-token active-p-var) nil) ;;; Deactivate this node
+	(setf (existence-start-node-token-state-active-p state) nil) ;;; Deactivate this node
 	(case (exists-kind this)
 	  (:simple-exists
-	   (when (plusp (token-value this new-token counter-var)) (call-succ-nodes #'add-token (subgraph-end-node this) new-token stack))) 
+;	   (when (plusp (token-value this new-token counter-var)) (call-succ-nodes #'add-token (subgraph-end-node this) new-token stack))
+	   (when (plusp (existence-start-node-token-state-counter state)) (call-succ-nodes #'add-token (subgraph-end-node this) new-token stack))
+	   )
 	  (:simple-not-exists
-	   (when (zerop (token-value this new-token counter-var)) (call-succ-nodes #'add-token (subgraph-end-node this) new-token stack)))
+;	   (when (zerop (token-value this new-token counter-var)) (call-succ-nodes #'add-token (subgraph-end-node this) new-token stack))
+	   (when (zerop (existence-start-node-token-state-counter state)) (call-succ-nodes #'add-token (subgraph-end-node this) new-token stack))
+	   )
 	  (t
-	   (call-succ-nodes #'add-token (subgraph-end-node this) new-token stack)))
+	   (call-succ-nodes #'add-token (subgraph-end-node this) new-token stack))
+	  )
 ;	(instans-show-rete-status (node-instans this) this new-token "~%After children calls")
 	)))
   (:method ((this exists-end-node) token &optional stack)
     (let* ((start-node (subgraph-start-node this))
-	   (active-p (token-value this token (existence-active-p-var start-node)))
-	   (counter (incf (token-value this token (existence-counter-var start-node)))))
+	   ;(active-p (token-value this token (existence-active-p-var start-node)))
+	   ;(counter (incf (token-value this token (existence-counter-var start-node))))
+	   (start-node-token (start-node-token this token))
+	   (state (token-map-get (existence-start-node-token-map start-node) start-node-token))
+	   (active-p (existence-start-node-token-state-active-p state))
+	   (counter (incf (existence-start-node-token-state-counter state)))
+	   )
 ;      (instans-show-rete-status (node-instans this) this token "~%Entering, kind = ~A, activep = ~A" (exists-kind this) active-p)
       (when (not active-p)
 	(case (exists-kind this)
 	  (:simple-exists
 ;	   (inform "Hit!~%")
-	   (when (= 1 counter) (call-succ-nodes #'add-token this (start-node-token this token) stack)))
+;	   (when (= 1 counter) (call-succ-nodes #'add-token this (start-node-token this token) stack))
+	   (when (= 1 counter) (call-succ-nodes #'add-token this start-node-token stack))
+	   )
 	  (:simple-not-exists
 ;	   (instans-show-rete-status (node-instans this) this (start-node-token this token) "~%Before children calls")
-	   (when (= 1 counter) (call-succ-nodes #'remove-token this (start-node-token this token) stack))
+;	   (when (= 1 counter) (call-succ-nodes #'remove-token this (start-node-token this token) stack))
+	   (when (= 1 counter) (call-succ-nodes #'remove-token this start-node-token stack))
 ;	   (instans-show-rete-status (node-instans this) this (start-node-token this token ) "~%After children calls")
 	   )
 	  (t
-	   (when (= 1 counter) (call-succ-nodes #'add-token this (start-node-token this token) stack)))))))
+;	   (when (= 1 counter) (call-succ-nodes #'add-token this (start-node-token this token) stack))
+	   (when (= 1 counter) (call-succ-nodes #'add-token this start-node-token stack))
+	   )))))
   (:method ((this aggregate-join-node) token &optional stack)
       (multiple-value-bind (group newp) (aggregate-join-get-group this token)
 	(unless newp
@@ -614,23 +636,35 @@
       (let* ((active-p-var (existence-active-p-var this))
 	     (counter-var (existence-counter-var this))
 	     ;;; Order in the new token is ((nil key) (counter-var 0) (active-p nil) ..)
-	     (new-token (make-token this token (list active-p-var counter-var) (list t 0)))) ;;; Node is active; zero hits
+;	     (new-token (make-token this token (list active-p-var counter-var) (list t 0))) ;;; Node is active; zero hits
+	     (new-token (make-token this token (list active-p-var counter-var) (list :illegal :illegal)))
+	     (state (make-instance 'existence-start-node-token-state :counter 0 :activep t)) ;;; Node is active; zero hits
+	     )
 	(store-put-token this new-token)
+	(token-map-put (existence-start-node-token-map this) new-token state)
 	(let ((next (car (node-succ this))))
 	  (cond ((typep next 'join-node)
 		 (add-beta-token next new-token stack))
 		(t
 		 (add-token next new-token stack))))
-	(setf (token-value this new-token active-p-var) nil) ;;; Deactivate this node
-	(when (zerop (token-value this new-token counter-var))
-	  (call-succ-nodes #'add-token (subgraph-end-node this) token stack))))) ; We pass the original token
+;	(setf (token-value new-token active-p-var) nil) ;;; Deactivate this node
+	(setf (existence-start-node-token-state-active-p state) nil) ;;; Deactivate this node
+;	(when (zerop (token-value this new-token counter-var)) (call-succ-nodes #'add-token (subgraph-end-node this) token stack))  ; We pass the original token
+	(when (zerop (existence-start-node-token-state-counter state)) (call-succ-nodes #'add-token (subgraph-end-node this) token stack))  ; We pass the original token
+	)))
   (:method ((this optional-end-node) token &optional stack)
     (let* ((start-node (subgraph-start-node this))
-	   (active-p (token-value this token (existence-active-p-var start-node)))
-	   (counter (incf (token-value this token (existence-counter-var start-node)))))
+	   ;(active-p (token-value this token (existence-active-p-var start-node)))
+           ;(counter (incf (token-value this token (existence-counter-var start-node))))
+	   (start-node-token (start-node-token this token))
+	   (state (token-map-get (existence-start-node-token-map start-node) start-node-token))
+	   (active-p (existence-start-node-token-state-active-p state))
+	   (counter (incf (existence-start-node-token-state-counter state)))
+	   )
       (when (and (not active-p) (= 1 counter))
 ;	(instans-show-rete-status (node-instans this) this token "~%Entering, activep = ~A, counter = ~D" active-p counter)
-	(call-succ-nodes #'remove-token this (start-node-token this token) stack))
+;	(call-succ-nodes #'remove-token this (start-node-token this token) stack)
+	(call-succ-nodes #'remove-token this start-node-token stack))
       (call-succ-nodes #'add-token this token stack)))
   (:method ((this union-start-node) token &optional stack)
     (call-succ-nodes #'add-token this token stack))
@@ -815,17 +849,21 @@
     ;; (inform "remove-token ~A ~A" this token)
     (let ((stored-token (store-get-token this token)))
       (unless (null stored-token) ;;; May be already removed?!
-	(let* ((counter-var (existence-counter-var this))
-	       (prev-counter-value (token-value this stored-token counter-var)))
+	(let* (;(counter-var (existence-counter-var this))
+	       (token-map (existence-start-node-token-map this))
+	       (state (token-map-get token-map stored-token))
+	       (prev-counter-value (existence-start-node-token-state-counter state)))
 	  ;; (inform "remove-token ~A calls store-remove-token, token=~%~A~%stored-token=~%~A" this token stored-token)
 	  (store-remove-token this stored-token)
-	  (setf (token-value this stored-token (existence-active-p-var this)) t) ; Activate this node
+;	  (setf (token-value this stored-token (existence-active-p-var this)) t) ; Activate this node
+	  (setf (existence-start-node-token-state-active-p state) t) ; Activate this node
 	  (let ((next (car (node-succ this))))
 	    (cond ((typep next 'join-node)
 		   (remove-beta-token next stored-token stack))
 		  (t
 		   (remove-token next stored-token stack))))
-	  (setf (token-value this stored-token (existence-active-p-var this)) nil) ;;; Deactivate this node
+;	  (setf (token-value this stored-token (existence-active-p-var this)) nil) ;;; Deactivate this node
+	  (token-map-remove token-map stored-token)
 	  (case (exists-kind this)
 	    (:simple-exists
 	     (when (plusp prev-counter-value) (call-succ-nodes #'remove-token (subgraph-end-node this) stored-token stack)))
@@ -835,16 +873,27 @@
 	     (call-succ-nodes #'remove-token (subgraph-end-node this) stored-token stack)))))))
   (:method ((this exists-end-node) token &optional stack)
     (let* ((start-node (subgraph-start-node this))
-	   (active-p (token-value this token (existence-active-p-var start-node)))
-	   (counter (decf (token-value this token (existence-counter-var start-node)))))
+	   ;(active-p (token-value this token (existence-active-p-var start-node)))
+	   ;(counter (decf (token-value this token (existence-counter-var start-node))))
+	   (start-node-token (start-node-token this token))
+	   (state (token-map-get (existence-start-node-token-map start-node) start-node-token))
+	   (active-p (existence-start-node-token-state-active-p state))
+	   (counter (decf (existence-start-node-token-state-counter state)))
+	   )
       (when (not active-p)
 	(case (exists-kind this)
 	  (:simple-exists
-	   (when (zerop counter) (call-succ-nodes #'remove-token this (start-node-token this token) stack)))
+;	   (when (zerop counter) (call-succ-nodes #'remove-token this (start-node-token this token) stack))
+	   (when (zerop counter) (call-succ-nodes #'remove-token this start-node-token stack))
+	   )
 	  (:simple-not-exists
-	   (when (zerop counter) (call-succ-nodes #'add-token this (start-node-token this token) stack)))
+;	   (when (zerop counter) (call-succ-nodes #'add-token this (start-node-token this token) stack))
+	   (when (zerop counter) (call-succ-nodes #'add-token this start-node-token stack))
+	   )
 	  (t
-	   (call-succ-nodes #'remove-token this (start-node-token this token) stack))))))
+;	   (call-succ-nodes #'remove-token this (start-node-token this token) stack)
+	   (call-succ-nodes #'remove-token this start-node-token stack)
+	   )))))
   (:method ((this aggregate-join-node) token &optional stack)
     (multiple-value-bind (group newp) (aggregate-join-get-group this token)
       (when newp (error* "Trying to access missing group"))
@@ -856,23 +905,37 @@
     (let ((stored-token (store-get-token this token)))
       (unless (null stored-token)
 	(store-remove-token this stored-token)
-	(let ((counter (token-value this stored-token (existence-counter-var this))))
+	(let* (;(counter (token-value this stored-token (existence-counter-var this)))
+	       (token-map (existence-start-node-token-map this))
+	       (state (token-map-get token-map stored-token))
+	       (counter (existence-start-node-token-state-counter state))
+	       )
 	  (cond ((zerop counter) ; no matches of optional
 		 (call-succ-nodes #'remove-token (subgraph-end-node this) token stack)) ; we take care of removing all matches after optional-end
 		(t
-		 (setf (token-value this stored-token (existence-active-p-var this)) t) ; Activate this node
+;		 (setf (token-value this stored-token (existence-active-p-var this)) t) ; Activate this node
+		 (setf (existence-start-node-token-state-active-p state) t) ; Activate this node
 		 (let ((next (car (node-succ this))))
 		   (cond ((typep next 'join-node)
 			  (remove-beta-token next stored-token stack))
 			 (t
 			  (remove-token next stored-token stack)))) ; optional-end node takes care of removing all matches further down
-		 (setf (token-value this stored-token (existence-active-p-var this)) nil))))))) ;;; Deactivate this node
+;		 (setf (token-value this stored-token (existence-active-p-var this)) nil);;; Deactivate this node
+		 (token-map-remove token-map stored-token)
+		 ))))))
   (:method ((this optional-end-node) token &optional stack)
     (let* ((start-node (subgraph-start-node this))
-	   (active-p (token-value this token (existence-active-p-var start-node)))
-	   (counter (decf (token-value this token (existence-counter-var start-node)))))
+	   ;; (active-p (token-value this token (existence-active-p-var start-node)))
+	   ;; (counter (decf (token-value this token (existence-counter-var start-node))))
+	   (start-node-token (start-node-token this token))
+	   (state (token-map-get (existence-start-node-token-map start-node) start-node-token))
+	   (active-p (existence-start-node-token-state-active-p state))
+	   (counter (decf (existence-start-node-token-state-counter state)))
+	   )
       (when (and (not active-p) (zerop counter))
-	(call-succ-nodes #'add-token this (start-node-token this token) stack)) ; Have to add the skip optional token.
+;	(call-succ-nodes #'add-token this (start-node-token this token) stack)
+	(call-succ-nodes #'add-token this start-node-token stack)
+	) ; Have to add the skip optional token.
       (call-succ-nodes #'remove-token this token stack)))
   (:method ((this construct-node) token &optional stack)
     (declare (ignorable this token stack))

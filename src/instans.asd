@@ -87,6 +87,7 @@
 				      (:file "store" :depends-on ("rete-classes"))
 				      (:file "indices" :depends-on ("rete-classes"))
 				      (:file "tokens" :depends-on ("rete-classes"))
+				      (:file "token-map" :depends-on ("rete-classes"))
 				      (:file "rete-access-functions" :depends-on ("rete-classes" "instans-io" "variables-and-bindings" "quad-store" "tokens" "store" "indices"))
 				      (:file "lisp-compile" :depends-on ("rete-classes"))
 				      (:file "interpreter" :depends-on ("rete-classes" "parallel-classes"))
