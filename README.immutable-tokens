@@ -1,0 +1,40 @@
+Here we get rid of the mutable variables that are added to tokens. These come from
+  a) existence-start-node (active-p-var, counter-var)
+     add-initial-data: (make-token this (make-singleton-token) (list active-p-var counter-var) (list nil 0))
+  b) exists-start-node, optional-start-node
+     add-token: (make-token this token (list active-p-var counter-var) (list t 0))
+                (setf (token-value this new-token active-p-var) nil)
+     remove-token: (setf (token-value this stored-token (existence-active-p-var this)) t)
+                   (setf (token-value this stored-token (existence-active-p-var this)) nil)
+  c) exists-end-node, optional-end-node
+     add-token: (incf (token-value this token (existence-counter-var start-node)))
+     remove-token (decf (token-value this token (existence-counter-var start-node)))
+  d) filter memory (prev-value-var)
+     (setf token (make-token this token (list prev-value-var) (list new-value)))
+     (setf (token-value this stored-token prev-value-var) new-value)
+  e) aggregate-join-node:
+     aggregate-join-get-group: (make-token this token (list (aggregate-join-group-var this)) (list group))
+
+  Items a-c can be fixed by adding token-indexed tables to nodes:
+  * existence-start-node-status: token -> (active-p, counter)
+  Item d similarly:
+  * filter-memory-previous-value: token -> value
+  Item e:
+  * aggregate-join-node-token-group: token -> group
+
+  A solution:
+  - Refactor into two token-related base classes: token-store and token-map. The former we get by renaming memory to token-store. For the latter,
+    token-map has a hashtable from tokens to items, which are (i) (active-p . counter) -pairs in existence start node and (ii) prev-value in filter-memory.
+    Rename filter-memory to filter-with-previous-value or something.
+  - Creating token-store: make-hash-table :test #'token= :hash-function #'token-hash
+  - Creating token-map: make-hash-table :test #'token= :hash-function #'token-hash
+  - Indices: make-hash-table :test #'rdf-term-list= :hash-function #'rdf-term-list-hash
+    Replace key in parameters of index functions by rdf-term-list
+
+Step 1. Implement class token-store
+
+- Rename memory -> token-store
+
+
+
+
