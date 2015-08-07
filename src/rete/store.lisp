@@ -13,7 +13,7 @@
 
 (defgeneric inner-token (token-store token)
   (:method ((this existence-start-node) token) (cdddr token))
-  (:method ((this filter-memory) token) (cddr token))
+  (:method ((this filter-with-previous-value) token) (cddr token))
   (:method ((this token-store) token) token))
 
 (defgeneric store-get-token (token-store token)

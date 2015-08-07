@@ -24,7 +24,7 @@
 	    do (push (list var value) new-token))
       (cons key-item new-token))) ; We boldly use the key of prev-token as the key of new-token!
   ;;; We use the key of prev-token if any, or (sxhash nil). New-token, however, contains the new values for the previous-value-var, and a pair (nil key) of prev-token
-  (:method ((this filter-memory) prev-token new-vars new-values)
+  (:method ((this filter-with-previous-value) prev-token new-vars new-values)
     (let* ((key-item (or (car prev-token) (list nil (sxhash nil))))
 	   (new-token prev-token)) ; We leave the key of prev-token in place to be able to retrieve the full prev-token when calling the successors.
       (loop for var in new-vars for value in new-values

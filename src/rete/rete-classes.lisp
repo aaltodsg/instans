@@ -92,8 +92,8 @@
 (define-class exists-end-node (existence-end-node)
   ((kind :accessor exists-kind :initarg :kind :initform nil)))
 
-(define-class filter-memory (token-store filter-node) 
-  ((prev-value-var :accessor filter-memory-prev-value-var :initarg :prev-value-var)))
+(define-class filter-with-previous-value (token-store filter-node) 
+  ((var :accessor filter-with-previous-value-var :initarg :var)))
 
 (define-class optional-start-node (existence-start-node) ())
 

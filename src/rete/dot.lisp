@@ -36,7 +36,7 @@
   (:method ((this union-end-node)) (dot-default-pretty-name-format "}U"))
   (:method ((this minus-node)) (dot-default-pretty-name-format "-"))
   (:method ((this filter-node)) (dot-default-pretty-name-format "F"))
-  (:method ((this filter-memory)) (dot-default-pretty-name-format "FM"))
+  (:method ((this filter-with-previous-value)) (dot-default-pretty-name-format "FM"))
   (:method ((this bind-node)) (dot-default-pretty-name-format (format nil "B[~A]" (uniquely-named-object-pretty-name (bind-variable this)))))
   (:method ((this aggregate-join-node)) (dot-default-pretty-name-format "AJ"))
   (:method ((this select-node)) (dot-default-pretty-name-format "S"))
