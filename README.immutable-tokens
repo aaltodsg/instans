@@ -33,7 +33,11 @@ Here we get rid of the mutable variables that are added to tokens. These come fr
 
 Step 1. Implement class token-store
 
+- Test first
+
 - Rename memory -> token-store
+
+
 
 
 
