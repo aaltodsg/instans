@@ -38,7 +38,8 @@ Step 1. Implement class token-store
 + Rename memory -> token-store
   * Done. 586 tests passed.
 
-- Rename filter-memory to filter-with-previous-value or something.
++ Rename filter-memory to filter-with-previous-value or something.
+  * Done. 586 tests passed.
 
 
 
