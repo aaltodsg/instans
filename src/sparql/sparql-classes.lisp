@@ -34,7 +34,7 @@
 
 
 ;;; Should we canonize IRIs?
-(defstruct (rdf-iri :named (:predicate rdf-iri-p) );(:type list))
+(defstruct (rdf-iri :named (:predicate rdf-iri-p) (:type list))
   (string)
   (hashkey)
   (scheme)
@@ -54,7 +54,7 @@
 ;;    (lang :accessor rdf-literal-lang :initarg :lang :initform nil)
 ;;    (value :accessor rdf-literal-value :initarg :value)))
 
-(defstruct (rdf-literal :named (:predicate rdf-literal-p) );(:type list))
+(defstruct (rdf-literal :named (:predicate rdf-literal-p) (:type list))
   (string)
   (hashkey)
   (type)
@@ -68,12 +68,12 @@
 
 ;; Types
 
-(defstruct (instans-var :named (:predicate instans-var-p) ); (:type list))
+(defstruct (instans-var :named (:predicate instans-var-p) (:type list))
   (name)
   (pretty-name)
   (kind))
 
-(defstruct (instans-var-factory :named (:predicate instans-var-factory-p) ); (:type list))
+(defstruct (instans-var-factory :named (:predicate instans-var-factory-p) (:type list))
   (objects)
   (counter -1)
   (kind)
@@ -81,11 +81,11 @@
 
 (defvar *sparql-unbound*)
 
-(defstruct (sparql-unbound :named (:predicate sparql-unbound-p)) ); (:type list))
+(defstruct (sparql-unbound :named (:predicate sparql-unbound-p) (:type list)))
 
 (defvar *sparql-distinct*)
 
-(defstruct (sparql-distinct :named (:predicate sparql-distinct-p) ) );(:type list)))
+(defstruct (sparql-distinct :named (:predicate sparql-distinct-p) (:type list)))
 
 ;; Creation
 
@@ -383,5 +383,3 @@
   (and (consp q1) (consp q2)
        (= (length q1) (length q2))
        (every #'sparql-value-equal q1 q2)))
-
-		   

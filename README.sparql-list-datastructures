@@ -1,3 +1,11 @@
+NOTE!
+
+This idea does not seem to work. The problem is that we have lisp forms that contain sparql variables, rdf literals, etc. inside. Now if the latter too are represented as lists, it may be difficult to reliably separate cases of actual forms from the sparql/rdf objects. This would require that all functions handling them have the consp test as their last element. Too risky.
+
+Thus, I think we ditch this idea
+
+==============================
+
 Here we replace make all sparql data values simple lisp types, i.e., scalars, strings or structs with list type.
 
 The goal is to make hashing easier, more correct and faster.

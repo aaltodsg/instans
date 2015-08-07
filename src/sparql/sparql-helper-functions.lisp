@@ -228,17 +228,20 @@
   (loop for x in quad collect (if (rdf-blank-node-p x) (rest (assoc x mappings :test #'instans-var-equal)) x)))
 
 (defun generate-mappings-and-test (mappings predicate)
-  (labels ((generate (tail result)
-	     (cond ((null tail)
-		    (when (funcall predicate result)
-		      (return-from generate-mappings-and-test t)))
-		   (t
-		    (let* ((mapping (first tail))
-			   (v1 (first mapping)))
-		      (loop for v2 in (rest mapping)
-			    do (generate (rest tail) (cons (list v1 v2) result))))))))
-    (generate mappings nil)
-    nil))
+  (let ((result (catch :sparql-error
+		  (labels ((generate (tail result)
+			     (cond ((null tail)
+				    (when (funcall predicate result)
+				      (return-from generate-mappings-and-test t)))
+				   (t
+				    (let* ((mapping (first tail))
+					   (v1 (first mapping)))
+				      (loop for v2 in (rest mapping)
+					    do (generate (rest tail) (cons (list v1 v2) result))))))))
+		    (generate mappings nil)
+		    nil))))
+    (cond ((sparql-error-p result) nil)
+	  (t result))))
 
 ;; _:a1 :p :o
 ;; _:a2 :p :o

@@ -7,13 +7,13 @@
 
 (defun sparql-expr-to-lisp (expr)
   (cond ((rdf-term-p expr) expr)
+	((sparql-var-p expr)
+	 (intern-instans (string (sparql-var-name expr))))
 	((consp expr)
 	 (let ((sparql-op (first expr))
 	       (args-in-lisp (mapcar #'sparql-expr-to-lisp (rest expr))))
 	   ;; (cond ((sparql-form-p sparql-op) (apply (sparql-op-lisp-name sparql-op) args-in-lisp)))
 	   (cons (sparql-op-lisp-name sparql-op) args-in-lisp)))
-	((sparql-var-p expr)
-	 (intern-instans (string (sparql-var-name expr))))
 	(t expr)))
 
 (defun translate-sparql-expr (instans template)
