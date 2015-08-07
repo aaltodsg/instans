@@ -35,7 +35,9 @@ Step 1. Implement class token-store
 
 - Test first
 
-- Rename memory -> token-store
++ Rename memory -> token-store
+  * Done. 586 tests passed.
+
 
 
 

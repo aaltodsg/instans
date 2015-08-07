@@ -85,7 +85,7 @@
 			  (list (format nil "<TR><TD>~A</TD></TR>" (dot-node-pretty-name this))))
 			 (t
 			  (append
-			   (list (format nil "<TR><TD ROWSPAN=\"~D\" ALIGN=\"LEFT\">~A</TD>" (if (or (typep this 'memory) (typep this 'join-node)) 5 4)
+			   (list (format nil "<TR><TD ROWSPAN=\"~D\" ALIGN=\"LEFT\">~A</TD>" (if (or (typep this 'token-store) (typep this 'join-node)) 5 4)
 					 (dot-node-pretty-name this))
 				 (format nil "<TD ALIGN=\"LEFT\">def ~(~{~a~^, ~}~)</TD><TD ALIGN=\"LEFT\">def&lsaquo; ~(~{~a~^, ~}~)</TD></TR>"
 					 (var-names this (node-def this))

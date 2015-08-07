@@ -259,8 +259,8 @@
 (defgeneric instans-storage-sizes (instans)
   (:method ((this instans))
     (loop for node in (instans-nodes this)
-	  when (typep node 'memory)
-	  sum (if (memory-store node) (hash-table-count (memory-store node)) 0) into store-sizes
+	  when (typep node 'token-store)
+	  sum (if (token-store-hash-table node) (hash-table-count (token-store-hash-table node)) 0) into store-sizes
 	  else when (typep node 'join-node)
 	  sum (+ (if (join-alpha-index node) (hash-table-count (hash-token-index-table (join-alpha-index node))) 0)
 		 (if (join-beta-index node) (hash-table-count (hash-token-index-table (join-beta-index node))) 0)) into index-sizes
@@ -268,8 +268,8 @@
 
 (defun show-stores (instans)
   (loop for node in (instans-nodes instans)
-	when (and (typep node 'memory) (memory-store node))
-	do (inform "~A:~{~%  ~A~}" node (maph #'(lambda (k v) (declare (ignorable k)) (token-to-pretty-string node v)) (memory-store node)))))
+	when (and (typep node 'token-store) (token-store-hash-table node))
+	do (inform "~A:~{~%  ~A~}" node (maph #'(lambda (k v) (declare (ignorable k)) (token-to-pretty-string node v)) (token-store-hash-table node)))))
 
 (defun show-indices (instans)
   (let ((index-item-format "~%~A: ~A ~{~%  ~{~A~^ ->~}~}")
@@ -593,11 +593,13 @@
 		  (let ((reporting (loop for kind in value
 					 when (eq kind :all)
 					 append '(:select :construct :modify :all :rete-add :rete-remove :queue :rdf-operations :execute)
-					 else when (eql 0 (search "MEMORY" (string kind)))
-					 append (prog1 (list :memory) (setf (instans-memory-summaries-report-interval this) (parse-integer (string kind) :start 6)))
+					 else when (eql 0 (search "SUMMARY" (string kind)))
+					 append (prog1 (list :storage) (setf (instans-summary-report-interval this) (parse-integer (string kind) :start 7)))
+					 else when (eql 0 (search "SIZES" (string kind)))
+					 append (prog1 (list :sizes) (setf (instans-summary-report-interval this) (parse-integer (string kind) :start 5)))
 					 else append (list kind))))
 		    (loop for kind in reporting
-			  unless (member kind '(:select :construct :modify :rete-add :rete-remove :queue :call-succ-nodes :all :memory :rdf-operations :execute))
+			  unless (member kind '(:select :construct :modify :rete-add :rete-remove :queue :call-succ-nodes :all :sizes :summary :rdf-operations :execute))
 			  do (error* "Illegal recording tag ~A" kind))
 		    (setf (instans-report-operation-kinds this) reporting))))))
     this))

@@ -24,11 +24,11 @@
    (algebra-expr :accessor node-algebra-expr :initarg :algebra-expr :initform nil)
    (tracep :accessor node-trace-p :initform nil)))
 
-(define-class memory (node)
-  ((store :accessor memory-store :initform nil)
-   (store-count-report-limit :accessor memory-store-count-report-limit :initform 0)
-   (store-put-count :accessor memory-store-put-count :initform 0)
-   (store-remove-count :accessor memory-store-remove-count :initform 0)))
+(define-class token-store (node)
+  ((hash-table :accessor token-store-hash-table :initform nil)
+   (report-count-limit :accessor token-store-count-report-limit :initform 0)
+   (put-count :accessor token-store-put-count :initform 0)
+   (remove-count :accessor token-store-remove-count :initform 0)))
 
 (define-class subgraph-start-node (node)
   ((end-node :accessor subgraph-end-node :initarg :end-node)))
@@ -54,9 +54,9 @@
 (define-class datablock-node (alpha-node)
   ((values :accessor datablock-values :initarg :values)))
 
-(define-class alpha-memory (memory) ())
+(define-class alpha-memory (token-store) ())
 
-(define-class beta-memory (memory) ())
+(define-class beta-memory (token-store) ())
 
 (define-class join-node (node)
   ((alpha :accessor join-alpha :initarg :alpha)
@@ -92,7 +92,7 @@
 (define-class exists-end-node (existence-end-node)
   ((kind :accessor exists-kind :initarg :kind :initform nil)))
 
-(define-class filter-memory (memory filter-node) 
+(define-class filter-memory (token-store filter-node) 
   ((prev-value-var :accessor filter-memory-prev-value-var :initarg :prev-value-var)))
 
 (define-class optional-start-node (existence-start-node) ())
@@ -145,7 +145,7 @@
   ((separator :accessor aggregate-group-concat-separator :initarg :separator)
    (distinctp :accessor aggregate-group-concat-distinct-p :initarg :distinctp)))
 
-(define-class service-node (memory)
+(define-class service-node (token-store)
   ((endpoint :accessor service-node-endpoint :initarg :endpoint)
    (query-token-strings :accessor service-node-query-token-strings :initarg :query-token-strings)
    (query-vars :accessor service-node-query-vars :initarg :query-vars)
@@ -287,12 +287,12 @@
    (quad-store :accessor instans-quad-store :initarg :quad-store :initform nil)
    (stores :accessor instans-stores :initform nil)
    (indices :accessor instans-indices :initform nil)
-   (memory-sizes-report-interval :accessor instans-memory-sizes-report-interval :initform nil)
-   (memory-sizes-report-counter :accessor instans-memory-sizes-report-counter :initform 0)
-   (memory-sizes-report-delta-p :accessor instans-memory-sizes-report-delta-p :initform nil)
-   (memory-sizes-report-stream :accessor instans-memory-sizes-report-stream :initform t)
-   (memory-summaries-report-interval :accessor instans-memory-summaries-report-interval :initform nil)
-   (memory-summaries-report-counter :accessor instans-memory-summaries-report-counter :initform 0)
+   (sizes-report-interval :accessor instans-sizes-report-interval :initform nil)
+   (sizes-report-counter :accessor instans-sizes-report-counter :initform 0)
+   (sizes-report-delta-p :accessor instans-sizes-report-delta-p :initform nil)
+   (sizes-report-stream :accessor instans-sizes-report-stream :initform t)
+   (summary-report-interval :accessor instans-summary-report-interval :initform nil)
+   (summary-report-counter :accessor instans-summary-report-counter :initform 0)
    (store-sizes-alist :accessor instans-store-sizes-alist :initform 0)
    (index-sizes-alist :accessor instans-index-sizes-alist :initform 0)
    (use-quad-store-p :accessor instans-use-quad-store-p :initarg :use-quad-store-p :initform nil)
