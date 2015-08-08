@@ -149,7 +149,7 @@
 							(push active-p-var kill-vars)
 							(setf (subgraph-end-node exists-start) exists-end)
 							(setf prev exists-end))
-						   finally (return (make-or-share-instance 'filter-with-previous-value :prev prev :var (generate-and-canonize-var "!PREVVAL")
+						   finally (return (make-or-share-instance 'filter-with-previous-value :prev prev ; :var (generate-and-canonize-var "!PREVVAL")
 											   :kill (nreverse kill-vars)
 											   :test modified-expr
 											   :test-parameters (collect-expression-variables modified-expr)))))))))))
