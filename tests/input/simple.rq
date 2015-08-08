@@ -1,0 +1,6 @@
+PREFIX : <http://www.cs.hut.fi/>
+
+SELECT * WHERE {
+       ?x :knows ?y .
+       ?y :mbox ?m
+}
