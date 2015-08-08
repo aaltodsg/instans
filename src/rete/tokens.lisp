@@ -57,24 +57,33 @@
 	  ,new-value))
 
 (defgeneric start-node-token (node token)
-  (:method ((this exists-end-node) token)
-    ;;; Order in the token is (... (counter-var ...) (active-p ...) ...)
-    (loop with counter-var = (existence-counter-var (subgraph-start-node this))
-	  for items on token
-	  for item = (first items)
-;	  do (inform "items = ~A, item = ~A" items item)
-	  while (not (equal (car item) counter-var))
-	  ;;; This comment seems to be wrong: (car items) should be (nil [key of the contained token]). Thus, this should be the token as it was in existence-start-node!
-	  finally ;(progn (inform "return ~A" (cons (third items) items))
-	 (return (cons (third items) items))))
-					;)
-  (:method ((this optional-end-node) token)
+  (:method ((this existence-end-node) token)
     (loop with active-p-var = (existence-active-p-var (subgraph-start-node this))
 	  for items on (cdr token)
 	  for item = (car items)
 	  while (not (equal (car item) active-p-var))
 	  ;;; (car items) should be (nil [key of the contained token]). Thus, this should be the token as it was in existence-start-node!
 	  finally (return (cdr items)))))
+
+;; (defgeneric start-node-token (node token)
+;;   (:method ((this exists-end-node) token)
+;;     ;;; Order in the token is (... (counter-var ...) (active-p ...) ...)
+;;     (loop with counter-var = (existence-counter-var (subgraph-start-node this))
+;; 	  for items on token
+;; 	  for item = (first items)
+;; ;	  do (inform "items = ~A, item = ~A" items item)
+;; 	  while (not (equal (car item) counter-var))
+;; 	  ;;; This comment seems to be wrong: (car items) should be (nil [key of the contained token]). Thus, this should be the token as it was in existence-start-node!
+;; 	  finally ;(progn (inform "return ~A" (cons (third items) items))
+;; 	 (return (cons (third items) items))))
+;; 					;)
+;;   (:method ((this optional-end-node) token)
+;;     (loop with active-p-var = (existence-active-p-var (subgraph-start-node this))
+;; 	  for items on (cdr token)
+;; 	  for item = (car items)
+;; 	  while (not (equal (car item) active-p-var))
+;; 	  ;;; (car items) should be (nil [key of the contained token]). Thus, this should be the token as it was in existence-start-node!
+;; 	  finally (return (cdr items)))))
 
 (defun token-equal (t1 t2)
   (and (equal (length t1) (length t2))
