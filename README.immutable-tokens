@@ -57,8 +57,7 @@ Step 1. Implement class token-store
 
 + Filter-with-previous-value to use token-map
 
-- Change token-store-get + token-store-put/remove into something more concise
-  ? Something fishy in exsists-start-node. Adding new-token instead of token into token-store, but getting just token there, while inner-token is ignored already!
++ Change token-store-get + token-store-put/remove into something more concise
   * Token-store-put -> token-store-put-if-missing.
-  ! Check exists-start- and optional-start- later!
-  
+  * Token-store-remove -> token-store-remove-if-exists.
+  * Change exists- and optional- to use put-if- and remove-if- functions
