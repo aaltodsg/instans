@@ -33,7 +33,7 @@ Here we get rid of the mutable variables that are added to tokens. These come fr
 
 Step 1. Implement class token-store
 
-- Test first
++ Test first
 
 + Rename memory -> token-store
   * Done. 586 tests passed.
@@ -61,3 +61,5 @@ Step 1. Implement class token-store
   * Token-store-put -> token-store-put-if-missing.
   * Token-store-remove -> token-store-remove-if-exists.
   * Change exists- and optional- to use put-if- and remove-if- functions
+
+- Make indices use :hash-function #'rdf-term-list-hash or something
