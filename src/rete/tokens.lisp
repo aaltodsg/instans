@@ -85,6 +85,9 @@
 ;; 	  ;;; (car items) should be (nil [key of the contained token]). Thus, this should be the token as it was in existence-start-node!
 ;; 	  finally (return (cdr items)))))
 
+(defun token-hash (token)
+  (second (first token)))
+
 (defun token-equal (t1 t2)
   (and (equal (length t1) (length t2))
        (loop for (var1 value1) in t1

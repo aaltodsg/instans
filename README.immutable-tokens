@@ -48,5 +48,8 @@ Step 1. Implement class token-store
     The reason for this is that the current way of implementing start-node-token depends on having those vars (and their values, which are not used) in the token.
   * Fixed start-node-token. For some reason, it had different interpretations for exists- and optional-. THIS IS STILL A PROBLEM IN MASTER, but it works.
   + Modify exists- and optional-
-  - Modify aggregate-join  
+  (- Modify aggregate-join)
+
+- Create function token-hash
+
 
