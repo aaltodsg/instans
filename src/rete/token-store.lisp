@@ -38,6 +38,15 @@
       (setf (gethash token ht) token)
       (incf (token-store-put-count this)))))
 
+(defgeneric token-store-put-if-missing (token-store token)
+  (:method ((this token-store) token)
+    (let ((ht (token-store-hash-table this)))
+      (cond ((gethash token ht) nil)
+	    (t 
+	     (setf (gethash token ht) token)
+	     (incf (token-store-put-count this))
+	     t)))))
+
 (defgeneric token-store-remove (token-store token)
   (:method ((this token-store) token)
     (let ((ht (token-store-hash-table this)))

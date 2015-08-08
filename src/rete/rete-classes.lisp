@@ -101,7 +101,8 @@
   ((kind :accessor exists-kind :initarg :kind :initform nil)))
 
 (define-class filter-with-previous-value (token-store filter-node) 
-  ((var :accessor filter-with-previous-value-var :initarg :var)))
+  ((var :accessor filter-with-previous-value-var :initarg :var)
+   (map :accessor filter-with-previous-value-token-map :initform (make-instance 'token-map))))
 
 (define-class optional-start-node (existence-start-node) ())
 
