@@ -63,13 +63,14 @@
       ;; 	      do (error* "Trying to remove key ~S that is equal, but not eq to key ~S in the table" key k)))
 ;      (inform "~&index-remove-token ~A ~A ~A" key token item)
       (loop named delete-token
-	    with hashkey1 = (second (car token))
+	    ;; with hashkey1 = (second (car token))
 	    for prev on item
 	    for rest = (cdr prev)
-	    for hashkey2 = (second (car (car rest)))
+	    ;; for hashkey2 = (second (car (car rest)))
 	    while rest
 ;	    do (inform "hashkey1 = ~A, hashkey2 = ~A" hashkey1 hashkey2)
-	    when (= hashkey1 hashkey2)
+	    ;; when (= hashkey1 hashkey2)
+	    when (token-equal token (first rest))
 	    do (progn
 		 (setf (cdr prev) (cdr rest))
 		 (return-from delete-token)))

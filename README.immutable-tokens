@@ -62,4 +62,8 @@ Step 1. Implement class token-store
   * Token-store-remove -> token-store-remove-if-exists.
   * Change exists- and optional- to use put-if- and remove-if- functions
 
++ Little fixes to indices:
+  * Removed some unnecessary sanity tests in index-remove-token
+  * Make index-remove-token to use token-equal instead of hashkeys, because they may produce wrong result!
+
 - Make indices use :hash-function #'rdf-term-list-hash or something
