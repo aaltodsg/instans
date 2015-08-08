@@ -50,6 +50,9 @@ Step 1. Implement class token-store
   + Modify exists- and optional-
   (- Modify aggregate-join)
 
-- Create function token-hash
++ Create function token-hash and change token-store to use it
+  * 586 tests completed
 
++ Rename store-* to token-store-*
 
+- Change token-store-get + token-store-put/remove into something more concise

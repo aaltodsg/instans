@@ -98,6 +98,9 @@
 	     do (return nil)
 	     finally (return t))))
 
+(defun make-token-hash-table ()
+  (make-hash-table :test #'token-equal :hash-function #'token-hash))
+
 (defun token-pretty-string (node token &optional indent)
   (let ((fmt (if indent (format nil "~~{~~A~~^~~%~V@T~~}" indent) "~~{~~A~~^~~%~~}")))
     (format nil fmt
