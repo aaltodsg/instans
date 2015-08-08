@@ -41,9 +41,10 @@ Step 1. Implement class token-store
 + Rename filter-memory to filter-with-previous-value or something.
   * Done. 586 tests passed.
 
-- A slow but simple version for token-map: make an alist.
++ A slow but simple version for token-map: make an alist.
   * Create class existence-start-node-token-state
   * Map token -> state
   * Note: In exists-start-node, we still create a new-token containing counter-var and active-p-var, even though they are not used for their original purpose in the token.
     The reason for this is that the current way of implementing start-node-token depends on having those vars (and their values, which are not used) in the token.
+  * Fixed start-node-token. For some reason, it had different interpretations for exists- and optional-. THIS IS STILL A PROBLEM IN MASTER, but it works.
 

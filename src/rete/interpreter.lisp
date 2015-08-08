@@ -123,7 +123,7 @@
       (let* ((active-p-var (existence-active-p-var this))
 	     (counter-var (existence-counter-var this))
 	     ;;; Order in the new token is ((nil key) (counter-var 0) (active-p nil) ..)
-	     (initial-token (make-token this (make-singleton-token) (list active-p-var counter-var) (list nil 0)))) ;;; Node is inactive; zero hits
+	     (initial-token (make-token this (make-singleton-token) (list active-p-var counter-var) (list :illegal :illegal)))) ;;; Node is inactive; zero hits
 	(add-token this initial-token))))
   (:method ((this token-store))
     ;;; An EQL hashtable, since we are using integers as keys!
