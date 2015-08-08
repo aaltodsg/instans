@@ -667,8 +667,7 @@
   (:method ((this union-end-node) token &optional stack)
     (call-succ-nodes #'add-token this token stack))
   (:method ((this service-node) token &optional stack)
-    (unless (token-store-get this token)
-      (token-store-put this token)
+    (when (token-store-put-if-missing this token)
       (let ((key (service-node-index-key this token))
 	    (instans (node-instans this)))
   	(multiple-value-bind (service-tokens definedp)
@@ -799,12 +798,10 @@
     (remove-token (car (node-succ this)) (make-token this nil (alpha-node-variables this) values)))
   (:method ((this alpha-memory) token &optional stack)
     (assert (null stack))
-    (when (token-store-get this token)
-      (token-store-remove this token)
+    (when (token-store-remove-if-exists this token)
       (call-succ-nodes #'remove-alpha-token this token stack)))
   (:method ((this beta-memory) token &optional stack)
-    (when (token-store-get this token)
-      (token-store-remove this token)
+    (when (token-store-remove-if-exists this token)
       (loop for next in (node-succ this)
 	   do (cond ((typep next 'join-node)
 		     (remove-beta-token next token stack))
@@ -814,10 +811,8 @@
     (when (eval-sparql-filter (filter-test-func this) (loop for var in (node-use this) collect (token-value this token var)))
       (call-succ-nodes #'remove-token this token stack)))
   (:method ((this filter-with-previous-value) token &optional stack)
-    (let ((stored-token (token-store-get this token)))
-      (unless (null stored-token)
-	(token-store-remove this stored-token)
-	(call-succ-nodes #'remove-token this stored-token stack))))
+    (when (token-store-remove-if-exists this token)
+      (call-succ-nodes #'remove-token this token stack)))
   (:method ((this bind-node) token &optional stack)
     (let ((value (catch :sparql-error (apply (bind-form-func this) (loop for var in (node-use this) collect (token-value this token var))))))
       (unless (sparql-error-p value)
@@ -947,19 +942,17 @@
     (when *oink* (inform "add-token union-end-node ~A ~A" this token))
     (call-succ-nodes #'remove-token this token stack))
   (:method ((this service-node) token &optional stack)
-    (let ((stored-token (token-store-get this token)))
-      (unless (null stored-token) ;;; May be already removed?!
-  	(token-store-remove this stored-token)
-	(let ((key (service-node-index-key this token)))
-	  (multiple-value-bind (service-tokens definedp)
-	      (index-get-tokens-and-defined-p (service-node-index this) key)
-	    (assert definedp)
-	    (loop with missing-vars = (service-node-query-minus-index-key-vars this)
-		  for service-token in service-tokens
-		  for new-token = (make-token this token missing-vars (loop for var in missing-vars
-									    for binding = (assoc var service-token)
-									    collect (if binding (second binding) (sparql-unbound))))
-		  do (call-succ-nodes #'remove-token this new-token stack)))))))
+    (when (token-store-remove-if-exists this token)
+      (let ((key (service-node-index-key this token)))
+	(multiple-value-bind (service-tokens definedp)
+	    (index-get-tokens-and-defined-p (service-node-index this) key)
+	  (assert definedp)
+	  (loop with missing-vars = (service-node-query-minus-index-key-vars this)
+		for service-token in service-tokens
+		for new-token = (make-token this token missing-vars (loop for var in missing-vars
+									  for binding = (assoc var service-token)
+									  collect (if binding (second binding) (sparql-unbound))))
+		do (call-succ-nodes #'remove-token this new-token stack))))))
   (:method ((this query-node) token &optional stack)
     (cond ((not (solution-modifiers-distinct-p this))
 	   (cond ((null (node-succ this))
@@ -1210,5 +1203,5 @@
 	 rete-add rete-remove add-token remove-token add-alpha-token add-beta-token remove-alpha-token remove-beta-token match-quad
 	 join-beta-key join-alpha-key
 	 token-value make-token call-succ-nodes rete-add-rule-instance execute-rules rule-instance-queue-execute-instance execute-rule-node
-	 select-output token-store-put token-store-get token-store-remove token-store-tokens index-put-token index-get-tokens index-remove-token
+	 select-output token-store-put token-store-put-if-missing token-store-get token-store-remove token-store-remove-if-exists token-store-tokens index-put-token index-get-tokens index-remove-token
 	 aggregate-get-value aggregate-add-value aggregate-remove-value start-node-token))

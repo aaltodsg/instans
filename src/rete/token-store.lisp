@@ -54,6 +54,14 @@
       (remhash token ht)
       (incf (token-store-remove-count this)))))
 
+(defgeneric token-store-remove-if-exists (token-store token)
+  (:method ((this token-store) token)
+    (let ((ht (token-store-hash-table this)))
+      (cond ((remhash token ht)
+	     (incf (token-store-remove-count this))
+	     t)
+	    (t nil)))))
+
 (defgeneric token-store-tokens (token-store)
   (:method ((token-store token-store))
     (maph #'(lambda (k v)
