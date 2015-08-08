@@ -47,6 +47,6 @@ Step 1. Implement class token-store
   * Note: In exists-start-node, we still create a new-token containing counter-var and active-p-var, even though they are not used for their original purpose in the token.
     The reason for this is that the current way of implementing start-node-token depends on having those vars (and their values, which are not used) in the token.
   * Fixed start-node-token. For some reason, it had different interpretations for exists- and optional-. THIS IS STILL A PROBLEM IN MASTER, but it works.
-  + Modified exists- and optional-
-  
+  + Modify exists- and optional-
+  - Modify aggregate-join  
 

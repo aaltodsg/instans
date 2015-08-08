@@ -122,7 +122,8 @@
    (aggr-add-func :accessor aggregate-join-aggr-add-func)
    (aggr-remove-lambda :accessor aggregate-join-aggr-remove-lambda)
    (aggr-remove-func :accessor aggregate-join-aggr-remove-func)
-   (groups :accessor aggregate-join-groups)))
+   (groups :accessor aggregate-join-groups)
+   (token-group-map :accessor aggregate-join-token-group-map :initform (make-instance 'token-map))))
 
 (define-class group ()
   ((aggregate-join :accessor group-aggregate-join :initarg :aggregate-join)
