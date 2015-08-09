@@ -7,6 +7,7 @@
 
 ;;; Errors
 
+		   
 ;(defvar *sparql-error-op* :inform-and-throw)
 (defvar *sparql-error-op* :throw)
 
@@ -364,10 +365,10 @@
 	  ((typep x 'xsd-double-value) (maybe-as-typed-literal (clean-decimal-string (format nil "~A" x)) *xsd-double-iri-string*))
 	  ((typep x 'xsd-datetime-value) (as-typed-literal (datetime-canonic-string x) *xsd-datetime-iri*))
 	  ((rdf-literal-p x)
-	   (cond ((rdf-literal-type x)
-		  (as-typed-literal (rdf-literal-string x) (rdf-literal-type x)))
-		 ((rdf-literal-lang x)
+	   (cond ((rdf-literal-lang x)
 		  (format nil "\"~A\"@~A" (rdf-literal-string x) (rdf-literal-lang x)))
+		 ((rdf-literal-type x)
+		  (as-typed-literal (rdf-literal-string x) (rdf-literal-type x)))
 		 (t
 		  (format nil "\"~A\"" (rdf-literal-string x)))))
 	  ((rdf-iri-p x)

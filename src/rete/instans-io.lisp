@@ -333,7 +333,7 @@
 
 []      rdf:type    rs:ResultSet ;")
     (cond ((slot-boundp this 'variables)
-	   (format stream "        ~{rs:resultVariable \"~A\" ;~^~%        ~}"
+	   (format stream "        ~{rs:resultVariable \"~A\" ;~^~%        ~}~%"
 		   (mapcar #'(lambda (v) (subseq (uniquely-named-object-pretty-name v) 1)) (sparql-query-results-variables this)))
 	   (when (slot-boundp this 'results)
 	     (format stream "        ~{rs:solution [ ~{ rs:binding ~{ [ rs:variable \"~A\"; rs:value    ~A ]~}~^;~%                      ~}

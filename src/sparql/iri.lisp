@@ -158,6 +158,7 @@
     iri))
 
 (defun iri-to-string (iri &optional prefixes)
+;  (describe iri)
   (cond ((null prefixes)
 	 (with-output-to-string (str)
 	   (format str "<")

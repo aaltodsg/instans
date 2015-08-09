@@ -403,7 +403,7 @@
 		   ((and (eq type1 'DELETE-TERMINAL) (eq type2 'WHERE-TERMINAL))
 		    (make-input-token :type 'DELETE-WHERE-TERMINAL :value "DELETE WHERE"))
 		   ((and (eq type1 '|(-TERMINAL|) (eq type2 '|)-TERMINAL|))
-		    (make-input-token :type 'NIL-TERMINAL :value (make-instance 'rdf-iri :string "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil")))
+		    (make-input-token :type 'NIL-TERMINAL :value *rdf-nil*))
 		   ((and (eq type1 '|[-TERMINAL|) (eq type2 '|]-TERMINAL|))
 		    (make-input-token :type 'ANON-TERMINAL :value "ANON"))
 		   (t
