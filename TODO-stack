@@ -49,6 +49,8 @@ New kind of index:
 ------------------------------------------
 DONE
 ------------------------------------------
++ Make stores and indices use collision lists: branch hashtable-fix
++ Writing and reading triples as lisp expressions: branch lisp-triples
 + Find out method combination for failure-p method
 + Categorize tests
   + Print alist from csv
