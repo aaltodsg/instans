@@ -123,7 +123,7 @@
       (let* ((active-p-var (existence-active-p-var this))
 	     (counter-var (existence-counter-var this))
 	     ;;; Order in the new token is ((nil key) (counter-var 0) (active-p nil) ..)
-	     (initial-token (make-token this (make-singleton-token) (list active-p-var counter-var) (list :illegal :illegal)))) ;;; Node is inactive; zero hits
+	     (initial-token (make-token this (make-singleton-token) (list active-p-var counter-var) (list *sparql-unbound* *sparql-unbound*)))) ;;; Node is inactive; zero hits
 	(add-token this initial-token))))
   (:method ((this token-store))
     ;;; An EQL hashtable, since we are using integers as keys!
@@ -558,7 +558,7 @@
   (:method ((this exists-start-node) token &optional stack)
     (let* ((active-p-var (existence-active-p-var this))
 	   (counter-var (existence-counter-var this))
-	   (new-token (make-token this token (list active-p-var counter-var) (list :illegal :illegal))) ;;; This is a hack for start-node-token.
+	   (new-token (make-token this token (list active-p-var counter-var) (list *sparql-unbound* *sparql-unbound*))) ;;; This is a hack for start-node-token.
 	   )
       (when (token-store-put-if-missing this token)
 	(let ((state (make-instance 'existence-start-node-token-state :counter 0 :activep t))) ;;; Node is active; zero hits
@@ -624,7 +624,7 @@
   (:method ((this optional-start-node) token &optional stack)
     (let* ((active-p-var (existence-active-p-var this))
 	   (counter-var (existence-counter-var this))
-	   (new-token (make-token this token (list active-p-var counter-var) (list :illegal :illegal)))
+	   (new-token (make-token this token (list active-p-var counter-var) (list *sparql-unbound* *sparql-unbound*)))
 	   )
       (when (token-store-put-if-missing this new-token)
 	(let ((state (make-instance 'existence-start-node-token-state :counter 0 :activep t))) ;;; Node is active; zero hits
@@ -697,7 +697,7 @@
   		for service-token in service-tokens
   	        for new-token = (make-token this token missing-vars (loop for var in missing-vars
 									  for binding = (assoc var service-token)
-									  collect (if binding (second binding) (sparql-unbound))))
+									  collect (if binding (second binding) *sparql-unbound*)))
 ;	        do (inform "new-token = ~S" new-token)
   	        do (call-succ-nodes #'add-token this new-token stack))))))
   (:method ((this query-node) token &optional stack)
@@ -747,7 +747,7 @@
 				    (t (token-store-tokens (join-beta this))))
 	    for new-token = (make-token this beta-token missing-vars (loop for var in missing-vars
 									   for binding = (assoc var alpha-token)
-									   collect (if binding (second binding) (sparql-unbound))))
+									   collect (if binding (second binding) *sparql-unbound*)))
 	    do (call-succ-nodes #'add-token this new-token stack)))))
 
 (defgeneric add-beta-token (join beta-token &optional stack)
@@ -766,7 +766,7 @@
 				     (t (token-store-tokens (join-alpha this))))
 	    for new-token = (make-token this beta-token missing-vars (loop for var in missing-vars 
 									   for binding = (assoc var alpha-token)
-									   collect (if binding (second binding) (sparql-unbound))))
+									   collect (if binding (second binding) *sparql-unbound*)))
 	    do (call-succ-nodes #'add-token this new-token stack)))))
 
 (defgeneric remove-token (node token &optional stack)
@@ -916,7 +916,7 @@
 		for service-token in service-tokens
 		for new-token = (make-token this token missing-vars (loop for var in missing-vars
 									  for binding = (assoc var service-token)
-									  collect (if binding (second binding) (sparql-unbound))))
+									  collect (if binding (second binding) *sparql-unbound*)))
 		do (call-succ-nodes #'remove-token this new-token stack))))))
   (:method ((this query-node) token &optional stack)
     (cond ((not (solution-modifiers-distinct-p this))
@@ -965,7 +965,7 @@
 				    (t (token-store-tokens (join-beta this))))
 	    for new-token = (make-token this beta-token missing-vars (loop for var in missing-vars
 									   for binding = (assoc var alpha-token)
-									   collect (if binding (second binding) (sparql-unbound))))
+									   collect (if binding (second binding) *sparql-unbound*)))
 	    do (call-succ-nodes #'remove-token this new-token stack)))))
 
 (defgeneric remove-beta-token (join beta-token &optional stack)
@@ -984,7 +984,7 @@
 				     (t (token-store-tokens (join-alpha this))))
 	    for new-token = (make-token this beta-token missing-vars (loop for var in missing-vars
 									   for binding = (assoc var alpha-token)
-									   collect (if binding (second binding) (sparql-unbound))))
+									   collect (if binding (second binding) *sparql-unbound*)))
 	    do (call-succ-nodes #'remove-token this new-token stack)))))
 
 (defun rule-instance-queue-empty-p (queue)

@@ -88,6 +88,10 @@
 (defun token-hash (token)
   (second (first token)))
 
+(defun token-value-equal (v1 v2)
+  (or (eql v1 v2)
+      (%=% v1 v2)))
+
 (defun token-equal (t1 t2)
   (and (equal (length t1) (length t2))
        (loop for (var1 value1) in t1
