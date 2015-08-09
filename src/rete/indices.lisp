@@ -16,9 +16,19 @@
 ;; 	    ;; ((2 3) (make-hash-table))
 ;; 	    ;; (t (error* "Illegal key ~A" key))))))
 
+(defun index-key-hash-function (key)
+  (loop with hashkey = (sxhash nil)
+        for item in key
+        do (setf hashkey (mix hashkey (get-hashkey key)))
+	finally (return hashkey)))
+
+(defun index-key-equal (k1 k2)
+  (every #'%=% k1 k2))
+
 (defmethod initialize-instance :after ((this hash-token-index) &key &allow-other-keys)
   (setf (hash-token-index-table this)
-	(make-hash-table :test #'equal)))
+;	(make-hash-table :test #'equal)
+	(make-hash-table :test #'index-key-equal :hash-function #'index-key-hash-function)))
 
 (defgeneric index-get-tokens-and-defined-p (index key)
   (:method ((this hash-token-index) key)
@@ -94,28 +104,34 @@
       (unless (null table)
 	(clrhash table)))))
 
-(defun join-alpha-key (join alpha-token)
-  (pop alpha-token) ;;; Get rid of the hash key
-  (loop with key = (sxhash nil)
-	for var in (node-use join)
-	do (setf key (mix key (get-hashkey (second (assoc var alpha-token)))))
-	finally (return key)))
-
 ;; (defun join-alpha-key (join alpha-token)
 ;;   (pop alpha-token) ;;; Get rid of the hash key
-;;   (loop for var in (node-use join)
-;;         for index = (position var (node-def-preceq (join-alpha join)))
-;; 	do (checkit index "Missing var ~S in alpha-memory ~S" var (join-alpha join))
-;; 	collect (nth index alpha-token)))
+;;   (loop with key = (sxhash nil)
+;; 	for var in (node-use join)
+;; 	do (setf key (mix key (get-hashkey (second (assoc var alpha-token)))))
+;; 	finally (return key)))
+
+(defun join-alpha-key (join alpha-token)
+  (pop alpha-token) ;;; Get rid of the hash key
+  (loop for var in (node-use join)
+	collect (second (assoc var alpha-token))))
+
+;; (defun join-beta-key (join beta-token)
+;;   (loop with key = (sxhash nil)
+;; 	for var in (node-use join)
+;; 	do (setf key (mix key (get-hashkey (token-value join beta-token var))))
+;; 	finally (return key)))
 
 (defun join-beta-key (join beta-token)
-  (loop with key = (sxhash nil)
-	for var in (node-use join)
-	do (setf key (mix key (get-hashkey (token-value join beta-token var))))
-	finally (return key)))
+  (loop for var in (node-use join)
+        collect (token-value join beta-token var)))
+
+;; (defun service-node-index-key (node token)
+;;   (loop with key = (sxhash nil)
+;; 	for var in (service-node-index-key-vars node)
+;; 	do (setf key (mix key (get-hashkey (token-value node token var))))
+;; 	finally (return key)))
 
 (defun service-node-index-key (node token)
-  (loop with key = (sxhash nil)
-	for var in (service-node-index-key-vars node)
-	do (setf key (mix key (get-hashkey (token-value node token var))))
-	finally (return key)))
+  (loop for var in (service-node-index-key-vars node)
+	collect (token-value node token var)))
