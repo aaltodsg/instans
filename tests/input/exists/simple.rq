@@ -1,0 +1,9 @@
+PREFIX : <http://www.aalto.fi/>
+
+SELECT * WHERE {
+       ?x :name "Aatu" .
+       FILTER EXISTS {
+           ?y :knows ?x
+       }
+}
+# (main "-d ../tests/input/exists --rete-html=simple.html -r simple.rq --input=simple.trig")
