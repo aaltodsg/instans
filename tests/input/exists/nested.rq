@@ -1,0 +1,13 @@
+PREFIX : <http://www.aalto.fi/>
+
+SELECT * WHERE {
+       ?x :name "Aatu" .
+       FILTER EXISTS {
+           ?y :knows ?x .
+	   ?y :knows ?z
+	   FILTER NOT EXISTS {
+	      ?z :knows ?x
+	   }
+       }
+}
+# (main "-d ../tests/input/exists --rete-html=nested.html -r nested.rq --input=nested.trig")
