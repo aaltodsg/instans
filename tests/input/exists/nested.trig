@@ -2,4 +2,6 @@
 
 :adolf :name "Aatu" .
 :herman :knows :adolf .
+:albert :knows :adolf .
+:albert :knows :herman .
 :herman :knows :albert .

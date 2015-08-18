@@ -11,12 +11,12 @@
 ;;; Note: the new-vars and new-values are in reverse order, i.e., the new bindings are pushed to the old token!
 ;;; Note: key-item (nil key) is used instead of just the key to be able to call (assoc var token) to retrieve the value of a variable (nil never matches).
 (defgeneric make-token (node prev-token new-vars new-values)
-  (:method ((this existence-start-node) prev-token new-vars new-values)
-    (let* ((key-item (or (car prev-token) (list nil (sxhash nil)))) ; We get the prev key here. It is either in an item (nil key), or if none, we use (nil (sxhash nil))
-	   (new-token prev-token)) ; We leave the key of prev-token in place to be able to retrieve the full prev-token in start-node-token
-      (loop for var in new-vars for value in new-values
-	    do (push (list var value) new-token))
-      (cons key-item new-token))) ; We boldly use the key of prev-token as the key of new-token!
+  ;; (:method ((this existence-start-node) prev-token new-vars new-values)
+  ;;   (let* ((key-item (or (car prev-token) (list nil (sxhash nil)))) ; We get the prev key here. It is either in an item (nil key), or if none, we use (nil (sxhash nil))
+  ;; 	   (new-token prev-token)) ; We leave the key of prev-token in place to be able to retrieve the full prev-token in start-node-token
+  ;;     (loop for var in new-vars for value in new-values
+  ;; 	    do (push (list var value) new-token))
+  ;;     (cons key-item new-token))) ; We boldly use the key of prev-token as the key of new-token!
   (:method ((this service-node) prev-token new-vars new-values) ; Like existence-start-node
     (let* ((key-item (or (car prev-token) (list nil (sxhash nil)))) ; We get the prev key here. It is either in an item (nil key), or if none, we use (nil (sxhash nil))
 	   (new-token prev-token)) ; We leave the key of prev-token in place to be able to retrieve the full prev-token in start-node-token
@@ -37,10 +37,17 @@
       (loop for var in new-vars for value in new-values
 	    unless (or (typep value 'term-or-value)
 		       (and (typep value 'group) (typep node 'aggregate-join-node)))
-	 do (error* "Trying to bind an illegal value ~S to variable ~A" value var)
+	    do (error* "Trying to bind an illegal value ~S to variable ~A" value var)
 	    do (push (list var value) new-token)
 	    do (setf key (mix (mix (get-hashkey var) (get-hashkey value)) key)))
       (cons (list nil key) new-token))))
+
+(defgeneric start-node-token (node token)
+  (:method ((this existence-end-node) token)
+    (loop with counter-var = (existence-counter-var (subgraph-start-node this))
+	  for items on (rest token)
+	  while (not (sparql-var-equal (first (first items)) counter-var))
+	  finally (return (rest items)))))
 
 ;;; We can freely skip the first item of token, since it should be (nil key)!
 (defun token-value (node token var)
@@ -55,15 +62,6 @@
   `(progn ,node
 	  (setf (second (assoc ,var (cdr ,token) :test #'equal)) ,new-value)
 	  ,new-value))
-
-(defgeneric start-node-token (node token)
-  (:method ((this existence-end-node) token)
-    (loop with active-p-var = (existence-active-p-var (subgraph-start-node this))
-	  for items on (cdr token)
-	  for item = (car items)
-	  while (not (equal (car item) active-p-var))
-	  ;;; (car items) should be (nil [key of the contained token]). Thus, this should be the token as it was in existence-start-node!
-	  finally (return (cdr items)))))
 
 ;; (defgeneric start-node-token (node token)
 ;;   (:method ((this exists-end-node) token)
