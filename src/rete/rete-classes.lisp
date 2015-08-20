@@ -45,7 +45,7 @@
 
 (define-class existence-start-node (subgraph-start-node beta-memory)
   ((counter-var :accessor existence-counter-var :initarg :counter-var)
-   (active-p-var :accessor existence-active-p-var :initarg :active-p-var)
+;   (active-p-var :accessor existence-active-p-var :initarg :active-p-var)
    (map :accessor existence-start-node-token-map :initform (make-instance 'token-map))))
 
 (define-class existence-end-node (subgraph-end-node) ())

@@ -946,3 +946,6 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
 				       (sparql-test-execute test :verbosep t)))))))
 	(setf *sparql-error-op* saved-sparql-error-op))
     *current-sparql-test*)))
+
+(defun main-test ()
+  (main "--run-suite-collection-name=../../sparql-conformance-tests-for-instans"))

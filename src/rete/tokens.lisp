@@ -42,12 +42,19 @@
 	    do (setf key (mix (mix (get-hashkey var) (get-hashkey value)) key)))
       (cons (list nil key) new-token))))
 
+;; (defgeneric start-node-token (node token)
+;;   (:method ((this existence-end-node) token)
+;;     (loop with counter-var = (existence-counter-var (subgraph-start-node this))
+;; 	  for items on (rest token)
+;; 	  while (not (sparql-var-equal (first (first items)) counter-var))
+;; 	  finally (return (rest items)))))
+
 (defgeneric start-node-token (node token)
   (:method ((this existence-end-node) token)
     (loop with counter-var = (existence-counter-var (subgraph-start-node this))
 	  for items on (rest token)
-	  while (not (sparql-var-equal (first (first items)) counter-var))
-	  finally (return (rest items)))))
+	  while (not (sparql-var-equal (first (second items)) counter-var))
+	  finally (return (cons (or (third items) (list nil (sxhash nil))) (rest items))))))
 
 ;;; We can freely skip the first item of token, since it should be (nil key)!
 (defun token-value (node token var)
