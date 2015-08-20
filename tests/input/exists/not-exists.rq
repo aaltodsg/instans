@@ -1,0 +1,11 @@
+PREFIX : <http://www.aalto.fi/>
+INSERT { ?x :not-connected ?z} WHERE {
+       ?x :name "Aatu" .
+       ?z :name "Beetu"
+       FILTER NOT EXISTS {
+           ?x :knows ?y .
+	   ?y :knows ?z
+       }
+}
+# (main "--report=modify:rete-add:rete-remove -d ../tests/input/exists --rete-html=not-exists.html -r not-existsrq --input=not-exists-no-hit.trig")
+# (main "--report=modify:rete-add:rete-remove -d ../tests/input/exists --rete-html=not-exists.html -r not-exists-n.rq --input=not-exists-hit.trig")

@@ -1,0 +1,4 @@
+@prefix : <http://www.aalto.fi/> .
+
+:system :state :started .
+

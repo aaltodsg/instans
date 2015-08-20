@@ -1,0 +1,17 @@
+PREFIX : <http://www.aalto.fi/>
+INSERT { ?x :connected ?z} WHERE {
+       ?x :name "Aatu" .
+       ?z :name "Beetu"
+       FILTER EXISTS {
+           ?x :knows ?y .
+	   ?y :knows ?z
+       }
+};
+CONSTRUCT { :system :solved true } WHERE { :system :state :started  . FILTER EXISTS { ?x :connected ?t } };
+CONSTRUCT { :system :solved false } WHERE { :system :state :started . FILTER NOT EXISTS { ?x :connected ?t } }
+# 1. Adolf 2. Benjamin 3. Adolf knows herman 4. Herman knows benjamin. Hit
+# (main "--time=- -d ../tests/input/exists --report=modify:rete-add:rete-remove --rete-html=exists.html -r exists.rq --rdf-operations=add:execute:flush --input=start.trig --input=adolf.trig --input=benjamin.trig --input=adolf-knows-herman.trig --input=herman-knows-benjamin.trig")
+# 2. Same in different order
+# (main "--time=- -d ../tests/input/exists --report=modify:rete-add:rete-remove --rete-html=exists.html -r exists.rq --rdf-operations=add:execute:flush --input=start.trig --input=benjamin.trig --input=adolf-knows-herman.trig --input=herman-knows-benjamin.trig --input=adolf.trig ")
+# 3. Remove parts
+# (main "--time=- -d ../tests/input/exists --report=modify:rete-add:rete-remove --rete-html=exists.html -r exists.rq --rdf-operations=add:execute:flush --input=start.trig --input=benjamin.trig --input=adolf-knows-herman.trig --input=herman-knows-benjamin.trig --input=adolf.trig --rdf-operations=remove:execute:flush --input=adolf.trig")

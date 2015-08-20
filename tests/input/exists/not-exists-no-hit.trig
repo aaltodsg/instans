@@ -1,0 +1,7 @@
+@prefix : <http://www.aalto.fi/> .
+
+:adolf :name "Aatu" .
+:adolf :knows :herman .
+:herman :knows :benjamin .
+:benjamin :name "Beetu" .
+
