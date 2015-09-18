@@ -18,6 +18,7 @@
   (:method ((this token-map) token)
     (let ((a (assoc token (token-map-map this) :test #'token-equal)))
       (cond ((null a)
+	     (inform "Help: ~A" (token-map-map this))
 	     (error* "token-map-get: Missing token ~A in token map ~A" token this))
 	    (t
 	     (cdr a))))))

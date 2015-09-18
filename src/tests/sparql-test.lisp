@@ -28,7 +28,8 @@
    (output-options-stream :accessor sparql-test-output-options-stream :initarg :output-options-stream :initform nil)
    (start-time :accessor sparql-test-start-time :initform nil)
    (end-time :accessor sparql-test-end-time :initform nil)
-   (results :accessor sparql-test-results :initform nil)))
+   (results :accessor sparql-test-results :initform nil)
+   (reporting :accessor sparql-test-reporting :initform nil)))
 					; One of :not-completed, :succeeded, :failed
 
 (defgeneric sparql-test-id (test)
@@ -297,12 +298,13 @@
 
 (defgeneric sparql-test-run-system (sparql-test)
   (:method ((this sparql-query-evaluation-test))
-    (let* ((instans (sparql-test-instans this))
-	   (result (catch 'sparql-op-not-implemented-yet (run-input-processors instans t))))
-      (instans-close-open-streams instans)
-      (when (eq result :sparql-op-not-implemented-yet)
-	(instans-add-status instans 'instans-feature-not-implemented-yet))
-      result)))
+    (let ((instans (sparql-test-instans this)))
+      (initialize-reporting instans (sparql-test-reporting this))
+      (let ((result (catch 'sparql-op-not-implemented-yet (run-input-processors instans t))))
+	(instans-close-open-streams instans)
+	(when (eq result :sparql-op-not-implemented-yet)
+	  (instans-add-status instans 'instans-feature-not-implemented-yet))
+	result))))
 
 (defgeneric sparql-test-compare-graphs (sparql-test)
   (:method ((this sparql-test))
@@ -924,10 +926,13 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
       (with-open-file (str (sparql-test-set-execution-time-file test-set) :direction :output :if-exists :supersede)
 	(format str "~S~%" (/ (float (- end-time start-time)) (float internal-time-units-per-second)))))))
 
-(defun run-suite-collection-name (test-set &key root-directory suite collection name show-options-p)
+(defun run-suite-collection-name (&key (test-set (and (boundp '*sparql-test-set*) *sparql-test-set*))
+				    (root-directory (namestring (truename (probe-file "../../sparql-conformance-tests-for-instans"))))
+				    path suite collection name show-options-p reporting)
   (let ((needs-reinitialization-p (not (null test-set))))
     (unless test-set (setf test-set (make-instance 'sparql-test-set :root-directory root-directory)))
     (setf *sparql-test-set* test-set)
+    (when path (multiple-value-setq (suite collection name) (values-list (split-string path "/"))))
     (let ((saved-sparql-error-op *sparql-error-op*))
       (sparql-inform-and-throw-on-errors)
       (unwind-protect
@@ -936,8 +941,10 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
 			       (or (null collection) (equal collection (sparql-test-collection test)))
 			       (or (null name) (equal name (sparql-test-name test))))
 		      (setf *current-sparql-test* test)
+		      (setf (sparql-test-reporting test) reporting)
 		      (when needs-reinitialization-p (reinitialize-instance test))
 		      (cond ((null show-options-p)
+			     (setf (sparql-test-output-options-stream test) nil)
 			     (sparql-test-execute test :verbosep t))
 			    (t
 			     (inform "Options: ~A"

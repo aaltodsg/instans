@@ -11,7 +11,18 @@ CONSTRUCT { :system :solved true } WHERE { :system :state :started  . FILTER EXI
 CONSTRUCT { :system :solved false } WHERE { :system :state :started . FILTER NOT EXISTS { ?x :connected ?t } }
 # 1. Adolf 2. Benjamin 3. Adolf knows herman 4. Herman knows benjamin. Hit
 # (main "--time=- -d ../tests/input/exists --report=modify:rete-add:rete-remove --rete-html=exists.html -r exists.rq --rdf-operations=add:execute:flush --input=start.trig --input=adolf.trig --input=benjamin.trig --input=adolf-knows-herman.trig --input=herman-knows-benjamin.trig")
+# Result: { <http://www.aalto.fi/system> <http://www.aalto.fi/solved> true . }
 # 2. Same in different order
 # (main "--time=- -d ../tests/input/exists --report=modify:rete-add:rete-remove --rete-html=exists.html -r exists.rq --rdf-operations=add:execute:flush --input=start.trig --input=benjamin.trig --input=adolf-knows-herman.trig --input=herman-knows-benjamin.trig --input=adolf.trig ")
+# Result (no report, no time):
+# { <http://www.aalto.fi/system> <http://www.aalto.fi/solved> false .
+# }
+# { <http://www.aalto.fi/system> <http://www.aalto.fi/solved> true .
+# }
 # 3. Remove parts
 # (main "--time=- -d ../tests/input/exists --report=modify:rete-add:rete-remove --rete-html=exists.html -r exists.rq --rdf-operations=add:execute:flush --input=start.trig --input=benjamin.trig --input=adolf-knows-herman.trig --input=herman-knows-benjamin.trig --input=adolf.trig --rdf-operations=remove:execute:flush --input=adolf.trig")
+# Result (no report, no time):
+# { <http://www.aalto.fi/system> <http://www.aalto.fi/solved> false .
+# }
+# { <http://www.aalto.fi/system> <http://www.aalto.fi/solved> true .
+# }

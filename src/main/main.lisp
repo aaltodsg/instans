@@ -535,10 +535,10 @@
 		:usage "Run sparql test suites. Test suites should be in TEST_DIR/suites. If suite, collection, and/or name is present, run only the matching tests. The result is written into TEST_DIR/results/results.csv. Execution time is written in TEST_DIR/results/execution-time.txt"
 		(run-sparql-test-suites value))
 	       (run-suite-collection-name
-		:options ("--run-suite-collection-name==TEST_DIR[[:suite][:collection][:name]]")
+		:options ("--run-suite-collection-name=TEST_DIR[[:suite][:collection][:name]]")
 		:usage "Run sparql test suites. Test suites should be in TEST_DIR/suites. If suite, collection, and/or name is present, run only the matching tests. The result is written into TEST_DIR/results/results.csv. Execution time is written in TEST_DIR/results/execution-time.txt"
 		(multiple-value-bind (test-dir suite collection name) (values-list (parse-colon-separated-strings value))
-		  (run-suite-collection-name nil :root-directory test-dir :suite suite :collection collection :name name))))
+		  (run-suite-collection-name :root-directory test-dir :suite suite :collection collection :name name :reporting reporting))))
 	     (unless executedp (execute))
 	     instans)
 	(when time-output-stream
