@@ -913,6 +913,8 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
 							     (t value))))))))
 
 (defun run-sparql-test-suites (suites-dir)
+  (setf suites-dir (namestring (truename suites-dir)))
+  (inform "suites-dir = ~A" suites-dir)
   (let ((test-set (make-instance 'sparql-test-set :root-directory suites-dir))
 	(start-time (get-internal-run-time)))
     (setf *sparql-test-set* test-set)
