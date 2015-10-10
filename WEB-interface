@@ -1,0 +1,49 @@
+- Make web server that
+  * Runs INSTANS
+  * Outputs dynamically the operations that INSTANS does (these must be configurable)
+  * Provides the possibility to Undo/Redo
+  
+- Tasks
+  + T1. Ask Mikko about creating the server
+  + T2. http://weitz.de/hunchentoot/ Read the documentation
+  - T3. Use websockets for two way communication:
+       + Test hunchensocket
+       - Find out the best way to use websockets in web client.
+       	 + Ask Otto, Lassi
+	 * Socket.io
+         - Decide the client library to use
+	 - Getting initial parameters
+         - Establishing web sockets
+         - Callback basics
+  - T4. Launching:
+       - Getting parameters for INSTANS
+       - Generating RETE picture
+         - Do it in the browser?
+	   - Alternatives:
+	     * See https://en.wikipedia.org/wiki/DOT_(graph_description_language)#Layout_programs
+	     * Canviz (https://code.google.com/p/canviz/). Inactive since 2013. Does not render my dot files.
+	     * Liviz (http://ushiroad.com/jsviz/). Doesn't do decorations! Seems to be inactive!	     
+	     * Viz.js (http://visjs.org/index.html)
+	       + Chose this. Seems to be full fledged rendere.
+  - T5. Instrument INSTANS to produce the output
+       - Before/after/around methods
+  - T6. Dispatching different RETE actions to javascript
+        - Parameter handling
+  - T7. Augment dot-based RETE-html page with infoboxes showing storage information
+  - T8. Control in web client
+       - Collecting RETE actions to a list?
+       - How to pause and continue?
+       - Undo/redo
+
+- Versions:
+  - V0: having a web page communicating with a dummy server. Establishes in the server the 'session', starts sockets and lists stuff coming from the server
+    * Requires t3.
+  - V1: just listing the actions as text
+    * Requires t3-t5
+  - V2: listing the actions separating the parameters
+    * Requires v1 and t6
+  - V3: demo: augment RETE network with info on the point of activity and storage content
+    * Requires v3 and t7.
+  - At some point add action listing and undo/redo
+    * Requires v(1|2|3) and t8
+
