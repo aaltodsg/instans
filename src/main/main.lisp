@@ -131,112 +131,6 @@
 				   (format *error-output* "~%Unrecognized option ~A~%" ,arg-var)
 				   (,usage)))))))))
 
-(defmacro parsing-commands2 (((key-var value-var) args-var &key program html usage before after) &body command-cases)
-  (declare (ignorable html))
-  (let* ((option-var (gensym "OPTION"))
-	 (options-var (gensym "OPTIONS"))
-	 (case-var (gensym "CASE"))
-	 (arg-var (gensym "ARG"))
-	 (outer (gensym "OUTER"))
-	 (middle (gensym "MIDDLE"))
-	 (max-option-length (loop for cc in command-cases unless (eq (first cc) t) maximize (loop for option in (getf (rest cc) :options) maximize (if (stringp option) (length option) (length (first option))))))
-	 (usage-text-left-margin (+ 3 max-option-length))
-)
-    (flet ((option-text (option)
-	     (let* ((onames (if (listp (first options)) (first options) (list (first options))))
-		    (otype (rest options))
-		    (otype-string (cond ((eq (first otype) :colon-list-of)
-					 (format nil "~{~(~A~)~^:~}" (rest otype)))
-					(t (format nil "~A" otype)))))
-	       (loop for oname in onames
-		     collect (format nil "~A~A~A" oname (if (char= (char oname 1) #\-) " " "="))))))
-      `(block ,outer
-	 (labels ((,usage ()
-		    (format *error-output* "Usage: ~A { option }" ,program)
-		    ,@(loop for cc in command-cases
-			    for options = (getf (rest cc) :options)
-			    for option-texts = (mapcar #'option-text options)
-			    for usage-texts = (getf (rest cc) :usage)
-;			    do (inform "cc = ~A" cc)
-			    when (eq (first cc) t)
-			    nconc (list `(format *error-output* "~%~{~A~^~%~}" ,(if (consp usage-texts) `',usage-texts `'(,usage-texts))))
-;			    nconc (list `(format *error-output* "~%~A" ,usage-texts))
-			    else
-			    nconc (cond ((< (apply #'+ (* 2 (length option-texts)) (mapcar #'length option-texts)) usage-text-left-margin)
-					 (list `(format *error-output* "~A" ,(format nil "~%  ~{~A~^, ~}~{~VT~A~^~%~}"
-										     option-texts (mapcan #'(lambda (l) (list usage-text-left-margin l))
-													  (if (consp usage-texts) usage-texts (list usage-texts)))))))
-					((consp usage-texts)
-					 (loop for option in options
-					       for usage-text = (pop usage-texts)
-					       collect `(format *error-output* "~%  ~A~VT~{~A~}"
-								,(option-text option) ,usage-text-left-margin ,(if usage-text `'(,usage-text)))))
-					(t
-					 (loop for option in options
-					       for usage-text = usage-texts then nil
-					       collect `(format *error-output* "~%  ~A~VT~{~A~}"
-								,(option-text option) ,usage-text-left-margin ,(if usage-text `'(,usage-text)))))))
-		    (format *error-output* "~%")
-		    (return-from ,outer nil))
-		  ;; (,html ()
-		  ;;   (format *error-output* "Html") ; ,(html-text command-cases))
-		  ;;   (return-from ,outer nil))
-		  )
-	   (when (null ,args-var)
-	     (,usage))
-	   (loop with ,key-var = nil
-		 with ,value-var = nil
-		 while ,args-var
-		 for ,arg-var = (first ,args-var)
-;		 do (inform "XXX ~A = ~A" ',arg-var ,arg-var)
-		 do (loop for ,case-var in ',(mapcar #'(lambda (cc) (list (first cc) :options (getf (rest cc) :options))) command-cases)
-;			  do (inform "Testing ~S" ,case-var)
-			  when (let ((,options-var (getf (rest ,case-var) :options)))
-;				 (inform "Before middle")
-				 (loop named ,middle
-				       for ,option-var in ,options-var
-;				       do (inform "Checking ~S" ,option-var)
-				       do (cond ((consp ,option-var)
-						 (when (string= (first ,option-var) ,arg-var)
-						   (setf ,key-var (first ,case-var))
-						   (pop ,args-var)
-						   (when (rest ,option-var)
-						     (setf ,value-var (pop ,args-var)))
-						   (return-from ,middle t)))
-						(t
-;						 (inform "B")
-						 (let ((split-position (position #\= ,option-var)))
-;						   (inform "C")
-						   (cond (split-position
-							  (when (and (> (length ,arg-var) split-position)
-								     (string= ,arg-var ,option-var :end1 split-position :end2 split-position))
-							    (loop for i from 0 to split-position
-								  unless (char= (char ,arg-var  i) (char ,option-var i))
-								  return nil
-								  finally (progn
-									    (setf ,key-var (first ,case-var))
-									    (setf ,value-var (subseq ,arg-var (1+ split-position)))
-									    (pop ,args-var)
-									    (return-from ,middle t)))))
-							 (t
-							  (when (string= ,option-var ,arg-var)
-							    (setf ,key-var (first ,case-var))
-							    (pop ,args-var)
-							    (return-from ,middle t))))))))
-;				 (inform "After middle")
-				 )
-			  do (progn ,@(if before (list before))
-				    (case ,key-var
-				      ,@(loop for case in command-cases
-					      unless (eq (first case) t)
-					      collect (cons (first case)
-							    (loop for rest on (rest case) by #'cddr while (keywordp (first rest)) finally (return rest)))))
-				    ,@(if after (list after))
-				    (return))
-			 finally (progn
-				   (format *error-output* "~%Unrecognized option ~A~%" ,arg-var)
-				   (,usage)))))))))
-
 (defun main (args)
   ;; (cond ((null args)
   ;; 	 (setf args sb-ext:*posix-argv*))
@@ -654,6 +548,157 @@
 	  (close-stream-not-stdout-stderr (instans-sizes-report-stream instans)))
 	(instans-close-open-streams instans)))))
 
+(defvar *instans-command-cases* nil)
+
+(defmacro parsing-commands2 (((key-var value-var) args-var &key program before after) &body command-cases)
+  (labels ((split-case-parameters (case)
+	     (list (pop case)
+		   (loop while (and case (keywordp (first case)))
+			 nconc (list (pop case) (pop case)))
+		   case))
+	   (split-options (options)
+	     (loop for option = (pop options)
+		   while (and option (or (stringp option) (characterp option)))
+		   collect option into option-texts
+		   finally (return (list option-texts
+					 (loop for option-type = option then (pop options)
+					       while option-type
+					       when (member option-type '(:one-of :colon-list-of :parse-special)) collect (list option-type (pop options))
+					       else collect option-type)))))
+	   (expand-command-cases (cases)
+	     (loop for case in cases
+		   for options = (getf (rest case) :options)
+		   for (option-names option-types) = (split-options options)
+		   for expanded-options = (loop for name in option-names
+						nconc (if (null option-types) (list (list name nil))
+							  (loop for type in option-types collect (list name type))))
+		   for option-texts = (loop for (name type) in expanded-options
+					    for (name-text separator) = (if (stringp name) (list (format nil "~(~A~)" name) "=") (list (format nil "-~C" name) " "))
+					    collect (cond ((consp type)
+							   (case (first type)
+							     (:one-of (format nil "~A~A(~{~(~A~)~^|~})" name-text separator(second type)))
+							     (:colon-list-of (format nil "~A~A<A ':' separated list of (~{~(~A~)~^|~})>" name-text separator (second type)))
+							     (:parse-special (format nil "~A~A~A" name-text separator (second type)))
+							     (t (error* "Unexpected option type ~A" type))))
+							  ((null type)
+							   (format nil "~A" name-text))
+							  (t
+							   (format nil "~A~A<~A>" name-text separator type))))
+		   for ut = (getf (rest case) :usage)
+		   for usage-texts = (if (consp ut) ut (list ut))
+		   collect (append (list (first case)
+					 :expanded-options expanded-options
+					 :option-texts option-texts
+					 :usage-texts usage-texts)
+				   (rest case))))
+	   (usage-string (expanded-cases)
+	     (apply #'concatenate 'string
+		    (loop with max-usage-text-left-margin = 40
+			  with two-column-max-option-width = (- max-usage-text-left-margin 3) 
+			  with max-option-length = (loop for case in expanded-cases unless (eq (first case) t)
+							 maximize (loop for option-text in (getf (rest case) :option-texts)
+									maximize (min two-column-max-option-width (length option-text))))
+			  for usage-text-left-margin = (+ 3 max-option-length)
+			  for case in expanded-cases
+			  for option-texts = (getf (rest case) :option-texts)
+			  for usage-texts = (getf (rest case) :usage-texts)
+			  for separatep = nil then t
+					;        do (inform "~S" case)
+			  nconc (cond ((eq (first case) t) (list (format nil "~:[~;~%~]~%~{~A~^~%~}" separatep usage-texts)))
+				      (t
+				       (loop for option-text in option-texts
+					     collect (cond ((or (> (length option-text) two-column-max-option-width)
+								(null usage-texts))
+							    (format nil "~%  ~A" option-text))
+							   (t
+							    (format nil "~%  ~A~VT~A" option-text usage-text-left-margin (pop usage-texts))))
+					     into head
+					     finally (let ((tail (loop for usage-text in usage-texts
+								       collect (format nil "~%~VT~A" usage-text-left-margin usage-text))))
+						       (return (if separatep (cons (format nil "~%") (append head tail)) (append head tail)))))))))))
+    (let* ((expanded-command-cases (expand-command-cases command-cases))
+	   (split-args-var (gensym "SPLITARGS")))
+      (setf *instans-command-cases* expanded-command-cases)
+      `(flet ((usage () (format *error-output* "usage: ~A options~%~A~%" ,program ,(usage-string expanded-command-cases)))
+	      (split-args (args)
+		(let ((args-string  (format nil "~{~A~^ ~}" args))
+		      (index 0)
+		      (result nil))
+		  (labels ((getchar () (and (< index (length args-string)) (prog1 (char args-string index) (incf index))))
+			   (skip-whitespace ()
+			     (loop while (and (< index (length args-string)) (spacing-char-p (char args-string index)))
+				   do (incf index)
+				   finally (return (getchar))))
+			   (eat-long-option ()
+			     (loop for char = (getchar)
+				   while (and char (not (spacing-char-p char)) (not (char= char #\=)))
+				   collect char into key-chars
+				   finally (cond ((null key-chars)
+						  (throw :error (format nil "~%Missing option name after '--' at index ~D of ~A" (1- index) args-string)))
+						 ((char= char #\=)
+						  (loop for char = (getchar)
+							while (and char (not (spacing-char-p char)))
+							collect char into value-chars
+							finally (return-from eat-long-option (list (coerce key-chars 'string) (coerce value-chars 'string)))))
+						 (t
+						  (return-from eat-long-option (list (coerce key-chars 'string)))))))
+			   (eat-short-option ()
+			     (let ((option-char (getchar)))
+			       (cond ((null option-char)
+				      (throw :error (format nil "~%Missing option char after '-' at the end of ~A" args-string)))
+				     (t
+				      (let ((next-char (getchar)))
+					(cond ((null next-char)
+					       (list option-char))
+					      ((not (spacing-char-p next-char))
+					       (throw :error (format nil "~%Expecting a space ' ' after option -~C at position ~D in ~A" option-char (1- index) args-string)))
+					      (t
+					       (setf next-char (getchar))
+					       (cond ((null next-char)
+						      (list option-char))
+						     ((char= next-char #\-)
+						      (decf index)
+						      (list option-char))
+						     (t
+						      (decf index)
+						      (loop for char = (getchar)
+							    while (and char (not (spacing-char-p char)))
+							    collect char into value-chars
+							    finally (return-from eat-short-option (list option-char (coerce value-chars 'string))))))))))))))
+		    (loop for char = (skip-whitespace)
+			  do (cond ((null char) (return (reverse result)))
+				   ((char= char #\-)
+				    (let ((next-char (getchar)))
+				      (cond ((null next-char)
+					     (throw :error (format nil "~%Missing argument after '-' at the end of ~A" args-string)))
+					    ((char= next-char #\-)
+					     (push (eat-long-option) result))
+					    (t
+					     (decf index)
+					     (push (eat-short-option) result)))))
+				   (t
+				    (throw :error (format nil "~%Expecting '-' at index ~D of ~A" (1- index) args-string)))))
+		    (reverse result)))))
+	 (let ((,split-args-var (split-args ,args-var)))
+	   (cond ((null ,split-args-var) (usage))
+		 (t
+		  (loop for (,key-var ,value-var) in ,split-args-var
+		       ,@(if before (list 'do before))
+			do (cond ,@(loop for case in expanded-command-cases
+					 for (casename properties body) = (split-case-parameters case)
+					 for expanded-options = (getf properties :expanded-options)
+					 unless (eq casename t)
+					 nconc (loop for option in expanded-options
+						     for name = (first option)
+						     for type = (second option)
+						     collect (if (stringp name)
+								 `((equal ,(subseq name 2) ,key-var) ,@body)
+								 `((equal ,name ,key-var) ,@body))))
+				 (t
+				  (format *error-output* "~%Unrecognized option ~A~%" ,key-var)
+				  (usage)))
+		       ,@(if after (list 'do after))))))))))
+
 (defun main2 (args)
   ;; (cond ((null args)
   ;; 	 (setf args sb-ext:*posix-argv*))
@@ -725,27 +770,26 @@
 ;      (when (equalp (first args) "--end-toplevel-options") (pop args)) ; Inserted by wrapper script
       (unwind-protect
 	   (block command-loop
-	     (parsing-commands2 ((key value) args :program "instans" :html html :usage usage
-				 :before (when time-output-stream (output-time "Command: ~(~A~), Parameter: ~A" key value)))
+	     (parsing-commands2 ((key value) args :program "instans" :before (when time-output-stream (output-time "Command: ~(~A~), Parameter: ~A" key value)))
 	       (t :usage ("" "Options are of form '-o', '-o PARAM', or '--option=PARAM'." ""
 			     "General options:" ""))
 	       (usage
-		:options (("--help" "-h"))
+		:options ("--help" #\h)
 		:usage "Print help text."
 		(usage))
 	       (version
-		:options (("--version" "-v"))
+		:options ("--version" #\v)
 		:usage "Print version information and exit."
 		(format t "INSTANS version ~A~%" (instans-version))
 		(return-from command-loop))
 	       (commands
-		:options ((("--file" "-f") :file))
-		:usage "Read options from FILE."
+		:options ("--file" #\f :file)
+		:usage "Read options from <FILE>."
 		(setf args (append (read-args-from-file value) args)))
 	       (t :usage ("" "Input options:" ""))
 	       (rules
-		:options ((("--rules" "-r") :input))
-		:usage "Load SPARQL rules from an INPUT."
+		:options ("--rules" #\r :file :url)
+		:usage "Load SPARQL rules from <FILE> or <URL>."
 		(let ((rules (expand-iri directory value)))
 		  (set-output-processors)
 		  (instans-add-rules instans rules :base base)
@@ -759,134 +803,133 @@
 				  (inform "~%~A:~A~{~%~A~}~%" value (type-of status) (instans-status-messages status)))))
 			 (return-from command-loop nil)))))
 	       (input
-		:options ((("--input" "-i" "-t") :input))
-		:usage ("Read RDF from a file or an URL. The suffix of INPUT is used to determine the"
+		:options ("--input" #\i #\t :file :url)
+		:usage ("Read RDF from <FILE> or <URL>. The suffix of the file or URL is used to determine the"
 			"type of the input. The recognized file formats are TriG (type '.trig'), Turtle"
 			"(type '.ttl' or '.turtle'), N-Triples (type '.nt' or '.n-triples'), and N-Quads"
-			"(type '.nt' or '.n-quads'). If INPUT does not have a file type, use the type"
+			"(type '.nt' or '.n-quads'). If the file or URL does not have a file type, use the type"
 			"specific input options below.")
 		(instans-add-stream-input-processor instans (expand-iri directory value)
 						    :graph graph :base base :subscribe debug
 						    :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
 		(maybe-execute))
 	       (input-trig
-		:options ("--input-trig" :input)
-		:usage ("Read RDF in TriG format from INPUT. The '--input-<type>' options take a"
-			"parameter INPUT, which can be a real file, a pseudo file like /dev/stdint,"
-			"or a URI. The content format should be of the specified type, e.g., for "
-			"'--input-ttl' INPUT should contain TriG format input. Even if INPUT is a file"
-			"with a specific type, the type is not considered when parsing the file.")
+		:options ("--input-trig" :file :url)
+		:usage ("Read RDF in TriG format from <FILE> or <URL>. This can be a real file, a pseudo"
+			"file like /dev/stdint, or a URL. The content format should be of the specified type,"
+			"e.g., for '--input-trig' it should contain TriG format input. Even if the parameter"
+			"is a file with a specific type, the type is not considered before parsing.")
 		(instans-add-stream-input-processor instans (expand-iri directory value)
 						    :graph graph :base base :input-type :trig)
 		(maybe-execute))
 	       (input-turtle
-		:options ((("--input-turtle" "--input-ttl" :input)))
-		:usage "Read RDF in Turtle format from INPUT."
+		:options ("--input-turtle" "--input-ttl" :file :url)
+		:usage "Read RDF in Turtle format from <FILE> or <URL>."
 		(instans-add-stream-input-processor instans (expand-iri directory value)
 						    :graph graph :base base :input-type :ttl)
 		(maybe-execute))
 	       (input-nq
-		:options ((("--input-nq" "--input-n-quads") :input))
-		:usage "Read RDF in N-Quads format from INPUT."
+		:options ("--input-nq" "--input-n-quads" :file :url)
+		:usage "Read RDF in N-Quads format from <FILE> or <URL>."
 		(instans-add-stream-input-processor instans (expand-iri directory value)
 						    :graph graph :base base :input-type :nq)
 		(maybe-execute))
 	       (input-nt
-		:options ((("--input-nt" "--input-n-triples") :input))
-		:usage "Read RDF in N-Quads format from INPUT."
+		:options ("--input-nt" "--input-n-triples" :file :url)
+		:usage "Read RDF in N-Quads format from <FILE> or <URL>."
 		(instans-add-stream-input-processor instans (expand-iri directory value)
 						    :graph graph :base base :input-type :nt)
 		(maybe-execute))
 	       (base
-		:options ((("--base" "-b") :url))
+		:options ("--base" #\b :url)
 		:usage "Use URL as the base."
 		(setf base (parse-iri value)))
 	       (directory
-		:options ((("--directory" "-d") :dir))
-		:usage "Use DIR as the prefix for file lookup. You can use a file or an URL as DIR."
+		:options ("--directory" #\d :dir)
+		:usage "Use <DIR> as the prefix for file lookup. You can use a file or URL as <DIR>."
 		(setf directory (parse-iri (if (http-or-file-iri-string-p value) value (format nil "file://~A" (expand-dirname value))))))
 	       (graph
-		:options (("--graph" "-g") :url)
+		:options ("--graph" #\g :url)
 		:usage "Use URL as the graph."
 		(if (string= (string-downcase value) "default") nil (setf graph (parse-iri value))))
 	       (t :usage ("" "Output options:" ""))
 	       (ask-output
 		:options ("--ask-output" :file)
-		:usage "Write ASK results to FILE. Output is based on the file name suffix."
+		:usage "Write ASK results to <FILE>. Output is based on the file name suffix."
 		(setf ask-output-name value)
 		(setf ask-output-type (intern-keyword (string-upcase (pathname-type (parse-namestring value))))))
 	       (ask-output-ttl
 		:options ("--ask-output-ttl" :file)
-		:usage "Write ASK results in SPARQL XML result set format to OUTPUT."
+		:usage "Write ASK results in SPARQL XML result set format to <FILE>."
 		(setf ask-output-name value)
 		(setf ask-output-type :ttl))
 	       (ask-output-srx
 		:options ("--ask-output-srx" :file)
-		:usage "Write ASK results in SPARQL XML result set format to OUTPUT."
+		:usage "Write ASK results in SPARQL XML result set format to <FILE>."
 		(setf ask-output-name value)
 		(setf ask-output-type :srx))
 	       (select-output
 		:options ("--select-output" :file)
-		:usage "Write SELECT results to FILE. Output is based on the file name suffix."
+		:usage "Write SELECT results to <FILE>. Output is based on the file name suffix."
 		(setf select-output-name value)
 		(setf select-output-type (intern-keyword (string-upcase (pathname-type (parse-namestring value))))))
 	       (select-output-append
 		:options ("--select-output-append" :file)
-		:usage "Write SELECT results to FILE. Output is based on the file name suffix."
+		:usage "Write SELECT results to <FILE>. Output is based on the file name suffix."
 		(setf select-output-append-p t)
 		(setf select-output-name value)
 		(setf select-output-type (intern-keyword (string-upcase (pathname-type (parse-namestring value))))))
 	       (select-output-csv
 		:options ("--select-output-csv" :file)
-		:usage "Write SELECT results in CSV format to OUTPUT."
+		:usage "Write SELECT results in CSV format to <FILE>."
 		(setf select-output-name value)
 		(setf select-output-type :csv))
 	       (select-output-srx
 		:options ("--select-output-srx" :file)
-		:usage "Write SELECT results in SPARQL XML result set format to OUTPUT."
+		:usage "Write SELECT results in SPARQL XML result set format to <FILE>."
 		(setf select-output-name value)
 		(setf select-output-type :srx))
 	       (select-output-ttl
 		:options ("--select-output-ttl" :file)
-		:usage "Write SELECT results in TTL format to OUTPUT."
+		:usage "Write SELECT results in TTL format to <FILE>."
 		(setf select-output-name value)
 		(setf select-output-type :ttl))
 	       (construct-output
 		:options ("--construct-output" :file)
-		:usage "Write CONSTRUCT results to FILE. Output format is based on the file name suffix."
+		:usage "Write CONSTRUCT results to <FILE>. Output format is based on the file name suffix."
 		(setf construct-output-name value)
 		(setf construct-output-type (let ((type (pathname-type (parse-namestring value))))
 					      (and type (intern-keyword (string-upcase type))))))
 	       (construct-output-append
 		:options ("--construct-output-append" :file)
-		:usage "Write CONSTRUCT results to FILE. Output format is based on the file name suffix."
+		:usage "Write CONSTRUCT results to <FILE>. Output format is based on the file name suffix."
 		(setf construct-output-append-p t)
 		(setf construct-output-name value)
 		(setf construct-output-type (let ((type (pathname-type (parse-namestring value))))
 					      (and type (intern-keyword (string-upcase type))))))
 	       (construct-output-trig
 		:options ("--construct-output-trig" :file)
-		:usage "Write CONSTRUCT results as TriG to FILE."
+		:usage "Write CONSTRUCT results as TriG to <FILE>."
 		(setf construct-output-name value)
 		(setf construct-output-type :trig))
 	       (construct-output-ttl
-		:options (("--construct-output-ttl" "--construct-output-turtle") :file)
-		:usage "Write CONSTRUCT results as Turtle to FILE."
+		:options ("--construct-output-ttl" "--construct-output-turtle" :file)
+		:usage "Write CONSTRUCT results as Turtle to <FILE>."
 		(setf construct-output-name value)
 		(setf construct-output-type :ttl))
 	       (construct-output-nq
-		:options (("--construct-output-nq" "--construct-output-n-quads") :file)
-		:usage "Write CONSTRUCT results as N-Quads to FILE."
+		:options ("--construct-output-nq" "--construct-output-n-quads" :file)
+		:usage "Write CONSTRUCT results as N-Quads to <FILE>."
 		(setf construct-output-name value)
 		(setf construct-output-type :nq))
 	       (construct-output-nt
-		:options (("--construct-output-nt" "--construct-output-n-triples") :file)
-		:usage "Write CONSTRUCT results as N-Triples to FILE."
+		:options ("--construct-output-nt" "--construct-output-n-triples" :file)
+		:usage "Write CONSTRUCT results as N-Triples to <FILE>."
 		(setf construct-output-name value)
 		(setf construct-output-type :nt))
 	       (t :usage ("" "Execution control options:" ""))
 	       (execute
-		:options ("--execute" "-e")
+		:options ("--execute" #\e)
 		:usage ("Changes the execution mode to immediate execution (the default). In the immediate"
 			"execution mode RDF input is processed immediately after each input parameter."
 			"If the mode was delayed execution, INSTANS processes the input parameters that"
@@ -902,7 +945,7 @@
 		(setf execute-immediately-p nil)
 		(maybe-execute))
 	       (rdf-input-unit
-		:options ("--rdf-input-unit" :oneof (:single :block :document))
+		:options ("--rdf-input-unit" :one-of (:single :block :document))
 		:usage ("Read RDF input in units of \"single\", \"block\", or \"document\". \"Single\" means"
 			"that the input is read and processed one triple (or quad in TriG or N-Quads input)"
 			"at a time. In N-Triples and N-Quads \"block\" has the same meaning as \"single\"."
@@ -936,32 +979,32 @@
 			    (t (usage)))))
 	       (t :usage ("" "Combos:" ""))
 	       (input-triples
-		:options ("--input-single" :input)
-		:usage "Same as '--rdf-input-unit=triple --input=INPUT'"
+		:options ("--input-single" :file :url)
+		:usage "Same as '--rdf-input-unit=triple --input=(<FILE>|<URL>)'"
 		(setf (instans-rdf-input-unit instans) :single)
 		(instans-add-stream-input-processor instans (expand-iri directory value)
 						    :graph graph :base base
 						    :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
 		(maybe-execute))
 	       (input-blocks
-		:options ("--input-blocks" :input)
-		:usage "Same as '--rdf-input-unit=block --input=INPUT'"
+		:options ("--input-blocks" :file :url)
+		:usage "Same as '--rdf-input-unit=block --input=(<FILE>|<URL>)'"
 		(setf (instans-rdf-input-unit instans) :block)
 		(instans-add-stream-input-processor instans (expand-iri directory value)
 						    :graph graph :base base
 						    :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
 		(maybe-execute))
 	       (input-document
-		:options ("--input-document" :input)
-		:usage "Same as '--rdf-input-unit=document --input=INPUT'"
+		:options ("--input-document" :file :url)
+		:usage "Same as '--rdf-input-unit=document --input=(<FILE>|<URL>)'"
 		(setf (instans-rdf-input-unit instans) :document)
 		(instans-add-stream-input-processor instans (expand-iri directory value)
 						    :graph graph :base base
 						    :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
 		(maybe-execute))
 	       (input-events
-		:options ("--input-events=INPUT")
-		:usage "Same as '--rdf-operations=event --rdf-input-unit=block --input=INPUT'"
+		:options ("--input-events" :file :url)
+		:usage "Same as '--rdf-operations=event --rdf-input-unit=block --input=(<FILE>|<URL>)'"
 		(set-instans-rdf-operations instans :event)
 		(setf (instans-rdf-input-unit instans) :block)
 		(instans-add-stream-input-processor instans (expand-iri directory value)
@@ -971,7 +1014,8 @@
 	       (t :usage ("" "Miscelaneus debugging and testing options:" ""))
 	       (warnings
 		:options ("--warn-on-errors" :bool)
-		:usage ("If true, prints warnings, when FILTER or BIND evaluation causes an error. If false (the default), produces no output.")
+		:usage ("If true, prints warnings, when FILTER or BIND evaluation causes an error."
+			"If false (the default), produces no output.")
 		(cond ((string-equal value "true") (sparql-inform-and-throw-on-errors))
 		      ((string-equal value "false") (sparql-throw-on-errors))
 		      (t (usage))))
@@ -991,17 +1035,18 @@
 			"a picture of the generate Rete network and other useful information.")
 		(setf rete-html-file value))
 	       (name
-		:options (("--name" "-n" :string))
-		:usage ("Use NAME as the name of the system. The name of system is used in generating"
+		:options ("--name" #\n :string)
+		:usage ("Use <STRING> as the name of the system. The name of system is used in generating"
 			"various outputs and names during the execution of INSTANS, but the name does"
 			"not bear any actual semantics.")
 		(setf (instans-name instans) value))
 	       (report
 		:options ("--report" :colon-list-of (:select :construct :modify :all :rete-add :rete-remove :queue :rdf-operations :execute :summary-n :sizes-n))
-		:usage ("The kinds of rules you want to get reported; a ':' separated list of"
-			"(select|construct|modify|all|rete-add|rete-remove|queue|rdf-operations|execute|summaryN|sizesN)."
-			"Here 'summaryN' means a string like 'summary100' having an integer after 'summary'. This means that the interval of reporting is 100 rounds"
-			"of execution. Option 'summaryN' reports the changes in total sizes of storages and 'sizesN' reports (in csv format) the sizes of different storages.")
+		:usage ("The kinds of rules you want to get reported. Here 'summaryN' means a string like"
+			"'summary100' having an integer after 'summary'. This means that the interval of"
+			"reporting is 100 rounds of execution. Option 'summaryN' reports the changes in"
+			"total sizes of storages and 'sizesN' reports (in csv format) the sizes of"
+			"different storages.")
 		;; :hiddenp nil
 		(setf reporting (loop for kind in (intern-colon-separated-keywords value)
 				      when (eq kind :all)
@@ -1026,20 +1071,22 @@
 		(report-sizes-headers instans))
 	       (prefix-encoding
 		:options ("--prefix-encoding" :bool)
-		:usage ("If true, use known prefixes when printing IRIs. If false (the default), print IRIs as such.")
+		:usage ("If true, use known prefixes when printing IRIs. If false (the default),"
+			"print IRIs as such.")
 		(instans-encode-prefixes instans (cond ((string-equal value "true") t)
 						       ((string-equal value "false") nil)
 						       (t (usage)))))
 	       (print-prefix-encodings
 		:options ("--print-prefix-encodings" :bool)
-		:usage ("If true (the default), print prefix definitions, when outputting results and with prefix encoding is on.")
+		:usage ("If true (the default), print prefix definitions, when outputting results"
+			"and with prefix encoding is on.")
 		(setf (instans-print-prefix-encodings-p instans)
 		      (cond ((string-equal value "true") t)
 			    ((string-equal value "false") nil)
 			    (t (usage)))))
 	       (time
 		:options ("--time" :file)
-		:usage "Output timing information to FILE. Use '-' for standard output."
+		:usage "Output timing information to <FILE>. Use '-' for standard output."
 		(setf time-output-name value)
 		(multiple-value-setq (start-time-sec start-time-usec) (sb-unix::get-time-of-day))
 		(setf time-output-stream
@@ -1051,20 +1098,22 @@
 		(read-char))
 	       (system
 		:options ("--system" :file)
-		:usage "Execute a system command. PATH should name an executable program."
+		:usage "Execute a system command. <FILE> should name an executable program."
 		(sb-ext:run-program value nil :pty *error-output* :search t))
 	       (run-sparql-conformance-tests
 		:options ("--run-sparql-conformance-tests" :dir)
-		:usage ("Run sparql test suites. The result is written into 'test directory'/results/results.csv."
-			"Execution time is written in 'test-directory'/results/execution-time.txt")
+		:usage ("Run sparql test suites. The result is written into <DIR>/results/results.csv."
+			"Execution time is written in <DIR>/results/execution-time.txt")
 		(run-sparql-test-suites value))
 	       (sparql-conformance-tests-dir
 		:options ("--sparql-conformance-tests-dir" :dir)
 		:usage "Set the SPARQL conformance tests root directory")
 	       (run-suite-collection-name
-		:options ("--run-suite-collection-name" :colon-list-of (:suite :collection :name))
+		:options ("--run-suite-collection-name" :parse-special "[<SUITE>[:<COLLECTION>[:<NAME>]]]")
 		:usage ("Run sparql test suites from directory specified by option --sparql-conformance-tests-dir."
-			"Only tests matching suite, collection, and name are executed.")
+			"Only tests matching <SUITE>, <COLLECTION>, and <NAME> are executed. Missing name"
+			"matches all tests in a collection, missing collection matches all collections"
+			"of a suite, and missing suite matches all suites.")
 		(multiple-value-bind (test-dir suite collection name) (values-list (parse-colon-separated-strings value))
 		  (run-suite-collection-name :root-directory test-dir :suite suite :collection collection :name name :reporting reporting))))
 	     (unless executedp (execute))
@@ -1075,7 +1124,3 @@
 	(when report-sizes-file
 	  (close-stream-not-stdout-stderr (instans-sizes-report-stream instans)))
 	(instans-close-open-streams instans)))))
-
-
-
-
