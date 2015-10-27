@@ -968,6 +968,7 @@
 					      (return (if separatep (cons (format nil "~%") (append head tail)) (append head tail))))))))))
 
   (defun split-command-line-args (args)
+    (logmsg "split-command-line-args ~S" args)
     (let ((args-string  (format nil "~{~A~^ ~}" args))
 	  (index 0)
 	  (result nil))
@@ -1056,83 +1057,97 @@
 				(usage)))
 		     ,@(if after (list 'do after)))))))))
 
-(defun main2 (args)
+(defun logmsg (msg &rest args)
+  (with-open-file (str "log" :direction :output :if-exists :append :if-does-not-exist :create)
+    (apply #'format str (format nil "~%~A~%" msg) args)))
+
+(defun logdescribe (object)
+  (with-open-file (str "log" :direction :output :if-exists :append :if-does-not-exist :create)
+    (let ((*standard-output* str))
+      (describe object))))
+
+(defun main2 (args &key instans (exit-after-processing-args-p (null instans)) (execute-immediately-p t))
   ;; (cond ((null args)
   ;; 	 (setf args sb-ext:*posix-argv*))
   ;; 	(t
   ;; 	 (setf args (cons "instans" (cons "--end-toplevel-options" (if (= 1 (length args)) (split-string (first args) " ") args))))))
-  (cond ((null args)
-	 (setf args sb-ext:*posix-argv*))
-	((stringp args)
-	 (setf args (cons "instans" (split-string args " ")))))
-  (let* ((instans (create-instans))
-	 (executedp nil)
-	 (execute-immediately-p t)
-	 (directory (parse-iri (format nil "file://~A" (expand-dirname (or *default-main-dir* ".")))))
-	 (ask-output-name nil)
-	 (ask-output-type nil)
-	 (select-output-name nil)
-	 (select-output-type :csv)
-	 (select-output-append-p nil)
-	 (construct-output-name nil)
-	 (construct-output-type :trig)
-	 (construct-output-append-p nil)
-	 time-output-name
-	 time-output-stream
-	 start-time-sec
-	 start-time-usec
-	 base graph
-	 ;; expected
-	 debug
-	 reporting
-	 report-sizes-file
-	 rete-html-file)
-    (labels ((valid-value-p (value accepted-values &key test)
-	       (or (funcall test value accepted-values)
-		   (error* "Value ~A not one of ~A" value accepted-values)))
+  (let ((value
+	 (catch :error
+	   (logmsg "In main2 ~S" args)
+	   (cond ((null args)
+		  (setf args sb-ext:*posix-argv*))
+		 ((stringp args)
+		  (setf args (cons "instans" (split-string args " ")))))
+	   (unless instans (setf instans (create-instans)))
+	   (let* ((executedp nil)
+		  (directory (parse-iri (format nil "file://~A" (expand-dirname (or *default-main-dir* ".")))))
+		  (ask-output-name nil)
+		  (ask-output-type nil)
+		  (select-output-name nil)
+		  (select-output-type :csv)
+		  (select-output-append-p nil)
+		  (construct-output-name nil)
+		  (construct-output-type :trig)
+		  (construct-output-append-p nil)
+		  time-output-name
+		  time-output-stream
+		  start-time-sec
+		  start-time-usec
+		  base graph
+		  ;; expected
+		  debug
+		  reporting
+		  report-sizes-file
+		  rete-html-file)
+	     (labels ((valid-value-p (value accepted-values &key test)
+			(or (funcall test value accepted-values)
+			    (error* "Value ~A not one of ~A" value accepted-values)))
 					;	       (expand-iri-or-file-path (base iri-or-file-path input-type)
-	     (parse-parameters (string &key colon-expand-fields)
-	       (loop for param in (parse-spec-string string)
-		     for (key value) = param
-		     collect (if (member key colon-expand-fields) (list key (intern-colon-separated-keywords value)) param)))
-	     (set-output-processors ()
-	       (when (and ask-output-type ask-output-name (null (instans-ask-output-processor instans)))
-		 (inform "ask-output-type ~A ask-output-name ~A" ask-output-type ask-output-name)
-		 (setf (instans-ask-output-processor instans) (create-ask-output-processor instans ask-output-name ask-output-type)))
-	       (when (and select-output-type (null (instans-select-output-processor instans)))
-		 (setf (instans-select-output-processor instans) (create-select-output-processor instans select-output-name select-output-type :appendp select-output-append-p)))
-	       (when (and construct-output-type (null (instans-construct-output-processor instans)))
-		 (setf (instans-construct-output-processor instans) (create-construct-output-processor instans construct-output-name construct-output-type :appendp construct-output-append-p))))
-	     (execute ()
-	       (instans-run instans
-			    :ask-output-name ask-output-name :ask-output-type ask-output-type
-			    :select-output-name select-output-name :select-output-type select-output-type
-			    :construct-output-name construct-output-name :construct-output-type construct-output-type))
-	     (maybe-execute ()
+		      (parse-parameters (string &key colon-expand-fields)
+			(loop for param in (parse-spec-string string)
+			      for (key value) = param
+			      collect (if (member key colon-expand-fields) (list key (intern-colon-separated-keywords value)) param)))
+		      (set-output-processors ()
+			(when (and ask-output-type ask-output-name (null (instans-ask-output-processor instans)))
+			  (inform "ask-output-type ~A ask-output-name ~A" ask-output-type ask-output-name)
+			  (setf (instans-ask-output-processor instans) (create-ask-output-processor instans ask-output-name ask-output-type)))
+			(when (and select-output-type (null (instans-select-output-processor instans)))
+			  (setf (instans-select-output-processor instans) (create-select-output-processor instans select-output-name select-output-type :appendp select-output-append-p)))
+			(when (and construct-output-type (null (instans-construct-output-processor instans)))
+			  (setf (instans-construct-output-processor instans) (create-construct-output-processor instans construct-output-name construct-output-type :appendp construct-output-append-p))))
+		      (execute ()
+			(instans-run instans
+				     :ask-output-name ask-output-name :ask-output-type ask-output-type
+				     :select-output-name select-output-name :select-output-type select-output-type
+				     :construct-output-name construct-output-name :construct-output-type construct-output-type))
+		      (maybe-execute ()
 					;		 (inform "maybe-execute?")
-	       (when execute-immediately-p
+			(when execute-immediately-p
 					;		   (inform "yes")
-		 (setf executedp t)
-		 (execute)))
-	     (output-time (fmt &rest args)
-	       (multiple-value-bind (time-sec time-usec) (sb-unix::get-time-of-day)
-		 (let* ((delta-sec (- time-sec start-time-sec))
-			(delta-usec (- time-usec start-time-usec)))
-		   (when (< delta-usec 0)
-		     (decf delta-sec)
-		     (incf delta-usec 1000000))
-		   (format time-output-stream "~%At ~D.~6,'0D: ~A~%" delta-sec delta-usec  (apply #'format nil fmt args))))))
-      (setf *instanssi* instans)
-      (pop args) ; Program path
-;      (when (equalp (first args) "--end-toplevel-options") (pop args)) ; Inserted by wrapper script
-      (unwind-protect
-	   (block command-loop
-	     (parsing-instans-commands (key value) args :before (when time-output-stream (output-time "Command: ~(~A~), Parameter: ~A" key value)))
-	     (unless executedp (execute))
-	     instans)
-	(when time-output-stream
-	  (output-time "Done")
-	  (close-stream-not-stdout-stderr time-output-stream))
-	(when report-sizes-file
-	  (close-stream-not-stdout-stderr (instans-sizes-report-stream instans)))
-	(instans-close-open-streams instans)))))
+			  (setf executedp t)
+			  (execute)))
+		      (output-time (fmt &rest args)
+			(multiple-value-bind (time-sec time-usec) (sb-unix::get-time-of-day)
+			  (let* ((delta-sec (- time-sec start-time-sec))
+				 (delta-usec (- time-usec start-time-usec)))
+			    (when (< delta-usec 0)
+			      (decf delta-sec)
+			      (incf delta-usec 1000000))
+			    (format time-output-stream "~%At ~D.~6,'0D: ~A~%" delta-sec delta-usec  (apply #'format nil fmt args))))))
+	       (setf *instanssi* instans)
+	       (pop args) ; Program path
+					;      (when (equalp (first args) "--end-toplevel-options") (pop args)) ; Inserted by wrapper script
+	       (unwind-protect
+		    (block command-loop
+		      (parsing-instans-commands (key value) args :before (when time-output-stream (output-time "Command: ~(~A~), Parameter: ~A" key value)))
+		      (unless executedp (execute))
+		      instans)
+		 (when exit-after-processing-args-p
+		   (when time-output-stream
+		     (output-time "Done")
+		     (close-stream-not-stdout-stderr time-output-stream))
+		   (when report-sizes-file
+		     (close-stream-not-stdout-stderr (instans-sizes-report-stream instans)))
+		   (instans-close-open-streams instans))))))))
+    (logmsg "value=~A" value)
+    value))
