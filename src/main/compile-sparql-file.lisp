@@ -76,8 +76,18 @@
 
 (defvar *instanssi*)
 
-(defun instans-add-rules (instans rules &key base (output-options-stream nil))
+(defun instans-set-output-processors (instans)
+  (when (and (instans-ask-output-type instans) (instans-ask-output-name instans) (null (instans-ask-output-processor instans)))
+    ;; (inform "(instans-ask-output-type instans) ~A (instans-ask-output-name instans) ~A" (instans-ask-output-type instans) (instans-ask-output-name instans))
+    (setf (instans-ask-output-processor instans) (create-ask-output-processor instans (instans-ask-output-name instans) (instans-ask-output-type instans))))
+  (when (and (instans-select-output-type instans) (null (instans-select-output-processor instans)))
+    (setf (instans-select-output-processor instans) (create-select-output-processor instans (instans-select-output-name instans) (instans-select-output-type instans) :appendp (instans-select-output-append-p instans))))
+  (when (and (instans-construct-output-type instans) (null (instans-construct-output-processor instans)))
+    (setf (instans-construct-output-processor instans) (create-construct-output-processor instans (instans-construct-output-name instans) (instans-construct-output-type instans) :appendp (instans-construct-output-append-p instans)))))
+
+(defun instans-add-rules (instans rules &key (base (instans-base instans)) (output-options-stream nil))
     (instans-debug-message instans :parse-rules "instans-add-rules ~S ~S :base ~S" (instans-name instans) rules base)
+    (instans-set-output-processors instans)
     (when output-options-stream
       (format output-options-stream " --rules=~A" rules))
     (cond ((sparql-error-p instans) nil)
@@ -132,7 +142,7 @@
 	 (values (open-file input :fmt "create-input-stream ~{~A~^ ~}") (file-type input)))
 	(t (values nil nil (format nil "Cannot create an input stream based on ~S" input)))))
 
-(defun instans-add-stream-input-processor (instans input-iri &key graph base input-type subscribe (output-options-stream nil))
+(defun instans-add-stream-input-processor (instans input-iri &key (graph (instans-graph instans)) (base (instans-base instans)) input-type subscribe (output-options-stream nil))
   (instans-debug-message instans '(:parse-rdf :execute) "instans-add-stream-input-processor ~S ~S :input-type ~S :graph ~S :base ~S" (instans-name instans) input-iri input-type graph base)
   (when output-options-stream
     (format output-options-stream " ~@[--graph=~A ~]~@[--base=~A ~]--input-~(~A~)=~A" (and graph (rdf-iri-string graph)) (and base (rdf-iri-string base)) input-type input-iri))
@@ -185,12 +195,7 @@
     instans))
 
 (defun instans-run (instans &key select-output-name (select-output-type :csv) ask-output-name (ask-output-type :srx) construct-output-name (construct-output-type :trig))
-  (unless (instans-select-output-processor instans)
-    (setf (instans-select-output-processor instans) (create-select-output-processor instans select-output-name select-output-type)))
-  (when (and ask-output-type (not (instans-ask-output-processor instans)))
-    (setf (instans-ask-output-processor instans) (create-ask-output-processor instans ask-output-name ask-output-type)))
-  (unless (instans-construct-output-processor instans)
-    (setf (instans-construct-output-processor instans) (create-construct-output-processor instans construct-output-name construct-output-type)))
+  (instans-set-output-processors instans)
 ;  (handler-case
       (progn
 	(run-input-processors instans t)

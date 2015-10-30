@@ -32,7 +32,7 @@
 	    
 ;(defvar *doit* nil)
 
-(defmacro parsing-commands (((key-var value-var) args-var &key program html usage before after) &body command-cases)
+(defmacro old-parsing-commands (((key-var value-var) args-var &key program html usage before after) &body command-cases)
   (declare (ignorable html))
   (let* ((option-var (gensym "OPTION"))
 	 (options-var (gensym "OPTIONS"))
@@ -131,7 +131,7 @@
 				   (format *error-output* "~%Unrecognized option ~A~%" ,arg-var)
 				   (,usage)))))))))
 
-(defun main (args)
+(defun old-main (args)
   ;; (cond ((null args)
   ;; 	 (setf args sb-ext:*posix-argv*))
   ;; 	(t
@@ -202,7 +202,7 @@
 ;      (when (equalp (first args) "--end-toplevel-options") (pop args)) ; Inserted by wrapper script
       (unwind-protect
 	   (block command-loop
-	     (parsing-commands ((key value) args :program "instans" :html html :usage usage
+	     (old-parsing-commands ((key value) args :program "instans" :html html :usage usage
 				:before (when time-output-stream (output-time "Command: ~(~A~), Parameter: ~A" key value)))
 	       (t :usage ("" "Options are of form '-o', '-o PARAM', or '--option=PARAM'." ""
 			     "General options:" ""))
@@ -608,8 +608,8 @@
        :options ("--rules" #\r :file :url)
        :usage "Load SPARQL rules from <FILE> or <URL>."
        (let ((rules (expand-iri directory value)))
-	 (set-output-processors)
-	 (instans-add-rules instans rules :base base)
+	 ;; (set-output-processors)
+	 (instans-add-rules instans rules)
 	 (cond ((instans-find-status instans 'instans-rule-translation-succeeded)
 		(if rete-html-file (output-rete-html-page instans rules rete-html-file)))
 	       (t
@@ -626,8 +626,7 @@
 	       "(type '.ttl' or '.turtle'), N-Triples (type '.nt' or '.n-triples'), and N-Quads"
 	       "(type '.nt' or '.n-quads'). If the file or URL does not have a file type, use the type"
 	       "specific input options below.")
-       (instans-add-stream-input-processor instans (expand-iri directory value)
-					   :graph graph :base base :subscribe debug
+       (instans-add-stream-input-processor instans (expand-iri directory value) :subscribe debug
 					   :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
        (maybe-execute))
       (input-trig
@@ -636,31 +635,27 @@
 	       "file like /dev/stdint, or a URL. The content format should be of the specified type,"
 	       "e.g., for '--input-trig' it should contain TriG format input. Even if the parameter"
 	       "is a file with a specific type, the type is not considered before parsing.")
-       (instans-add-stream-input-processor instans (expand-iri directory value)
-					   :graph graph :base base :input-type :trig)
+       (instans-add-stream-input-processor instans (expand-iri directory value) :input-type :trig)
        (maybe-execute))
       (input-turtle
        :options ("--input-turtle" "--input-ttl" :file :url)
        :usage "Read RDF in Turtle format from <FILE> or <URL>."
-       (instans-add-stream-input-processor instans (expand-iri directory value)
-					   :graph graph :base base :input-type :ttl)
+       (instans-add-stream-input-processor instans (expand-iri directory value) :input-type :ttl)
        (maybe-execute))
       (input-nq
        :options ("--input-nq" "--input-n-quads" :file :url)
        :usage "Read RDF in N-Quads format from <FILE> or <URL>."
-       (instans-add-stream-input-processor instans (expand-iri directory value)
-					   :graph graph :base base :input-type :nq)
+       (instans-add-stream-input-processor instans (expand-iri directory value) :input-type :nq)
        (maybe-execute))
       (input-nt
        :options ("--input-nt" "--input-n-triples" :file :url)
        :usage "Read RDF in N-Quads format from <FILE> or <URL>."
-       (instans-add-stream-input-processor instans (expand-iri directory value)
-					   :graph graph :base base :input-type :nt)
+       (instans-add-stream-input-processor instans (expand-iri directory value) :input-type :nt)
        (maybe-execute))
       (base
        :options ("--base" #\b :url)
        :usage "Use URL as the base."
-       (setf base (parse-iri value)))
+       (setf (instans-base instans) (parse-iri value)))
       (directory
        :options ("--directory" #\d :dir)
        :usage "Use <DIR> as the prefix for file lookup. You can use a file or URL as <DIR>."
@@ -668,82 +663,82 @@
       (graph
        :options ("--graph" #\g :url)
        :usage "Use URL as the graph."
-       (if (string= (string-downcase value) "default") nil (setf graph (parse-iri value))))
+       (if (string= (string-downcase value) "default") nil (setf (instans-graph instans) (parse-iri value))))
       (t :usage ("" "Output options:" ""))
       (ask-output
        :options ("--ask-output" :file)
        :usage "Write ASK results to <FILE>. Output is based on the file name suffix."
-       (setf ask-output-name value)
-       (setf ask-output-type (intern-keyword (string-upcase (pathname-type (parse-namestring value))))))
+       (setf (instans-ask-output-name instans) value)
+       (setf (instans-ask-output-type instans) (intern-keyword (string-upcase (pathname-type (parse-namestring value))))))
       (ask-output-ttl
        :options ("--ask-output-ttl" :file)
        :usage "Write ASK results in SPARQL XML result set format to <FILE>."
-       (setf ask-output-name value)
-       (setf ask-output-type :ttl))
+       (setf (instans-ask-output-name instans) value)
+       (setf (instans-ask-output-type instans) :ttl))
       (ask-output-srx
        :options ("--ask-output-srx" :file)
        :usage "Write ASK results in SPARQL XML result set format to <FILE>."
-       (setf ask-output-name value)
-       (setf ask-output-type :srx))
+       (setf (instans-ask-output-name instans) value)
+       (setf (instans-ask-output-type instans) :srx))
       (select-output
        :options ("--select-output" :file)
        :usage "Write SELECT results to <FILE>. Output is based on the file name suffix."
-       (setf select-output-name value)
-       (setf select-output-type (intern-keyword (string-upcase (pathname-type (parse-namestring value))))))
+       (setf (instans-select-output-name instans) value)
+       (setf (instans-select-output-type instans) (intern-keyword (string-upcase (pathname-type (parse-namestring value))))))
       (select-output-append
        :options ("--select-output-append" :file)
        :usage "Write SELECT results to <FILE>. Output is based on the file name suffix."
-       (setf select-output-append-p t)
-       (setf select-output-name value)
-       (setf select-output-type (intern-keyword (string-upcase (pathname-type (parse-namestring value))))))
+       (setf (instans-select-output-append-p instans) t)
+       (setf (instans-select-output-name instans) value)
+       (setf (instans-select-output-type instans) (intern-keyword (string-upcase (pathname-type (parse-namestring value))))))
       (select-output-csv
        :options ("--select-output-csv" :file)
        :usage "Write SELECT results in CSV format to <FILE>."
-       (setf select-output-name value)
-       (setf select-output-type :csv))
+       (setf (instans-select-output-name instans) value)
+       (setf (instans-select-output-type instans) :csv))
       (select-output-srx
        :options ("--select-output-srx" :file)
        :usage "Write SELECT results in SPARQL XML result set format to <FILE>."
-       (setf select-output-name value)
-       (setf select-output-type :srx))
+       (setf (instans-select-output-name instans) value)
+       (setf (instans-select-output-type instans) :srx))
       (select-output-ttl
        :options ("--select-output-ttl" :file)
        :usage "Write SELECT results in TTL format to <FILE>."
-       (setf select-output-name value)
-       (setf select-output-type :ttl))
+       (setf (instans-select-output-name instans) value)
+       (setf (instans-select-output-type instans) :ttl))
       (construct-output
        :options ("--construct-output" :file)
        :usage "Write CONSTRUCT results to <FILE>. Output format is based on the file name suffix."
-       (setf construct-output-name value)
-       (setf construct-output-type (let ((type (pathname-type (parse-namestring value))))
+       (setf (instans-construct-output-name instans) value)
+       (setf (instans-construct-output-type instans) (let ((type (pathname-type (parse-namestring value))))
 				     (and type (intern-keyword (string-upcase type))))))
       (construct-output-append
        :options ("--construct-output-append" :file)
        :usage "Write CONSTRUCT results to <FILE>. Output format is based on the file name suffix."
-       (setf construct-output-append-p t)
-       (setf construct-output-name value)
-       (setf construct-output-type (let ((type (pathname-type (parse-namestring value))))
+       (setf (instans-construct-output-append-p instans) t)
+       (setf (instans-construct-output-name instans) value)
+       (setf (instans-construct-output-type instans) (let ((type (pathname-type (parse-namestring value))))
 				     (and type (intern-keyword (string-upcase type))))))
       (construct-output-trig
        :options ("--construct-output-trig" :file)
        :usage "Write CONSTRUCT results as TriG to <FILE>."
-       (setf construct-output-name value)
-       (setf construct-output-type :trig))
+       (setf (instans-construct-output-name instans) value)
+       (setf (instans-construct-output-type instans) :trig))
       (construct-output-ttl
        :options ("--construct-output-ttl" "--construct-output-turtle" :file)
        :usage "Write CONSTRUCT results as Turtle to <FILE>."
-       (setf construct-output-name value)
-       (setf construct-output-type :ttl))
+       (setf (instans-construct-output-name instans) value)
+       (setf (instans-construct-output-type instans) :ttl))
       (construct-output-nq
        :options ("--construct-output-nq" "--construct-output-n-quads" :file)
        :usage "Write CONSTRUCT results as N-Quads to <FILE>."
-       (setf construct-output-name value)
-       (setf construct-output-type :nq))
+       (setf (instans-construct-output-name instans) value)
+       (setf (instans-construct-output-type instans) :nq))
       (construct-output-nt
        :options ("--construct-output-nt" "--construct-output-n-triples" :file)
        :usage "Write CONSTRUCT results as N-Triples to <FILE>."
-       (setf construct-output-name value)
-       (setf construct-output-type :nt))
+       (setf (instans-construct-output-name instans) value)
+       (setf (instans-construct-output-type instans) :nt))
       (t :usage ("" "Execution control options:" ""))
       (execute
        :options ("--execute" #\e)
@@ -799,34 +794,26 @@
        :options ("--input-single" :file :url)
        :usage "Same as '--rdf-input-unit=triple --input=(<FILE>|<URL>)'"
        (setf (instans-rdf-input-unit instans) :single)
-       (instans-add-stream-input-processor instans (expand-iri directory value)
-					   :graph graph :base base
-					   :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
+       (instans-add-stream-input-processor instans (expand-iri directory value) :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
        (maybe-execute))
       (input-blocks
        :options ("--input-blocks" :file :url)
        :usage "Same as '--rdf-input-unit=block --input=(<FILE>|<URL>)'"
        (setf (instans-rdf-input-unit instans) :block)
-       (instans-add-stream-input-processor instans (expand-iri directory value)
-					   :graph graph :base base
-					   :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
+       (instans-add-stream-input-processor instans (expand-iri directory value) :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
        (maybe-execute))
       (input-document
        :options ("--input-document" :file :url)
        :usage "Same as '--rdf-input-unit=document --input=(<FILE>|<URL>)'"
        (setf (instans-rdf-input-unit instans) :document)
-       (instans-add-stream-input-processor instans (expand-iri directory value)
-					   :graph graph :base base
-					   :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
+       (instans-add-stream-input-processor instans (expand-iri directory value) :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
        (maybe-execute))
       (input-events
        :options ("--input-events" :file :url)
        :usage "Same as '--rdf-operations=event --rdf-input-unit=block --input=(<FILE>|<URL>)'"
        (set-instans-rdf-operations instans :event)
        (setf (instans-rdf-input-unit instans) :block)
-       (instans-add-stream-input-processor instans (expand-iri directory value)
-					   :graph graph :base base
-					   :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
+       (instans-add-stream-input-processor instans (expand-iri directory value) :input-type (intern-keyword (string-upcase (pathname-type (parse-namestring value)))))
        (maybe-execute))
       (t :usage ("" "Miscelaneus debugging and testing options:" ""))
       (warnings
@@ -1066,14 +1053,14 @@
     (let ((*standard-output* str))
       (describe object))))
 
-(defun main2 (args &key instans (exit-after-processing-args-p (null instans)) (execute-immediately-p t))
+(defun main (args &key instans (exit-after-processing-args-p (null instans)) (execute-immediately-p t))
   ;; (cond ((null args)
   ;; 	 (setf args sb-ext:*posix-argv*))
   ;; 	(t
   ;; 	 (setf args (cons "instans" (cons "--end-toplevel-options" (if (= 1 (length args)) (split-string (first args) " ") args))))))
   (let ((value
 	 (catch :error
-	   (logmsg "In main2 ~S" args)
+	   (logmsg "In main ~S" args)
 	   (cond ((null args)
 		  (setf args sb-ext:*posix-argv*))
 		 ((stringp args)
@@ -1081,19 +1068,10 @@
 	   (unless instans (setf instans (create-instans)))
 	   (let* ((executedp nil)
 		  (directory (parse-iri (format nil "file://~A" (expand-dirname (or *default-main-dir* ".")))))
-		  (ask-output-name nil)
-		  (ask-output-type nil)
-		  (select-output-name nil)
-		  (select-output-type :csv)
-		  (select-output-append-p nil)
-		  (construct-output-name nil)
-		  (construct-output-type :trig)
-		  (construct-output-append-p nil)
 		  time-output-name
 		  time-output-stream
 		  start-time-sec
 		  start-time-usec
-		  base graph
 		  ;; expected
 		  debug
 		  reporting
@@ -1107,19 +1085,15 @@
 			(loop for param in (parse-spec-string string)
 			      for (key value) = param
 			      collect (if (member key colon-expand-fields) (list key (intern-colon-separated-keywords value)) param)))
-		      (set-output-processors ()
-			(when (and ask-output-type ask-output-name (null (instans-ask-output-processor instans)))
-			  (inform "ask-output-type ~A ask-output-name ~A" ask-output-type ask-output-name)
-			  (setf (instans-ask-output-processor instans) (create-ask-output-processor instans ask-output-name ask-output-type)))
-			(when (and select-output-type (null (instans-select-output-processor instans)))
-			  (setf (instans-select-output-processor instans) (create-select-output-processor instans select-output-name select-output-type :appendp select-output-append-p)))
-			(when (and construct-output-type (null (instans-construct-output-processor instans)))
-			  (setf (instans-construct-output-processor instans) (create-construct-output-processor instans construct-output-name construct-output-type :appendp construct-output-append-p))))
-		      (execute ()
-			(instans-run instans
-				     :ask-output-name ask-output-name :ask-output-type ask-output-type
-				     :select-output-name select-output-name :select-output-type select-output-type
-				     :construct-output-name construct-output-name :construct-output-type construct-output-type))
+		      ;; (set-output-processors ()
+		      ;; 	(when (and (instans-ask-output-type instans) (instans-ask-output-name instans) (null (instans-ask-output-processor instans)))
+		      ;; 	  (inform "(instans-ask-output-type instans) ~A (instans-ask-output-name instans) ~A" (instans-ask-output-type instans) (instans-ask-output-name instans))
+		      ;; 	  (setf (instans-ask-output-processor instans) (create-ask-output-processor instans (instans-ask-output-name instans) (instans-ask-output-type instans))))
+		      ;; 	(when (and (instans-select-output-type instans) (null (instans-select-output-processor instans)))
+		      ;; 	  (setf (instans-select-output-processor instans) (create-select-output-processor instans (instans-select-output-name instans) (instans-select-output-type instans) :appendp (instans-select-output-append-p instans))))
+		      ;; 	(when (and (instans-construct-output-type instans) (null (instans-construct-output-processor instans)))
+		      ;; 	  (setf (instans-construct-output-processor instans) (create-construct-output-processor instans (instans-construct-output-name instans) (instans-construct-output-type instans) :appendp (instans-construct-output-append-p instans)))))
+		      (execute () (instans-run instans))
 		      (maybe-execute ()
 					;		 (inform "maybe-execute?")
 			(when execute-immediately-p
