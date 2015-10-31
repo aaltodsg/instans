@@ -531,7 +531,7 @@
   ;; 	 (setf args (cons "instans" (cons "--end-toplevel-options" (if (= 1 (length args)) (split-string (first args) " ") args))))))
   (let ((value
 	 (catch :error
-	   (logmsg "In main ~S" args)
+	   (logmsg "In main ~S ~%       :exit-after-processing-args-p ~A :execute-immediately-p ~A" args exit-after-processing-args-p execute-immediately-p)
 	   (cond ((null args)
 		  (setf args sb-ext:*posix-argv*))
 		 ((stringp args)
@@ -564,7 +564,8 @@
 		      ;; 	  (setf (instans-select-output-processor instans) (create-select-output-processor instans (instans-select-output-name instans) (instans-select-output-type instans) :appendp (instans-select-output-append-p instans))))
 		      ;; 	(when (and (instans-construct-output-type instans) (null (instans-construct-output-processor instans)))
 		      ;; 	  (setf (instans-construct-output-processor instans) (create-construct-output-processor instans (instans-construct-output-name instans) (instans-construct-output-type instans) :appendp (instans-construct-output-append-p instans)))))
-		      (execute () (instans-run instans))
+		      (execute () (logmsg "Calling instans-run")
+			       (instans-run instans))
 		      (maybe-execute ()
 					;		 (inform "maybe-execute?")
 			(when execute-immediately-p
@@ -585,7 +586,7 @@
 	       (unwind-protect
 		    (block command-loop
 		      (parsing-instans-commands (key value) args :before (when time-output-stream (output-time "Command: ~(~A~), Parameter: ~A" key value)))
-		      (unless executedp (execute))
+		      (when (and execute-immediately-p (not executedp)) (execute))
 		      instans)
 		 (logmsg "At the end of main")
 		 (when exit-after-processing-args-p
