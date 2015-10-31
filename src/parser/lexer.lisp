@@ -290,7 +290,7 @@
     (progn
       (skip-whitespace-and-comments lexer)
       (cond ((null (peekch lexer))
-	     (close-stream (lexer-input-stream lexer) "next-input-token: close ~A")
+	     (close-stream (lexer-input-stream lexer) :message "next-input-token: close ~A")
 	     (return-input-token lexer :eof "End of input"))
 	    ((digit-char-p (peekch lexer))
 	     (eat-number lexer (empty-chbuf)))

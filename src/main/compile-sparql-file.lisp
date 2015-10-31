@@ -77,9 +77,10 @@
 (defvar *instanssi*)
 
 (defun instans-set-output-processors (instans)
+  ;; (describe instans)
   (when (and (instans-ask-output-type instans) (instans-ask-output-name instans) (null (instans-ask-output-processor instans)))
     ;; (inform "(instans-ask-output-type instans) ~A (instans-ask-output-name instans) ~A" (instans-ask-output-type instans) (instans-ask-output-name instans))
-    (setf (instans-ask-output-processor instans) (create-ask-output-processor instans (instans-ask-output-name instans) (instans-ask-output-type instans))))
+    (setf (instans-ask-output-processor instans) (create-ask-output-processor instans (instans-ask-output-name instans) (instans-ask-output-type instans) :appendp (instans-ask-output-append-p instans))))
   (when (and (instans-select-output-type instans) (null (instans-select-output-processor instans)))
     (setf (instans-select-output-processor instans) (create-select-output-processor instans (instans-select-output-name instans) (instans-select-output-type instans) :appendp (instans-select-output-append-p instans))))
   (when (and (instans-construct-output-type instans) (null (instans-construct-output-processor instans)))
@@ -117,7 +118,7 @@
 		(iri (getf spec :iri))
 		(type (or (getf spec :type) (file-type (or file iri)))))
 	   (if iri (values nil nil (format nil "Cannot output to IRI (~A) yet" iri))
-	       (values (open-file file :if-exists :supersede :fmt "create-output-stream: open ~{~A~^ ~}") type))))
+	       (values (open-file file :if-exists :supersede :message "create-output-stream: open ~{~A~^ ~}") type))))
 	((file-iri-string-p spec)
 	 (create-output-stream (list :file (probe-file (subseq spec 7)))))
 	((http-iri-string-p spec)
@@ -134,12 +135,12 @@
 	 (cond ((member (rdf-iri-scheme input) '("http" "https") :test #'equal)
 		(values (make-string-input-stream (http-get-to-string (rdf-iri-string input))) (file-type input)))
 	       ((equal (rdf-iri-scheme input) "file")
-		(values (open-file (rdf-iri-path input) :direction :input :fmt "create-input-processor: open ~{~A~^ ~}") (file-type input)))
+		(values (open-file (rdf-iri-path input) :direction :input :message "create-input-processor: open ~{~A~^ ~}") (file-type input)))
 	       (t (values nil nil (format nil "Cannot create an input stream based on ~S" input)))))
 	((http-or-file-iri-string-p input)
 	 (create-input-stream (parse-iri input)))
 	((or (stringp input) (pathnamep input))
-	 (values (open-file input :fmt "create-input-stream ~{~A~^ ~}") (file-type input)))
+	 (values (open-file input :message "create-input-stream ~{~A~^ ~}") (file-type input)))
 	(t (values nil nil (format nil "Cannot create an input stream based on ~S" input)))))
 
 (defun instans-add-stream-input-processor (instans input-iri &key (graph (instans-graph instans)) (base (instans-base instans)) input-type subscribe (output-options-stream nil))
@@ -195,6 +196,7 @@
     instans))
 
 (defun instans-run (instans &key select-output-name (select-output-type :csv) ask-output-name (ask-output-type :srx) construct-output-name (construct-output-type :trig))
+  (declare (ignorable select-output-name select-output-type ask-output-name ask-output-type construct-output-name construct-output-type))
   (instans-set-output-processors instans)
 ;  (handler-case
       (progn
@@ -225,7 +227,7 @@
 		    (instans-add-status instans 'instans-rdf-parsing-failed (ll-parser-error-messages rdf-parser))
 		    ;(inform "~A:~A~%~%" input-iri (ll-parser-error-messages rdf-parser))
 		    ))))
-      (when input-stream (close-stream input-stream "instans-parse-rdf-file: close ~A")))
+      (when input-stream (close-stream input-stream :message "instans-parse-rdf-file: close ~A")))
     instans))
 
 (defun instans-compare-rdf-files (instans input1-iri input2-iri &key base)

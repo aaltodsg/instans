@@ -212,23 +212,23 @@
 		 (t
 		  (values (directory-namestring path) (subseq fn 0 last-dot-index) (subseq fn (1+ last-dot-index)))))))))
 
-(defun close-stream (stream &optional fmt)
-  (declare (ignorable fmt))
-  ;; (when fmt
-  ;;   (format *error-output* "~&~A~%" (format nil fmt stream)))
+(defvar *stream-open-close-report-output* nil)
+
+(defun close-stream (stream &key (message "closing ~A") (report-stream *stream-open-close-report-output*))
+  (declare (ignorable message))
+  (when report-stream (format report-stream "~&~A~%" (format nil message stream)))
   (close stream))
 
-(defun close-stream-not-stdout-stderr (stream &optional fmt)
-  (unless (or (eq stream *standard-output*) (eq stream *error-output*) ); (not (open-stream-p stream)))
-    (close-stream stream fmt)))
+(defun close-stream-not-stdout-stderr (stream &key (message "closing ~A") (report-stream *stream-open-close-report-output*))
+  (unless (or (eq stream *standard-output*) (eq stream *stream-open-close-report-output*) ); (not (open-stream-p stream)))
+    (close-stream stream :message message :report-stream report-stream)))
 
-(defun open-file (file &rest keys &key fmt &allow-other-keys)
-  (declare (ignorable fmt))
-  (when fmt
+(defun open-file (file &rest keys &key (message "opening ~{~A~^ ~}") (report-stream *stream-open-close-report-output*) &allow-other-keys)
+  (declare (ignorable message))
+  (remf keys :message)
+  (when report-stream
     (setf keys (copy-list keys))
-    (remf keys :fmt)
-    ;; (format *error-output* "~&~A~%" (format nil fmt (list file keys)))
-    )
+    (format report-stream "~&~A~%" (format nil message (list file keys))))
   (apply #'open file keys))
 
 ;;;

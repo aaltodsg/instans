@@ -129,12 +129,13 @@
   (cond ((or (null output-name) (string= "-" output-name))
 	 *standard-output*)
 	(appendp
-	 (open-file output-name :direction :output :if-exists :append :fmt "make-instans-output-processor-output-stream: open ~{~A~^ ~}"))
+	 (open-file output-name :direction :output :if-exists :append :message "make-instans-output-processor-output-stream: open ~{~A~^ ~}"))
 	(t
-	 (open-file output-name :direction :output :if-exists :supersede :fmt "make-instans-output-processor-output-stream: open ~{~A~^ ~}"))))
+	 (open-file output-name :direction :output :if-exists :supersede :message "make-instans-output-processor-output-stream: open ~{~A~^ ~}"))))
 
 (defun create-select-output-processor (instans output-name output-type &key appendp)
   ;; (inform "create-select-output-processor ~A ~A" output-name appendp)
+  (when (rdf-iri-p output-name) (setf output-name (rdf-iri-path output-name)))
   (setf appendp (not (null (and appendp output-name (not (string= "-" output-name)) (probe-file output-name)))))
 ;  (inform "appendp now ~A" appendp)
   (let ((writer (case output-type
@@ -169,18 +170,21 @@
 		   :output-name output-name
 		   :writer writer)))
 
-(defun create-ask-output-processor (instans output-name output-type)
+(defun create-ask-output-processor (instans output-name output-type &key appendp)
   ;; (inform "create-ask-output-processor ~A ~A" output-name appendp)
+  (when (rdf-iri-p output-name) (setf output-name (rdf-iri-path output-name)))
   (let ((writer (case output-type
 		  (:srx
 		   (make-instance 'instans-srx-writer
 				  :name output-name
 				  :results (make-instance 'sparql-query-results)
+				  :appendp appendp
 				  :stream (make-instans-output-processor-output-stream output-name)))
 		  (:ttl
 		   (make-instance 'instans-ttl-writer
 				  :name output-name
 				  :results (make-instance 'sparql-query-results)
+				  :appendp appendp
 				  :stream (make-instans-output-processor-output-stream output-name)))
 		  (t (error* "Unknown ask output writer type ~S" output-type)))))
     (make-instance 'instans-ask-output-processor
@@ -195,6 +199,7 @@
 
 (defun create-construct-stream-output-processor (instans output-name output-type &key appendp)
   ;; (inform "create-construct-stream-output-processor ~A ~A" output-name appendp)
+  (when (rdf-iri-p output-name) (setf output-name (rdf-iri-path output-name)))
   (setf appendp (and appendp (or (null output-name) (string= "-" output-name) (probe-file output-name))))
   (let* ((stream (make-instans-output-processor-output-stream output-name appendp))
 	 (writer (make-instance 'instans-construct-stream-writer :name output-name :stream stream)))
@@ -206,6 +211,7 @@
       (t (error* "Unknown construct output processor type ~S" output-type)))))
 
 (defun create-construct-agent-output-processor (instans output-name output-type destinations)
+  (when (rdf-iri-p output-name) (setf output-name (rdf-iri-path output-name)))
   (let ((writer (make-instance 'instans-agent-writer :name output-name :destinations destinations)))
     (case output-type
       ((:ttl :turtle) (make-instance 'instans-turtle-output-processor :instans instans :output-name output-name :writer writer))
@@ -244,7 +250,7 @@
 
 (defgeneric close-output-processor (instans-output-processor)
   (:method ((this instans-output-processor))
-    ;; (inform "close-output-processor ~S" this)
+    (format *stream-open-close-report-output* "close-output-processor ~S" this)
     (let ((writer (instans-output-processor-writer this)))
       (flush-output-processor this)
       (when (typep writer 'instans-agent-writer)

@@ -6,7 +6,9 @@
 (in-package #:instans)
 
 (eval-when (:compile-toplevel)
-  (load "sparql/sparql-types"))
+  (let* ((root (find-instans-root-directory))
+	 (sparql-types (format nil "~Asrc/sparql/sparql-types" root)))
+    (load sparql-types)))
 
 ;;; TODO
 ;;; * How should we name sparql-functions? Should we use sparql-zap or just zap? The latter is nice and short, but the function calls may be difficult to understand,

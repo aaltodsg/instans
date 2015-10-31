@@ -120,10 +120,11 @@
   (:method ((this existence-start-node))
     ;;; An EQL hashtable, since we are using integers as keys!
     (when (null (node-prev this))
-      (let* ((active-p-var (existence-active-p-var this))
+      (let* (;(active-p-var (existence-active-p this))
 	     (counter-var (existence-counter-var this))
 	     ;;; Order in the new token is ((nil key) (counter-var 0) (active-p nil) ..)
-	     (initial-token (make-token this (make-singleton-token) (list active-p-var counter-var) (list *sparql-unbound* *sparql-unbound*)))) ;;; Node is inactive; zero hits
+;	     (initial-token (make-token this (make-singleton-token) (list active-p-var counter-var) (list *sparql-unbound* *sparql-unbound*)))) ;;; Node is inactive; zero hits
+	     (initial-token (make-token this (make-singleton-token) (list counter-var) (list nil))))
 	(add-token this initial-token))))
   (:method ((this token-store))
     ;;; An EQL hashtable, since we are using integers as keys!
@@ -288,7 +289,7 @@
 	(progn
 	  (loop for ip in (instans-input-processors this)
 		do (when (instans-stream-input-processor-p ip)
-		     (close-stream (lexer-input-stream (ll-parser-lexer (instans-stream-input-processor-parser ip))) "instans-close-open-streams: close ~A")))
+		     (close-stream (lexer-input-stream (ll-parser-lexer (instans-stream-input-processor-parser ip))) :message "instans-close-open-streams: close ~A")))
 	  (when (instans-ask-output-processor this)
 	    (close-output-processor (instans-ask-output-processor this)))
 	  (when (instans-select-output-processor this)
@@ -1140,6 +1141,7 @@
       (apply (modify-insert-func this) (node-instans this) (loop for var in (modify-insert-parameters this) collect (token-value this token var)))))
   (:method ((this construct-node) token)
     (declare (ignorable this token))
+    ;; (inform "execute-rule-node ~S, lambda = ~S, construct-output-processor = ~S" this (construct-lambda this) (instans-construct-output-processor (node-instans this)))
     (when (construct-func this)
       (apply (construct-func this) (node-instans this) (loop for var in (construct-parameters this) collect (token-value this token var))))))
 
@@ -1167,4 +1169,5 @@
 	 token-value make-token call-succ-nodes rete-add-rule-instance execute-rules rule-instance-queue-execute-instance execute-rule-node
 	 select-output token-store-put token-store-put-if-missing token-store-get token-store-remove token-store-remove-if-exists token-store-tokens index-put-token index-get-tokens index-remove-token
 	 token-map-get token-map-put token-map-remove
-	 aggregate-get-value aggregate-add-value aggregate-remove-value start-node-token))
+	 aggregate-get-value aggregate-add-value aggregate-remove-value start-node-token
+	 construct-output select-output))

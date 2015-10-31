@@ -348,7 +348,7 @@
     (progn
       (let ((eolp (skip-whitespace-and-comments lexer)))
 	(cond ((null (peekch lexer))
-	       (close-stream (lexer-input-stream lexer) "get-input-token: close ~A")
+	       (close-stream (lexer-input-stream lexer) :message "get-input-token: close ~A")
 	       (return-input-token lexer :eof "End of input"))
 	      (eolp (return-input-token lexer 'EOL-TOKEN "End of line"))
 	      ((get-char-if-looking-at lexer #\.)
