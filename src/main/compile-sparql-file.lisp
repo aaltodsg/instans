@@ -156,6 +156,7 @@
 	(t (error* "Unknown input type ~S" input-type)))
     (let* ((input-unit (instans-rdf-input-unit instans))
 	   (processor (make-instance processor-type
+				     :name input-iri
 				     :instans instans
 				     :input-unit input-unit
 				     :operations (instans-rdf-operations instans)

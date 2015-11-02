@@ -300,9 +300,12 @@
       ;; 	 (instans-add-status this 'instans-rule-running-failed (list (format nil "~A" e)))))
   ))
 
+(defvar *current-input-processor* nil)
+
 (defgeneric process-query-input (instans-input-processor inputs &key graph ops)
   (:method ((this instans-input-processor) inputs &key graph ops)
-    (let ((instans (instans-input-processor-instans this)))
+    (let ((instans (instans-input-processor-instans this))
+	  (*current-input-processor* this))
       (labels ((map-named-blank-node (x)
 		 (cond ((rdf-named-blank-node-p x)
 			(let ((tr (gethash (uniquely-named-object-name x) (instans-input-processor-blank-node-mapping this))))
