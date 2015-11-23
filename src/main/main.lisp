@@ -489,6 +489,24 @@
   (setf *instans-command-cases* (expand-command-cases (instans-command-cases)))
   )
 
+(defun parsed-options-to-string (parsed-options)
+  (format nil "~{~A~^ ~}"
+	  (loop for (key value) in parsed-options
+		collect (cond ((characterp key)
+			       (cond ((null value) (format nil "-~C" key))
+				     (t (format nil "-~C ~A" key value))))
+			      ((null value)
+			       (format nil "--~A" key))
+			      (t
+			       (format nil "--~A=~A" key value))))))
+
+(defun extract-options (args options)
+  (loop for (key value) in (split-command-line-args args)
+        when (member key options :test #'equal)
+        collect (list key value) into extracted
+        else collect (list key value) into remaining
+        finally (return (values extracted remaining))))
+
 (defmacro parsing-instans-commands ((key-var value-var) args-var &key before after)
   (let* ((expanded-command-cases *instans-command-cases*)
 	 (split-args-var (gensym "SPLITARGS"))
