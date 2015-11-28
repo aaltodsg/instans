@@ -29,7 +29,7 @@
 			    (cond ((consp x)
 				   (cond ((member (car x) '(EXISTS NOT-EXISTS))
 					  (push-to-end x exists-list)
-					  (let ((v (generate-and-canonize-var "!COUNTER")))
+					  (let ((v (generate-and-canonize-var "!EXISTS_COUNTER")))
 					    (push-to-end v counter-var-list)
 					    (if (eq (car x) 'EXISTS) (create-sparql-call ">" v 0) (create-sparql-call "<=" v 0))))
 					 (t
@@ -110,7 +110,7 @@
 			     (cond ((eq f T)
 				    prev)
 				   ((and (consp f) (eq (first f) 'EXISTS))
-				    (let* ((counter-var (generate-and-canonize-var "!COUNTER"))
+				    (let* ((counter-var (generate-and-canonize-var "!EXISTS_COUNTER"))
 ;					   (active-p-var (generate-and-canonize-var "!ACTIVEP"))
 					   (exists-start (make-or-share-instance 'exists-start-node :prev prev :counter-var counter-var ;:active-p-var active-p-var
 										 :kind :simple-exists))
@@ -120,7 +120,7 @@
 				      (setf (subgraph-end-node exists-start) exists-end)
 				      exists-end))
 				   ((and (consp f) (eq (first f) 'NOT-EXISTS))
-				    (let* ((counter-var (generate-and-canonize-var "!COUNTER"))
+				    (let* ((counter-var (generate-and-canonize-var "!EXISTS_COUNTER"))
 ;					   (active-p-var (generate-and-canonize-var "!ACTIVEP"))
 					   (exists-start (make-or-share-instance 'exists-start-node :prev prev :counter-var counter-var ; :active-p-var active-p-var
 										 :kind :simple-not-exists))
@@ -177,7 +177,7 @@
 				  (push-to-end-new prev (node-succ alpha-memory)))))
 			 prev)
 		   (LEFTJOIN (setf prev (translate (first args) prev dataset))
-			     (let* ((counter-var (generate-and-canonize-var "!COUNTER"))
+			     (let* ((counter-var (generate-and-canonize-var "!EXISTS_COUNTER"))
 ;				    (active-p-var (generate-and-canonize-var "!ACTIVEP"))
 				    (optional-expr `(FILTER ,(third args) ,(second args)))
 				    (optional-start (make-or-share-instance 'optional-start-node :prev prev :counter-var counter-var ; :active-p-var active-p-var

@@ -124,7 +124,7 @@
 	     (counter-var (existence-counter-var this))
 	     ;;; Order in the new token is ((nil key) (counter-var 0) (active-p nil) ..)
 ;	     (initial-token (make-token this (make-singleton-token) (list active-p-var counter-var) (list *sparql-unbound* *sparql-unbound*)))) ;;; Node is inactive; zero hits
-	     (initial-token (make-token this (make-singleton-token) (list counter-var) (list nil))))
+	     (initial-token (make-token this (make-singleton-token) (list counter-var) (list 0))))
 	(add-token this initial-token))))
   (:method ((this token-store))
     ;;; An EQL hashtable, since we are using integers as keys!
@@ -570,7 +570,7 @@
   (:method ((this exists-start-node) token &optional stack)
     (let* ((hashkey-item (or (first token) (list nil (sxhash nil))))
 	   (counter-var (existence-counter-var this))
-	   (subgraph-token (cons hashkey-item (cons (list counter-var nil) token))))
+	   (subgraph-token (cons hashkey-item (cons (list counter-var 0) token))))
       (when (token-store-put-if-missing this subgraph-token)
 	(let ((state (make-instance 'existence-start-node-token-state :counter 0 :activep t))) ;;; Node is active; zero hits
 	  (token-map-put (existence-start-node-token-map this) subgraph-token state)
@@ -626,7 +626,7 @@
   (:method ((this optional-start-node) token &optional stack)
     (let* ((hashkey-item (or (first token) (list nil (sxhash nil))))
 	   (counter-var (existence-counter-var this))
-	   (subgraph-token (cons hashkey-item (cons (list counter-var nil) token))))
+	   (subgraph-token (cons hashkey-item (cons (list counter-var 0) token))))
       (when (token-store-put-if-missing this subgraph-token)
 	(let ((state (make-instance 'existence-start-node-token-state :counter 0 :activep t))) ;;; Node is active; zero hits
 	  (token-map-put (existence-start-node-token-map this) subgraph-token state)
@@ -821,7 +821,7 @@
     ;; (inform "remove-token ~A ~A" this token)
     (let* ((hashkey-item (or (first token) (list nil (sxhash nil))))
 	   (counter-var (existence-counter-var this))
-	   (subgraph-token (cons hashkey-item (cons (list counter-var nil) token))))
+	   (subgraph-token (cons hashkey-item (cons (list counter-var 0) token))))
       (when (token-store-remove-if-exists this subgraph-token)
 	(let* ((token-map (existence-start-node-token-map this))
 	       (state (token-map-get token-map subgraph-token))
@@ -869,7 +869,7 @@
   (:method ((this optional-start-node) token &optional stack)
     (let* ((hashkey-item (or (first token) (list nil (sxhash nil))))
 	   (counter-var (existence-counter-var this))
-	   (subgraph-token (cons hashkey-item (cons (list counter-var nil) token))))
+	   (subgraph-token (cons hashkey-item (cons (list counter-var 0) token))))
       (when (token-store-remove-if-exists this subgraph-token)
 	(let* ((token-map (existence-start-node-token-map this))
 	       (state (token-map-get token-map subgraph-token))
