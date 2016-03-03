@@ -73,8 +73,8 @@
   (:method ((this token-store) &key binding-info-box-p &allow-other-keys)
     ;;; TODO: lisää boxi token-storen kokoa varten
     (if binding-info-box-p
-	; (format nil "<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"1\" CELLPADDING=\"0\"><TR><TD>~A</TD><TD>00000</TD></TR></TABLE>" (dot-node-pretty-name this))
-	(format nil "{<n> ~A| 00000<p>}" (dot-node-pretty-name this))
+	(format nil "<TABLE BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" CELLPADDING=\"1\"><TR><TD>~A</TD></TR><TR><TD>&nbsp; tokens</TD></TR></TABLE>" (dot-node-pretty-name this))
+;	(format nil "{<n> ~A| 00000<p>}" (dot-node-pretty-name this))
 	(format nil "~A" (dot-node-pretty-name this))))
   (:method ((this node) &key html-labels-p show-vars-p &allow-other-keys)
     (cond ((null html-labels-p)
@@ -82,7 +82,7 @@
 	  (t
 	   (apply #'concatenate 'string
 		  (append 
-		   (list (format nil "<TABLE BORDER=\"0\" CELLBORDER=\"~D\" CELLSPACING=\"0\" CELLPADDING=\"4\">" (if show-vars-p 1 0)))
+		   (list (format nil "<TABLE BORDER=\"1\" CELLBORDER=\"~D\" CELLSPACING=\"0\" CELLPADDING=\"4\">" (if show-vars-p 1 0)))
 		   (cond ((not show-vars-p)
 			  (list (format nil "<TR><TD>~A</TD></TR>" (dot-node-pretty-name this))))
 			 (t
@@ -155,8 +155,8 @@
 (defgeneric dot-node-description (node &key html-labels-p shape show-vars-p binding-info-box-p)
   (:documentation "Returns a dot node description.")
   (:method ((this token-store) &key (html-labels-p t) shape show-vars-p binding-info-box-p)
-    (when binding-info-box-p
-      (setf shape "box"))
+    ;; (when binding-info-box-p
+    ;;   (setf shape ""))
     (let ((color (dot-node-color this)))
       (format nil "~A[class=\"~A\" id=\"~A\",fontname=\"Courier\",fontsize=\"10\", color=~A, shape=~A, label=<~A>, margin=0, tooltip=~S];" (dot-node-name this) (type-of this) (dot-node-name this)
 	      color shape (dot-node-label this :html-labels-p html-labels-p :show-vars-p show-vars-p :binding-info-box-p binding-info-box-p) (dot-node-tooltip this))))
