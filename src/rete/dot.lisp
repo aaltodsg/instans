@@ -63,18 +63,19 @@
 (defun var-names (node l)
   (mapcar #'(lambda (var) (var-name node var)) l))
 
-(defgeneric dot-node-label (node &key html-labels-p show-vars-p)
+(defgeneric dot-node-label (node &key html-labels-p show-vars-p binding-info-box-p)
   (:method ((this triple-pattern-node) &key &allow-other-keys)
     (format nil "~A: ~A"
 	    (dot-node-pretty-name this)
 	    (dot-pretty-triple-pattern this)))
   (:method ((this alpha-node) &key &allow-other-keys)
     (format nil "~A" (dot-node-pretty-name this)))
-  (:method ((this alpha-memory) &key &allow-other-keys)
-    (format nil "~A" (dot-node-pretty-name this)))
-  (:method ((this beta-memory) &key &allow-other-keys)
-    (format nil "~A" (dot-node-pretty-name this)))
-  (:method ((this node) &key html-labels-p show-vars-p)
+  (:method ((this token-store) &key binding-info-box-p &allow-other-keys)
+    ;;; TODO: lisää boxi token-storen kokoa varten
+    (if binding-info-box-p
+	(format nil "<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" CELLPADDING=\"4\"><TR><TD>~A</TD><TD></TD></TR></TABLE>" (dot-node-pretty-name this))
+	(format nil "~A" (dot-node-pretty-name this))))
+  (:method ((this node) &key html-labels-p show-vars-p &allow-other-keys)
     (cond ((null html-labels-p)
 	   (format nil "~A" (dot-node-pretty-name this)))
 	  (t
@@ -150,33 +151,33 @@
 (defmethod dot-node-tooltip :around ((this query-node))
   (format nil "~A~%project-vars: ~A" (call-next-method) (var-orig-names this (solution-modifiers-project-vars this))))
 
-(defgeneric dot-node-description (node &key html-labels-p shape show-vars-p)
+(defgeneric dot-node-description (node &key html-labels-p shape show-vars-p binding-info-box-p)
   (:documentation "Returns a dot node description.")
-  (:method ((this node) &key (html-labels-p t) shape show-vars-p)
+  (:method ((this node) &key (html-labels-p t) shape show-vars-p binding-info-box-p)
     (when (and (null shape) html-labels-p show-vars-p)
       (setf shape "box"))
     (let ((color (dot-node-color this)))
       (format nil "~A[class=\"~A\" id=\"~A\",fontname=\"Courier\",fontsize=\"10\", color=~A, shape=~A, label=<~A>, margin=0, tooltip=~S];" (dot-node-name this) (type-of this) (dot-node-name this)
-	      color shape (dot-node-label this :html-labels-p html-labels-p :show-vars-p show-vars-p) (dot-node-tooltip this)))))
+	      color shape (dot-node-label this :html-labels-p html-labels-p :show-vars-p show-vars-p :binding-info-box-p binding-info-box-p) (dot-node-tooltip this)))))
 
-(defun print-dot-nodes (stream nodes &key rank (node-shape "ellipse") (html-labels-p t) show-vars-p)
+(defun print-dot-nodes (stream nodes &key rank (node-shape "ellipse") (html-labels-p t) show-vars-p binding-info-box-p)
   (cond ((null rank)
 	 (format stream "~%  {"))
 	(t
 	 (format stream "~%  { rank=~a; " rank )))
   (dolist (node nodes)
-    (format stream "~%    ~A" (dot-node-description node :html-labels-p html-labels-p :shape node-shape :show-vars-p show-vars-p)))
+    (format stream "~%    ~A" (dot-node-description node :html-labels-p html-labels-p :shape node-shape :show-vars-p show-vars-p :binding-info-box-p binding-info-box-p)))
   (format stream "~%  }"))
 
-(defun print-dot (net &key (stream *standard-output*) show-vars-p (html-labels-p t) (node-shape "ellipse"))
+(defun print-dot (net &key (stream *standard-output*) show-vars-p (html-labels-p t) (node-shape "ellipse") binding-info-box-p)
   (let* ((nodes (instans-nodes net))
 	 (alphas (filter #'(lambda (node) (typep node 'alpha-node)) nodes))
 	 (alphamems (filter #'(lambda (node) (typep node 'alpha-memory)) nodes))
 	 (other-nodes (list-difference nodes (list-union alphas alphamems))))
     (format stream "~%digraph ~S{" (instans-name net))
     (print-dot-nodes stream alphas :rank "same" :show-vars-p show-vars-p :node-shape node-shape :html-labels-p html-labels-p)
-    (print-dot-nodes stream alphamems :rank "same" :show-vars-p show-vars-p :node-shape node-shape :html-labels-p html-labels-p)
-    (print-dot-nodes stream other-nodes :show-vars-p show-vars-p :node-shape node-shape :html-labels-p html-labels-p)
+    (print-dot-nodes stream alphamems :rank "same" :show-vars-p show-vars-p :node-shape node-shape :html-labels-p html-labels-p :binding-info-box-p binding-info-box-p)
+    (print-dot-nodes stream other-nodes :show-vars-p show-vars-p :node-shape node-shape :html-labels-p html-labels-p :binding-info-box-p binding-info-box-p)
     (dolist (node nodes)
       (flet ((edge-attrs (vars parent)
 	       (format nil "[id=~A, label=<~(~{~a~^<br/>~}~)>~:[, style=\"dashed\"~;~]]"
@@ -193,8 +194,8 @@
 	(format stream "~%  ~A -> ~A[dir=\"none\", style=\"dotted\", color=\"gray\"];" (dot-node-name node) (dot-node-name (subgraph-start-node node)))))
     (format stream "~%}~%")))
 
-(defun print-dot-file (net file &key (html-labels-p t))
-  (with-open-file (stream file :direction :output :if-exists :supersede) (print-dot net :stream stream :show-vars-p t :html-labels-p html-labels-p)))
+(defun print-dot-file (net file &key (html-labels-p t) binding-info-box-p)
+  (with-open-file (stream file :direction :output :if-exists :supersede) (print-dot net :stream stream :show-vars-p t :html-labels-p html-labels-p :binding-info-box-p binding-info-box-p)))
 
 (defun output-rete-html-page (instans rules-file html-file)
   (let (name dir)
