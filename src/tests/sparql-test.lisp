@@ -59,7 +59,8 @@
   ((datafile :accessor sparql-test-datafile :initarg :datafile)
    (graphfiles :accessor sparql-test-graphfiles :initarg :graphfiles)
    (resultfile :accessor sparql-test-resultfile :initarg :resultfile)
-   (running-succeeded-p :accessor sparql-test-running-succeeded-p )
+   (running-succeeded-p :accessor sparql-test-running-succeeded-p)
+   (running-crashed-p :accessor sparql-test-running-crashed-p)
    (comparing-succeeded-p :accessor sparql-test-comparing-succeeded-p)))
 
 (define-class sparql-update-evaluation-test (sparql-query-evaluation-test)
@@ -115,6 +116,7 @@
 (defmethod reinitialize-instance ((this sparql-query-evaluation-test) &key &allow-other-keys)
   (call-next-method)
   (slot-makunbound this 'running-succeeded-p)
+  (slot-makunbound this 'running-crashed-p)
   (slot-makunbound this 'comparing-succeeded-p))
 
 (defmethod initialize-instance :after ((this sparql-update-evaluation-test) &key &allow-other-keys)
@@ -177,6 +179,8 @@
     (format stream "~%  :graphfiles ~A" (sparql-test-graphfiles this)))
   (when (slot-boundp this 'running-succeeded-p)
     (format stream "~%  :running-succeeded-p ~A" (sparql-test-running-succeeded-p this)))
+  (when (slot-boundp this 'running-crashed-p)
+    (format stream "~%  :running-crashed-p ~A" (sparql-test-running-crashed-p this)))
   (when (slot-boundp this 'comparing-succeeded-p)
     (format stream "~%  :comparing-succeeded-p ~A" (sparql-test-comparing-succeeded-p this))))
 
@@ -296,12 +300,27 @@
       (MODIFY)
       (t (error* "Illegal rule-type ~A in ~A" (sparql-test-rule-type this) this)))))
 
+(defvar *handle-conditions-p* t)
+
 (defgeneric sparql-test-run-system (sparql-test)
   (:method ((this sparql-query-evaluation-test))
+    (inform "*handle-conditions-p* = ~S" *handle-conditions-p*)
     (let ((instans (sparql-test-instans this)))
       (initialize-reporting instans (sparql-test-reporting this))
-      (let ((result (catch 'sparql-op-not-implemented-yet (run-input-processors instans t))))
-	(instans-close-open-streams instans)
+      (let ((result
+	     (catch 'sparql-op-not-implemented-yet
+	       (cond ((not *handle-conditions-p*)
+		      (inform "Not handling errors")
+		      (unwind-protect
+			   (run-input-processors instans t)
+			(instans-close-open-streams instans)))
+		     (t
+		      (handler-case
+			  (unwind-protect
+			       (run-input-processors instans t)
+			    (instans-close-open-streams instans))
+			(condition ()
+			  (instans-add-status instans 'instans-rule-running-crashed))))))))
 	(when (eq result :sparql-op-not-implemented-yet)
 	  (instans-add-status instans 'instans-feature-not-implemented-yet))
 	result))))
@@ -386,6 +405,7 @@
        (list :rule-type (sv 'rule-type))
        (list :different-semantics-p (sparql-test-different-semantics-p this))
        (list :running-succeeded-p (sv 'running-succeeded-p))
+       (list :running-crashed-p (sv 'running-crashed-p))
        (list :comparing-succeeded-p (sv 'comparing-succeeded-p))
        (list :time (let ((start (sv 'start-time)) (end (sv 'end-time))) (and (numberp start) (numberp end) (- end start))))))))
 
@@ -428,9 +448,11 @@
       (cond ((instans-has-status instans 'instans-feature-not-implemented-yet)
 	     (setf (sparql-test-not-implemented-p this) t))
 	    ((not (or (instans-has-status instans 'instans-rule-running-succeeded)
-		      (instans-has-status instans 'instans-rule-running-failed)))
+		      (instans-has-status instans 'instans-rule-running-failed)
+		      (instans-has-status instans 'instans-rule-running-crashed)))
 	     (instans-add-status instans 'instans-rule-running-succeeded)))
       (setf (sparql-test-running-succeeded-p this) (instans-has-status instans 'instans-rule-running-succeeded))
+      (setf (sparql-test-running-crashed-p this) (instans-has-status instans 'instans-rule-running-crashed))
       (sparql-test-add-phase this :ran)))
   (:method ((this sparql-test) &key &allow-other-keys)
     (declare (ignore this))
@@ -930,7 +952,7 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
 
 (defun run-suite-collection-name (&key (test-set (and (boundp '*sparql-test-set*) *sparql-test-set*))
 				    (root-directory (namestring (truename (probe-file "../../sparql-conformance-tests-for-instans"))))
-				    path suite collection name show-options-p reporting)
+				    path suite collection name show-options-p reporting handle-conditions-p)
   (let ((needs-reinitialization-p (not (null test-set))))
     (unless test-set (setf test-set (make-instance 'sparql-test-set :root-directory root-directory)))
     (setf *sparql-test-set* test-set)
@@ -947,14 +969,18 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
 		      (when needs-reinitialization-p (reinitialize-instance test))
 		      (cond ((null show-options-p)
 			     (setf (sparql-test-output-options-stream test) nil)
-			     (sparql-test-execute test :verbosep t))
+			     (let ((*handle-conditions-p* handle-conditions-p))
+			       (sparql-test-execute test :verbosep t)))
 			    (t
 			     (inform "Options: ~A"
 				     (with-output-to-string (str)
 				       (setf (sparql-test-output-options-stream test) str)
-				       (sparql-test-execute test :verbosep t)))))))
+				       (let ((*handle-conditions-p* handle-conditions-p))
+					 (sparql-test-execute test :verbosep t))))))))
 	(setf *sparql-error-op* saved-sparql-error-op))
     *current-sparql-test*)))
 
 (defun main-test ()
   (main "--run-suite-collection-name=../../sparql-conformance-tests-for-instans"))
+
+;;; --rules=/Users/enu/aaltodsg/sparql-conformance-tests-for-instans/suites/data-sparql11/exists/exists01.rq --base=file:///Users/enu/aaltodsg/sparql-conformance-tests-for-instans/suites/data-sparql11/exists/ --input-ttl=/Users/enu/aaltodsg/sparql-conformance-tests-for-instans/suites/data-sparql11/exists/exists01.ttl --select-output-ttl=/Users/enu/aaltodsg/sparql-conformance-tests-for-instans/suites/data-sparql11/exists/output/exists01.ttl

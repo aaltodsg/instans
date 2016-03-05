@@ -37,7 +37,8 @@
   ((start-node :accessor subgraph-start-node :initarg :start-node)))
 
 (define-class token-map ()
-  ((map :accessor token-map-map :initform nil)))
+  ((map :accessor token-map-map :initform nil)
+   (owner :accessor token-map-owner :initarg :owner)))
 
 (define-class existence-start-node-token-state ()
   ((counter :accessor existence-start-node-token-state-counter :initarg :counter)
@@ -46,7 +47,7 @@
 (define-class existence-start-node (subgraph-start-node beta-memory)
   ((counter-var :accessor existence-counter-var :initarg :counter-var)
 ;   (active-p-var :accessor existence-active-p-var :initarg :active-p-var)
-   (map :accessor existence-start-node-token-map :initform (make-instance 'token-map))))
+   (map :accessor existence-start-node-token-map)))
 
 (define-class existence-end-node (subgraph-end-node) ())
 
@@ -101,7 +102,7 @@
   ((kind :accessor exists-kind :initarg :kind :initform nil)))
 
 (define-class filter-with-previous-value (token-store filter-node) 
-  ((map :accessor filter-with-previous-value-token-map :initform (make-instance 'token-map))))
+  ((map :accessor filter-with-previous-value-token-map)))
 
 (define-class optional-start-node (existence-start-node) ())
 
@@ -123,7 +124,7 @@
    (aggr-remove-lambda :accessor aggregate-join-aggr-remove-lambda)
    (aggr-remove-func :accessor aggregate-join-aggr-remove-func)
    (groups :accessor aggregate-join-groups)
-   (token-group-map :accessor aggregate-join-token-group-map :initform (make-instance 'token-map))))
+   (token-group-map :accessor aggregate-join-token-group-map)))
 
 (define-class group ()
   ((aggregate-join :accessor group-aggregate-join :initarg :aggregate-join)
@@ -369,6 +370,7 @@
 (define-class instans-rule-initialization-succeeded (instans-status) ())
 (define-class instans-rule-running-failed (instans-status) ())
 (define-class instans-rule-running-succeeded (instans-status) ())
+(define-class instans-rule-running-crashed (instans-status) ())
 (define-class instans-rule-comparing-failed (instans-status) ())
 (define-class instans-rule-comparing-succeeded (instans-status) ())
 (define-class instans-rdf-parsing-failed (instans-status) ())

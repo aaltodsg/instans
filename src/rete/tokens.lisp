@@ -51,10 +51,12 @@
 
 (defgeneric start-node-token (node token)
   (:method ((this existence-end-node) token)
+    ;; (inform "start-node-token node ~S counter-var ~S, token ~S" this (existence-counter-var (subgraph-start-node this)) token)
     (loop with counter-var = (existence-counter-var (subgraph-start-node this))
-	  for items on (rest token)
-	  while (not (sparql-var-equal (first (second items)) counter-var))
-	  finally (return (cons (or (third items) (list nil (sxhash nil))) (rest items))))))
+	  for items on token
+	  while (not (sparql-var-equal (first (first items)) counter-var))
+	  finally (let ((hashkey-item (or (second items) (list nil (sxhash nil)))))
+		    (return (cons hashkey-item (cons (list counter-var 0) (rest items))))))))
 
 ;;; We can freely skip the first item of token, since it should be (nil key)!
 (defun token-value (node token var)

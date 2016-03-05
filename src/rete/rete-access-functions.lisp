@@ -16,6 +16,9 @@
 (defmethod print-object ((this hash-token-index) stream)
   (format stream "#<~A ~A>" (type-of this) (hash-token-index-id this)))
 
+(defmethod print-object ((this token-map) stream)
+  (format stream "#<~A ~A>" (type-of this) (node-name (token-map-owner this))))
+
 ;;; Node initialize-instance :after methods
 
 
@@ -72,10 +75,17 @@
   (setf (instans-rule-instance-queue this) (make-instance 'rule-instance-queue :instans this))
   (setf (instans-triple-pattern-matcher this) (make-instance 'triple-pattern-matcher :instans this)))
 
+(defmethod initialize-instance :after ((this existence-start-node) &key &allow-other-keys)
+  (setf (existence-start-node-token-map this) (make-instance 'token-map :owner this)))
+
+(defmethod initialize-instance :after ((this filter-with-previous-value) &key &allow-other-keys)
+  (setf (filter-with-previous-value-token-map this) (make-instance 'token-map :owner this)))
+
 (defmethod initialize-instance :after ((this aggregate-join-node) &key group aggr-exprs &allow-other-keys)
   (setf (aggregate-join-group-var this) (third group))
   (setf (aggregate-join-key-vars this) (collect-expression-variables (setf (aggregate-join-key-exprs this) (second group))))
   (setf (aggregate-join-aggr-vars this) (collect-expression-variables (mapcar #'fifth aggr-exprs)))
+  (setf (aggregate-join-token-group-map this) (make-instance 'token-map :owner this))
 ;  (describe this)
   )
 
