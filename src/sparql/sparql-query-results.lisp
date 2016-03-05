@@ -18,6 +18,11 @@
 (define-class sparql-result (sparql-abstract-result)
   ((bindings :accessor sparql-result-bindings :initarg :bindings)))
 
+(define-class sparql-results ()
+  ((results :accessor sparql-results-results :initarg :results)
+   (orderedp :accessor sparql-results-ordered-p :initarg :orderedp)
+   (distinctp :accessor sparql-results-distinct-p :initarg :distinctp)))
+
 (define-class sparql-binding ()
   ((variable :accessor sparql-binding-variable :initarg :variable)
    (value :accessor sparql-binding-value :initarg :value)))
@@ -37,6 +42,13 @@
 (defun create-sparql-result (bindings)
 ;  (inform "create-sparql-result ~{~A~^ ~}" bindings)
   (make-instance 'sparql-result :bindings bindings))
+
+(defun create-sparql-results (properties results)
+;  (inform "create-sparql-result ~{~A~^ ~}" bindings)
+  (make-instance 'sparql-results
+		 :results results
+		 :orderedp (equal (assoc "ordered" properties :test #'equal) "true")
+		 :distinctp (equal (assoc "distinct" properties :test #'equal) "true")))
 
 (defun create-sparql-boolean-result (value)
   (make-instance 'sparql-boolean-result :value value))
