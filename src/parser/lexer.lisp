@@ -131,6 +131,34 @@
 				(t
 				 (select-keyword lexer buf)))))))
 
+;; (defun eat-pn-local (lexer prefix) ; prefix and ':' seen
+;;   (let ((buf (empty-chbuf)))
+;;     (cond ((get-char-if-looking-at lexer #\%)
+;; 	   (slurp-hex lexer buf))
+;; 	  ((get-char-if-looking-at lexer #\\)
+;; 	   (slurp-local-esc lexer buf))
+;; 	  ((or (pn-chars-u-digit-p (peekch lexer)) (char=* (peekch lexer) #\:))
+;; 	   (chbuf-put-char buf (get-char lexer)))
+;; 	  ((null (peekch lexer))
+;; 	   (lexer-error lexer "Unexpected EOF inside PN_LOCAL"))
+;; 	  (t
+;; 	   (return-input-token lexer 'PNAME_NS-TERMINAL prefix)))
+;;     (loop do (cond ((get-char-if-looking-at lexer #\%)
+;; 		    (slurp-hex lexer buf))
+;; 		   ((get-char-if-looking-at lexer #\\)
+;; 		    (slurp-local-esc lexer buf))
+;; 		   ((or (pn-chars-p (peekch lexer)) (char-in-set-p* (peekch lexer) ".:"))
+;; 		    (chbuf-put-char buf (get-char lexer)))
+;; 		   (t
+;; 		    (return-input-token lexer 'PNAME_LN-TERMINAL
+;; 					(progn
+;; 					  (when (and (char=* (aref (chbuf-contents buf) (1- (chbuf-index buf))) #\.)
+;; 						     (or (= (chbuf-index buf) 1)
+;; 							 (not (char=* (aref (chbuf-contents buf) (- (chbuf-index buf) 2)) #\\))))
+;; 					    (unget-char lexer #\.)
+;; 					    (chbuf-drop-last-char buf))
+;; 					  (list prefix (canonize-string lexer buf)))))))))
+
 (defun eat-pn-local (lexer prefix) ; prefix and ':' seen
   (let ((buf (empty-chbuf)))
     (cond ((get-char-if-looking-at lexer #\%)
@@ -143,21 +171,24 @@
 	   (lexer-error lexer "Unexpected EOF inside PN_LOCAL"))
 	  (t
 	   (return-input-token lexer 'PNAME_NS-TERMINAL prefix)))
-    (loop do (cond ((get-char-if-looking-at lexer #\%)
+    (loop with prev-is-esc-p = nil
+	  do (cond ((get-char-if-looking-at lexer #\%)
 		    (slurp-hex lexer buf))
 		   ((get-char-if-looking-at lexer #\\)
+		    (setf prev-is-esc-p t)
 		    (slurp-local-esc lexer buf))
 		   ((or (pn-chars-p (peekch lexer)) (char-in-set-p* (peekch lexer) ".:"))
+		    (setf prev-is-esc-p nil)
 		    (chbuf-put-char buf (get-char lexer)))
 		   (t
 		    (return-input-token lexer 'PNAME_LN-TERMINAL
 					(progn
 					  (when (and (char=* (aref (chbuf-contents buf) (1- (chbuf-index buf))) #\.)
-						     (or (= (chbuf-index buf) 1)
-							 (not (char=* (aref (chbuf-contents buf) (- (chbuf-index buf) 2)) #\\))))
+						     (not prev-is-esc-p))
 					    (unget-char lexer #\.)
 					    (chbuf-drop-last-char buf))
 					  (list prefix (canonize-string lexer buf)))))))))
+
 
 (defun slurp-hex (lexer buf)
   (let ((ch1 (peekch lexer)))
