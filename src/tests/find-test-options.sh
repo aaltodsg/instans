@@ -8,12 +8,19 @@ OPTIONS_FILE=$DIR/test-options
 if [ $# -eq 3 ]; then
     LABEL=$1:$2:$3
 elif [ $# -eq 1 ]; then
-    LABEL=$1
+    if echo $1 | fgrep ':'; then
+	LABEL=$1
+    elif echo $1 | fgrep ','; then
+	LABEL=`echo $1 | sed /,/s//:/g`
+    else
+	echo "Usage: $0 suite[:]collection[:]name"
+	exit 1
+    fi
 else
-    echo "Usage: $0 suite collection name"
+    echo "Usage: $0 suite[:]collection[:]name"
     exit 1
 fi
-# echo "LABEL=$LABEL"
+echo "LABEL=$LABEL"
 fgrep $LABEL $OPTIONS_FILE
 
 
