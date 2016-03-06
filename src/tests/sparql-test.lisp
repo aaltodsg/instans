@@ -284,10 +284,11 @@
   (:method ((this sparql-query-evaluation-test))
     (loop for datafile in (sparql-test-graphfiles this)
 	  for file-type = (intern-keyword (string-upcase (file-type datafile)))
+	  for label = datafile
 	  do (when (eq file-type :rdf)
 	       (setf datafile (replace (namestring (truename datafile)) ".ttl" :start1 (- (length (namestring (truename datafile))) 4)))
 	       (setf file-type :ttl))
-	  do (instans-add-stream-input-processor (sparql-test-instans this) datafile :base (sparql-test-base this) :input-type file-type :output-options-stream (sparql-test-output-options-stream this)))
+	  do (instans-add-stream-input-processor (sparql-test-instans this) datafile :graph (parse-iri label) :base (sparql-test-base this) :input-type file-type :output-options-stream (sparql-test-output-options-stream this)))
     (sparql-test-add-datafile this)))
 
 (defun sparql-test-output-file-name-and-type (test)
@@ -969,6 +970,7 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
   (let ((options-stream (cond ((eq output-test-options-to-file t)
 			       (make-string-output-stream))
 			      ((not (null output-test-options-to-file))
+			       (inform "output-test-options-to-file ~S" output-test-options-to-file)
 			       (open output-test-options-to-file :direction :output :if-exists :supersede)))))
     (unwind-protect
 	 (let ((test-set (make-instance 'sparql-test-set :root-directory suites-dir :output-options-stream options-stream))

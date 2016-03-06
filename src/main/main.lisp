@@ -383,7 +383,7 @@
        :options ("--run-sparql-conformance-tests" :dir)
        :usage ("Run sparql test suites. The result is written into <DIR>/results/results.csv."
 	       "Execution time is written in <DIR>/results/execution-time.txt")
-       (run-sparql-test-suites :suites-dir value))
+       (run-sparql-test-suites :suites-dir value :output-test-options-to-file "test-options"))
       (sparql-conformance-tests-dir
        :options ("--sparql-conformance-tests-dir" :dir)
        :usage "Set the SPARQL conformance tests root directory")
