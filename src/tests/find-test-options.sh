@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DIR=`dirname $0`
-DIR=`cd $DIR`
+DIR=`cd $DIR > /dev/null; pwd`
 OPTIONS_FILE=$DIR/test-options
 [ -f $OPTIONS_FILE ] || (echo "Missing options file $OPTIONS_FILE"; exit 1)
 
