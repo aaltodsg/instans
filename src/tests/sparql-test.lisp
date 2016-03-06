@@ -329,13 +329,13 @@
 
 (defgeneric sparql-test-run-system (sparql-test)
   (:method ((this sparql-query-evaluation-test))
-    (inform "*handle-conditions-p* = ~S" *handle-conditions-p*)
+    ;; (inform "*handle-conditions-p* = ~S" *handle-conditions-p*)
     (let ((instans (sparql-test-instans this)))
       (initialize-reporting instans (sparql-test-reporting this))
       (let ((result
 	     (catch 'sparql-op-not-implemented-yet
 	       (cond ((not *handle-conditions-p*)
-		      (inform "Not handling errors")
+		      ;; (inform "Not handling errors")
 		      (unwind-protect
 			   (run-input-processors instans t)
 			(instans-close-open-streams instans)))

@@ -68,7 +68,8 @@
 (define-class instans-output-processor ()
   ((instans :accessor instans-output-processor-instans :initarg :instans)
    (output-name :accessor instans-output-processor-output-name :initarg :output-name :initform nil)
-   (writer :accessor instans-output-processor-writer :initarg :writer)))
+   (writer :accessor instans-output-processor-writer :initarg :writer)
+   (closingp :accessor instans-output-processor-closing-p :initform nil)))
 
 ;; Select output processors collect SELECT solutions
 
@@ -235,8 +236,17 @@
 						 :wrap-default-p (not (typep this 'instans-turtle-output-processor)))
       (setf (instans-trig-output-processor-graph-subject-predicate-object-trie this) (make-instance 'trie))))
   (:method ((this instans-select-output-processor))
-    (let ((writer (instans-output-processor-writer this)))
+    (let ((writer (instans-output-processor-writer this))
+	  (instans (instans-output-processor-instans this)))
       (unless (instans-select-output-processor-variables-written-p this)
+	(when (and (instans-output-processor-closing-p this) (null (instans-select-output-processor-variables this)))
+	  (loop with vars = nil
+		for node in (instans-nodes instans)
+		when (select-node-p node)
+		do (loop for var in (solution-modifiers-project-vars node)
+			 do (push-to-end-new var vars))
+		finally (setf (instans-select-output-processor-variables this)
+			      (mapcar #'(lambda (var) (reverse-resolve-binding (node-instans node) var)) vars))))
 	(write-variables writer (instans-select-output-processor-variables this))
 	(setf (instans-select-output-processor-variables-written-p this) t))
       (loop for solution in (instans-select-output-processor-solutions this)
@@ -250,6 +260,7 @@
 
 (defgeneric close-output-processor (instans-output-processor)
   (:method ((this instans-output-processor))
+    (setf (instans-output-processor-closing-p this) t)
     (format *stream-open-close-report-output* "close-output-processor ~S" this)
     (let ((writer (instans-output-processor-writer this)))
       (flush-output-processor this)
