@@ -77,7 +77,7 @@
 
 ;;; Initialize & reinitialize instance
 
-(defmethod initialize-instance :after ((this sparql-test) &key base &allow-other-keys)
+(defmethod initialize-instance :after ((this sparql-test) &key base test-set &allow-other-keys)
   (unless (rdf-iri-p (slot-value-with-default this 'base nil))
     (cond ((eql 0 (search "file://" base))
 	   (setf (sparql-test-directory this) (truename (subseq base 0 7)))
@@ -87,11 +87,13 @@
 	   (setf (sparql-test-base this) (parse-iri (format nil "file://~A" base))))))
 ;  (setf (sparql-test-instans this) (create-instans (sparql-test-base this)))
   (setf (sparql-test-output-directory this) (expand-sparql-test-filename this (sparql-test-output-directory this)))
-  (ensure-directories-exist (sparql-test-output-directory this)))
+  (ensure-directories-exist (sparql-test-output-directory this))
+  (setf (sparql-test-output-options-stream this) (sparql-test-set-output-options-stream test-set)))
 
 (defmethod reinitialize-instance ((this sparql-test) &key &allow-other-keys)
   (setf (sparql-test-not-implemented-p this) nil)
-  (setf (sparql-test-phases this) (list :created)))
+  (setf (sparql-test-phases this) (list :created))
+  (setf (sparql-test-output-options-stream this) (sparql-test-set-output-options-stream (sparql-test-test-set this))))
 
 (defmethod initialize-instance :after ((this sparql-syntax-test) &key &allow-other-keys)
   (unless (char= (char (sparql-test-queryfile this) 0) #\/)
@@ -262,7 +264,7 @@
     (loop for datafile in (sparql-test-graphfiles this)
 	  for file-type = (intern-keyword (string-upcase (file-type datafile)))
 	  for label in (sparql-test-graphlabels this)
-	  do (instans-add-stream-input-processor (sparql-test-instans this) datafile :graph label :base (sparql-test-base this) :input-type file-type :output-options-stream (sparql-test-output-options-stream this))))
+	  do (instans-add-stream-input-processor (sparql-test-instans this) datafile :graph (parse-iri label) :base (sparql-test-base this) :input-type file-type :output-options-stream (sparql-test-output-options-stream this))))
   (:method ((this sparql-query-evaluation-test))
     (sparql-test-add-datafile this)))
 
@@ -517,6 +519,8 @@
 
 (defgeneric sparql-test-execute (sparql-test &key target-phase forcep verbosep)
   (:method ((this sparql-test) &key (target-phase :completed) forcep verbosep)
+    (when (sparql-test-output-options-stream this)
+      (format (sparql-test-output-options-stream this) "--comment=~A:~A:~A" (sparql-test-suite this)  (sparql-test-collection this)  (sparql-test-name this)))
     (let* ((phases (sparql-test-available-phases this)))
       (loop for phase in phases
 	    while (<= (position phase phases) (position target-phase phases))
@@ -531,7 +535,9 @@
 		   (:compared (sparql-test-compare-phase this :forcep forcep :verbosep verbosep))
 		   (:completed (setf (sparql-test-end-time this) (get-internal-run-time))
 			       (sparql-test-complete-phase this :forcep forcep :verbosep verbosep))
-		   (t (error* "Illegal phase ~A for test ~A" phase this))))))))
+		   (t (error* "Illegal phase ~A for test ~A" phase this))))))
+    (when (sparql-test-output-options-stream this)
+      (format (sparql-test-output-options-stream this) "~%"))))
       
 ;;;
 ;;; Test sets
@@ -567,6 +573,7 @@
    (skip-complete-list :accessor sparql-test-set-skip-complete-list :initarg :skip-complete-list :initform nil)
    (headers :accessor sparql-test-set-headers :initarg :headers)
    (verbosep :accessor sparql-test-set-verbose-p :initarg :verbosep :initform t)
+   (output-options-stream :accessor sparql-test-set-output-options-stream :initform nil :initarg :output-options-stream)
    (tests :accessor sparql-test-set-tests)))
 
 (defmethod initialize-instance :after ((this sparql-test-set) &key root-directory &allow-other-keys)
@@ -891,6 +898,7 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
 					    ((string= type-string "mf:ServiceDescriptionTest") 'sparql-service-description-test)
 					    (t (error* "Unknown test type ~A" type-string)))
 			   for test = (apply #'make-instance type
+					     :test-set this
 					     (mapcan #'(lambda (key)
 							 (list key
 							       (if (member key '(:graphfiles :graphlabels :resultgraphfiles :resultgraphlabels))
@@ -898,7 +906,6 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
 								   (second (assoc key test-item)))))
 						     headers))
 					;	    do (describe test)
-			   do (setf (sparql-test-test-set test) this)
 			   collect test)))
 	  (setf (sparql-test-set-headers this) headers)
 	  (setf (sparql-test-set-tests this) tests)
@@ -934,51 +941,64 @@ SELECT ?base ?type ?suite ?collection ?name ?queryfile ?datafile ?graphfiles ?gr
 							     ((and (stringp value) (eql 0 (search "mf:" value))) (subseq value 3))
 							     (t value))))))))
 
-(defun run-sparql-test-suites (suites-dir)
+(defun run-sparql-test-suites (&key (suites-dir (expand-instans-file-name "../sparql-conformance-tests-for-instans/")) output-test-options-to-file)
   (setf suites-dir (namestring (truename suites-dir)))
   (inform "suites-dir = ~A" suites-dir)
-  (let ((test-set (make-instance 'sparql-test-set :root-directory suites-dir))
-	(start-time (get-internal-run-time)))
-    (setf *sparql-test-set* test-set)
-    (let ((saved-sparql-error-op *sparql-error-op*))
-      (sparql-inform-and-throw-on-errors)
-      (unwind-protect
-	   (sparql-test-set-execute-tests test-set :verbosep t)
-	(setf *sparql-error-op* saved-sparql-error-op))
-      (sparql-test-set-results-to-csv test-set))
-    (let ((end-time (get-internal-run-time)))
-      (with-open-file (str (sparql-test-set-execution-time-file test-set) :direction :output :if-exists :supersede)
-	(format str "~S~%" (/ (float (- end-time start-time)) (float internal-time-units-per-second)))))))
+  (let ((options-stream (cond ((eq output-test-options-to-file t)
+			       (make-string-output-stream))
+			      ((not (null output-test-options-to-file))
+			       (open output-test-options-to-file :direction :output :if-exists :supersede)))))
+    (unwind-protect
+	 (let ((test-set (make-instance 'sparql-test-set :root-directory suites-dir :output-options-stream options-stream))
+	       (start-time (get-internal-run-time)))
+	   (setf *sparql-test-set* test-set)
+	   (let ((saved-sparql-error-op *sparql-error-op*))
+	     (sparql-inform-and-throw-on-errors)
+	     (unwind-protect
+		  (sparql-test-set-execute-tests test-set :verbosep t)
+	       (setf *sparql-error-op* saved-sparql-error-op))
+	     (sparql-test-set-results-to-csv test-set))
+	   (let ((end-time (get-internal-run-time)))
+	     (with-open-file (str (sparql-test-set-execution-time-file test-set) :direction :output :if-exists :supersede)
+	       (format str "~S~%" (/ (float (- end-time start-time)) (float internal-time-units-per-second))))))
+      (cond ((eq output-test-options-to-file t)
+	     (inform "Options:~%~A~%" (get-output-stream-string options-stream)))
+	    ((not (null output-test-options-to-file))
+	     (close options-stream))))))
 
 (defun run-suite-collection-name (&key (test-set (and (boundp '*sparql-test-set*) *sparql-test-set*))
 				    (root-directory (namestring (truename (probe-file "../../sparql-conformance-tests-for-instans"))))
-				    path suite collection name show-options-p reporting handle-conditions-p)
-  (let ((needs-reinitialization-p (not (null test-set))))
-    (unless test-set (setf test-set (make-instance 'sparql-test-set :root-directory root-directory)))
-    (setf *sparql-test-set* test-set)
-    (when path (multiple-value-setq (suite collection name) (values-list (split-string path "/"))))
-    (let ((saved-sparql-error-op *sparql-error-op*))
-      (sparql-inform-and-throw-on-errors)
-      (unwind-protect
-	   (loop for test in (sparql-test-set-tests test-set)
-		 do (when (and (or (null suite) (equal suite (sparql-test-suite test)))
-			       (or (null collection) (equal collection (sparql-test-collection test)))
-			       (or (null name) (equal name (sparql-test-name test))))
-		      (setf *current-sparql-test* test)
-		      (setf (sparql-test-reporting test) reporting)
-		      (when needs-reinitialization-p (reinitialize-instance test))
-		      (cond ((null show-options-p)
-			     (setf (sparql-test-output-options-stream test) nil)
+				    path suite collection name reporting handle-conditions-p output-test-options-to-file)
+  (let ((options-stream (cond ((eq output-test-options-to-file t)
+			       (make-string-output-stream))
+			      ((not (null output-test-options-to-file))
+			       (open output-test-options-to-file :direction :output :if-exists :supersede)))))
+    (unwind-protect
+	 (let ((needs-reinitialization-p (not (null test-set))))
+	   (cond ((null test-set)
+		  (setf test-set (make-instance 'sparql-test-set :root-directory root-directory :output-options-stream options-stream)))
+		 (t
+		  (setf (sparql-test-set-output-options-stream test-set) options-stream)))
+	   (setf *sparql-test-set* test-set)
+	   (when path (multiple-value-setq (suite collection name) (values-list (split-string path "/"))))
+	   (let ((saved-sparql-error-op *sparql-error-op*))
+	     (sparql-inform-and-throw-on-errors)
+	     (unwind-protect
+		  (loop for test in (sparql-test-set-tests test-set)
+			do (when (and (or (null suite) (equal suite (sparql-test-suite test)))
+				      (or (null collection) (equal collection (sparql-test-collection test)))
+				      (or (null name) (equal name (sparql-test-name test))))
+			     (setf *current-sparql-test* test)
+			     (setf (sparql-test-reporting test) reporting)
+			     (when needs-reinitialization-p (reinitialize-instance test))
 			     (let ((*handle-conditions-p* handle-conditions-p))
-			       (sparql-test-execute test :verbosep t)))
-			    (t
-			     (inform "Options: ~A"
-				     (with-output-to-string (str)
-				       (setf (sparql-test-output-options-stream test) str)
-				       (let ((*handle-conditions-p* handle-conditions-p))
-					 (sparql-test-execute test :verbosep t))))))))
-	(setf *sparql-error-op* saved-sparql-error-op))
-    *current-sparql-test*)))
+			       (sparql-test-execute test :verbosep t))))
+	       (setf *sparql-error-op* saved-sparql-error-op))
+	     *current-sparql-test*))
+      (cond ((eq output-test-options-to-file t)
+	     (inform "Options:~%~A~%" (get-output-stream-string options-stream)))
+	    ((not (null output-test-options-to-file))
+	     (close options-stream))))))
 
 (defun main-test ()
   (main "--run-suite-collection-name=../../sparql-conformance-tests-for-instans"))

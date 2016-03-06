@@ -315,6 +315,10 @@
 	       "various outputs and names during the execution of INSTANS, but the name does"
 	       "not bear any actual semantics.")
        (setf (instans-name instans) value))
+      (comment
+       :options ("--comment" :string)
+       :usage "A comment to be printed"
+       (inform "~A~%" value))
       (report
        :options ("--report" :colon-list-of (:select :construct :modify :all :rete-add :rete-remove :queue :rdf-operations :execute :summary-n :sizes-n))
        :usage ("The kinds of rules you want to get reported. Here 'summaryN' means a string like"
@@ -379,7 +383,7 @@
        :options ("--run-sparql-conformance-tests" :dir)
        :usage ("Run sparql test suites. The result is written into <DIR>/results/results.csv."
 	       "Execution time is written in <DIR>/results/execution-time.txt")
-       (run-sparql-test-suites value))
+       (run-sparql-test-suites :suites-dir value))
       (sparql-conformance-tests-dir
        :options ("--sparql-conformance-tests-dir" :dir)
        :usage "Set the SPARQL conformance tests root directory")

@@ -510,7 +510,7 @@
     (assert (null stack))
     (let ((dataset (triple-pattern-node-dataset this))
 	  (graph (first values)))
-      ;; (inform "add-token ~S (dataset = ~S)" values dataset)
+      ;; (inform "add-token ~S, dataset = ~S, graph = ~S" values dataset graph)
       (cond ((rdf-iri-p dataset)
 	     (when (and (rdf-iri-p graph) (rdf-iri= dataset graph))
 	       (add-token (car (node-succ this)) (make-token this nil (alpha-node-variables this) (cdr values)))))
