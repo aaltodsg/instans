@@ -80,7 +80,10 @@
      (cons this (setf (token-store-hash-table this) (make-token-hash-table)))
      (instans-stores (node-instans this)))
     (push
-     (setf (service-node-index this) (make-instance 'hash-token-index :key (service-node-index-key-vars this) :id (format nil "service-node-index ~A" (node-number this))))
+     (setf (service-node-index this) (make-instance 'hash-token-index
+						    :node this
+						    :key (service-node-index-key-vars this)
+						    :id (format nil "service-node-index ~A" (node-number this))))
      (instans-indices (node-instans this))))
   (:method ((this token-store))
     ;;; An EQL hashtable, since we are using integers as keys!
@@ -96,16 +99,25 @@
 	     (setf (join-has-dummy-beta-p this) t))
 	    ((node-use this)
 	     (push
-	      (setf (join-beta-index this) (make-instance 'hash-token-index :key beta-key :id (format nil "beta-index ~A" (node-number this))))
+	      (setf (join-beta-index this) (make-instance 'hash-token-index
+							  :node this
+							  :key beta-key
+							  :id (format nil "beta-index ~A" (node-number this))))
 	      (instans-indices (node-instans this)))
 	     (push
-	      (setf (join-alpha-index this) (make-instance 'hash-token-index :key alpha-key :id (format nil "alpha-index ~A" (node-number this))))
+	      (setf (join-alpha-index this) (make-instance 'hash-token-index
+							   :node this
+							   :key alpha-key
+							   :id (format nil "alpha-index ~A" (node-number this))))
 	      (instans-indices (node-instans this)))))))
   (:method ((this aggregate-join-node))
     (setf (aggregate-join-groups this) (make-hash-table :test #'equal)))
   (:method ((this query-node))
     (when (solution-modifiers-distinct-p this)
-      (setf (solution-modifiers-project-index this) (make-instance 'hash-token-index :key (solution-modifiers-project-vars this) :id (format nil "solution-modifiers-project-index ~A" (node-number this))))))
+      (setf (solution-modifiers-project-index this) (make-instance 'hash-token-index
+								   :node this
+								   :key (solution-modifiers-project-vars this)
+								   :id (format nil "solution-modifiers-project-index ~A" (node-number this))))))
   (:method ((this node)) this))
 
 (defun initialize-data (instans)
@@ -145,7 +157,10 @@
     (setf (aggregate-join-groups this) (make-hash-table :test #'equal)))
   (:method ((this query-node))
     (when (solution-modifiers-distinct-p this)
-      (setf (solution-modifiers-project-index this) (make-instance 'hash-token-index :key (solution-modifiers-project-vars this) :id (format nil "solution-modifiers-project-index ~A" (node-number this))))))
+      (setf (solution-modifiers-project-index this) (make-instance 'hash-token-index
+								   :node this
+								   :key (solution-modifiers-project-vars this)
+								   :id (format nil "solution-modifiers-project-index ~A" (node-number this))))))
   (:method ((this node)) this))
 
 

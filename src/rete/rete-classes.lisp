@@ -233,7 +233,8 @@
   ((quads :accessor list-quad-store-quads :initform nil)))
 
 (define-class token-index () 
-  ((key :accessor token-index-key :initarg :key)))
+  ((key :accessor token-index-key :initarg :key)
+   (node :accessor token-index-node :initarg :node)))
 
 (define-class hash-token-index (token-index)
   ((id :accessor hash-token-index-id :initarg :id :initform nil)
