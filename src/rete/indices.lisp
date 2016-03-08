@@ -32,14 +32,14 @@
 
 (defgeneric index-get-tokens-and-defined-p (index key)
   (:method ((this hash-token-index) key)
-    (assert key)
+    ;; (assert key)
     (multiple-value-bind (value definedp)
 	(gethash key (hash-token-index-table this))
       (values (cdr value) definedp))))
       
 (defgeneric index-get-tokens (index key)
   (:method ((this hash-token-index) key)
-    (assert key)
+    ;; (assert key)
     (cdr (gethash key (hash-token-index-table this)))))
 
 (defgeneric index-tokens (index)
@@ -68,7 +68,7 @@
 ;;; Returns t if this is the first token with this key
 (defgeneric index-put-token (index key token)
   (:method ((this hash-token-index) key token)
-    (assert key)
+    ;; (assert key)
 ;    (showing-index-content (this key)
       (let ((item (gethash key (hash-token-index-table this))))
 	(cond ((null item)
@@ -82,7 +82,7 @@
 ;;; Returns T if this was the last token with this key
 (defgeneric index-remove-token (index key token)
   (:method ((this hash-token-index) key token)
-    (assert key)
+    ;; (assert key)
 ;    (showing-index-content (this key)
     (let ((item (gethash key (hash-token-index-table this))))
       ;; (when (null item)
