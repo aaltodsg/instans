@@ -24,7 +24,7 @@
    (algebra-expr :accessor node-algebra-expr :initarg :algebra-expr :initform nil)
    (tracep :accessor node-trace-p :initform nil)))
 
-(define-class token-store (node)
+(define-class token-store ()
   ((hash-table :accessor token-store-hash-table :initform nil)
    (report-count-limit :accessor token-store-count-report-limit :initform 0)
    (put-count :accessor token-store-put-count :initform 0)
@@ -63,9 +63,9 @@
 (define-class datablock-node (alpha-node)
   ((values :accessor datablock-values :initarg :values)))
 
-(define-class alpha-memory (token-store) ())
+(define-class alpha-memory (token-store node) ())
 
-(define-class beta-memory (token-store) ())
+(define-class beta-memory (token-store node) ())
 
 (define-class join-node (node)
   ((alpha :accessor join-alpha :initarg :alpha)
@@ -155,7 +155,7 @@
   ((separator :accessor aggregate-group-concat-separator :initarg :separator)
    (distinctp :accessor aggregate-group-concat-distinct-p :initarg :distinctp)))
 
-(define-class service-node (token-store)
+(define-class service-node (token-store node)
   ((endpoint :accessor service-node-endpoint :initarg :endpoint)
    (query-token-strings :accessor service-node-query-token-strings :initarg :query-token-strings)
    (query-vars :accessor service-node-query-vars :initarg :query-vars)
@@ -178,7 +178,7 @@
    (comment :accessor rule-node-comment :initarg :comment :initform nil)
    (annotations :accessor rule-node-annotations :initarg :annotations :initform nil)))
 
-(define-class query-node (rule-node solution-modifiers-mixin) ())
+(define-class query-node (token-store rule-node solution-modifiers-mixin) ())
 
 (define-class update-node (rule-node) ())
 

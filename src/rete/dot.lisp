@@ -76,6 +76,12 @@
 	(format nil "<TABLE BORDER=\"0\" CELLBORDER=\"0\" CELLSPACING=\"0\" CELLPADDING=\"1\"><TR><TD>~A</TD></TR><TR><TD>no tokens</TD></TR></TABLE>" (dot-node-pretty-name this))
 ;	(format nil "{<n> ~A| 00000<p>}" (dot-node-pretty-name this))
 	(format nil "~A" (dot-node-pretty-name this))))
+  (:method ((this query-node) &key binding-info-box-p &allow-other-keys)
+    ;;; TODO: lisää boxi token-storen kokoa varten
+    (if binding-info-box-p
+	(format nil "<TABLE BORDER=\"0\" CELLBORDER=\"0\" CELLSPACING=\"0\" CELLPADDING=\"1\"><TR><TD>~A</TD></TR><TR><TD>no solutions</TD></TR></TABLE>" (dot-node-pretty-name this))
+;	(format nil "{<n> ~A| 00000<p>}" (dot-node-pretty-name this))
+	(format nil "~A" (dot-node-pretty-name this))))
   (:method ((this join-node) &key binding-info-box-p &allow-other-keys)
     ;;; TODO: lisää boxi token-storen kokoa varten
     (if binding-info-box-p

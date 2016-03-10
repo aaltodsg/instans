@@ -114,6 +114,7 @@
   (:method ((this aggregate-join-node))
     (setf (aggregate-join-groups this) (make-hash-table :test #'equal)))
   (:method ((this query-node))
+    (call-next-method)
     (when (solution-modifiers-distinct-p this)
       (setf (solution-modifiers-project-index this) (make-instance 'hash-token-index
 								   :node this
@@ -716,27 +717,28 @@
 ;	        do (inform "new-token = ~S" new-token)
   	        do (call-succ-nodes #'add-token this new-token stack))))))
   (:method ((this query-node) token &optional stack)
-    (cond ((not (solution-modifiers-distinct-p this))
-	   (cond ((null (node-succ this))
-		  (assert (null stack))
-		  (rete-add-rule-instance (node-instans this) this token))
-		 (t
-		  (call-succ-nodes #'add-token this token stack))))
-	  (t
-	   (let ((key (loop for var in (solution-modifiers-project-vars this) collect (token-value this token var)))
-		 (index (solution-modifiers-project-index this)))
-	     ;; (inform "Calling (index-put-token ~S ~S ~S)~%Before (index-get-tokens ~S ~S) = ~S" index key token index key (index-get-tokens index key))
-	     ;; (inform "Index ~S:~%" index)
-	     ;; (loop for x in (index-tokens index) do (inform "  ~S" x))
-	     (when (index-put-token index key token) ;;; First token with this key added
-	       ;; (inform "Returned T, (index-get-tokens ~S ~S) = ~S" index key (index-get-tokens index key))
+    (when (token-store-put-if-missing this token)
+      (cond ((not (solution-modifiers-distinct-p this))
+	     (cond ((null (node-succ this))
+		    (assert (null stack))
+		    (rete-add-rule-instance (node-instans this) this token))
+		   (t
+		    (call-succ-nodes #'add-token this token stack))))
+	    (t
+	     (let ((key (loop for var in (solution-modifiers-project-vars this) collect (token-value this token var)))
+		   (index (solution-modifiers-project-index this)))
+	       ;; (inform "Calling (index-put-token ~S ~S ~S)~%Before (index-get-tokens ~S ~S) = ~S" index key token index key (index-get-tokens index key))
 	       ;; (inform "Index ~S:~%" index)
 	       ;; (loop for x in (index-tokens index) do (inform "  ~S" x))
-	       (cond ((null (node-succ this))
-		      (assert (null stack))
-		      (rete-add-rule-instance (node-instans this) this token))
-		     (t
-		      (call-succ-nodes #'add-token this token stack))))))))
+	       (when (index-put-token index key token) ;;; First token with this key added
+		 ;; (inform "Returned T, (index-get-tokens ~S ~S) = ~S" index key (index-get-tokens index key))
+		 ;; (inform "Index ~S:~%" index)
+		 ;; (loop for x in (index-tokens index) do (inform "  ~S" x))
+		 (cond ((null (node-succ this))
+			(assert (null stack))
+			(rete-add-rule-instance (node-instans this) this token))
+		       (t
+			(call-succ-nodes #'add-token this token stack)))))))))
   (:method ((this modify-node) token &optional stack)
     (assert (null stack))
     (rete-add-rule-instance (node-instans this) this token))
@@ -938,24 +940,25 @@
 									  collect (if binding (second binding) *sparql-unbound*)))
 		do (call-succ-nodes #'remove-token this new-token stack))))))
   (:method ((this query-node) token &optional stack)
-    (cond ((not (solution-modifiers-distinct-p this))
-	   (cond ((null (node-succ this))
-		  (assert (null stack))
-		  (rete-remove-rule-instance (node-instans this) this token))
-		 (t
-		  (call-succ-nodes #'remove-token this token stack))))
-	  (t
-	   (let ((key (loop for var in (solution-modifiers-project-vars this) collect (token-value this token var)))
-		 (index (solution-modifiers-project-index this)))
-	     ;; (inform "Calling (index-remove-token ~S ~S ~S)~%Before (index-get-tokens ~S ~S) = ~S" index key token index key (index-get-tokens index key))
-	     ;; (inform "Index ~S:~%" index)
-	     ;; (loop for x in (index-tokens index) do (inform "  ~S" x))
-	     (when (index-remove-token index key token) ;;; Last token with this key removed!
-	       (cond ((null (node-succ this))
-		      (assert (null stack))
-		      (rete-remove-rule-instance (node-instans this) this token))
-		     (t
-		      (call-succ-nodes #'remove-token this token stack))))))))
+    (when (token-store-remove-if-exists this token)
+      (cond ((not (solution-modifiers-distinct-p this))
+	     (cond ((null (node-succ this))
+		    (assert (null stack))
+		    (rete-remove-rule-instance (node-instans this) this token))
+		   (t
+		    (call-succ-nodes #'remove-token this token stack))))
+	    (t
+	     (let ((key (loop for var in (solution-modifiers-project-vars this) collect (token-value this token var)))
+		   (index (solution-modifiers-project-index this)))
+	       ;; (inform "Calling (index-remove-token ~S ~S ~S)~%Before (index-get-tokens ~S ~S) = ~S" index key token index key (index-get-tokens index key))
+	       ;; (inform "Index ~S:~%" index)
+	       ;; (loop for x in (index-tokens index) do (inform "  ~S" x))
+	       (when (index-remove-token index key token) ;;; Last token with this key removed!
+		 (cond ((null (node-succ this))
+			(assert (null stack))
+			(rete-remove-rule-instance (node-instans this) this token))
+		       (t
+			(call-succ-nodes #'remove-token this token stack)))))))))
   (:method ((this modify-node) token &optional stack)
     (assert (null stack))
     (rete-remove-rule-instance (node-instans this) this token)
