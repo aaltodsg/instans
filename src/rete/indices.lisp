@@ -45,7 +45,7 @@
 (defgeneric index-tokens (index)
   (:method ((this hash-token-index))
     (let ((r nil))
-      (maphash #'(lambda (k v) (push (list k v) r)) (hash-token-index-table this))
+      (maphash #'(lambda (k v) (push (list k (cdr v)) r)) (hash-token-index-table this))
       (nreverse r))))
 
 (defmacro showing-index-content ((index key) &body body)
