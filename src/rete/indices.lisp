@@ -30,6 +30,10 @@
 ;	(make-hash-table :test #'equal)
 	(make-hash-table :test #'index-key-equal :hash-function #'index-key-hash-function)))
 
+(defmethod initialize-instance :after ((this ordered-token-index) &key &allow-other-keys)
+  (setf (ordered-token-index-table this)
+	(make-ordered-table :test #'index-key-equal :ordered-function #'index-key-ordered-function)))
+
 (defgeneric index-get-tokens-and-defined-p (index key)
   (:method ((this hash-token-index) key)
     ;; (assert key)

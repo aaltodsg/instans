@@ -240,6 +240,10 @@
   ((id :accessor hash-token-index-id :initarg :id :initform nil)
    (table :accessor hash-token-index-table)))
 
+(define-class ordered-token-index (token-index)
+  ((id :accessor ordered-token-index-id :initarg :id :initform nil)
+   (table :accessor ordered-token-index-table)))
+
 (define-class triple-pattern-matcher ()
   ((instans :accessor triple-pattern-matcher-instans :initarg :instans)
    (xxx :accessor triple-pattern-matcher-xxx :initform nil)
