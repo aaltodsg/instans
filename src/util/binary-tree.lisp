@@ -219,3 +219,7 @@
     (print-binary-tree new)
     new))
 
+(defun btal (tree vl)
+  (loop for v in vl
+	do (setf tree (bta tree v)))
+  tree)
