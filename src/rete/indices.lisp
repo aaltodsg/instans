@@ -30,8 +30,8 @@
 ;	(make-hash-table :test #'equal)
 	(make-hash-table :test #'index-key-equal :hash-function #'index-key-hash-function)))
 
-(defmethod initialize-instance :after ((this ordered-token-index) &key &allow-other-keys)
-  (setf (ordered-token-index-table this) nil))
+(defmethod initialize-instance :after ((this ordered-list-token-index) &key &allow-other-keys)
+  (setf (ordered-list-token-index-alist this) (list nil)))
 
 (defgeneric index-get-tokens-and-defined-p (index key)
   (:method ((this hash-token-index) key)
@@ -43,13 +43,21 @@
 (defgeneric index-get-tokens (index key)
   (:method ((this hash-token-index) key)
     ;; (assert key)
-    (cdr (gethash key (hash-token-index-table this)))))
+    (cdr (gethash key (hash-token-index-table this))))
+  (:method ((this ordered-list-token-index) key)
+    (loop with key-op = (ordered-list-token-index-key-op this)
+	  for (k . vl) in (cdr (ordered-list-token-index-alist this))
+	  while (funcall key-op key k)
+	  nconc (copy-list vl))))
 
 (defgeneric index-tokens (index)
   (:method ((this hash-token-index))
     (let ((r nil))
       (maphash #'(lambda (k v) (push (list k (cdr v)) r)) (hash-token-index-table this))
-      (nreverse r))))
+      (nreverse r)))
+  (:method ((this ordered-list-token-index))
+    (loop for item in (cdr (ordered-list-token-index-alist this))
+	  nconc (copy-list (cdr item)))))
 
 (defmacro showing-index-content ((index key) &body body)
   (let ((result-var (gensym "RESULT"))
@@ -79,8 +87,19 @@
 	       t)
 	      (t
 	       (setf (cdr item) (cons token (cdr item)))
-	       nil)))))
+	       nil))))
 ;)
+  (:method ((this ordered-list-token-index) key token)
+    (loop with order-op = (ordered-list-token-index-order-op this)
+	  for rest on (ordered-list-token-index-alist this)
+	  for item = (car (cdr rest))
+	  while (and item (funcall order-op (car item) key))
+	  finally (cond ((funcall (ordered-list-token-index-equal-op this) key (car item))
+			 (pushnew token (cdr item) :test #'token-equal)
+			 (return nil))
+			(t
+			 (push (list key token) (cdr rest))
+			 (return t))))))
 
 ;;; Returns T if this was the last token with this key
 (defgeneric index-remove-token (index key token)
@@ -111,8 +130,29 @@
 	     (remhash key (hash-token-index-table this))
 	     t)
 	    (t
-	     nil)))))
+	     nil))))
 ;  )
+  (:method ((this ordered-list-token-index) key token)
+    (loop with order-op = (ordered-list-token-index-order-op this)
+	  for rest on (ordered-list-token-index-alist this)
+	  for item = (car (cdr rest))
+	  while (and item (funcall order-op (car item) key))
+	  finally (cond ((funcall (ordered-list-token-index-equal-op this) key (car item))
+			 (loop named delete-token
+			       for prev on item
+			       for tokens = (cdr prev)
+			       while tokens
+			       when (token-equal token (first tokens))
+			       do (progn
+				    (setf (cdr prev) (cdr tokens))
+				    (return-from delete-token)))
+			 (cond ((null (cdr item))
+				(setf (cdr rest) (cdr (cdr rest)))
+				t)
+			       (t
+				nil)))
+			(t
+			 (error* "Trying to remove missing token ~S" token))))))
 
 (defgeneric index-count (index)
   (:method ((this hash-token-index))
@@ -120,13 +160,18 @@
 	  (count 0))
       (unless (null table)
 	(maphash #'(lambda (k v) k (incf count (length (cdr v)))) table))
-      count)))
+      count))
+  (:method ((this ordered-list-token-index))
+    (loop for item in (cdr (ordered-list-token-index-alist this))
+	  sum (length (cdr item)))))
 
 (defgeneric index-clear (index)
   (:method ((this hash-token-index))
     (let ((table (hash-token-index-table this)))
       (unless (null table)
-	(clrhash table)))))
+	(clrhash table))))
+  (:method ((this ordered-list-token-index))
+    (setf (ordered-list-token-index-alist this) (list nil))))
 
 ;; (defun join-alpha-key (join alpha-token)
 ;;   (pop alpha-token) ;;; Get rid of the hash key

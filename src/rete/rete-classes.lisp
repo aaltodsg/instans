@@ -74,7 +74,9 @@
    (beta-minus-alpha-vars :accessor join-beta-minus-alpha-vars :initarg :beta-minus-alpha-vars) 
    (has-dummy-beta-p :accessor join-has-dummy-beta-p :initarg :has-dummy-beta-p)
    (alpha-index-type :accessor join-alpha-index-type :initarg :alpha-index-type :initform 'hash-token-index)
+   (alpha-index-init-args :accessor join-alpha-index-init-args :initarg :alpha-index-init-args :initform nil)
    (beta-index-type :accessor join-beta-index-type :initarg :beta-index-type :initform 'hash-token-index)
+   (beta-index-init-args :accessor join-beta-index-init-args :initarg :beta-index-init-args :initform nil)
    (alpha-index :accessor join-alpha-index :initform nil)
    (beta-index :accessor join-beta-index :initform nil)))
 
@@ -236,19 +238,17 @@
 
 (define-class token-index () 
   ((key :accessor token-index-key :initarg :key)
-   (node :accessor token-index-node :initarg :node)))
+   (node :accessor token-index-node :initarg :node)
+   (id :accessor token-index-id :initarg :id :initform nil)))
 
 (define-class hash-token-index (token-index)
-  ((id :accessor hash-token-index-id :initarg :id :initform nil)
-   (table :accessor hash-token-index-table)))
-
-(define-class ordered-token-index (token-index)
-  ((id :accessor ordered-token-index-id :initarg :id :initform nil)
-   (table :accessor ordered-token-index-table)))
+  ((table :accessor hash-token-index-table)))
 
 (define-class ordered-list-token-index (token-index)
-  ((id :accessor ordered-list-token-index-id :initarg :id :initform nil)
-   (list :accessor ordered-list-token-index-list)))
+  ((alist :accessor ordered-list-token-index-alist :initform nil)
+   (order-op :accessor ordered-list-token-index-order-op :initarg :order-op)
+   (equal-op :accessor ordered-list-token-index-equal-op :initarg :equal-op)
+   (key-op :accessor ordered-list-token-index-key-op :initarg :key-op)))
 
 (define-class triple-pattern-matcher ()
   ((instans :accessor triple-pattern-matcher-instans :initarg :instans)

@@ -99,16 +99,18 @@
       ;; 	     (setf (join-has-dummy-beta-p this) t))
       ;; 	    ((node-use this)
 	     (push
-	      (setf (join-beta-index this) (make-instance (join-alpha-index-type this)
-							  :node this
-							  :key beta-key
-							  :id (format nil "beta-index ~A" (node-number this))))
+	      (setf (join-beta-index this) (apply #'make-instance (join-alpha-index-type this)
+						  :node this
+						  :key beta-key
+						  :id (format nil "beta-index ~A" (node-number this))
+						  (join-alpha-index-init-args this)))
 	      (instans-indices (node-instans this)))
 	     (push
-	      (setf (join-alpha-index this) (make-instance (join-beta-index-type this)
-							   :node this
-							   :key alpha-key
-							   :id (format nil "alpha-index ~A" (node-number this))))
+	      (setf (join-alpha-index this) (apply #'make-instance (join-beta-index-type this)
+						   :node this
+						   :key alpha-key
+						   :id (format nil "alpha-index ~A" (node-number this))
+						   (join-beta-index-init-args this)))
 	      (instans-indices (node-instans this)))))
   ;; ))
   (:method ((this aggregate-join-node))
@@ -438,7 +440,7 @@
 (defgeneric report-sizes-headers (instans)
   (:method ((this instans))
     (let ((store-names (loop for item in (instans-store-sizes-alist this) collect (node-name (first item))))
-	  (index-names (loop for item in (instans-index-sizes-alist this) collect (hash-token-index-id (first item)))))
+	  (index-names (loop for item in (instans-index-sizes-alist this) collect (token-index-id (first item)))))
       (format (instans-sizes-report-stream this) "~&~(~{~A~^,~}~)~%" (append store-names index-names)))))
 
 (defgeneric report-sizes (instans)

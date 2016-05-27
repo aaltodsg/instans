@@ -1,0 +1,15 @@
+PREFIX : <http://instans.org/>
+
+INSERT DATA { :largest :value -1000000 } ;
+
+DELETE { :largest :value ?largest }
+INSERT { :largest :value ?left }
+WHERE {
+      :left :value ?left .
+      :largest :value ?largest
+      FILTER (?left > ?largest)
+} ;
+
+SELECT ?largest WHERE {
+       :largest :value ?largest
+}
