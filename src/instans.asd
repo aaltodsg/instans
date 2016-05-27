@@ -91,6 +91,7 @@
 				      (:file "tokens" :depends-on ("rete-classes"))
 				      (:file "token-map" :depends-on ("rete-classes"))
 				      (:file "rete-access-functions" :depends-on ("rete-classes" "instans-io" "variables-and-bindings" "quad-store" "tokens" "token-store" "token-map" "indices"))
+				      (:file "optimize-rete-network" :depends-on ("rete-classes"))
 				      (:file "lisp-compile" :depends-on ("rete-classes"))
 				      (:file "interpreter" :depends-on ("rete-classes" "parallel-classes"))
 				      (:file "triple-pattern-matcher" :depends-on ("rete-classes"))

@@ -99,13 +99,13 @@
       ;; 	     (setf (join-has-dummy-beta-p this) t))
       ;; 	    ((node-use this)
 	     (push
-	      (setf (join-beta-index this) (make-instance 'hash-token-index
+	      (setf (join-beta-index this) (make-instance (join-alpha-index-type this)
 							  :node this
 							  :key beta-key
 							  :id (format nil "beta-index ~A" (node-number this))))
 	      (instans-indices (node-instans this)))
 	     (push
-	      (setf (join-alpha-index this) (make-instance 'hash-token-index
+	      (setf (join-alpha-index this) (make-instance (join-beta-index-type this)
 							   :node this
 							   :key alpha-key
 							   :id (format nil "alpha-index ~A" (node-number this))))
