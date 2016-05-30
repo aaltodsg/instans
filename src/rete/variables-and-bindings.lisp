@@ -27,6 +27,9 @@
 ;; (defun resolve-binding (instans from)
 ;;   (cdr (assoc from (instans-bindings instans) :test #'sparql-var-equal)))
 
+(defun find-named-var (instans name)
+  (first (assoc name (instans-bindings instans) :key #'uniquely-named-object-name :test #'string=)))
+
 (defun reverse-resolve-binding (instans to)
   (car (rassoc to (instans-bindings instans))))
 

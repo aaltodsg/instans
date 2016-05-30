@@ -26,12 +26,15 @@
   (every #'(lambda (v1 v2) (or (eql v1 v2) (%=% v1 v2))) k1 k2))
 
 (defmethod initialize-instance :after ((this hash-token-index) &key &allow-other-keys)
+  (inform "initialize-instance :after ~S" this)
   (setf (hash-token-index-table this)
 ;	(make-hash-table :test #'equal)
 	(make-hash-table :test #'index-key-equal :hash-function #'index-key-hash-function)))
 
-(defmethod initialize-instance :after ((this ordered-list-token-index) &key &allow-other-keys)
-  (setf (ordered-list-token-index-alist this) (list nil)))
+;; ;(defmethod initialize-instance :after ((this ordered-list-token-index) &rest keys &key &allow-other-keys)
+;; (defmethod initialize-instance :after ((this ordered-list-token-index) &key &allow-other-keys)
+;;   (inform "initialize-instance :after ~S" this)
+;;   (setf (ordered-list-token-index-alist this) (list nil)))
 
 (defgeneric index-get-tokens-and-defined-p (index key)
   (:method ((this hash-token-index) key)

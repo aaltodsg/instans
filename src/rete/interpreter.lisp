@@ -92,31 +92,48 @@
      (instans-stores (node-instans this))))
   ;;; Join creates indices for alpha/beta memories only if the alpha and beta parents share common variables, i.e., (not (null node-use this))
   (:method ((this join-node))
-    (let (;(beta-key (node-use this))
-          ;(alpha-key (node-def-preceq (join-alpha this)))
-	  )
-      ;; (setf (join-has-dummy-beta-p this) nil)
-      ;; (cond ((null (node-prev (join-beta this)))
-      ;; 	     (setf (join-has-dummy-beta-p this) t))
-      ;; 	    ((node-use this)
-	     (push
-	      (let* ((beta-key-var (getf (join-beta-index-init-args this) :var))
-		     (beta-key-vars (if beta-key-var (list (resolve-binding (node-instans this) (string-upcase (subseq beta-key-var 1)))) (node-use this))))
-		(setf (join-beta-index this) (apply #'make-instance (join-beta-index-type this)
-						    :node this
-						    :key-vars beta-key-vars
-						    :id (format nil "beta-index ~A" (node-number this))
-						    (join-beta-index-init-args this))))
-	      (instans-indices (node-instans this)))
-	     (push
-	      (let* ((alpha-key-var (getf (join-alpha-index-init-args this) :var))
-		     (alpha-key-vars (if alpha-key-var (list (resolve-binding (node-instans this) (string-upcase (subseq alpha-key-var 1)))) (node-use this))))
-		(setf (join-alpha-index this) (apply #'make-instance (join-alpha-index-type this)
-						     :node this
-						     :key-vars alpha-key-vars
-						     :id (format nil "alpha-index ~A" (node-number this))
-						   (join-alpha-index-init-args this))))
-	      (instans-indices (node-instans this)))))
+    ;; (inform "Checking if ~S has an ordered index parameters in ~S" (node-name this) (instans-ordered-index-nodes (node-instans this)))
+    (let ((hit (assoc (intern (node-name this)) (instans-ordered-index-nodes (node-instans this)))))
+      (when hit
+	(setf (join-alpha-index-type this) 'ordered-list-token-index)
+	(setf (join-alpha-index-init-args this) (getf (cdr hit) :alpha))
+	(setf (join-beta-index-type this) 'ordered-list-token-index)
+	(setf (join-beta-index-init-args this) (getf (cdr hit) :beta))
+	(inform "yes")
+	;; (describe this)
+      ))
+    (let* ((key-var (getf (join-beta-index-init-args this) :var))
+	   (equal-op (getf (join-beta-index-init-args this) :equal-op))
+	   (order-op (getf (join-beta-index-init-args this) :order-op))
+	   (key-op (getf (join-beta-index-init-args this) :key-op))
+	   (key-vars (if key-var (list (find-named-var (node-instans this) (string-upcase key-var))) (node-use this))))
+      ;; (inform "beta-key-vars = ~S" key-vars)
+      (let ((beta-index
+	     (make-instance (join-beta-index-type this)
+			    :node this
+			    :key-vars key-vars
+			    :id (format nil "beta-index ~A" (node-number this))
+			    :var key-var
+			    :equal-op equal-op
+			    :order-op order-op
+			    :key-op key-op)))
+	;; (inform "beta-index = (~S)" beta-index)
+	(setf (join-beta-index this) beta-index)
+	;; (describe beta-index)
+	(push beta-index (instans-indices (node-instans this)))))
+    (let* ((alpha-key-var (getf (join-alpha-index-init-args this) :var))
+	   (alpha-key-vars (if alpha-key-var (list (find-named-var (node-instans this) (string-upcase alpha-key-var))) (node-use this))))
+      ;; (inform "alpha-key-vars = ~S" alpha-key-vars)
+      (let ((alpha-index (apply #'make-instance (join-alpha-index-type this)
+			       :node this
+			       :key-vars alpha-key-vars
+			       :id (format nil "alpha-index ~A" (node-number this))
+			       (join-alpha-index-init-args this))))
+	(setf (join-alpha-index this) alpha-index)
+	;; (describe alpha-index)
+	(push alpha-index (instans-indices (node-instans this)))))
+    ;; (describe this)
+    )
   ;; ))
   (:method ((this aggregate-join-node))
     (setf (aggregate-join-groups this) (make-hash-table :test #'equal)))
@@ -1196,7 +1213,7 @@
 ;;;
 
 (defun trace-rete ()
-  (trace initialize-execution
+  (trace initialize-execution initialize-stores-and-indices initialize-data
 	 rete-add rete-remove add-token remove-token add-alpha-token add-beta-token remove-alpha-token remove-beta-token match-quad
 	 join-beta-key join-alpha-key
 	 token-value make-token call-succ-nodes rete-add-rule-instance execute-rules rule-instance-queue-execute-instance execute-rule-node

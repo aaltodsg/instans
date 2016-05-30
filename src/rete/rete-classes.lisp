@@ -245,7 +245,7 @@
   ((table :accessor hash-token-index-table)))
 
 (define-class ordered-list-token-index (token-index)
-  ((alist :accessor ordered-list-token-index-alist :initform nil)
+  ((alist :accessor ordered-list-token-index-alist :initform (list nil))
    (var :accessor ordered-list-token-index-var :initarg :var)
    (order-op :accessor ordered-list-token-index-order-op :initarg :order-op)
    (equal-op :accessor ordered-list-token-index-equal-op :initarg :equal-op)
