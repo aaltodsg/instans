@@ -237,7 +237,7 @@
   ((quads :accessor list-quad-store-quads :initform nil)))
 
 (define-class token-index () 
-  ((key :accessor token-index-key :initarg :key)
+  ((key-vars :accessor token-index-key-vars :initarg :key-vars)
    (node :accessor token-index-node :initarg :node)
    (id :accessor token-index-id :initarg :id :initform nil)))
 
@@ -246,6 +246,7 @@
 
 (define-class ordered-list-token-index (token-index)
   ((alist :accessor ordered-list-token-index-alist :initform nil)
+   (var :accessor ordered-list-token-index-var :initarg :var)
    (order-op :accessor ordered-list-token-index-order-op :initarg :order-op)
    (equal-op :accessor ordered-list-token-index-equal-op :initarg :equal-op)
    (key-op :accessor ordered-list-token-index-key-op :initarg :key-op)))

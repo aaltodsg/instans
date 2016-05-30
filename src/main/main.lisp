@@ -318,18 +318,23 @@
       (ordered-index
        :options ("--ordered-index" :string)
        :usage ("The named join node should have an ordered index that uses the given comparison"
-	       "operator for joins. The parameters should be of form 'name:op', where op is one of"
-	       "<, <=, =, >=, and >")
+	       "operator for joins. The parameters should be of form 'name:var1:op:var2', where op is one of"
+	       "<, <=, >=, and > and var1 and var2 are SPARQL variable names")
        (let ((args (parse-colon-separated-strings value)))
-	 (push (list (intern (format nil "~@:(~A~)" (first args)))
-		     (case (intern (second args))
-		       (< #'%<%)
-		       (<= #'%<=%)
-		       (= #'%=%)
-		       (>= #'%>=%)
-		       (> #'%>%)
-		       (t (usage))))
-	       (instans-ordered-index-nodes instans))))
+	 (if (not (= 4 (length args)))
+	     (usage)
+	     (push (list (intern (format nil "~@:(~A~)" (first args)))
+			 (case (intern (third args))
+			   (<= :alpha (list :var (fourth args) :equal-op #'%=% :order-op #'%<% :key-op #'%<=%)
+			       :beta (list :var (second args) :equal-op #'%=% :order-op #'%>% :equal-op #'%=% :key-op #'%>=%))
+			   (< :alpha (list :var (fourth args)  :equal-op #'%=% :order-op #'%<% :key-op #'%<%)
+			      :beta (list :var (second args) :equal-op #'%=% :order-op #'%>% :equal-op #'%=% :key-op #'%>%))
+			   (>= :alpha (list :var (fourth args)  :equal-op #'%=% :order-op #'%>% :key-op #'%>=%)
+			       :beta (list :var (second args) :equal-op #'%=% :order-op #'%<% :equal-op #'%=% :key-op #'%<=%))
+			   (> :alpha (list :var (fourth args)  :equal-op #'%=% :order-op #'%>% :key-op #'%>%)
+			      :beta (list :var (second args) :equal-op #'%=% :order-op #'%<% :equal-op #'%=% :key-op #'%<%))
+			   (t (usage))))
+		   (instans-ordered-index-nodes instans)))))
       (comment
        :options ("--comment" :string)
        :usage "A comment to be printed"

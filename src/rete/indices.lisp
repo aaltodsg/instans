@@ -173,6 +173,18 @@
   (:method ((this ordered-list-token-index))
     (setf (ordered-list-token-index-alist this) (list nil))))
 
+(defgeneric index-key (index token)
+  (:method ((this token-index) token)
+    (loop with join = (token-index-node this)
+	  for var in (token-index-key-vars this)
+	  collect (token-value join token var))))
+
+(defun join-alpha-key (join alpha-token)
+  (index-key (join-alpha-index join) alpha-token))
+
+(defun join-beta-key (join beta-token)
+  (index-key (join-beta-index join) beta-token))
+
 ;; (defun join-alpha-key (join alpha-token)
 ;;   (pop alpha-token) ;;; Get rid of the hash key
 ;;   (loop with key = (sxhash nil)
@@ -180,10 +192,15 @@
 ;; 	do (setf key (mix key (get-hashkey (second (assoc var alpha-token)))))
 ;; 	finally (return key)))
 
-(defun join-alpha-key (join alpha-token)
-  (pop alpha-token) ;;; Get rid of the hash key
-  (loop for var in (node-use join)
-	collect (second (assoc var alpha-token))))
+;; (defun join-alpha-key (join alpha-token)
+;;   (pop alpha-token) ;;; Get rid of the hash key
+;;   (loop for var in (node-use join)
+;; 	collect (second (assoc var alpha-token))))
+
+;; (defun join-alpha-key (join alpha-token)
+;;   (pop alpha-token) ;;; Get rid of the hash key
+;;   (loop for var in (token-index-key-vars (join-alpha-index join))
+;; 	collect (second (assoc var alpha-token))))
 
 ;; (defun join-beta-key (join beta-token)
 ;;   (loop with key = (sxhash nil)
@@ -191,9 +208,13 @@
 ;; 	do (setf key (mix key (get-hashkey (token-value join beta-token var))))
 ;; 	finally (return key)))
 
-(defun join-beta-key (join beta-token)
-  (loop for var in (node-use join)
-        collect (token-value join beta-token var)))
+;; (defun join-beta-key (join beta-token)
+;;   (loop for var in (node-use join)
+;;         collect (token-value join beta-token var)))
+
+;; (defun join-beta-key (join beta-token)
+;;   (loop for var in (token-index-key-vars (join-beta-index join))
+;; 	collect (token-value join beta-token var)))
 
 ;; (defun service-node-index-key (node token)
 ;;   (loop with key = (sxhash nil)

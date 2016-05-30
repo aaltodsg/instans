@@ -92,25 +92,30 @@
      (instans-stores (node-instans this))))
   ;;; Join creates indices for alpha/beta memories only if the alpha and beta parents share common variables, i.e., (not (null node-use this))
   (:method ((this join-node))
-    (let ((beta-key (node-use this))
-	  (alpha-key (node-def-preceq (join-alpha this))))
+    (let (;(beta-key (node-use this))
+          ;(alpha-key (node-def-preceq (join-alpha this)))
+	  )
       ;; (setf (join-has-dummy-beta-p this) nil)
       ;; (cond ((null (node-prev (join-beta this)))
       ;; 	     (setf (join-has-dummy-beta-p this) t))
       ;; 	    ((node-use this)
 	     (push
-	      (setf (join-beta-index this) (apply #'make-instance (join-alpha-index-type this)
-						  :node this
-						  :key beta-key
-						  :id (format nil "beta-index ~A" (node-number this))
-						  (join-alpha-index-init-args this)))
+	      (let* ((beta-key-var (getf (join-beta-index-init-args this) :var))
+		     (beta-key-vars (if beta-key-var (list (resolve-binding (node-instans this) (string-upcase (subseq beta-key-var 1)))) (node-use this))))
+		(setf (join-beta-index this) (apply #'make-instance (join-beta-index-type this)
+						    :node this
+						    :key-vars beta-key-vars
+						    :id (format nil "beta-index ~A" (node-number this))
+						    (join-beta-index-init-args this))))
 	      (instans-indices (node-instans this)))
 	     (push
-	      (setf (join-alpha-index this) (apply #'make-instance (join-beta-index-type this)
-						   :node this
-						   :key alpha-key
-						   :id (format nil "alpha-index ~A" (node-number this))
-						   (join-beta-index-init-args this)))
+	      (let* ((alpha-key-var (getf (join-alpha-index-init-args this) :var))
+		     (alpha-key-vars (if alpha-key-var (list (resolve-binding (node-instans this) (string-upcase (subseq alpha-key-var 1)))) (node-use this))))
+		(setf (join-alpha-index this) (apply #'make-instance (join-alpha-index-type this)
+						     :node this
+						     :key-vars alpha-key-vars
+						     :id (format nil "alpha-index ~A" (node-number this))
+						   (join-alpha-index-init-args this))))
 	      (instans-indices (node-instans this)))))
   ;; ))
   (:method ((this aggregate-join-node))
