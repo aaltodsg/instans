@@ -7,7 +7,7 @@
 (in-package #:instans)
 
 (defvar *sparql-test-set*)
-(defvar *current-sparql-test*)
+(defvar *current-sparql-test* nil)
 (defvar *collect-sparql-test-set-script* nil)
 
 ;;; Classes

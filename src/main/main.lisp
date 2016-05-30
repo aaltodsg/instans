@@ -315,6 +315,21 @@
 	       "various outputs and names during the execution of INSTANS, but the name does"
 	       "not bear any actual semantics.")
        (setf (instans-name instans) value))
+      (ordered-index
+       :options ("--ordered-index" :string)
+       :usage ("The named join node should have an ordered index that uses the given comparison"
+	       "operator for joins. The parameters should be of form 'name:op', where op is one of"
+	       "<, <=, =, >=, and >")
+       (let ((args (parse-colon-separated-strings value)))
+	 (push (list (intern (format nil "~@:(~A~)" (first args)))
+		     (case (intern (second args))
+		       (< #'%<%)
+		       (<= #'%<=%)
+		       (= #'%=%)
+		       (>= #'%>=%)
+		       (> #'%>%)
+		       (t (usage))))
+	       (instans-ordered-index-nodes instans))))
       (comment
        :options ("--comment" :string)
        :usage "A comment to be printed"

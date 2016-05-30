@@ -367,7 +367,8 @@
    (algebra-expr-list :accessor instans-algebra-expr-list :initform nil)
    (report-operation-kinds :accessor instans-report-operation-kinds :initarg :report-operation-kinds :initform nil)
    (canonic-algebra-expr-list :accessor instans-canonic-algebra-expr-list :initform nil)
-   (colors :accessor instans-colors :initform nil)))
+   (colors :accessor instans-colors :initform nil)
+   (ordered-index-nodes :accessor instans-ordered-index-nodes :initform nil)))
 
 (define-class instans-status ()
   ((messages :accessor instans-status-messages :initarg :messages)))
