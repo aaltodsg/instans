@@ -1,0 +1,51 @@
+INSTANS> (main "--prefix-encoding=true --print-prefix-encodings=false --select-output-csv=/Users/enu/aaltodsg/manufacturer-logistics-monitoring/scripts/eventRun_1000_exp4.instansout -r /Users/enu/aaltodsg/manufacturer-logistics-monitoring/scripts/../instans/time_engine.rq --rete-html=rete.html -r /Users/enu/aaltodsg/manufacturer-logistics-monitoring/scripts/../instans/queries_comm_pack.rq -i /Users/enu/aaltodsg/manufacturer-logistics-monitoring/scripts/../instans/parameters_exp4.ttl --allow-rule-instance-removal=true --rdf-operations=add:execute:remove:flush --time=- --input-blocks=/Users/enu/aaltodsg/manufacturer-logistics-monitoring/scripts/../data/EventRuns/eventRun_1000_exp4.trig -i /Users/enu/aaltodsg/manufacturer-logistics-monitoring/instans/endMarker.ttl")
+
+At 0.000007: Command: input-blocks, Parameter: /Users/enu/aaltodsg/manufacturer-logistics-monitoring/scripts/../data/EventRuns/eventRun_1000_exp4.trig
+
+At 2.511954: Command: input, Parameter: /Users/enu/aaltodsg/manufacturer-logistics-monitoring/instans/endMarker.ttl
+
+At 2.544328: Done
+#<INSTANS http://www.instans.org/INSTANS828>
+INSTANS> (sb-profile:report)
+measuring PROFILE overhead..done
+  seconds  |     gc     |    consed   |   calls   |  sec/call  |  name  
+-------------------------------------------------------------
+     0.136 |      0.016 |  81,293,520 |   240,358 |   0.000001 | MAKE-TOKEN
+     0.093 |      0.050 |  13,335,552 |   169,431 |   0.000001 | JOIN-BETA-KEY
+     0.090 |      0.000 |           0 |   230,755 |   0.000000 | STORE-GET-TOKEN
+     0.032 |      0.000 |   1,254,480 |   115,424 |   0.000000 | STORE-PUT-TOKEN
+     0.028 |      0.000 |           0 |   187,480 |   0.000000 | INDEX-GET-TOKENS
+     0.026 |      0.000 |           0 |   281,814 |   0.000000 | TOKEN-VALUE
+     0.021 |      0.000 |           0 |   113,171 |   0.000000 | STORE-REMOVE-TOKEN
+     0.015 |      0.011 |   2,864,832 |    94,740 |   0.000000 | INDEX-PUT-TOKEN
+     0.013 |      0.000 |           0 |    92,740 |   0.000000 | INDEX-REMOVE-TOKEN
+     0.013 |      0.000 |   2,326,064 |    15,722 |   0.000001 | MATCH-QUAD
+     0.007 |      0.000 |   2,620,944 |    36,704 |   0.000000 | JOIN-ALPHA-KEY
+     0.003 |      0.000 |     556,992 |     4,720 |   0.000001 | RETE-ADD-RULE-INSTANCE
+     0.001 |      0.000 |      32,768 |       160 |   0.000005 | SELECT-OUTPUT
+     0.000 |      0.000 |           0 |       161 |   0.000000 | START-NODE-TOKEN
+     0.000 |      0.000 |   1,376,256 |    18,701 |   0.000000 | STORE-TOKENS
+     0.000 |      0.000 |     294,912 |     3,279 |   0.000000 | EXECUTE-RULE-NODE
+     0.000 |      0.000 |           0 |     3,279 |   0.000000 | RULE-INSTANCE-QUEUE-EXECUTE-INSTANCE
+     0.000 |      0.000 |           0 |        66 |   0.000000 | EXECUTE-RULES
+     0.000 |      0.000 |           0 |   258,088 |   0.000000 | CALL-SUCC-NODES
+     0.000 |      0.000 |   3,407,872 |    84,227 |   0.000000 | REMOVE-BETA-TOKEN
+     0.000 |      0.000 |     393,216 |    17,546 |   0.000000 | REMOVE-ALPHA-TOKEN
+     0.000 |      0.000 |     524,304 |    85,204 |   0.000000 | ADD-BETA-TOKEN
+     0.000 |      0.000 |     786,432 |    19,158 |   0.000000 | ADD-ALPHA-TOKEN
+     0.000 |      0.000 |      65,536 |   150,906 |   0.000000 | REMOVE-TOKEN
+     0.000 |      0.000 |   3,669,920 |   131,827 |   0.000000 | ADD-TOKEN
+     0.000 |      0.000 |     851,056 |     8,618 |   0.000000 | RETE-REMOVE
+     0.000 |      0.000 |     589,024 |     7,104 |   0.000000 | RETE-ADD
+     0.000 |      0.000 |     195,728 |         2 |   0.000000 | INITIALIZE-EXECUTION
+-------------------------------------------------------------
+     0.477 |      0.077 | 116,439,408 | 2,371,385 |            | Total
+
+estimated total profiling overhead: 1.75 seconds
+overhead estimation parameters:
+  4.0000003e-9s/call, 7.38e-7s total profiling, 3.1e-7s internal profiling
+
+These functions were not called:
+ AGGREGATE-ADD-VALUE AGGREGATE-GET-VALUE AGGREGATE-REMOVE-VALUE
+; No value
+INSTANS> 
