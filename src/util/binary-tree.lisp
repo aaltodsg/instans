@@ -206,8 +206,8 @@
 	 (print-binary-tree (binary-tree-right tree) stream (+ 4 indent))
 	 (format stream "~&~VT~A" indent tree)
 	 (print-binary-tree (binary-tree-left tree) stream (+ 4 indent)))))
-(defmethod print-object (tree stream)
-  (format stream "<binary-tree ~A: height: ~D, balance: ~D, value: ~A>" (binary-tree-key tree) (binary-tree-height tree) (binary-tree-balance tree) (binary-tree-value tree)))
+(defmethod print-object ((this binary-tree) stream)
+  (format stream "<binary-tree ~A: height: ~D, balance: ~D, value: ~A>" (binary-tree-key this) (binary-tree-height this) (binary-tree-balance this) (binary-tree-value this)))
 
 (defun bta (tree v)
   (let ((new (binary-tree-add tree v v)))

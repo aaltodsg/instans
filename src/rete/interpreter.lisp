@@ -93,48 +93,55 @@
   ;;; Join creates indices for alpha/beta memories only if the alpha and beta parents share common variables, i.e., (not (null node-use this))
   (:method ((this join-node))
     ;; (inform "Checking if ~S has an ordered index parameters in ~S" (node-name this) (instans-ordered-index-nodes (node-instans this)))
-    (let ((hit (assoc (intern (node-name this)) (instans-ordered-index-nodes (node-instans this)))))
+    (let* ((instans (node-instans this))
+	   (hit (assoc (intern (node-name this)) (instans-ordered-index-nodes instans))))
       (when hit
 	(setf (join-alpha-index-type this) 'ordered-list-token-index)
 	(setf (join-alpha-index-init-args this) (getf (cdr hit) :alpha))
 	(setf (join-beta-index-type this) 'ordered-list-token-index)
 	(setf (join-beta-index-init-args this) (getf (cdr hit) :beta))
-	(inform "yes")
+	;; (inform "yes")
 	;; (describe this)
+	)
+      (let* ((key-var (getf (join-beta-index-init-args this) :var))
+	     (equal-op (getf (join-beta-index-init-args this) :equal-op))
+	     (order-op (getf (join-beta-index-init-args this) :order-op))
+	     (key-op (getf (join-beta-index-init-args this) :key-op))
+	     (key-vars (if key-var (list (resolve-binding instans (find-named-var instans (string-upcase key-var)))) (node-use this))))
+	;; (inform "beta-key-vars = ~S" key-vars)
+	(let ((beta-index
+	       (make-instance (join-beta-index-type this)
+			      :node this
+			      :key-vars key-vars
+			      :id (format nil "beta-index ~A" (node-number this))
+			      :var key-var
+			      :equal-op equal-op
+			      :order-op order-op
+			      :key-op key-op)))
+	  ;; (inform "beta-index = (~S)" beta-index)
+	  (setf (join-beta-index this) beta-index)
+	  ;; (describe beta-index)
+	  (push beta-index (instans-indices (node-instans this)))))
+      (let* ((key-var (getf (join-alpha-index-init-args this) :var))
+	     (equal-op (getf (join-alpha-index-init-args this) :equal-op))
+	     (order-op (getf (join-alpha-index-init-args this) :order-op))
+	     (key-op (getf (join-alpha-index-init-args this) :key-op))
+	     (key-vars (if key-var (list (resolve-binding instans (find-named-var instans (string-upcase key-var)))) (node-use this))))
+	;; (inform "alpha-key-vars = ~S" key-vars)
+	(let ((alpha-index
+	       (make-instance (join-alpha-index-type this)
+			      :node this
+			      :key-vars key-vars
+			      :id (format nil "alpha-index ~A" (node-number this))
+			      :var key-var
+			      :equal-op equal-op
+			      :order-op order-op
+			      :key-op key-op)))
+	  ;; (inform "alpha-index = (~S)" alpha-index)
+	  (setf (join-alpha-index this) alpha-index)
+	  ;; (describe alpha-index)
+	  (push alpha-index (instans-indices (node-instans this)))))
       ))
-    (let* ((key-var (getf (join-beta-index-init-args this) :var))
-	   (equal-op (getf (join-beta-index-init-args this) :equal-op))
-	   (order-op (getf (join-beta-index-init-args this) :order-op))
-	   (key-op (getf (join-beta-index-init-args this) :key-op))
-	   (key-vars (if key-var (list (find-named-var (node-instans this) (string-upcase key-var))) (node-use this))))
-      ;; (inform "beta-key-vars = ~S" key-vars)
-      (let ((beta-index
-	     (make-instance (join-beta-index-type this)
-			    :node this
-			    :key-vars key-vars
-			    :id (format nil "beta-index ~A" (node-number this))
-			    :var key-var
-			    :equal-op equal-op
-			    :order-op order-op
-			    :key-op key-op)))
-	;; (inform "beta-index = (~S)" beta-index)
-	(setf (join-beta-index this) beta-index)
-	;; (describe beta-index)
-	(push beta-index (instans-indices (node-instans this)))))
-    (let* ((alpha-key-var (getf (join-alpha-index-init-args this) :var))
-	   (alpha-key-vars (if alpha-key-var (list (find-named-var (node-instans this) (string-upcase alpha-key-var))) (node-use this))))
-      ;; (inform "alpha-key-vars = ~S" alpha-key-vars)
-      (let ((alpha-index (apply #'make-instance (join-alpha-index-type this)
-			       :node this
-			       :key-vars alpha-key-vars
-			       :id (format nil "alpha-index ~A" (node-number this))
-			       (join-alpha-index-init-args this))))
-	(setf (join-alpha-index this) alpha-index)
-	;; (describe alpha-index)
-	(push alpha-index (instans-indices (node-instans this)))))
-    ;; (describe this)
-    )
-  ;; ))
   (:method ((this aggregate-join-node))
     (setf (aggregate-join-groups this) (make-hash-table :test #'equal)))
   (:method ((this query-node))
@@ -784,8 +791,9 @@
       (index-put-token (join-alpha-index this) key alpha-token)
       ;; )
       (loop with missing-vars = (join-alpha-minus-beta-vars this)
-	    for beta-token in (cond ((node-use this) (index-get-tokens (join-beta-index this) key))
-				    (t (token-store-tokens (join-beta this))))
+	    ;; for beta-token in (cond ((node-use this) (index-get-tokens (join-beta-index this) key))
+	    ;; 			    (t (token-store-tokens (join-beta this))))
+	    for beta-token in (index-get-tokens (join-beta-index this) key)
 	    for new-token = (make-token this beta-token missing-vars (loop for var in missing-vars
 									   for binding = (assoc var alpha-token)
 									   collect (if binding (second binding) *sparql-unbound*)))
@@ -804,8 +812,9 @@
       (index-put-token (join-beta-index this) key beta-token)
       ;; )
       (loop with missing-vars = (join-alpha-minus-beta-vars this)
-	    for alpha-token in (cond ((node-use this) (index-get-tokens (join-alpha-index this) key))
-				     (t (token-store-tokens (join-alpha this))))
+	    ;; for alpha-token in (cond ((node-use this) (index-get-tokens (join-alpha-index this) key))
+	    ;; 			     (t (token-store-tokens (join-alpha this))))
+	    for alpha-token in (index-get-tokens (join-alpha-index this) key)
 	    for new-token = (make-token this beta-token missing-vars (loop for var in missing-vars 
 									   for binding = (assoc var alpha-token)
 									   collect (if binding (second binding) *sparql-unbound*)))
@@ -1008,8 +1017,9 @@
       (index-remove-token (join-alpha-index this) key alpha-token)
       ;; )
       (loop with missing-vars = (join-alpha-minus-beta-vars this)
-	    for beta-token in (cond ((node-use this) (index-get-tokens (join-beta-index this) key))
-				    (t (token-store-tokens (join-beta this))))
+	    ;; for beta-token in (cond ((node-use this) (index-get-tokens (join-beta-index this) key))
+	    ;; 			    (t (token-store-tokens (join-beta this))))
+	    for beta-token in (index-get-tokens (join-beta-index this) key)
 	    for new-token = (make-token this beta-token missing-vars (loop for var in missing-vars
 									   for binding = (assoc var alpha-token)
 									   collect (if binding (second binding) *sparql-unbound*)))
@@ -1028,8 +1038,9 @@
       (index-remove-token (join-beta-index this) key beta-token)
       ;; )
       (loop with missing-vars = (join-alpha-minus-beta-vars this)
-	    for alpha-token in (cond ((node-use this) (index-get-tokens (join-alpha-index this) key))
-				     (t (token-store-tokens (join-alpha this))))
+	    ;; for alpha-token in (cond ((node-use this) (index-get-tokens (join-alpha-index this) key))
+	    ;; 			     (t (token-store-tokens (join-alpha this))))
+	    for alpha-token in (index-get-tokens (join-alpha-index this) key)
 	    for new-token = (make-token this beta-token missing-vars (loop for var in missing-vars
 									   for binding = (assoc var alpha-token)
 									   collect (if binding (second binding) *sparql-unbound*)))
@@ -1221,3 +1232,13 @@
 	 token-map-get token-map-put token-map-remove
 	 aggregate-get-value aggregate-add-value aggregate-remove-value start-node-token
 	 construct-output select-output))
+
+(defun profile-rete ()
+  (sb-profile:profile initialize-execution initialize-stores-and-indices initialize-data
+		      rete-add rete-remove add-token remove-token add-alpha-token add-beta-token remove-alpha-token remove-beta-token match-quad
+		      join-beta-key join-alpha-key
+		      token-value make-token call-succ-nodes rete-add-rule-instance execute-rules rule-instance-queue-execute-instance execute-rule-node
+		      select-output token-store-put token-store-put-if-missing token-store-get token-store-remove token-store-remove-if-exists token-store-tokens index-put-token index-get-tokens index-remove-token
+		      token-map-get token-map-put token-map-remove
+		      aggregate-get-value aggregate-add-value aggregate-remove-value start-node-token
+		      construct-output select-output))

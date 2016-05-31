@@ -13,7 +13,7 @@
 (defmethod print-object ((this node) stream)
   (format stream "#<~A ~A>" (type-of this) (node-number this)))
 
-(defmethod print-object ((this hash-token-index) stream)
+(defmethod print-object ((this token-index) stream)
   (format stream "#<~A ~A>" (type-of this) (token-index-id this)))
 
 (defmethod print-object ((this token-map) stream)

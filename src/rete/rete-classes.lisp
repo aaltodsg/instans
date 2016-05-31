@@ -236,7 +236,7 @@
 (define-class list-quad-store (quad-store)
   ((quads :accessor list-quad-store-quads :initform nil)))
 
-(define-class token-index () 
+(define-class token-index ()
   ((key-vars :accessor token-index-key-vars :initarg :key-vars)
    (node :accessor token-index-node :initarg :node)
    (id :accessor token-index-id :initarg :id :initform nil)))
@@ -244,12 +244,21 @@
 (define-class hash-token-index (token-index)
   ((table :accessor hash-token-index-table)))
 
+(defclass test-class () ())
+
 (define-class ordered-list-token-index (token-index)
   ((alist :accessor ordered-list-token-index-alist :initform (list nil))
    (var :accessor ordered-list-token-index-var :initarg :var)
    (order-op :accessor ordered-list-token-index-order-op :initarg :order-op)
    (equal-op :accessor ordered-list-token-index-equal-op :initarg :equal-op)
    (key-op :accessor ordered-list-token-index-key-op :initarg :key-op)))
+
+;; (define-class ordered-list-token-index (token-index)
+;;   ((alist :accessor ordered-list-token-index-alist :initform (list nil))
+;;    (var :accessor ordered-list-token-index-var :initarg :var)
+;;    (order-op :accessor ordered-list-token-index-order-op :initarg :order-op)
+;;    (equal-op :accessor ordered-list-token-index-equal-op :initarg :equal-op)
+;;    (key-op :accessor ordered-list-token-index-key-op :initarg :key-op)))
 
 (define-class triple-pattern-matcher ()
   ((instans :accessor triple-pattern-matcher-instans :initarg :instans)

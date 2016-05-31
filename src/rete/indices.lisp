@@ -26,7 +26,7 @@
   (every #'(lambda (v1 v2) (or (eql v1 v2) (%=% v1 v2))) k1 k2))
 
 (defmethod initialize-instance :after ((this hash-token-index) &key &allow-other-keys)
-  (inform "initialize-instance :after ~S" this)
+  ;; (inform "initialize-instance :after ~S" this)
   (setf (hash-token-index-table this)
 ;	(make-hash-table :test #'equal)
 	(make-hash-table :test #'index-key-equal :hash-function #'index-key-hash-function)))
@@ -48,6 +48,7 @@
     ;; (assert key)
     (cdr (gethash key (hash-token-index-table this))))
   (:method ((this ordered-list-token-index) key)
+    (setf key (car key))
     (loop with key-op = (ordered-list-token-index-key-op this)
 	  for (k . vl) in (cdr (ordered-list-token-index-alist this))
 	  while (funcall key-op key k)
@@ -79,6 +80,9 @@
 	 (inform "-------------")
 	 ,result-var))))
 
+(defvar *index-put-loop-count* 0)
+(defvar *index-remove-loop-count* 0)
+
 ;;; Returns t if this is the first token with this key
 (defgeneric index-put-token (index key token)
   (:method ((this hash-token-index) key token)
@@ -93,11 +97,16 @@
 	       nil))))
 ;)
   (:method ((this ordered-list-token-index) key token)
+    ;; (describe this)
+    (setf key (car key))
+;    (inform "index-put-token ~S ~S" this key)
     (loop with order-op = (ordered-list-token-index-order-op this)
 	  for rest on (ordered-list-token-index-alist this)
 	  for item = (car (cdr rest))
+	  do (incf *index-put-loop-count*)
+	  ;; do (inform "(and ~S (funcall ~S ~S ~S)) = ~S" item order-op (car item) key (and item (funcall order-op (car item) key)))
 	  while (and item (funcall order-op (car item) key))
-	  finally (cond ((funcall (ordered-list-token-index-equal-op this) key (car item))
+	  finally (cond ((and item (funcall (ordered-list-token-index-equal-op this) key (car item)))
 			 (pushnew token (cdr item) :test #'token-equal)
 			 (return nil))
 			(t
@@ -136,11 +145,14 @@
 	     nil))))
 ;  )
   (:method ((this ordered-list-token-index) key token)
+    (setf key (car key))
     (loop with order-op = (ordered-list-token-index-order-op this)
 	  for rest on (ordered-list-token-index-alist this)
 	  for item = (car (cdr rest))
+	  ;; do (inform "item = ~A, key = ~A" item key)
+	  do (incf *index-remove-loop-count*)
 	  while (and item (funcall order-op (car item) key))
-	  finally (cond ((funcall (ordered-list-token-index-equal-op this) key (car item))
+	  finally (cond ((and item (funcall (ordered-list-token-index-equal-op this) key (car item)))
 			 (loop named delete-token
 			       for prev on item
 			       for tokens = (cdr prev)
