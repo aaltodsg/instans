@@ -70,26 +70,34 @@
   (loop for node in (instans-nodes instans) do (create-stores-and-indices node)))
 
 (defgeneric create-stores-and-indices (node)
-  (:method ((this existence-start-node))
-    ;;; An EQL hashtable, since we are using integers as keys!
+  (:method ((this filter-with-previous-value))
+    (push (cons this (setf (token-map-map (filter-with-previous-value-token-map this)) (make-token-hash-table)))
+	  (instans-token-maps (node-instans this)))
     (push
      (cons this (setf (token-store-hash-table this) (make-token-hash-table)))
-     (instans-stores (node-instans this))))
+     (instans-token-stores (node-instans this))))
+  (:method ((this existence-start-node))
+    ;;; An EQL hashtable, since we are using integers as keys!
+    (push (cons this (setf (token-map-map (existence-start-node-token-map this)) (make-token-hash-table)))
+	  (instans-token-maps (node-instans this)))
+    (push
+     (cons this (setf (token-store-hash-table this) (make-token-hash-table)))
+     (instans-token-stores (node-instans this))))
   (:method ((this service-node))
     (push
      (cons this (setf (token-store-hash-table this) (make-token-hash-table)))
-     (instans-stores (node-instans this)))
+     (instans-token-stores (node-instans this)))
     (push
      (setf (service-node-index this) (make-instance 'hash-token-index
 						    :node this
 						    :key (service-node-index-key-vars this)
 						    :id (format nil "service-node-index ~A" (node-number this))))
-     (instans-indices (node-instans this))))
+     (instans-token-indices (node-instans this))))
   (:method ((this token-store))
     ;;; An EQL hashtable, since we are using integers as keys!
     (push
      (cons this (setf (token-store-hash-table this) (make-token-hash-table)))
-     (instans-stores (node-instans this))))
+     (instans-token-stores (node-instans this))))
   ;;; Join creates indices for alpha/beta memories only if the alpha and beta parents share common variables, i.e., (not (null node-use this))
   (:method ((this join-node))
     ;; (inform "Checking if ~S has an ordered index parameters in ~S" (node-name this) (instans-ordered-index-nodes (node-instans this)))
@@ -100,7 +108,7 @@
 	(setf (join-alpha-index-init-args this) (getf (cdr hit) :alpha))
 	(setf (join-beta-index-type this) 'ordered-list-token-index)
 	(setf (join-beta-index-init-args this) (getf (cdr hit) :beta))
-	;; (inform "yes")
+	(inform "using ordered-token-index for ~S" (node-name this))
 	;; (describe this)
 	)
       (let* ((key-var (getf (join-beta-index-init-args this) :var))
@@ -121,7 +129,7 @@
 	  ;; (inform "beta-index = (~S)" beta-index)
 	  (setf (join-beta-index this) beta-index)
 	  ;; (describe beta-index)
-	  (push beta-index (instans-indices (node-instans this)))))
+	  (push beta-index (instans-token-indices (node-instans this)))))
       (let* ((key-var (getf (join-alpha-index-init-args this) :var))
 	     (equal-op (getf (join-alpha-index-init-args this) :equal-op))
 	     (order-op (getf (join-alpha-index-init-args this) :order-op))
@@ -140,7 +148,7 @@
 	  ;; (inform "alpha-index = (~S)" alpha-index)
 	  (setf (join-alpha-index this) alpha-index)
 	  ;; (describe alpha-index)
-	  (push alpha-index (instans-indices (node-instans this)))))
+	  (push alpha-index (instans-token-indices (node-instans this)))))
       ))
   (:method ((this aggregate-join-node))
     (setf (aggregate-join-groups this) (make-hash-table :test #'equal)))
@@ -408,9 +416,9 @@
       (setf (instans-sizes-report-counter this) 0)
       (setf (instans-summary-report-interval this) (getf reporting :summary))
       (setf (instans-summary-report-counter this) 0)
-      (let ((store-sizes-alist (loop for (node . store) in (instans-stores this) collect (list node store (hash-table-count store)))))
+      (let ((store-sizes-alist (loop for (node . store) in (instans-token-stores this) collect (list node store (hash-table-count store)))))
 	(setf (instans-store-sizes-alist this) store-sizes-alist))
-      (let ((index-sizes-alist (loop for index in (instans-indices this) collect (list index (hash-table-count (hash-token-index-table index))))))
+      (let ((index-sizes-alist (loop for index in (instans-token-indices this) collect (list index (hash-table-count (hash-token-index-table index))))))
 	(setf (instans-index-sizes-alist this) index-sizes-alist))
       ;; (inform "~A" (instans-store-sizes-alist this))
       ;; (inform "~A" (instans-index-sizes-alist this))
@@ -452,10 +460,10 @@
 				   for (index delta new-count) in index-sizes-delta-alist
 				   while (and (< i 10) (> delta 0))
 				   do (format stream "~%  ~A: +~D now ~D" index delta new-count))))))
-      (loop for item in (instans-stores this)
+      (loop for item in (instans-token-stores this)
 	    sum (hash-table-count (cdr item)) into sizes
 	    finally (format stream "~%Store total size = ~D" sizes))
-      (loop for index in (instans-indices this)
+      (loop for index in (instans-token-indices this)
 	    sum (hash-table-count (hash-token-index-table index)) into sizes
 	    finally (format stream "~%Index total size = ~D" sizes))
       (let ((queue (instans-rule-instance-queue this)))
