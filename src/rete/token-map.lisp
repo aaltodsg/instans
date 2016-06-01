@@ -14,6 +14,12 @@
 ;; 	     (setf (cdr a) value))))
 ;;     value))
 
+(defgeneric token-map-contents (token-map)
+  (:method ((this token-map))
+    (let ((result nil))
+      (maphash #'(lambda (k v) (push (list k v) result)) (token-map-map this))
+      result)))
+
 (defgeneric token-map-put (token-map token value)
   (:method ((this token-map) token value)
     (let* ((ht (token-map-map this)))

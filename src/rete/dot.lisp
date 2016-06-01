@@ -188,12 +188,12 @@
     (format stream "~%    ~A" (dot-node-description node :html-labels-p html-labels-p :shape node-shape :show-vars-p show-vars-p :binding-info-box-p binding-info-box-p)))
   (format stream "~%  }"))
 
-(defun print-dot (net &key (stream *standard-output*) show-vars-p (html-labels-p t) (node-shape "ellipse") binding-info-box-p horizontalp)
+(defun print-dot (net &key (stream *standard-output*) show-vars-p (html-labels-p t) (node-shape "ellipse") binding-info-box-p (horizontalp t))
   (let* ((nodes (instans-nodes net))
 	 (alphas (filter #'(lambda (node) (typep node 'alpha-node)) nodes))
-	 (alphamems (filter #'(lambda (node) (typep node 'alpha-memory)) nodes))
+	 (alphamems (filter #'(lambda (node) (and (typep node 'alpha-memory) (typep (first (node-parents node)) 'triple-pattern-node))) nodes))
 	 (other-nodes (list-difference nodes (list-union alphas alphamems))))
-    (format stream "~%digraph ~S{ ~S" (instans-name net) (if horizontalp "rankdir=\"LR\";" ""))
+    (format stream "~%digraph ~S{ ~A" (instans-name net) (if horizontalp "rankdir=\"LR\";" ""))
     (print-dot-nodes stream alphas :rank "same" :show-vars-p show-vars-p :node-shape node-shape :html-labels-p html-labels-p)
     (print-dot-nodes stream alphamems :rank "same" :show-vars-p show-vars-p :node-shape node-shape :html-labels-p html-labels-p :binding-info-box-p binding-info-box-p)
     (print-dot-nodes stream other-nodes :show-vars-p show-vars-p :node-shape node-shape :html-labels-p html-labels-p :binding-info-box-p binding-info-box-p)
@@ -205,7 +205,7 @@
 	(loop with parent-slots = (node-parent-slots node)
 	      for parent-slot in parent-slots
 	      for parent = (slot-value node parent-slot)
-	      for anchor-point in (if (= 2 (length parent-slots)) (cond ((not horizontalp) '(":nw" ":ne")) (t '(":nw" ":sw"))) '(""))
+	      for anchor-point in (if (= 2 (length parent-slots)) (cond ((not horizontalp) '(":nw" ":ne")) (t '(":sw" ":nw"))) '(""))
 	      for vars = (and (eq parent-slot 'alpha) (mapcar #'(lambda (vm) (format nil "~D: ~A" (car vm) (var-name node (cdr vm)))) (node-def (join-alpha node))))
 	      when parent
 	      do (format stream "~%  ~A -> ~A~A~A;" (dot-node-name parent) (dot-node-name node) anchor-point (edge-attrs vars parent))))
@@ -235,18 +235,19 @@
 	(unless dot-ok
 	  (inform "Running 'dot -Tsvg -O ~A failed:~%A" dot-output-file error)
 	  (return-from output-rete-html-page nil))
-	(let* ((rules (read-from-url-or-file rules-file))
-	       (bindings (with-output-to-string (str)
-			   (format str "Bindings:")
-			   (loop for (from . to) in (instans-bindings instans)
-				 do (format str "~%  ~A -> ~A" (uniquely-named-object-pretty-name from) (uniquely-named-object-pretty-name to)))))
-	       (sparql-algebra (with-output-to-string (str)
-				 (loop for expr in (instans-canonic-algebra-expr-list instans)
-;				       do (inform "algebra-expr:~%~A" expr)
-				       do (let* ((*print-circle* nil)
-						 (*print-pretty* t)
-						 (*print-right-margin* 110))
-					    (print expr str)))))
+	(let* (
+;; 	       (rules (read-from-url-or-file rules-file))
+;; 	       (bindings (with-output-to-string (str)
+;; 			   (format str "Bindings:")
+;; 			   (loop for (from . to) in (instans-bindings instans)
+;; 				 do (format str "~%  ~A -> ~A" (uniquely-named-object-pretty-name from) (uniquely-named-object-pretty-name to)))))
+;; 	       (sparql-algebra (with-output-to-string (str)
+;; 				 (loop for expr in (instans-canonic-algebra-expr-list instans)
+;; ;				       do (inform "algebra-expr:~%~A" expr)
+;; 				       do (let* ((*print-circle* nil)
+;; 						 (*print-pretty* t)
+;; 						 (*print-right-margin* 110))
+;; 					    (print expr str)))))
 	       (svg (read-from-url-or-file dot-svg-output-file)))
 	  (with-open-file (out html-file :direction :output :if-exists :supersede)
 	    (format out "
@@ -257,36 +258,58 @@
   <title>~A</title>
 </head>
 <body>
-  <table border=\"1\" cellspacing=\"0\" cellpadding=\"4\">
-  <tr>
-    <td>
-      <pre>
-~A
-      </pre>
-    </td>
-    <td rowspan=\"2\" valign=\"bottom\">
-      <pre>
-~A
-      </pre>
-      </td>
-    </tr>
-    <tr>
-      <td>
-      <pre>
-~A
-      </pre>
-      </td>
-    </tr>
-  </table>
-  <hr/>
 ~A
   <hr/>
 </body>
 </html>"
 		    name
-		    nil nil nil
 ;		    (html-entities:encode-entities sparql-algebra)
 ;		    (html-entities:encode-entities bindings)
 ;		    (html-entities:encode-entities rules)
-		    svg))))))
+		    svg)
+
+;; 		    "
+;; <!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\">
+;; <html>
+;; <head>
+;;   <meta charset=\"utf-8\"> 
+;;   <title>~A</title>
+;; </head>
+;; <body>
+;;   <table border=\"1\" cellspacing=\"0\" cellpadding=\"4\">
+;;   <tr>
+;;     <td>
+;;       <pre>
+;; ~A
+;;       </pre>
+;;     </td>
+;;     <td rowspan=\"2\" valign=\"bottom\">
+;;       <pre>
+;; ~A
+;;       </pre>
+;;       </td>
+;;     </tr>
+;;     <tr>
+;;       <td>
+;;       <pre>
+;; ~A
+;;       </pre>
+;;       </td>
+;;     </tr>
+;;   </table>
+;;   <hr/>
+;; ~A
+;;   <hr/>
+;; </body>
+;; </html>"
+		    ;; name
+		    ;; nil nil nil
+		    ;; (html-entities:encode-entities sparql-algebra)
+		    ;; (html-entities:encode-entities bindings)
+		    ;; (html-entities:encode-entities rules)
+		    ;; svg)
+	    )
+	  (delete-file dot-output-file)
+	  (delete-file dot-svg-output-file)
+	  ))))
   t)
