@@ -193,7 +193,7 @@
 	 (alphas (filter #'(lambda (node) (typep node 'alpha-node)) nodes))
 	 (alphamems (filter #'(lambda (node) (typep node 'alpha-memory)) nodes))
 	 (other-nodes (list-difference nodes (list-union alphas alphamems))))
-    (format stream "~%digraph ~S{" (instans-name net))
+    (format stream "~%digraph ~S{ rankdir=\"LR\"; " (instans-name net))
     (print-dot-nodes stream alphas :rank "same" :show-vars-p show-vars-p :node-shape node-shape :html-labels-p html-labels-p)
     (print-dot-nodes stream alphamems :rank "same" :show-vars-p show-vars-p :node-shape node-shape :html-labels-p html-labels-p :binding-info-box-p binding-info-box-p)
     (print-dot-nodes stream other-nodes :show-vars-p show-vars-p :node-shape node-shape :html-labels-p html-labels-p :binding-info-box-p binding-info-box-p)
@@ -284,8 +284,9 @@
 </body>
 </html>"
 		    name
-		    (html-entities:encode-entities sparql-algebra)
-		    (html-entities:encode-entities bindings)
-		    (html-entities:encode-entities rules)
+		    nil nil nil
+;		    (html-entities:encode-entities sparql-algebra)
+;		    (html-entities:encode-entities bindings)
+;		    (html-entities:encode-entities rules)
 		    svg))))))
   t)

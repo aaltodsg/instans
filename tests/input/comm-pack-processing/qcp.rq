@@ -1,0 +1,136 @@
+# Compare commissioned ObjectEvents and packed AggregationEvents
+
+# Finds the following anomalies between commissioned ObjectEvents and Aggregation Events
+# - EPC:s in commissioned ObjectEvents not found in AggregationEvents (lost)
+# - EPC:s in AggregationEvents not found in commissioned ObjectEvents (counterfeit)
+
+# Created by mikko.rinne@aalto.fi (MJR) 7.8.2014
+# 31.3.2015 MJR: Track time (eventRecordedAt) in incoming events and detect anomalies based on timeouts.
+# 15.4.2015 MJR: Add shipping events, recognize items lost after packing.
+# 16.4.2015 MJR: Removal of matched items after output, literals moved into a parameter file.
+#                Original split to three files for modularity: time_engine, comm_pack and pack_ship.
+
+BASE <http://instans.org/>
+PREFIX : <http://instans.org/>
+PREFIX eem:<http://purl.org/eem#>
+PREFIX co: <http://purl.org/co#>
+PREFIX cbv:<http://purl.org/cbv#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX datetime: <http://instans.org/extensions/datetime#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# @name ExtractCommissionedIn Generate a list of commissioned EPCs
+DELETE { GRAPH ?g { ?elist co:element ?epc } }
+INSERT {
+  ?epc :commissionedEPC ?e ;
+       :commissionedInSeconds ?current_sec
+}
+WHERE {
+  GRAPH ?g {
+    ?e a eem:ObjectEvent ;
+       eem:hasBusinessStepType cbv:commissioning ;
+       eem:action eem:ADD ;
+       eem:hasDisposition cbv:active ;
+       eem:associatedWithEPCList ?elist .
+    ?elist co:element ?epc .
+  }
+  :latest :eventInSeconds ?current_sec .
+} ;
+
+# @name ExtractPackedIn Generate a list of packing EPCs
+DELETE { GRAPH ?g { ?elist co:element ?epc } }
+INSERT {
+  ?epc :packedEPC ?e ;
+       :packedInSeconds ?current_sec
+}
+WHERE {
+  GRAPH ?g {
+    ?e a eem:AggregationEvent;
+       eem:hasBusinessStepType cbv:packing;
+       eem:action eem:ADD ;
+       eem:hasDisposition cbv:in_progress ;
+       eem:associatedWithEPCList ?elist .
+    ?elist co:element ?epc .
+    }
+    :latest :eventInSeconds ?current_sec .
+} ;
+
+# @name DeleteMatchingCommissionedPacked delete matching commissioned and packed EPC:s
+DELETE {
+  ?epc :commissionedEPC ?e1 ;
+       :commissionedInSeconds ?commissioned_sec .
+  ?epc :packedEPC ?e2 ;
+       :packedInSeconds ?packed_sec
+}
+WHERE {
+  ?epc :commissionedEPC ?e1 ;
+       :commissionedInSeconds ?commissioned_sec .
+  ?epc :packedEPC ?e2 ;
+       :packedInSeconds ?packed_sec
+} ;
+
+# @name DetectUnmatchedCommissionedEPCs inserts a marker when select is due
+INSERT { ?epc :commissionedSelectTime ?current_sec }
+WHERE {
+  :commissionedEPC :windowLength ?window_sec . # window length from parameter file
+  ?epc :commissionedEPC ?event ;
+       :commissionedInSeconds ?event_sec
+  FILTER NOT EXISTS { ?epc :commissionedSelectTime ?dummy } # Only do this once
+  BIND(?event_sec + ?window_sec AS ?endsec)
+  :latest :eventInSeconds ?current_sec .
+  FILTER (?endsec <= ?current_sec)
+} ;
+
+# @name SelectUnmatchedCommissionedEPCs produces the result
+SELECT ?event ?msg ?epc
+WHERE {
+  ?epc :commissionedEPC ?event ;
+       :commissionedSelectTime ?select_time .
+  BIND ("LostAfterCommissioning" AS ?msg)
+} ;
+
+# @name DeleteUnmatchedCommissionedEPCs when time advances over SELECT time
+DELETE {
+  ?epc :commissionedEPC ?event ;
+       :commissionedInSeconds ?event_sec ;
+       :commissionedSelectTime ?select_sec }
+WHERE {
+  ?epc :commissionedEPC ?event ;
+       :commissionedInSeconds ?event_sec ;
+       :commissionedSelectTime ?select_sec .
+  :latest :eventInSeconds ?current_sec .
+  FILTER (?select_sec < ?current_sec)
+} ;
+
+# @name DetectUnmatchedPackedEPCs inserts a marker when select is due
+INSERT { ?epc :packedEPCSelectTime ?current_sec }
+WHERE {
+  :packedEPC :windowLength ?window_sec . # window length from parameter file
+  ?epc :packedEPC ?event ;
+       :packedInSeconds ?event_sec
+  FILTER NOT EXISTS { ?epc :packedEPCSelectTime ?dummy } # Only do this once
+  BIND(?event_sec + ?window_sec AS ?endsec)
+  :latest :eventInSeconds ?current_sec .
+  FILTER (?endsec <= ?current_sec)
+} ;
+
+# @name SelectUnmatchedPackedEPCs counterfeits appearing without commissioning
+SELECT ?event ?msg ?epc
+WHERE {
+  ?epc :packedEPC ?event ;
+       :packedEPCSelectTime ?select_time .
+  BIND ("CounterfeitInPacking" AS ?msg)
+} ;
+
+# @name DeleteUnmatchedPackedEPCs when time advances over SELECT time
+DELETE {
+  ?epc :packedEPC ?event ;
+       :packedInSeconds ?event_sec ;
+       :packedEPCSelectTime ?select_sec }
+WHERE {
+  ?epc :packedEPC ?event ;
+       :packedInSeconds ?event_sec ;
+       :packedEPCSelectTime ?select_sec .
+  :latest :eventInSeconds ?current_sec .
+  FILTER (?select_sec < ?current_sec)
+} ;

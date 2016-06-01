@@ -1249,4 +1249,4 @@
 		      select-output token-store-put token-store-put-if-missing token-store-get token-store-remove token-store-remove-if-exists token-store-tokens index-put-token index-get-tokens index-remove-token
 		      token-map-get token-map-put token-map-remove
 		      aggregate-get-value aggregate-add-value aggregate-remove-value start-node-token
-		      construct-output select-output))
+		      construct-output instans-run))

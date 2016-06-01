@@ -379,6 +379,7 @@
    (report-operation-kinds :accessor instans-report-operation-kinds :initarg :report-operation-kinds :initform nil)
    (canonic-algebra-expr-list :accessor instans-canonic-algebra-expr-list :initform nil)
    (colors :accessor instans-colors :initform nil)
+   (profile-functions :accessor instans-profile-functions :initarg :profile-functions :initform nil)
    (ordered-index-nodes :accessor instans-ordered-index-nodes :initform nil)))
 
 (define-class instans-status ()

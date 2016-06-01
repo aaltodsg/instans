@@ -385,6 +385,13 @@
 	     (cond ((string-equal value "true") t)
 		   ((string-equal value "false") nil)
 		   (t (usage)))))
+      (profile
+       :options ("--profile" :file)
+       :usage "Output profile information to <FILE>. Use '-' for standard output."
+       (setf (instans-profile-functions instans) t)
+       (sb-profile:unprofile)
+       (profile-rete)
+       (setf profile-report-file value))
       (time
        :options ("--time" :file)
        :usage "Output timing information to <FILE>. Use '-' for standard output."
@@ -587,6 +594,7 @@
 		  time-output-stream
 		  start-time-sec
 		  start-time-usec
+		  profile-report-file
 		  ;; expected
 		  debug
 		  reporting
@@ -640,6 +648,10 @@
 		     (close-stream-not-stdout-stderr time-output-stream))
 		   (when report-sizes-file
 		     (close-stream-not-stdout-stderr (instans-sizes-report-stream instans)))
+		   (when profile-report-file
+		     (with-open-file (output profile-report-file :direction :output :if-exists :supersede)
+			 (let ((*standard-output* output))
+			   (sb-profile:report))))
 		   (instans-close-open-streams instans))))))))
     (logmsg "value=~A" value)
     value))
