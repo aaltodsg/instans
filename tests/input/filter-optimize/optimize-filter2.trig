@@ -1,0 +1,3 @@
+@prefix : <http://instans.org/> .
+:left :value 0 .
+:left :value 1 .

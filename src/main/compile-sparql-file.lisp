@@ -29,10 +29,9 @@
 	  do (push-to-end canonic (instans-canonic-algebra-expr-list instans))
 	  when (instans-find-status instans 'instans-rule-translation-failed)
 	  do (return-from compile-sparql-stream nil)
-	  else do (progn
-		    (optimize-rete-network instans)
-		    (lisp-compile-nodes new-nodes)))
+	  else do (lisp-compile-nodes new-nodes))
 ;    (instans-add-status instans 'instans-rule-translation-succeeded)
+    (optimize-rete-network instans)
     instans))
 
 (defvar *instanses*)
