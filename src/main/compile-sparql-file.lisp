@@ -199,7 +199,7 @@
 
 (defun instans-run (instans &key select-output-name (select-output-type :csv) ask-output-name (ask-output-type :srx) construct-output-name (construct-output-type :trig))
   (declare (ignorable select-output-name select-output-type ask-output-name ask-output-type construct-output-name construct-output-type))
-  (inform "Instans-run ~S" instans)
+  ;; (inform "Instans-run ~S" instans)
   (instans-set-output-processors instans)
 ;  (handler-case
       (progn

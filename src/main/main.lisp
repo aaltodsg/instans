@@ -650,7 +650,7 @@
 		     (close-stream-not-stdout-stderr (instans-sizes-report-stream instans)))
 		   (when profile-report-file
 		     (with-open-file (output profile-report-file :direction :output :if-exists :supersede)
-			 (let ((*standard-output* output))
+			 (let ((*trace-output* output))
 			   (sb-profile:report))))
 		   (instans-close-open-streams instans))))))))
     (logmsg "value=~A" value)

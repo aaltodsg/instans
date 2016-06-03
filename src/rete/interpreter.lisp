@@ -1241,12 +1241,16 @@
 	 aggregate-get-value aggregate-add-value aggregate-remove-value start-node-token
 	 construct-output select-output))
 
-(defun profile-rete ()
-  (sb-profile:profile initialize-execution initialize-stores-and-indices initialize-data
-		      rete-add rete-remove add-token remove-token add-alpha-token add-beta-token remove-alpha-token remove-beta-token match-quad
-		      join-beta-key join-alpha-key
-		      token-value make-token call-succ-nodes rete-add-rule-instance execute-rules rule-instance-queue-execute-instance execute-rule-node
-		      select-output token-store-put token-store-put-if-missing token-store-get token-store-remove token-store-remove-if-exists token-store-tokens index-put-token index-get-tokens index-remove-token
-		      token-map-get token-map-put token-map-remove
-		      aggregate-get-value aggregate-add-value aggregate-remove-value start-node-token
-		      construct-output instans-run))
+(defvar *rete-profiled-functions*
+  '(initialize-execution initialize-stores-and-indices initialize-data
+    rete-add rete-remove add-token remove-token add-alpha-token add-beta-token remove-alpha-token remove-beta-token match-quad
+    join-beta-key join-alpha-key
+    token-value make-token call-succ-nodes rete-add-rule-instance execute-rules rule-instance-queue-execute-instance execute-rule-node
+    select-output token-store-put token-store-put-if-missing token-store-get token-store-remove token-store-remove-if-exists token-store-tokens index-put-token index-get-tokens index-remove-token
+    token-map-get token-map-put token-map-remove
+    aggregate-get-value aggregate-add-value aggregate-remove-value start-node-token
+    construct-output instans-run))
+
+
+(defun profile-rete (&optional (functions *rete-profiled-functions*))
+  (eval `(sb-profile:profile ,@functions)))
