@@ -1,0 +1,31 @@
+Candidates for optimization
+===========================
+
+FILTERS
+-------
+
+Replacing filter expressions by join indices
+............................................
+
+Pushing filters upstream
+........................
+
+Eliminating token-store nodes
+-----------------------------
+
++ May allow eliminating many hash table operations
+- However, maybe not the most expensive ones. It may be, that a alpha/beta memory before a join reduces lots of work that othewise should
+  be done inside the join.
+
+Optimizing SPARQL value and token comparisons
+---------------------------------------------
+
+Canonizing SPARQL values and tokens
+...................................
+
++ Saves memory, if the same value or token occurs often
+- Spends memory, if there are lots of different values or tokens
+  - May require mechanisms for getting rid of older values and tokens
+
+
+
