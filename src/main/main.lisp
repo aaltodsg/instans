@@ -315,6 +315,15 @@
 	       "various outputs and names during the execution of INSTANS, but the name does"
 	       "not bear any actual semantics.")
        (setf (instans-name instans) value))
+      (join-hash-index-type
+       :options ("--join-hash-index-type" :one-of (:hash-token-index :hash-token-index2 :flexible-hash-token-index))
+       :usage ("The type of hash index to use in join nodes. Type :hash-token-index maps keys to lists of tokens"
+	       "using a hash table. Type :hash-token-index2 uses two-level hash tables: the first level maps the key"
+	       "to another hash table, which contains the tokens with that key. Type :flexible-hash-taoken-index is"
+	       "a combination of these. As long as a key maps to a small number of tokens, they are stored in a list,"
+	       "but when a limit is reached, the tokens are put into a hash table")
+       (setf (instans-join-hash-token-index-type instans) (intern (string-upcase (string value)) :instans))
+       (inform "join-hash-index-type: ~S -> ~S" value (instans-join-hash-token-index-type instans)))
       (ordered-index
        :options ("--ordered-index" :string)
        :usage ("The named join node should have an ordered index that uses the given comparison"
@@ -388,10 +397,17 @@
       (profile
        :options ("--profile" :file)
        :usage "Output profile information to <FILE>. Use '-' for standard output."
-       (setf (instans-profile-functions instans) t)
+       (setf profile-report-file value)
        (sb-profile:unprofile)
-       (profile-rete)
-       (setf profile-report-file value))
+       (profile-rete))
+      (profile-functions
+       :options ("--profile-functions" :file)
+       :usage "Read a LISP list containing the names of functions to profile from <FILE>."
+       (setf *rete-profiled-functions* (with-open-file (input value :direction :input) (read input)))
+       (inform "Profiling functions ~A" *rete-profiled-functions*)
+       (unless profile-report-file (setf profile-report-file "-"))
+       (sb-profile:unprofile)
+       (profile-rete))
       (time
        :options ("--time" :file)
        :usage "Output timing information to <FILE>. Use '-' for standard output."
@@ -648,10 +664,13 @@
 		     (close-stream-not-stdout-stderr time-output-stream))
 		   (when report-sizes-file
 		     (close-stream-not-stdout-stderr (instans-sizes-report-stream instans)))
-		   (when profile-report-file
-		     (with-open-file (output profile-report-file :direction :output :if-exists :supersede)
-			 (let ((*trace-output* output))
-			   (sb-profile:report))))
+		   (cond ((equal profile-report-file "-")
+			  (let ((*trace-output* *standard-output*))
+			    (sb-profile:report)))
+			 ((not (null profile-report-file))
+			  (with-open-file (output profile-report-file :direction :output :if-exists :supersede)
+			    (let ((*trace-output* output))
+			      (sb-profile:report)))))
 		   (instans-close-open-streams instans))))))))
     (logmsg "value=~A" value)
     value))
