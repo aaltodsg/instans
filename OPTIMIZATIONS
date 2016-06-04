@@ -1,6 +1,15 @@
 Candidates for optimization
 ===========================
 
+Indices
+-------
+
+Hash indices
+............
+
++ In the index, hash keys to hash tables and hash tokens to those tables.
++ Have a token count limit, before start hashing
+  
 FILTERS
 -------
 
@@ -10,6 +19,139 @@ Replacing filter expressions by join indices
 Pushing filters upstream
 ........................
 
+Example
+???????
+
+BASE <http://instans.org/>
+PREFIX : <http:instans.org/default#>
+PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX ssn: <http://purl.oclc.org/NET/ssnx/ssn#>
+PREFIX ep: <http://www.ontologydesignpatterns.org/cp/owl/eventprocessing.owl#>
+PREFIX omgeo: <http://www.ontotext.com/owlim/geo#>
+PREFIX ff: <http://factforge.net/>
+# @name EPA1-Stateless
+INSERT { GRAPH ?poststateless { ?s ?p ?o } }
+WHERE { GRAPH ?g { FILTER (strStarts(str(?g),concat(str(<>),"Eve")))
+                   ?s ?p ?o .
+                   ?event ep:hasEventObjectSamplingTime ?time
+		 }
+        FILTER ( ( HOURS(?time) > 8 ) && ( HOURS(?time) < 17 ) )
+        BIND (IRI(concat("Poststateless-",strAfter(str(?event),str(<>)))) AS ?poststateless)
+} ;
+
+Here the filter strStarts ... appears late in the rete network. It should be pushed immediately after the triple pattern nodes.
+This can be detected by traversing the nodes above the filter node until we find the point where ?g is defined (the triple pattern nodes).
+
+Pseudo code is something like:
+
+find-filter-move-targets (node, vars)
+   if |node.children| == 1 and vars is a subset of node.defprec then
+      if node is a join-node then
+         /* if this is {} the variables come partly from alpha, partly from beta */
+         return find-filter-move-targets(node.alpha, vars) union find-filter-move-targets(node.beta, vars)
+      else
+         prev = find-filter-move-targets(node.parent, vars)
+	 if prev != {} then
+	    return prev
+	 else
+	    return { node }
+   else
+      return {}
+
+remaining-exprs = {}
+for expr in filter-node.filter-expressions as a conjunction
+  targets = find-filter-move-targets(filter-node.parent, vars(expr))
+  if targets then
+     for target in targets do
+         prevparent = target.parent
+         target.parent = new filter-node(expr)
+	 target.parent.children = { target }
+	 target.parent.parent = prevparent
+  else
+     add expr into remaining-exprs
+# Note that eliminating the original filter node may be risky (there may be a situation, where it should not be removed)
+# and it does not do much optimization. So, it might be better to just leave it there, but if it seems OK, do the following
+# if remaining-exprs = {} then
+#    filter-node.parent.children = filter-node.children
+# else
+#    filter-node.filter-expressions = remaining-expressions
+   
+The tests ( HOURS(?time) > 8 ) and ( HOURS(?time) < 17 ) are processed the same way.
+
+Example continues
+?????????????????
+# @name Cleanup-Poststateless
+DELETE { GRAPH ?g1 { ?s ?p ?o } }
+WHERE { GRAPH ?g1 {
+    FILTER ( strStarts(str(?g1),"Poststateless-Eve") )
+    ?event1 ep:hasEventObjectSamplingTime ?time1 .
+    ?s ?p ?o }
+  FILTER EXISTS { GRAPH ?g2 {
+    FILTER ( strStarts(str(?g2),"Poststateless-Eve") )
+    ?event2 ep:hasEventObjectSamplingTime ?time2 .
+      FILTER (?time1 < ?time2)
+  }  }
+} ;
+
+Here we have a similar case as above, FILTER ( strStarts(str(?g1),"Poststateless-Eve")), but also FILTER (?time1 < ?time2).
+If we want optimize this, we must be handled in a different way, because ?time1 and ?time2 come from different sides of the join.
+
+find-ordered-index-join-nodes(node, expr)
+  if |node.childen| == 1 and vars(expr) is a subset of node.defprec then
+     if node is a join-node then
+        cansplit, relop, beta-expr, alpha-expr = reorder-linear-inequality(expr, node.beta.allvarsout, node.alpha.allvarsout)
+        if cansplit then
+           return {(node, relop, beta-expr, alpha-expr)}
+        else
+           return find-ordered-index-join-node(node.alpha, expr) union find-ordered-index-join-node(node.beta, expr)
+     else
+        return find-ordered-index-join-node(node.parent, expr)
+  else
+     return {}
+
+reorder-linear-inequality(expr, betavars, alphavars)
+   relop = expr.op
+   lexprlist = flatten(expr.arg1)
+   rexprlist = flatten(expr.arg2)
+   exprlist = append(lexprlist, map(-, rexprlist))
+   betaexprlist = nil
+   alphaexprlist = nil
+   for e in exprlist do
+       if e.vars subset betavars then
+          add e into betaexprlist
+       else if e.vars subset alphavars then
+          add e into alphaexprlist
+       else
+          return false
+   return true, relop, betaexprlist, alphaexprlist
+
+flatten(expr)
+  if expr.op == '+' then
+     return append(flatten(expr.arg1), flatten(expr.arg2))
+  else if expr.op == '-' then
+     return append(flatten(expr.arg1), map(negate, flatten(expr.arg2)))
+  else
+     return (expr)
+
+negate(expr)
+   if expr.op == unaryminus then
+      return expr.arg1
+   else
+      return unaryminus(expr)
+
+for linear-inequality in filter-node.filter.expressions as a conjunction
+    targets = find-ordered-index-join-nodes(filter-node.parent, linear-inequality)
+    if targets then
+       for (join, relop, beta-expr, alpha-expr) in targets do
+           betavar=maybe-add-bind-node-after(join.beta, beta-expr)
+           alphavar=maybe-add-bind-node-after(join.alpha, alpha-expr)
+	   join.set-index-parms(ordered-index, relop, betavar, alphavar)
+# Similar elimination of the filter-node or replacing the conditions by simpler ones can be done here
+
+
+
+
+
 Eliminating token-store nodes
 -----------------------------
 
@@ -17,15 +159,15 @@ Eliminating token-store nodes
 - However, maybe not the most expensive ones. It may be, that a alpha/beta memory before a join reduces lots of work that othewise should
   be done inside the join.
 
-Optimizing SPARQL value and token comparisons
----------------------------------------------
+# Optimizing SPARQL value and token comparisons
+# ---------------------------------------------
 
-Canonizing SPARQL values and tokens
-...................................
+# Canonizing SPARQL values and tokens
+# ...................................
 
-+ Saves memory, if the same value or token occurs often
-- Spends memory, if there are lots of different values or tokens
-  - May require mechanisms for getting rid of older values and tokens
+# + Saves memory, if the same value or token occurs often
+# - Spends memory, if there are lots of different values or tokens
+#   - May require mechanisms for getting rid of older values and tokens
 
 
 
