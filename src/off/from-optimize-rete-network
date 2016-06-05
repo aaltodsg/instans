@@ -1,0 +1,78 @@
+;; (defun push-negations (c)
+;;   (cond ((not (consp c)) c)
+;; 	(t
+;; 	 (case (first c)
+;; 	   (not
+;; 	    (let ((arg (second c)))
+;; 	      (cond ((not (consp arg)) c)
+;; 		    (t (case (first arg)
+;; 			 (not (push-negations (second arg)))
+;; 			 (and (cons 'or (mapcar #'(lambda (a) (push-negations (list 'not a))) (rest arg))))
+;; 			 (or (cons 'and (mapcar #'(lambda (a) (push-negations (list 'not a))) (rest arg))))
+;; 			 (t c))))))
+;; 	   (and (cons 'and (mapcar #'push-negations (rest c))))
+;; 	   (or (cons 'or (mapcar #'push-negations (rest c))))
+;; 	   (t c)))))
+
+;; (defun push-disjunctions (c)
+;;   (cond ((not (consp c)) c)
+;; 	(t
+;; 	 (case (first c)
+;; 	   (not c)
+;; 	   (and (cons 'and (mapcar #'push-disjunctions (rest c))))
+;; 	   (or
+;; 	    (labels ((combine (cl collected)
+;; 		       (cond ((null cl) (list (cons 'or (reverse collected))))
+;; 			     (t
+;; 			      (let ((c (first cl)))
+;; 				(cond ((and (consp c) (eq (first c) 'and))
+;; 				       (loop for x in (rest c) nconc (combine (rest cl) (cons x collected))))
+;; 				      (t
+;; 				       (combine (rest cl) (cons c collected)))))))))
+;; 	      (cons 'and (combine (mapcar #'push-disjunctions (rest c)) nil))))
+;; 	   (t c)))))
+
+;; (defun flatten-ands-and-ors (c)
+;;   (cond ((not (consp c)) c)
+;; 	((member (first c) '(and or))
+;; 	 (cons (first c)
+;; 	       (loop for x in (mapcar #'flatten-ands-and-ors (rest c))
+;; 		  nconc (cond ((and (consp x) (eq (first x) (first c))) (copy-list (rest x)))
+;; 			      (t (list x))))))
+;; 	(t c)))
+
+;; (defun conjunctive-normal-form (c)
+;;   (push-disjunctions (push-negations c)))
+;; (defun conjunctive-normal-form (c)
+;;   (flatten-ands-and-ors (push-disjunctions (push-negations c))))
+
+;; (defun filter-node-optimizable-p (node expr)
+;;   nil)
+
+;; (defun find-optimizable-join (node expr)
+;;   (cond ((= 1 (length (node-parents node)))
+;; 	 (let ((parent (first (node-parents node))))
+;; 	   (cond ((filter-node-p parent)
+;; 		  (filter-node-optimizable-p parent expr))
+;; 		 (t
+;; 		  (find-optimizable-join parent expr)))))
+;; 	(t
+;; 	 nil)))
+
+;; (defun optimize-test-part (node expr)
+;;   (let* ((op (first expr))
+;; 	 (op-name (sparql-op-name op)))
+;;     (cond ((not (member op-name '("<" "<=" ">=" ">") :test #'string=))
+;; 	   nil)
+;; 	  ((not (every #'linear-expression-p (rest expr)))
+;; 	   nil)
+;; 	  (t
+;; 	   (find-optimizable-join node expr)))))
+
+;; (defun compare-to-n-iris (iri n prefix)
+;;   (let ((iris (loop for i from 0 below n
+;; 		    collect (parse-iri (format nil "~A-~D" prefix i)))))
+;;     (loop for iri1 in iris
+;; 	  do (sparql-value-equal iri1 iri))))
+	      
+

@@ -315,6 +315,13 @@
 	       "various outputs and names during the execution of INSTANS, but the name does"
 	       "not bear any actual semantics.")
        (setf (instans-name instans) value))
+      (optimize-filters
+       :options ("--optimize-filters" :bool)
+       :usage ("Tries to move filter nodes up in the RETE network to eliminate unnecessary token generation. Default is FALSE.")
+       (setf (instans-optimize-filters-p instans)
+	     (cond ((string-equal value "true") t)
+		   ((string-equal value "false") nil)
+		   (t (usage)))))
       (join-hash-index-type
        :options ("--join-hash-index-type" :one-of (:hash-token-index :hash-token-index2 :flexible-hash-token-index))
        :usage ("The type of hash index to use in join nodes. Type :hash-token-index maps keys to lists of tokens"

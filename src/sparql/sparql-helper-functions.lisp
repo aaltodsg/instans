@@ -377,3 +377,12 @@
 	  ((sparql-unbound-p x) "UNBOUND")
 	  (t (format nil "~A" x)))))
 	   
+
+(defun pretty-sparql-expr (expr)
+  (cond ((not (consp expr)) expr)
+	(t
+	 (let ((op (first expr)))
+	   (cond ((sparql-op-p op)
+		  (cons (sparql-op-name op) (mapcar #'pretty-sparql-expr (rest expr))))
+		 (t
+		  expr))))))

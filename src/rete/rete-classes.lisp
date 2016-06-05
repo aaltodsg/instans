@@ -389,6 +389,7 @@
    (canonic-algebra-expr-list :accessor instans-canonic-algebra-expr-list :initform nil)
    (colors :accessor instans-colors :initform nil)
    (join-hash-token-index-type :accessor instans-join-hash-token-index-type :initarg :join-hash-token-index-type :initform 'flexible-hash-token-index)
+   (optimize-filters-p :accessor instans-optimize-filters-p :initarg :optimize-filters-p :initform nil)
    (ordered-index-nodes :accessor instans-ordered-index-nodes :initform nil)))
 
 (define-class instans-status ()

@@ -59,7 +59,9 @@ find-filter-move-targets (node, vars)
       return {}
 
 remaining-exprs = {}
-for expr in filter-node.filter-expressions as a conjunction
+# Note! We cannot manipulate the expression, e.g., change it into conjunctive normal form,
+# because logical-and and logical-or in SPARQL are not like && and || in, say C.
+for expr in filter-node.filter-expressions as a conjunction 
   targets = find-filter-move-targets(filter-node.parent, vars(expr))
   if targets then
      for target in targets do

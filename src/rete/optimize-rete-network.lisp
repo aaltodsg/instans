@@ -5,67 +5,71 @@
 
 (in-package #:instans)
 
+(defun flatten-outermost-ands (expr &optional (and-op (find-sparql-op "LOGICAL-AND")))
+  (cond ((consp expr)
+	 (cond ((eq (first expr) and-op)
+		(cons and-op
+		      (loop for x in (mapcar #'flatten-outermost-ands (rest expr))
+			 nconc (cond ((and (consp x) (eq (first x) and-op)) (copy-list (rest x)))
+				     (t (list x))))))
+	       (t expr)))
+	(t expr)))
+
+(defun find-targets (node vars)
+  (cond ((and (= 1 (length (node-succ node))) (subsetp vars (node-def-prec node)))
+	 (cond ((join-node-p node)
+		(list-union (find-targets (join-beta node) vars) (find-targets (join-alpha node) vars)))
+	       ((null (node-prev node))
+		nil)
+	       (t
+		(let ((prev-targets (find-targets (node-prev node) vars)))
+		  (or prev-targets (list node))))))))
+
+(defun add-filter-before (node test)
+  (let* ((prev (node-prev node))
+	 (new-filter (make-instance 'filter-node :instans (node-instans node) :prev prev :test test :test-parameters (collect-expression-variables test))))
+    (setf (node-succ prev) (remove node (node-succ prev)))
+    (push new-filter (node-succ prev))
+    (setf (node-prev node) new-filter)
+    (push node (node-succ new-filter))
+    new-filter))
+
+(defun find-filter-non-relational-expression-move-targets (filter-node)
+  (let* ((flattened (flatten-outermost-ands (filter-test filter-node)))
+	 (hits (loop for test-expr in (if (and (consp flattened) (eq (first flattened) (find-sparql-op "LOGICAL-AND"))) (rest flattened) (list flattened))
+		     for vars = (collect-expression-variables test-expr)
+		     for targets = (find-targets (node-prev filter-node) vars)
+		     do (inform "Checking ~S" test-expr)
+		     collect (list filter-node test-expr targets))))
+    (loop for (filter-node test-expr targets) in hits
+	  do (inform "For ~S~%found targets ~S~%" test-expr targets)
+	  nconc (loop for target in targets collect (add-filter-before target test-expr)) into new-nodes
+	  finally (return new-nodes))))
+
+(defun optimize-filter (node)
+  (inform "Checking filter node ~S" node)
+  (let* ((test (filter-test node))
+	 (flattened (flatten-outermost-ands test)))
+    (inform "Test is ~S" (pretty-sparql-expr test))
+    (cond ((eq (first flattened) (find-sparql-op "LOGICAL-AND"))
+	   (inform "Can be split into:~{~%~A~}" (mapcar #'pretty-sparql-expr (rest flattened))))
+	  (t
+	   (inform "Cannot be split: is ~A" (pretty-sparql-expr flattened))))
+    (find-filter-non-relational-expression-move-targets node)))
+
+(defun optimize-filters (instans)
+  (loop for node in (instans-nodes instans)
+	when (filter-node-p node)
+	nconc (optimize-filter node) into new-nodes
+        finally (when new-nodes
+		  (compute-node-vars (instans-nodes instans))
+		  (lisp-compile-nodes new-nodes))))
+
 (defun optimize-rete-network (instans)
   (declare (ignorable instans))
-;  (optimize-filters instans)
+  (when (instans-optimize-filters-p instans)
+    (optimize-filters instans))
   )
 
-;; (defun optimize-filters (instans)
-;;   (loop for node in (instans-nodes instans)
-;; 	when (filter-node-p node)
-;; 	do (optimize-filter node)))
 
-;; (defun split-conjunction (test)
-;;   (let ((op (first test)))
-;;     (cond ((eq op (find-sparql-op "AND"))
-;; 	   (mapcan #'split-conjunction (rest test)))
-;; 	  (t
-;; 	   (list test)))))
 
-;; (defun filter-node-optimizable-p (node expr)
-;;   nil)
-
-;; (defun find-optimizable-join (node expr)
-;;   (cond ((= 1 (length (node-parents node)))
-;; 	 (let ((parent (first (node-parents node))))
-;; 	   (cond ((filter-node-p parent)
-;; 		  (filter-node-optimizable-p parent expr))
-;; 		 (t
-;; 		  (find-optimizable-join parent expr)))))
-;; 	(t
-;; 	 nil)))
-
-;; (defun optimize-test-part (node expr)
-;;   (let* ((op (first expr))
-;; 	 (op-name (sparql-op-name op)))
-;;     (cond ((not (member op-name '("<" "<=" ">=" ">") :test #'string=))
-;; 	   nil)
-;; 	  ((not (every #'linear-expression-p (rest expr)))
-;; 	   nil)
-;; 	  (t
-;; 	   (find-optimizable-join node expr)))))
-
-;; (defun compare-to-n-iris (iri n prefix)
-;;   (let ((iris (loop for i from 0 below n
-;; 		    collect (parse-iri (format nil "~A-~D" prefix i)))))
-;;     (loop for iri1 in iris
-;; 	  do (sparql-value-equal iri1 iri))))
-	      
-
-;; (defun optimize-filter (node)
-;;   (inform "Checking filter node ~S" node)
-;;   (let* ((test (filter-test node))
-;; 	 (test-parts (split-conjunction test))
-;; 	 (remaining-test-parts nil))
-;;     (loop for test-part in test-parts
-;; 	  for matching-join = (optimize-test-part node test-part)
-;; 	  do (inform "Test part ~S -> ~S" test-part matching-join)
-;; 	  do (when (null matching-join)
-;; 	       (inform "Cannot optimize test part ~S" test-part)
-;; 	       (push test-part remaining-test-parts)))
-;;     (cond ((null remaining-test-parts)
-;; 	   (inform "Filter node ~S can be eliminated" node))
-;; 	  ((= (length remaining-test-parts) (length test-parts))
-;; 	   (inform "Filter node ~S cannot be optimized" node))
-;; 	  (t
-;; 	   (inform "Filter test can be simplified in filter node ~S" node)))))
