@@ -262,6 +262,9 @@
    (equal-op :accessor ordered-list-token-index-equal-op :initarg :equal-op)
    (key-op :accessor ordered-list-token-index-key-op :initarg :key-op)))
 
+(define-class avl-tree-token-index (token-index)
+  ((tree :accessor avl-tree-token-index-tree :initform nil)))
+
 ;; (define-class ordered-list-token-index (token-index)
 ;;   ((alist :accessor ordered-list-token-index-alist :initform (list nil))
 ;;    (var :accessor ordered-list-token-index-var :initarg :var)
