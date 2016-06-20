@@ -173,9 +173,8 @@
 	do (setf tree (avl-add tree v)))
   tree)
 
-(defun avl-test1 ()
-  (let ((data '(9 5 10 0 6 11 -1 1 2))
-	(tree nil))
+(defun avl-test1 (&optional (data '(9 5 10 0 6 11 -1 1 2)))
+  (let ((tree nil))
     (inform "Adding ~S to ~S~%" data tree)
     (loop for x in data 
 	  do (setf tree (avl-tree-insert tree x x))
@@ -204,8 +203,8 @@
 	for i from 1 to 100
         for n = (random (1+ i))
         do (unless (member n numbers)
-	     (inform "Adding ~S~S" n)
 	     (push n numbers)
+	     (inform "Numbers ~S~%" numbers)
 	     (setf tree (avl-tree-insert tree n n))
 	     (check-avl-tree-balances tree)
 	     (let ((contents nil))
