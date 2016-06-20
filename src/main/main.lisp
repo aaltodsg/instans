@@ -353,6 +353,28 @@
 		   (instans-ordered-index-nodes instans)))
 	 ;; (inform "Ordered-index-nodes = ~A" (instans-ordered-index-nodes instans))
 	 ))
+      (avl-index
+       :options ("--avl-index" :string)
+       :usage ("The named join node should have an avl index that uses the given comparison"
+	       "operator for joins. The parameters should be of form 'name:var1:op:var2', where op is one of"
+	       "<, <=, >=, and > and var1 and var2 are SPARQL variable names")
+       (let ((args (parse-colon-separated-strings value)))
+	 (if (not (= 4 (length args)))
+	     (usage)
+	     (push (cons (intern (format nil "~@:(~A~)" (first args)))
+			 (case (intern (third args))
+			   (< (list :alpha (list :range-getter #'(lambda (tree x) (avl-get-range tree :lower-bound x :lower-bound-inclusive-p nil)))
+				    :beta (list :range-getter #'(lambda (tree x) (avl-get-range tree :upper-bound x :upper-bound-inclusive-p nil)))))
+			   (<= (list :alpha (list :range-getter #'(lambda (tree x) (avl-get-range tree :lower-bound x :lower-bound-inclusive-p t)))
+				     :beta (list :range-getter #'(lambda (tree x) (avl-get-range tree :upper-bound x :upper-bound-inclusive-p t)))))
+			   (>= (list :alpha (list :range-getter #'(lambda (tree x) (avl-get-range tree :upper-bound x :upper-bound-inclusive-p t)))
+				     :beta (list :range-getter #'(lambda (tree x) (avl-get-range tree :lower-bound x :lower-bound-inclusive-p t)))))
+			   (> (list :alpha (list :range-getter #'(lambda (tree x) (avl-get-range tree :upper-bound x :upper-bound-inclusive-p nil)))
+				    :beta (list :range-getter #'(lambda (tree x) (avl-get-range tree :lower-bound x :lower-bound-inclusive-p nil)))))
+			   (t (usage))))
+		   (instans-avl-index-nodes instans)))
+	 ;; (inform "Avl-index-nodes = ~A" (instans-avl-index-nodes instans))
+	 ))
       (comment
        :options ("--comment" :string)
        :usage "A comment to be printed"

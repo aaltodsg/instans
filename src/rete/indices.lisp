@@ -68,8 +68,11 @@
     (loop with key-op = (ordered-list-token-index-key-op this)
 	  for (k . vl) in (cdr (ordered-list-token-index-alist this))
 	  while (funcall key-op key k)
-	  nconc (copy-list vl))))
-
+	  nconc (copy-list vl)))
+  (:method ((this avl-token-index) key)
+    (setf key (car key))
+    (funcall (avl-token-index-range-getter this) key)))
+    
 ;; (defgeneric index-tokens (index)
 ;;   (:method ((this hash-token-index))
 ;;     (let ((r nil))
@@ -154,7 +157,12 @@
 			 (return nil))
 			(t
 			 (push (list key token) (cdr rest))
-			 (return t))))))
+			 (return t)))))
+  (:method ((this avl-token-index) key token)
+    (setf key (car key))
+    (avl-insert (avl-token-index-tree this) key token
+		:compare #'sparql-value-compare
+		:same-key-handler #'(lambda (tree value) (add-same-key-values-in-list tree value :test #'sparql-value-equal)))))
 
 ;;; Returns T if this was the last token with this key
 (defgeneric index-remove-token (index key token)
@@ -241,7 +249,13 @@
 			       (t
 				nil)))
 			(t
-			 (error* "Trying to remove missing token ~S" token))))))
+			 (error* "Trying to remove missing token ~S" token)))))
+  (:method ((this avl-token-index) key token)
+    (setf key (car key))
+    (avl-delete (avl-token-index-tree this) key :value token
+		:compare #'sparql-value-compare
+		:same-key-handler #'(lambda (tree value) (delete-same-key-values-in-list tree value :test #'sparql-value-equal)))))
+  
 
 (defgeneric index-count (index)
   (:method ((this hash-token-index))
