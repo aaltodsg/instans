@@ -20,7 +20,7 @@
   (if node (avl-tree-height node) 0))
 
 (defun get-avl-tree-balance (node)
-  (if node (- (get-avl-tree-height (avl-tree-left node)) (get-avl-tree-height (avl-tree-right  node))) 0))
+  (if node (- (get-avl-tree-height (avl-tree-left node)) (get-avl-tree-height (avl-tree-right node))) 0))
 
 (defun add-same-key-values-in-list (tree value &key (test #'equal))
   (pushnew value (avl-tree-value tree) :test test)
@@ -44,8 +44,8 @@
 	 (t2 (avl-tree-left y)))
     (setf (avl-tree-left y) x)
     (setf (avl-tree-right x) t2)
-    (setf (avl-tree-height y) (1+ (max (get-avl-tree-height (avl-tree-left y)) (get-avl-tree-height (avl-tree-right y)))))
     (setf (avl-tree-height x) (1+ (max (get-avl-tree-height (avl-tree-left x)) (get-avl-tree-height (avl-tree-right x)))))
+    (setf (avl-tree-height y) (1+ (max (get-avl-tree-height (avl-tree-left y)) (get-avl-tree-height (avl-tree-right y)))))
     y))
 
 (defun rebalance-avl-tree-after-insert (node key compare)
@@ -88,7 +88,7 @@
         while (avl-tree-left current)
         finally (return current)))
 
-(defun rebalance-after-avl-tree-delete (root)
+(defun rebalance-avl-tree-after-delete (root)
   (setf (avl-tree-height root) (1+ (max (get-avl-tree-height (avl-tree-left root)) (get-avl-tree-height (avl-tree-right root)))))
   (let ((balance (get-avl-tree-balance root)))
     (cond ((> balance 1)
@@ -110,7 +110,7 @@
 	  (t
 	   root))))
 
-(defun avl-tree-delete (root key &key (value nil value-present-p) (compare #'-) (same-key-handler #'delete-same-key-values-in-list))
+(defun avl-tree-delete (root key &key (value :all) (compare #'-) (same-key-handler #'delete-same-key-values-in-list))
   (cond ((null root) nil)
 	(t
 	 (let ((cmp (funcall compare key (avl-tree-key root))))
@@ -119,9 +119,10 @@
 		 ((plusp cmp)
 		  (setf (avl-tree-right root) (avl-tree-delete (avl-tree-right root) key :value value :compare compare :same-key-handler same-key-handler)))
 		 (t
-		  (when value-present-p
+		  (unless (eq value :all)
 		    (funcall same-key-handler root value))
-		  (cond ((and value-present-p (avl-tree-value root)) root)
+		  ;; (inform "value ~S~%" value)
+		  (cond ((and (not (eq value :all)) (avl-tree-value root)) root)
 			((and (avl-tree-left root) (avl-tree-right root))
 			 (let ((temp (avl-tree-min-value-node (avl-tree-right root))))
 			   (setf (avl-tree-key root) (avl-tree-key temp))
@@ -129,6 +130,7 @@
 			   (setf (avl-tree-right root) (avl-tree-delete (avl-tree-right root) (avl-tree-key temp) :compare compare :same-key-handler same-key-handler))))
 			(t
 			 (let ((temp (or (avl-tree-left root) (avl-tree-right root))))
+			   ;; (inform "Root ~S, temp ~S~%" root temp)
 			   (cond ((null temp)
 				  (setf root nil))
 				 (t
@@ -137,7 +139,7 @@
 				  (setf (avl-tree-left root) (avl-tree-left temp))
 				  (setf (avl-tree-right root) (avl-tree-right temp))
 				  (setf (avl-tree-height root) (avl-tree-height temp))))))))))
-	 (and root (rebalance-after-avl-tree-delete root)))))
+	 (and root (rebalance-avl-tree-after-delete root)))))
 
 (defun avl-tree-depth-first-traversal (tree func)
   (cond ((null tree)
@@ -158,6 +160,22 @@
 (defmethod print-object ((this avl-tree) stream)
   (format stream "<avl-tree ~A: height: ~D, balance: ~D, value: ~A>" (avl-tree-key this) (avl-tree-height this) (get-avl-tree-balance this) (avl-tree-value this)))
 
+(defun check-avl-tree-balances (tree)
+  (cond ((null tree) t)
+	(t
+	 (check-avl-tree-balances (avl-tree-left tree))
+	 (assert** (< -2 (get-avl-tree-balance tree) 2) "Wrong balance in node ~S" tree)
+	 (check-avl-tree-balances (avl-tree-right tree)))))
+				  
+(defun check-avl-tree-heights (tree)
+  (cond ((null tree) 0)
+	(t
+	 (let* ((lh (check-avl-tree-heights (avl-tree-left tree)))
+		(rh (check-avl-tree-heights (avl-tree-right tree)))
+		(ch (1+ (max lh rh))))
+	   (assert** (= (avl-tree-height tree) ch) "Wrong height in ~S, should be ~S" tree ch)
+	   ch))))
+
 (defun avl-add (tree v)
   (let ((new (avl-tree-insert tree v v)))
     (print-avl-tree new)
@@ -177,40 +195,52 @@
   (let ((tree nil))
     (inform "Adding ~S to ~S~%" data tree)
     (loop for x in data 
+	  do (inform "Adding ~S~%" x)
 	  do (setf tree (avl-tree-insert tree x x))
+	  do (print-avl-tree tree)
+	  do (check-avl-tree-heights tree)
 	  do (check-avl-tree-balances tree))
-    (inform "After adding values to ~S~%" tree)
-    (print-avl-tree tree)
     (let ((y 10))
       (inform "Removing ~S to ~S~%" y tree)
-    (setf tree (avl-tree-delete tree y :value y))
-    (check-avl-tree-balances tree)
-    (inform "After removing value from ~S~%" tree)
-    (print-avl-tree tree))))
+      (setf tree (avl-tree-delete tree y :value y))
+      (check-avl-tree-heights tree)
+      (check-avl-tree-balances tree)
+      (inform "After removing value from ~S~%" tree)
+      (print-avl-tree tree))))
 
-(defun check-avl-tree-balances (tree)
-  (cond ((null tree) t)
+(defun avl-tree-key-value-pairs (tree)
+  (cond ((null tree) nil)
 	(t
-	 (check-avl-tree-balances (avl-tree-left tree))
-	 (unless (< -2 (get-avl-tree-balance tree) 2)
-	   (inform "Wrong balance in node ~S" tree)
-	   (error nil))
-	 (check-avl-tree-balances (avl-tree-right tree)))))
-				  
-(defun avl-test2 ()
-  (loop with tree = nil
-        with numbers = nil
-	for i from 1 to 100
-        for n = (random (1+ i))
-        do (unless (member n numbers)
-	     (push n numbers)
-	     (inform "Numbers ~S~%" numbers)
-	     (setf tree (avl-tree-insert tree n n))
-	     (check-avl-tree-balances tree)
-	     (let ((contents nil))
-	       (avl-tree-depth-first-traversal tree #'(lambda (n) (setf contents (append (avl-tree-value n) contents))))
-	       (setf contents (reverse contents))
-	       (unless (equal contents (sort numbers #'<=))
-		 (inform "Round ~S: ~S is different from ~S" i contents numbers)
-		 (error nil))))))
+	 (append (avl-tree-key-value-pairs (avl-tree-left tree)) (list (cons (avl-tree-key tree) (avl-tree-value tree)))  (avl-tree-key-value-pairs (avl-tree-right tree))))))
+
+(defun avl-test2 (&optional verbosep)
+  (labels ((sorted-pairs (l) (mapcar #'(lambda (x) (list x x)) (sort (copy-list l) #'<=)))
+	   (check-contents (numbers tree)
+	     (let ((contents (avl-tree-key-value-pairs tree))
+		   (sp (sorted-pairs numbers)))
+	       (assert** (equal contents sp) "~%~S is different from~%~S" contents sp))))
+    (let ((*random-state* (make-random-state t)))
+      (loop with tree = nil
+	    with numbers = nil
+	    for i from 1 to 100
+	    for n = (random (1+ i))
+	    do (unless (member n numbers)
+		 (push n numbers)
+		 (when verbosep (inform "Adding ~S, numbers ~S~%" n numbers))
+		 (setf tree (avl-tree-insert tree n n))
+		 (check-avl-tree-heights tree)
+		 (check-avl-tree-balances tree)
+		 (check-contents numbers tree))
+	    finally (loop while numbers
+			  for x = (nth (random (length numbers)) numbers)
+			  do (progn
+			       (setf numbers (delete x numbers))
+			       (when verbosep (print-avl-tree tree))
+			       (when verbosep (inform "Deleting ~S~%" x))
+			       (setf tree (avl-tree-delete tree x :value x))
+			       (when verbosep (print-avl-tree tree))
+			       (check-avl-tree-heights tree)
+			       (check-avl-tree-balances tree)
+			       (check-contents numbers tree)))))))
+			     
 		 

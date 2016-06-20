@@ -69,6 +69,11 @@
      ,@(unless *assert-warn-only-p*
 	       `((error* ,fmt ,@args)))))
 
+(defmacro assert** (test fmt &rest args)
+  `(unless ,test
+     (warn ,fmt ,@args)
+     (error* ,fmt ,@args)))
+
 ;;(defvar *checkit* nil)
 ;;(setf *checkit* nil)
 (defvar *checkit* t)
