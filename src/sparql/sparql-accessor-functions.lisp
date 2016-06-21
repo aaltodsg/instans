@@ -224,10 +224,6 @@
       (and (equal (type-of v1) (type-of v2))
 	   (sparql-call "=" v1 v2))))
 
-(defun sparql-value-compare (v1 v2)
-  (declare (ignorable v1 v2))
-  (assert nil))
-
 (defun sparql-value-same-term (v1 v2)
 ;  (inform "v1 = ~S (of type ~S), v2 = ~S (of type ~S), (eq (type-of v1) (type-of v2)) = ~S" v1 (type-of v1) v2 (type-of v2) (eq (type-of v1) (type-of v2)))
   (or (eql v1 v2)

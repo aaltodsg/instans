@@ -266,8 +266,8 @@
   ((tree :accessor avl-token-index-tree :initform nil)
    (range-getter :accessor avl-token-index-range-getter :initarg :range-getter)))
 ;;;
-;;; alpha ?x < ?y: (avl-get-range :lower-bound ?x :lower-bound-inclusive-p nil :key-compare #'sparql-value-compare)
-;;; beta  ?x < ?y: (avl-get-range :upper-bound ?y :upper-bound-inclusive-p nil :key-compare #'sparql-value-compare)
+;;; alpha ?x < ?y: (avl-get-range :lower-bound ?x :lower-bound-inclusive-p nil :key-compare #'%instans-compare%)
+;;; beta  ?x < ?y: (avl-get-range :upper-bound ?y :upper-bound-inclusive-p nil :key-compare #'%instans-compare%)
 
 
 ;; (define-class ordered-list-token-index (token-index)

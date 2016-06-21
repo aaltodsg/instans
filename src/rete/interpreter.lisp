@@ -112,9 +112,9 @@
 ;	     (inform "using ~S for ~S~%" (join-alpha-index-type this) (node-name this))
 	     )
 	    (avl-index-info
-	     (setf (join-alpha-index-type this) 'avl-tree-token-index)
+	     (setf (join-alpha-index-type this) 'avl-token-index)
 	     (setf (join-alpha-index-init-args this) (getf (cdr avl-index-info) :alpha))
-	     (setf (join-beta-index-type this) 'avl-tree-token-index)
+	     (setf (join-beta-index-type this) 'avl-token-index)
 	     (setf (join-beta-index-init-args this) (getf (cdr avl-index-info) :beta))
 ;	     (inform "using ~S for ~S~%" (join-alpha-index-type this) (node-name this))
 	     ) 

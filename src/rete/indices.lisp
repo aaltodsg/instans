@@ -34,20 +34,21 @@
 ;	(make-hash-table :test #'equal)
 	(make-hash-table :test #'index-key-equal :hash-function #'index-key-hash-function)))
 
-(defmethod initialize-instance :after ((this avl-token-index) &key &allow-other-keys)
-  (inform "here"))
-
 ;; ;(defmethod initialize-instance :after ((this ordered-list-token-index) &rest keys &key &allow-other-keys)
 ;; (defmethod initialize-instance :after ((this ordered-list-token-index) &key &allow-other-keys)
 ;;   (inform "initialize-instance :after ~S" this)
 ;;   (setf (ordered-list-token-index-alist this) (list nil)))
 
 (defun make-token-index (type &rest rest &key &allow-other-keys)
-  (inform "Before make-index ~S ~S" type rest)
-  (prog1
-      (handler-case (apply #'make-instance type rest)
-	(t (e) (error e)))
-      (inform "after make-index ~S ~S" type rest)))
+  ;; (inform "Before make-index ~S ~S" type rest)
+  ;; (trace make-instance)
+  ;; (prog1
+  ;;     (handler-case
+ 	  (apply #'make-instance type rest)
+;; 	(t (e) (error e)))
+;;     (inform "after make-index ~S ~S" type rest)
+;; (untrace make-instance))
+)
 
 
 (defgeneric hash-token-index-key-item-values (token-index item)
@@ -85,7 +86,7 @@
 	  nconc (copy-list vl)))
   (:method ((this avl-token-index) key)
     (setf key (car key))
-    (funcall (avl-token-index-range-getter this) key)))
+    (funcall (avl-token-index-range-getter this) (avl-token-index-tree this) key)))
     
 ;; (defgeneric index-tokens (index)
 ;;   (:method ((this hash-token-index))
@@ -174,9 +175,10 @@
 			 (return t)))))
   (:method ((this avl-token-index) key token)
     (setf key (car key))
-    (avl-insert (avl-token-index-tree this) key token
-		:compare #'sparql-value-compare
-		:same-key-handler #'(lambda (tree value) (add-same-key-values-in-list tree value :test #'sparql-value-equal)))))
+    (setf (avl-token-index-tree this)
+	  (avl-insert (avl-token-index-tree this) key token
+		      :compare #'%instans-compare%
+		      :same-key-handler #'(lambda (tree value) (add-same-key-values-in-list tree value :test #'token-equal))))))
 
 ;;; Returns T if this was the last token with this key
 (defgeneric index-remove-token (index key token)
@@ -266,9 +268,10 @@
 			 (error* "Trying to remove missing token ~S" token)))))
   (:method ((this avl-token-index) key token)
     (setf key (car key))
-    (avl-delete (avl-token-index-tree this) key :value token
-		:compare #'sparql-value-compare
-		:same-key-handler #'(lambda (tree value) (delete-same-key-values-in-list tree value :test #'sparql-value-equal)))))
+    (setf (avl-token-index-tree this)
+	  (avl-delete (avl-token-index-tree this) key :value token
+		      :compare #'%instans-compare%
+		      :same-key-handler #'(lambda (tree value) (delete-same-key-values-in-list tree value :test #'token-equal))))))
   
 
 (defgeneric index-count (index)
@@ -303,7 +306,7 @@
     (loop for item in (cdr (ordered-list-token-index-alist this))
 	  sum (length (cdr item))))
   (:method ((this avl-token-index))
-    (length (avl-get-range (avl-token-index-tree this) :key-compare #'sparql-value-compare))))
+    (length (avl-get-range (avl-token-index-tree this) :key-compare #'%instans-compare%))))
 
 (defgeneric index-clear (index)
   (:method ((this hash-token-index))
