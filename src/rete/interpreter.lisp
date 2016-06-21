@@ -102,52 +102,65 @@
   (:method ((this join-node))
     ;; (inform "Checking if ~S has an ordered index parameters in ~S" (node-name this) (instans-ordered-index-nodes (node-instans this)))
     (let* ((instans (node-instans this))
-	   (hit (assoc (intern (node-name this)) (instans-ordered-index-nodes instans))))
-      (cond ((null hit)
-	     (setf (join-alpha-index-type this) (instans-join-hash-token-index-type instans))
-	     (setf (join-beta-index-type this) (instans-join-hash-token-index-type instans)))
-	    (t
+	   (ordered-index-info (assoc (intern (node-name this)) (instans-ordered-index-nodes instans)))
+	   (avl-index-info (assoc (intern (node-name this)) (instans-avl-index-nodes instans))))
+      (cond (ordered-index-info
 	     (setf (join-alpha-index-type this) 'ordered-list-token-index)
-	     (setf (join-alpha-index-init-args this) (getf (cdr hit) :alpha))
+	     (setf (join-alpha-index-init-args this) (getf (cdr ordered-index-info) :alpha))
 	     (setf (join-beta-index-type this) 'ordered-list-token-index)
-	     (setf (join-beta-index-init-args this) (getf (cdr hit) :beta))
-	     (inform "using ~S for ~S" (join-alpha-index-type this) (node-name this))
-	     ))
+	     (setf (join-beta-index-init-args this) (getf (cdr ordered-index-info) :beta))
+;	     (inform "using ~S for ~S~%" (join-alpha-index-type this) (node-name this))
+	     )
+	    (avl-index-info
+	     (setf (join-alpha-index-type this) 'avl-tree-token-index)
+	     (setf (join-alpha-index-init-args this) (getf (cdr avl-index-info) :alpha))
+	     (setf (join-beta-index-type this) 'avl-tree-token-index)
+	     (setf (join-beta-index-init-args this) (getf (cdr avl-index-info) :beta))
+;	     (inform "using ~S for ~S~%" (join-alpha-index-type this) (node-name this))
+	     ) 
+	    (t
+	     (setf (join-alpha-index-type this) (instans-join-hash-token-index-type instans))
+	     (setf (join-beta-index-type this) (instans-join-hash-token-index-type instans))))
       (let* ((key-var (getf (join-beta-index-init-args this) :var))
-	     (equal-op (getf (join-beta-index-init-args this) :equal-op))
-	     (order-op (getf (join-beta-index-init-args this) :order-op))
-	     (key-op (getf (join-beta-index-init-args this) :key-op))
+	     ;; (equal-op (getf (join-beta-index-init-args this) :equal-op))
+	     ;; (order-op (getf (join-beta-index-init-args this) :order-op))
+	     ;; (key-op (getf (join-beta-index-init-args this) :key-op))
 	     (key-vars (if key-var (list (resolve-binding instans (find-named-var instans (string-upcase key-var)))) (node-use this))))
-	;; (inform "beta-key-vars = ~S" key-vars)
+	;; (inform "beta-key-vars = ~S~%" key-vars)
 	(let ((beta-index
-	       (make-instance (join-beta-index-type this)
-			      :node this
-			      :key-vars key-vars
-			      :id (format nil "beta-index ~A" (node-number this))
-			      :var key-var
-			      :equal-op equal-op
-			      :order-op order-op
-			      :key-op key-op)))
-	  ;; (inform "beta-index = (~S)" beta-index)
+	       (apply #'make-token-index 
+		      (join-beta-index-type this)
+		      :node this
+		      :key-vars key-vars
+		      :id (format nil "beta-index ~A" (node-number this))
+			      ;; :var key-var
+			      ;; :equal-op equal-op
+			      ;; :order-op order-op
+			      ;; :key-op key-op
+		      (join-beta-index-init-args this)
+		      )))
+	  ;; (inform "beta-index = (~S)~%" beta-index)
 	  (setf (join-beta-index this) beta-index)
 	  ;; (describe beta-index)
 	  (push beta-index (instans-token-indices (node-instans this)))))
       (let* ((key-var (getf (join-alpha-index-init-args this) :var))
-	     (equal-op (getf (join-alpha-index-init-args this) :equal-op))
-	     (order-op (getf (join-alpha-index-init-args this) :order-op))
-	     (key-op (getf (join-alpha-index-init-args this) :key-op))
+	     ;; (equal-op (getf (join-alpha-index-init-args this) :equal-op))
+	     ;; (order-op (getf (join-alpha-index-init-args this) :order-op))
+	     ;; (key-op (getf (join-alpha-index-init-args this) :key-op))
 	     (key-vars (if key-var (list (resolve-binding instans (find-named-var instans (string-upcase key-var)))) (node-use this))))
-	;; (inform "alpha-key-vars = ~S" key-vars)
+	;; (inform "alpha-key-vars = ~S~%" key-vars)
 	(let ((alpha-index
-	       (make-instance (join-alpha-index-type this)
-			      :node this
-			      :key-vars key-vars
-			      :id (format nil "alpha-index ~A" (node-number this))
-			      :var key-var
-			      :equal-op equal-op
-			      :order-op order-op
-			      :key-op key-op)))
-	  ;; (inform "alpha-index = (~S)" alpha-index)
+	       (apply #' make-token-index (join-alpha-index-type this)
+			 :node this
+			 :key-vars key-vars
+			 :id (format nil "alpha-index ~A" (node-number this))
+			 ;; :var key-var
+			 ;; :equal-op equal-op
+			 ;; :order-op order-op
+			 ;; :key-op key-op
+			 (join-alpha-index-init-args this)
+			 )))
+	  ;; (inform "alpha-index = (~S)~%" alpha-index)
 	  (setf (join-alpha-index this) alpha-index)
 	  ;; (describe alpha-index)
 	  (push alpha-index (instans-token-indices (node-instans this)))))
@@ -1241,7 +1254,7 @@
 	 select-output token-store-put token-store-put-if-missing token-store-get token-store-remove token-store-remove-if-exists token-store-tokens index-put-token index-get-tokens index-remove-token
 	 token-map-get token-map-put token-map-remove
 	 aggregate-get-value aggregate-add-value aggregate-remove-value start-node-token
-	 construct-output select-output))
+	 construct-output select-output make-token-index))
 
 (defvar *rete-profiled-functions*
   '(initialize-execution initialize-stores-and-indices initialize-data

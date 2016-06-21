@@ -216,12 +216,14 @@
 (defun print-dot-file (net file &key (html-labels-p t) binding-info-box-p)
   (with-open-file (stream file :direction :output :if-exists :supersede) (print-dot net :stream stream :show-vars-p t :html-labels-p html-labels-p :binding-info-box-p binding-info-box-p)))
 
-(defun output-rete-html-page (instans rules-file html-file)
+;(defun output-rete-html-page (instans rules-file html-file)
+(defun output-rete-html-page (instans html-file)
   (let (name dir)
 ;    (inform "(directoryp ~A) = ~A" html-file (directoryp html-file))
+    (when (rdf-iri-p html-file)
+      (setf html-file (pathname (rdf-iri-path html-file))))
     (cond ((directoryp html-file)
 	   (setf dir (expand-dirname html-file))
-	   (setf name (pathname-name (if (rdf-iri-p rules-file) (rdf-iri-path rules-file) rules-file)))
 	   (setf html-file (format nil "~A~A.html" dir name)))
 	  (t
 	   (setf dir (expand-dirname (if (= (length (directory-namestring html-file)) 0) "." (directory-namestring html-file))))

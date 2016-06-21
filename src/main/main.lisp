@@ -93,7 +93,8 @@
 	 ;; (set-output-processors)
 	 (instans-add-rules instans rules)
 	 (cond ((instans-find-status instans 'instans-rule-translation-succeeded)
-		(if rete-html-file (output-rete-html-page instans rules rete-html-file)))
+;		(if rete-html-file (output-rete-html-page instans rules rete-html-file))
+		)
 	       (t
 		(let ((status (first (instans-status instans))))
 		  (cond ((null status)
@@ -700,6 +701,7 @@
 			  (with-open-file (output profile-report-file :direction :output :if-exists :supersede)
 			    (let ((*trace-output* output))
 			      (sb-profile:report)))))
+		   (if rete-html-file (output-rete-html-page instans (expand-iri directory rete-html-file)))
 		   (instans-close-open-streams instans))))))))
     (logmsg "value=~A" value)
     value))

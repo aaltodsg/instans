@@ -25,16 +25,30 @@
 (defun index-key-equal (k1 k2)
   (every #'(lambda (v1 v2) (or (eql v1 v2) (%=% v1 v2))) k1 k2))
 
+(defmethod initialize-instance :after ((this token-index) &key &allow-other-keys)
+	   )
+
 (defmethod initialize-instance :after ((this hash-token-index) &key &allow-other-keys)
   ;; (inform "initialize-instance :after ~S" this)
   (setf (hash-token-index-table this)
 ;	(make-hash-table :test #'equal)
 	(make-hash-table :test #'index-key-equal :hash-function #'index-key-hash-function)))
 
+(defmethod initialize-instance :after ((this avl-token-index) &key &allow-other-keys)
+  (inform "here"))
+
 ;; ;(defmethod initialize-instance :after ((this ordered-list-token-index) &rest keys &key &allow-other-keys)
 ;; (defmethod initialize-instance :after ((this ordered-list-token-index) &key &allow-other-keys)
 ;;   (inform "initialize-instance :after ~S" this)
 ;;   (setf (ordered-list-token-index-alist this) (list nil)))
+
+(defun make-token-index (type &rest rest &key &allow-other-keys)
+  (inform "Before make-index ~S ~S" type rest)
+  (prog1
+      (handler-case (apply #'make-instance type rest)
+	(t (e) (error e)))
+      (inform "after make-index ~S ~S" type rest)))
+
 
 (defgeneric hash-token-index-key-item-values (token-index item)
   (:method ((this hash-token-index) item)
@@ -287,7 +301,9 @@
 		 table))))
   (:method ((this ordered-list-token-index))
     (loop for item in (cdr (ordered-list-token-index-alist this))
-	  sum (length (cdr item)))))
+	  sum (length (cdr item))))
+  (:method ((this avl-token-index))
+    (length (avl-get-range (avl-token-index-tree this) :key-compare #'sparql-value-compare))))
 
 (defgeneric index-clear (index)
   (:method ((this hash-token-index))

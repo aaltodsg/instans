@@ -8,7 +8,7 @@
 (defun compile-sparql-file (file &key instans instans-name rete-html-file base)
   (with-open-file (input-stream file)
     (setf instans (compile-sparql-stream input-stream :instans instans :instans-name instans-name :base base))
-    (when (and instans rete-html-file) (output-rete-html-page instans file rete-html-file))
+    (when (and instans rete-html-file) (output-rete-html-page instans rete-html-file))
     instans))
 
 (defun compile-sparql-stream (stream &key instans instans-name base)
