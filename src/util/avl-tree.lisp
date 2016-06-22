@@ -20,7 +20,7 @@
   ((root :accessor avl-tree-root :initform nil)
    (key-count :accessor avl-tree-key-count :initform 0)
    (value-count :accessor avl-tree-value-count :initform 0)
-   (key-compare :accessor avl-tree-key-compare :initarg :key-compare :initform #'equal)
+   (key-compare :accessor avl-tree-key-compare :initarg :key-compare :initform #'-)
    (value-equal :accessor avl-tree-value-equal :initarg :value-equal :initform #'equal)))
 
 (defun avl-get-range (tree &key lower-bound lower-bound-inclusive-p upper-bound upper-bound-inclusive-p key-compare (node-value-getter #'(lambda (n) (avl-node-values n))))
@@ -89,8 +89,11 @@
 		  (avl-left-rotate node))))
 	  (t node))))
 
-(defun avl-insert (node key value &key (value-equal #'equal) (key-compare #'-))
-  (let ((new-key-p nil))
+;(defun avl-insert (node key value &key (value-equal #'equal) (key-compare #'-))
+(defun avl-insert (tree key value)
+  (let ((new-key-p nil)
+	(key-compare (avl-tree-key-compare tree))
+	(value-equal (avl-tree-value-equal tree)))
     (labels ((visit (node key value)
 	       (cond ((null node)
 		      (setf new-key-p t)
@@ -106,7 +109,8 @@
 			      (t
 			       (pushnew value (avl-node-values node) :test value-equal)
 			       node)))))))
-      (values (visit node key value) new-key-p))))
+      (setf (avl-tree-root tree) (visit (avl-tree-root tree) key value)))
+    new-key-p))
 
 (defun avl-min-value-node (node)
   (loop for current = node then (avl-node-left current)
@@ -135,8 +139,10 @@
 	  (t
 	   root))))
 
-(defun avl-delete (root key value &key (key-compare #'-) (value-test #'equal))
-  (let ((key-deleted-p nil))
+(defun avl-delete (tree key value)
+  (let ((key-deleted-p nil)
+	(key-compare (avl-tree-key-compare tree))
+	(value-equal (avl-tree-value-equal tree)))
     (labels ((visit (root key value)
 	       (cond ((null root) nil)
 		     (t
@@ -147,7 +153,7 @@
 			       (setf (avl-node-right root) (visit (avl-node-right root) key value)))
 			      (t
 			       (unless (eq value :all)
-				 (setf (avl-node-values root) (delete value (avl-node-values root) :test value-test))
+				 (setf (avl-node-values root) (delete value (avl-node-values root) :test value-equal))
 				 (when (null (avl-node-values root))
 				   (setf key-deleted-p t)))
 			       ;; (inform "value ~S~%" value)
@@ -169,30 +175,29 @@
 					       (setf (avl-node-right root) (avl-node-right temp))
 					       (setf (avl-node-height root) (avl-node-height temp))))))))))
 		      (and root (rebalance-avl-after-delete root))))))
-      (values (visit root key value) key-deleted-p))))
+      (setf (avl-tree-root tree) (visit (avl-tree-root tree) key value)))
+    key-deleted-p))
 
 ;;; Traversal
 
-(defun avl-depth-first-traversal (tree func)
-  (cond ((null tree)
-	 nil)
-	(t
-	 (avl-depth-first-traversal (avl-node-left tree) func)
-	 (funcall func tree)
-	 (avl-depth-first-traversal (avl-node-right tree) func))))
 
 ;;; Printing
 
-(defun print-avl (tree &optional (stream t) (indent 0))
-  (cond ((null tree)
-	 (format stream "~&~VT()" indent))
-	(t
-	 (print-avl (avl-node-right tree) stream (+ 4 indent))
-	 (format stream "~&~VT~A" indent tree)
-	 (print-avl (avl-node-left tree) stream (+ 4 indent)))))
+(defun print-avl (tree &optional (stream t))
+  (labels ((visit (node indent)
+	     (cond ((null node)
+		    (format stream "~&~VT()" indent))
+		   (t
+		    (visit (avl-node-right node) (+ 4 indent))
+		    (format stream "~&~VT~A" indent node)
+		    (visit (avl-node-left node) (+ 4 indent))))))
+    (visit (avl-tree-root tree) 0)))
 
 (defmethod print-object ((this avl-node) stream)
   (format stream "<avl-node ~A: height: ~D, balance: ~D, value: ~A>" (avl-node-key this) (avl-node-height this) (get-avl-node-balance this) (avl-node-values this)))
+
+(defmethod print-object ((this avl-tree) stream)
+  (format stream "<avl-tree: key-count: ~D, value-count: ~D, root: ~A>" (avl-tree-key-count this) (avl-tree-value-count this) (avl-tree-root this)))
 
 ;;; Testing
 
@@ -202,20 +207,24 @@
       (assert** (equal contents sp) "~%~S is different from~%~S" contents sp)))
 
 (defun check-avl-balances (tree)
-  (cond ((null tree) t)
-	(t
-	 (check-avl-balances (avl-node-left tree))
-	 (assert** (< -2 (get-avl-node-balance tree) 2) "Wrong balance in node ~S" tree)
-	 (check-avl-balances (avl-node-right tree)))))
+  (labels ((visit (node)
+	     (cond ((null node) t)
+		   (t
+		    (visit (avl-node-left node))
+		    (assert** (< -2 (get-avl-node-balance node) 2) "Wrong balance in node ~S" node)
+		    (visit (avl-node-right node))))))
+    (visit (avl-tree-root tree))))
 				  
 (defun check-avl-node-heights (tree)
-  (cond ((null tree) 0)
-	(t
-	 (let* ((lh (check-avl-node-heights (avl-node-left tree)))
-		(rh (check-avl-node-heights (avl-node-right tree)))
-		(ch (1+ (max lh rh))))
-	   (assert** (= (avl-node-height tree) ch) "Wrong height in ~S, should be ~S" tree ch)
-	   ch))))
+  (labels ((visit (node)
+	     (cond ((null node) 0)
+		   (t
+		    (let* ((lh (visit (avl-node-left node)))
+			   (rh (visit (avl-node-right node)))
+			   (ch (1+ (max lh rh))))
+		      (assert** (= (avl-node-height node) ch) "Wrong height in ~S, should be ~S" node ch)
+		      ch)))))
+    (visit (avl-tree-root tree))))
 
 (defun avl-add (tree v)
   (let ((new (avl-insert tree v v)))
@@ -229,23 +238,23 @@
 
 (defun avl-add-list (tree vl)
   (loop for v in vl
-	do (setf tree (avl-add tree v)))
+	do (avl-add tree v))
   tree)
 
 (defun avl-test1 (&key (data '(9 5 10 0 6 11 -1 1 2)) verbosep)
-  (let ((tree nil))
+  (let ((tree (make-instance 'avl-tree)))
     (when verbosep (inform "Adding ~S to ~S~%" data tree))
     (loop for x in data 
 	  collect x into added
 	  when verbosep do (inform "Adding ~S~%" x)
-	  do (setf tree (avl-insert tree x x))
+	  do (avl-insert tree x x)
 	  when verbosep do (print-avl tree)
 	  do (check-contents tree added)
 	  do (check-avl-node-heights tree)
 	  do (check-avl-balances tree))
     (let ((y 10))
       (when verbosep (inform "Removing ~S to ~S~%" y tree))
-      (setf tree (avl-delete tree y y))
+      (avl-delete tree y y)
       (check-contents tree (remove 10 data))
       (check-avl-node-heights tree)
       (check-avl-balances tree)
@@ -254,20 +263,22 @@
 	(print-avl tree)))))
 
 (defun avl-node-key-value-pairs (tree)
-  (cond ((null tree) nil)
-	(t
-	 (append (avl-node-key-value-pairs (avl-node-left tree)) (list (cons (avl-node-key tree) (avl-node-values tree)))  (avl-node-key-value-pairs (avl-node-right tree))))))
+  (labels ((visit (node)
+	     (cond ((null node) nil)
+		   (t
+		    (append (visit (avl-node-left node)) (list (cons (avl-node-key node) (avl-node-values node)))  (visit (avl-node-right node)))))))
+    (visit (avl-tree-root tree))))
 
 (defun avl-test2 (&optional verbosep)
   (let ((*random-state* (make-random-state t)))
-    (loop with tree = nil
+    (loop with tree = (make-instance 'avl-tree)
 	  with numbers = nil
 	  for i from 1 to 100
 	  for n = (random (1+ i))
 	  do (unless (member n numbers)
 	       (push n numbers)
 	       (when verbosep (inform "Adding ~S, numbers ~S~%" n numbers))
-	       (setf tree (avl-insert tree n n))
+	       (avl-insert tree n n)
 	       (check-avl-node-heights tree)
 	       (check-avl-balances tree)
 	       (check-contents tree numbers))
@@ -277,15 +288,14 @@
 			     (setf numbers (delete x numbers))
 			     (when verbosep (print-avl tree))
 			     (when verbosep (inform "Deleting ~S~%" x))
-			     (setf tree (avl-delete tree x x))
+			     (avl-delete tree x x)
 			     (when verbosep (print-avl tree))
 			     (check-avl-node-heights tree)
 			     (check-avl-balances tree)
 			     (check-contents tree numbers))))))
-			     
 		 
 (defun avl-range-test (low include-low-p high include-high-p keys)
-  (let ((tree nil))
+  (let ((tree (make-instance 'avl-tree)))
     (loop for k in keys
-	  do (setf tree (avl-insert tree k k)))
+	  do (avl-insert tree k k))
     (avl-get-range tree :lower-bound low :lower-bound-inclusive-p include-low-p :upper-bound high :upper-bound-inclusive-p include-high-p :key-compare #'-)))
