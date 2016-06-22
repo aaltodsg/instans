@@ -175,10 +175,7 @@
 			 (return t)))))
   (:method ((this avl-token-index) key token)
     (setf key (car key))
-    (setf (avl-token-index-tree this)
-	  (avl-insert (avl-token-index-tree this) key token
-		      :compare #'%instans-compare%
-		      :same-key-handler #'(lambda (tree value) (add-same-key-values-in-list tree value :test #'token-equal))))))
+    (avl-insert (avl-token-index-tree this) key token)))
 
 ;;; Returns T if this was the last token with this key
 (defgeneric index-remove-token (index key token)
@@ -268,11 +265,7 @@
 			 (error* "Trying to remove missing token ~S" token)))))
   (:method ((this avl-token-index) key token)
     (setf key (car key))
-    (setf (avl-token-index-tree this)
-	  (avl-delete (avl-token-index-tree this) key :value token
-		      :compare #'%instans-compare%
-		      :same-key-handler #'(lambda (tree value) (delete-same-key-values-in-list tree value :test #'token-equal))))))
-  
+    (avl-delete (avl-token-index-tree this) key token)))
 
 (defgeneric index-count (index)
   (:method ((this hash-token-index))
