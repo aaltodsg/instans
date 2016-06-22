@@ -39,6 +39,10 @@
 ;;   (inform "initialize-instance :after ~S" this)
 ;;   (setf (ordered-list-token-index-alist this) (list nil)))
 
+(defmethod initialize-instance :after ((this avl-token-index) &key &allow-other-keys)
+  (setf (avl-token-index-tree this)
+	(make-instance 'avl-tree :key-compare #'%instans-compare% :value-equal #'token-equal)))
+
 (defun make-token-index (type &rest rest &key &allow-other-keys)
   ;; (inform "Before make-index ~S ~S" type rest)
   ;; (trace make-instance)
@@ -299,7 +303,7 @@
     (loop for item in (cdr (ordered-list-token-index-alist this))
 	  sum (length (cdr item))))
   (:method ((this avl-token-index))
-    (length (avl-get-range (avl-token-index-tree this) :key-compare #'%instans-compare%))))
+    (avl-tree-value-count (avl-token-index-tree this))))
 
 (defgeneric index-clear (index)
   (:method ((this hash-token-index))

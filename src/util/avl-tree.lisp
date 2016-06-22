@@ -23,11 +23,12 @@
    (key-compare :accessor avl-tree-key-compare :initarg :key-compare :initform #'-)
    (value-equal :accessor avl-tree-value-equal :initarg :value-equal :initform #'equal)))
 
-(defun avl-get-range (tree &key lower-bound lower-bound-inclusive-p upper-bound upper-bound-inclusive-p key-compare (node-value-getter #'(lambda (n) (avl-node-values n))))
+(defun avl-get-range (tree &key lower-bound lower-bound-inclusive-p upper-bound upper-bound-inclusive-p)
   (let* ((result (list nil))
-	 (tail result))
+	 (tail result)
+	 (key-compare (avl-tree-key-compare tree)))
     (labels ((add-to-result (node)
-	       (let ((new (copy-list (funcall node-value-getter node))))
+	       (let ((new (copy-list (avl-node-values node))))
 		 (setf (cdr tail) new)
 		 (setf tail (last new))))
 	     (inclusion-test (node)
@@ -41,7 +42,7 @@
 		 (add-to-result node))
 	       (when (and (avl-node-right node) (or (null upper-bound) (plusp (funcall key-compare upper-bound (avl-node-key node)))))
 		 (visit (avl-node-right node)))))
-      (visit tree)
+      (visit (avl-tree-root tree))
       (cdr result))))
 
 (defun get-avl-node-height (node)
@@ -307,4 +308,4 @@
   (let ((tree (make-instance 'avl-tree)))
     (loop for k in keys
 	  do (avl-insert tree k k))
-    (avl-get-range tree :lower-bound low :lower-bound-inclusive-p include-low-p :upper-bound high :upper-bound-inclusive-p include-high-p :key-compare #'-)))
+    (avl-get-range tree :lower-bound low :lower-bound-inclusive-p include-low-p :upper-bound high :upper-bound-inclusive-p include-high-p)))
