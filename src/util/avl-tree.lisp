@@ -16,6 +16,13 @@
    (left :accessor avl-node-left :initarg :left :initform nil)
    (right :accessor avl-node-right :initarg :right :initform nil)))
 
+(define-class avl-tree ()
+  ((root :accessor avl-tree-root :initform nil)
+   (key-count :accessor avl-tree-key-count :initform 0)
+   (value-count :accessor avl-tree-value-count :initform 0)
+   (key-compare :accessor avl-tree-key-compare :initarg :key-compare :initform #'equal)
+   (value-equal :accessor avl-tree-value-equal :initarg :value-equal :initform #'equal)))
+
 (defun avl-get-range (tree &key lower-bound lower-bound-inclusive-p upper-bound upper-bound-inclusive-p key-compare (node-value-getter #'(lambda (n) (avl-node-values n))))
   (let* ((result (list nil))
 	 (tail result))
@@ -82,24 +89,24 @@
 		  (avl-left-rotate node))))
 	  (t node))))
 
-(defun add-same-key-values-in-list (tree value &key (test #'equal))
-  (pushnew value (avl-node-values tree) :test test)
-  tree)
-
 (defun avl-insert (node key value &key (value-equal #'equal) (key-compare #'-))
-  (cond ((null node)
-	 (make-instance 'avl-node :key key :height 1 :values (list value)))
-	(t
-	 (let ((cmp (funcall key-compare key (avl-node-key node))))
-	   (cond ((minusp cmp)
-		  (setf (avl-node-left node) (avl-insert (avl-node-left node) key value :key-compare key-compare))
-		  (rebalance-avl-after-insert node key key-compare))
-		 ((plusp cmp)
-		  (setf (avl-node-right node) (avl-insert (avl-node-right node) key value :key-compare key-compare))
-		  (rebalance-avl-after-insert node key key-compare))
-		 (t
-		  (pushnew value (avl-node-values node) :test value-equal)
-		  node))))))
+  (let ((new-key-p nil))
+    (labels ((visit (node key value)
+	       (cond ((null node)
+		      (setf new-key-p t)
+		      (make-instance 'avl-node :key key :height 1 :values (list value)))
+		     (t
+		      (let ((cmp (funcall key-compare key (avl-node-key node))))
+			(cond ((minusp cmp)
+			       (setf (avl-node-left node) (visit (avl-node-left node) key value))
+			       (rebalance-avl-after-insert node key key-compare))
+			      ((plusp cmp)
+			       (setf (avl-node-right node) (visit (avl-node-right node) key value))
+			       (rebalance-avl-after-insert node key key-compare))
+			      (t
+			       (pushnew value (avl-node-values node) :test value-equal)
+			       node)))))))
+      (values (visit node key value) new-key-p))))
 
 (defun avl-min-value-node (node)
   (loop for current = node then (avl-node-left current)
@@ -128,36 +135,43 @@
 	  (t
 	   root))))
 
-(defun avl-delete (root key &key (value :all) (key-compare #'-) (value-test #'equal))
-  (cond ((null root) nil)
-	(t
-	 (let ((cmp (funcall key-compare key (avl-node-key root))))
-	   (cond ((minusp cmp)
-		  (setf (avl-node-left root) (avl-delete (avl-node-left root) key :value value :key-compare key-compare)))
-		 ((plusp cmp)
-		  (setf (avl-node-right root) (avl-delete (avl-node-right root) key :value value :key-compare key-compare)))
-		 (t
-		  (unless (eq value :all)
-		    (setf (avl-node-values root) (delete value (avl-node-values root) :test value-test)))
-		  ;; (inform "value ~S~%" value)
-		  (cond ((and (not (eq value :all)) (avl-node-values root)) root)
-			((and (avl-node-left root) (avl-node-right root))
-			 (let ((temp (avl-min-value-node (avl-node-right root))))
-			   (setf (avl-node-key root) (avl-node-key temp))
-			   (setf (avl-node-values root) (avl-node-values temp))
-			   (setf (avl-node-right root) (avl-delete (avl-node-right root) (avl-node-key temp) :key-compare key-compare))))
-			(t
-			 (let ((temp (or (avl-node-left root) (avl-node-right root))))
-			   ;; (inform "Root ~S, temp ~S~%" root temp)
-			   (cond ((null temp)
-				  (setf root nil))
-				 (t
-				  (setf (avl-node-key root) (avl-node-key temp))
-				  (setf (avl-node-values root) (avl-node-values temp))
-				  (setf (avl-node-left root) (avl-node-left temp))
-				  (setf (avl-node-right root) (avl-node-right temp))
-				  (setf (avl-node-height root) (avl-node-height temp))))))))))
-	 (and root (rebalance-avl-after-delete root)))))
+(defun avl-delete (root key value &key (key-compare #'-) (value-test #'equal))
+  (let ((key-deleted-p nil))
+    (labels ((visit (root key value)
+	       (cond ((null root) nil)
+		     (t
+		      (let ((cmp (funcall key-compare key (avl-node-key root))))
+			(cond ((minusp cmp)
+			       (setf (avl-node-left root) (visit (avl-node-left root) key value)))
+			      ((plusp cmp)
+			       (setf (avl-node-right root) (visit (avl-node-right root) key value)))
+			      (t
+			       (unless (eq value :all)
+				 (setf (avl-node-values root) (delete value (avl-node-values root) :test value-test))
+				 (when (null (avl-node-values root))
+				   (setf key-deleted-p t)))
+			       ;; (inform "value ~S~%" value)
+			       (cond ((and (not (eq value :all)) (avl-node-values root)) root)
+				     ((and (avl-node-left root) (avl-node-right root))
+				      (let ((temp (avl-min-value-node (avl-node-right root))))
+					(setf (avl-node-key root) (avl-node-key temp))
+					(setf (avl-node-values root) (avl-node-values temp))
+					(setf (avl-node-right root) (visit (avl-node-right root) (avl-node-key temp) :all))))
+				     (t
+				      (let ((temp (or (avl-node-left root) (avl-node-right root))))
+					;; (inform "Root ~S, temp ~S~%" root temp)
+					(cond ((null temp)
+					       (setf root nil))
+					      (t
+					       (setf (avl-node-key root) (avl-node-key temp))
+					       (setf (avl-node-values root) (avl-node-values temp))
+					       (setf (avl-node-left root) (avl-node-left temp))
+					       (setf (avl-node-right root) (avl-node-right temp))
+					       (setf (avl-node-height root) (avl-node-height temp))))))))))
+		      (and root (rebalance-avl-after-delete root))))))
+      (values (visit root key value) key-deleted-p))))
+
+;;; Traversal
 
 (defun avl-depth-first-traversal (tree func)
   (cond ((null tree)
@@ -167,6 +181,8 @@
 	 (funcall func tree)
 	 (avl-depth-first-traversal (avl-node-right tree) func))))
 
+;;; Printing
+
 (defun print-avl (tree &optional (stream t) (indent 0))
   (cond ((null tree)
 	 (format stream "~&~VT()" indent))
@@ -175,8 +191,10 @@
 	 (format stream "~&~VT~A" indent tree)
 	 (print-avl (avl-node-left tree) stream (+ 4 indent)))))
 
-(defmethod print-object ((this avl) stream)
-  (format stream "<avl ~A: height: ~D, balance: ~D, value: ~A>" (avl-node-key this) (avl-node-height this) (get-avl-node-balance this) (avl-node-values this)))
+(defmethod print-object ((this avl-node) stream)
+  (format stream "<avl-node ~A: height: ~D, balance: ~D, value: ~A>" (avl-node-key this) (avl-node-height this) (get-avl-node-balance this) (avl-node-values this)))
+
+;;; Testing
 
 (defun check-contents (tree numbers)
   (let ((contents (avl-node-key-value-pairs tree))
@@ -205,7 +223,7 @@
     new))
 
 (defun avl-rem (tree v)
-  (let ((new (avl-delete tree v :value v)))
+  (let ((new (avl-delete tree v v)))
     (print-avl new)
     new))
 
@@ -227,7 +245,7 @@
 	  do (check-avl-balances tree))
     (let ((y 10))
       (when verbosep (inform "Removing ~S to ~S~%" y tree))
-      (setf tree (avl-delete tree y :value y))
+      (setf tree (avl-delete tree y y))
       (check-contents tree (remove 10 data))
       (check-avl-node-heights tree)
       (check-avl-balances tree)
@@ -259,7 +277,7 @@
 			     (setf numbers (delete x numbers))
 			     (when verbosep (print-avl tree))
 			     (when verbosep (inform "Deleting ~S~%" x))
-			     (setf tree (avl-delete tree x :value x))
+			     (setf tree (avl-delete tree x x))
 			     (when verbosep (print-avl tree))
 			     (check-avl-node-heights tree)
 			     (check-avl-balances tree)
