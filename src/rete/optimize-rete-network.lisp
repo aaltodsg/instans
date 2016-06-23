@@ -15,6 +15,17 @@
 	       (t expr)))
 	(t expr)))
 
+;; (defun reorder-linear-inequality(expr beta-vars alpha-vars)
+;;   (let ((relop (first expr)))
+;;     (cond ((member relop '("<" "<=" ">=" ">") :test #'string=)
+;; 	   (let* ((lexprlist (flatten-sum (second expr)))
+;; 		  (rexprlist (flatten-sum (third expr)))
+;; 		  (exprlist (append lexprlist (mapcar #'(lambda (x)
+;; 							  (if (and (listp x) (string= (first x) "-"))))
+	     
+;; 	  (t
+;; 	   nil))))
+
 (defun find-targets (node vars)
   (cond ((and (= 1 (length (node-succ node))) (subsetp vars (node-def-prec node)))
 	 (cond ((minus-node-p node) nil)
@@ -48,15 +59,31 @@
 	  nconc (loop for target in targets collect (add-filter-before target test-expr)) into new-nodes
 	  finally (return new-nodes))))
 
+(defun find-ordered-index-join-nodes (node expr)
+  ;; (let ((vars (collect-expression-variables expr)))
+  ;;   (cond ((and (= 1 (node-succ node)) (list-subset vars (node-def-prec node)))
+  ;; 	   (cond ((join-node-p node)
+  ;; 		  (multiple-value-bind (splittablep relop beta-expr alpha-expr)
+  ;; 		      (reorder-linear-inequality expr (node-all-vars-out (join-beta node)) (node-all-vars-out (join-alpha node)))
+  ;; 		    (if splittablep
+  ;; 			(list (list node relop beta-expr alpha-expr))
+  ;; 			(union (find-ordered-index-join-node (join-beta node) expr) (find-ordered-index-join-node (join-alpha node) expr) :test #'equal))))
+  ;; 		 (t
+  ;; 		  (find-ordered-index-join-node (node-prev node) expr))))
+  ;; 	  (t nil)))
+  )
+
 (defun optimize-filter (node)
-  ;; (inform "Checking filter node ~S" node)
-  ;; (let* ((test (filter-test node))
-  ;; 	 (flattened (flatten-outermost-ands test)))
-  ;;   (inform "Test is ~S~%" (pretty-sparql-expr test))
-  ;;   (cond ((eq (first flattened) (find-sparql-op "LOGICAL-AND"))
-  ;; 	   (inform "Can be split into:~{~%~A~}~%" (mapcar #'pretty-sparql-expr (rest flattened))))
-  ;; 	  (t
-  ;; 	   (inform "Cannot be split: ~A~%" (pretty-sparql-expr flattened)))))
+  (inform "Checking filter node ~S" node)
+  (let* ((test (filter-test node))
+  	 (flattened (flatten-outermost-ands test)))
+    (inform "Test is ~S~%" (pretty-sparql-expr test))
+    (cond ((eq (first flattened) (find-sparql-op "LOGICAL-AND"))
+  	   (inform "Can be split into:~{~%~A~}~%" (mapcar #'pretty-sparql-expr (rest flattened)))
+	   (loop for expr in (rest flattened)
+		 do (find-ordered-index-join-nodes (node-prev node) expr)))
+  	  (t
+  	   (inform "Cannot be split: ~A~%" (pretty-sparql-expr flattened)))))
   (find-filter-non-relational-expression-move-targets node))
 
 (defun optimize-filters (instans)
