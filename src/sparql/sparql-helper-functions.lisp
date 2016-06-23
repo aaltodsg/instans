@@ -93,6 +93,9 @@
 ;; 	   ;(append (list sparql-op group-var index) args)
 ;; 	   (cons sparql-op args)))))
 
+(defun sparql-var-name (var)
+  (uniquely-named-object-name var))
+
 (defun sparql-var-lisp-name (var)
   (intern-instans (string (uniquely-named-object-name var))))
 
@@ -378,11 +381,18 @@
 	  (t (format nil "~A" x)))))
 	   
 
-(defun pretty-sparql-expr (expr)
-  (cond ((not (consp expr)) expr)
+(defun pretty-sparql-expr (expr &optional instans)
+  (cond ((sparql-var-p expr) (sparql-var-name (if instans (reverse-resolve-binding instans expr) expr)))
+	((not (consp expr)) expr)
 	(t
 	 (let ((op (first expr)))
 	   (cond ((sparql-op-p op)
 		  (cons (sparql-op-name op) (mapcar #'pretty-sparql-expr (rest expr))))
 		 (t
 		  expr))))))
+
+(defun pretty-sparql-var (var &optional instans)
+  (sparql-var-name (if instans (reverse-resolve-binding instans var) var)))
+
+(defun pretty-sparql-vars (vars &optional instans)
+  (mapcar #'(lambda (v) (pretty-sparql-var v instans)) vars))

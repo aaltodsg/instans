@@ -55,8 +55,8 @@
 (defun list-subset (sub super &key (test #'eql))
   (loop for x in sub
         unless (member x super :test test)
-        return nil)
-  t)
+        return nil
+        finally (return t)))
 
 (defun maph (func hash-table)
   (let ((result nil)
