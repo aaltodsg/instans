@@ -387,7 +387,7 @@
 	(t
 	 (let ((op (first expr)))
 	   (cond ((sparql-op-p op)
-		  (cons (sparql-op-name op) (mapcar #'pretty-sparql-expr (rest expr))))
+		  (cons (sparql-op-name op) (mapcar #'(lambda (x) (pretty-sparql-expr x instans)) (rest expr))))
 		 (t
 		  expr))))))
 

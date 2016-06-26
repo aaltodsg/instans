@@ -40,26 +40,21 @@
       (cond ((= 1 (length terms)) (first terms))
 	    (t (cons (find-sparql-op "+") terms))))))
 
-(defun reorder-linear-inequality (expr beta-vars alpha-vars)
-  (let ((relop (first expr)))
+(defun reorder-linear-inequality (expr beta-vars alpha-vars &optional node verbosep)
+  (let ((relop (first expr))
+	(instans (and node (node-instans node))))
     (cond ((member relop (list (find-sparql-op "<") (find-sparql-op "<=") (find-sparql-op ">") (find-sparql-op ">=")))
 	   (let* ((diff (create-sparql-call "-" (second expr) (third expr)))
 		  (flattened (flatten-sum diff)))
-	     (inform "  flattened ~A" (pretty-sparql-expr flattened))
+	     (when verbosep (inform "  flattened ~A" (pretty-sparql-expr flattened instans)))
 	     (loop for term in (rest flattened)
 		   for term-vars = (collect-expression-variables term)
-		   do (inform "  testing term ~A with vars ~A" term term-vars)
-		   do (inform "  beta-vars ~A" beta-vars)
-		   do (inform "  alpha-vars ~A" alpha-vars)
-		   do (inform "  (list-subset term-vars beta-vars) = ~A" (list-subset term-vars beta-vars))
-		   do (inform "  (list-subset term-vars alpha-vars) = ~A" (list-subset term-vars alpha-vars))
+		   when verbosep do (inform "  testing term ~A with vars ~A" term (pretty-sparql-vars term-vars instans))
 		   when (list-subset term-vars beta-vars)
 		   collect term into beta-expr-list
 		   else when (list-subset term-vars alpha-vars)
 		   collect term into alpha-expr-list
 		   else do (return nil)
-		   do (inform "  beta-expr-list ~A" (mapcar #'pretty-sparql-expr beta-expr-list))
-		   do (inform "  alpha-expr-list ~A" (mapcar #'pretty-sparql-expr alpha-expr-list))
 		   finally (return (and beta-expr-list alpha-expr-list
 					(values relop
 						(if (= 1 (length beta-expr-list))
@@ -92,6 +87,66 @@
     (push node (node-succ new-filter))
     new-filter))
 
+(defun add-ordered-join-index-info (join relop beta-var-name alpha-var-name ordered-index-type)
+  (let (info)
+    (case ordered-index-type
+      (:avl-index
+       (setf info (cons
+		   (node-name join)
+		   (case (intern relop)
+		     (< (list :alpha (list :var alpha-var-name :range-getter #'(lambda (tree x) (avl-get-range tree :lower-bound x :lower-bound-inclusive-p nil)))
+			      :beta (list :var beta-var-name :range-getter #'(lambda (tree x) (avl-get-range tree :upper-bound x :upper-bound-inclusive-p nil)))))
+		     (<= (list :alpha (list :var alpha-var-name :range-getter #'(lambda (tree x) (avl-get-range tree :lower-bound x :lower-bound-inclusive-p t)))
+			       :beta (list :var beta-var-name :range-getter #'(lambda (tree x) (avl-get-range tree :upper-bound x :upper-bound-inclusive-p t)))))
+		     (>= (list :alpha (list :var alpha-var-name :range-getter #'(lambda (tree x) (avl-get-range tree :upper-bound x :upper-bound-inclusive-p t)))
+			       :beta (list :var beta-var-name :range-getter #'(lambda (tree x) (avl-get-range tree :lower-bound x :lower-bound-inclusive-p t)))))
+		     (> (list :alpha (list :var alpha-var-name :range-getter #'(lambda (tree x) (avl-get-range tree :upper-bound x :upper-bound-inclusive-p nil)))
+			      :beta (list :var beta-var-name :range-getter #'(lambda (tree x) (avl-get-range tree :lower-bound x :lower-bound-inclusive-p nil)))))
+		     (t nil))))
+       (and info (push info (instans-avl-index-nodes (node-instans join)))))
+      (:ordered-list-index
+       (setf info (cons
+		   (node-name join)
+		   (case (intern relop)
+		     (<= (list :alpha (list :var alpha-var-name :equal-op #'%=% :order-op #'%>% :key-op #'%<=%)
+			       :beta (list :var beta-var-name :equal-op #'%=% :order-op #'%<% :key-op #'%>=%)))
+		     (< (list :alpha (list :var alpha-var-name  :equal-op #'%=% :order-op #'%>% :key-op #'%<%)
+			      :beta (list :var beta-var-name :equal-op #'%=% :order-op #'%<% :key-op #'%>%)))
+		     (>= (list :alpha (list :var alpha-var-name  :equal-op #'%=% :order-op #'%<% :key-op #'%>=%)
+			       :beta (list :var beta-var-name :equal-op #'%=% :order-op #'%>% :key-op #'%<=%)))
+		     (> (list :alpha (list :var alpha-var-name  :equal-op #'%=% :order-op #'%<% :key-op #'%>%)
+			      :beta (list :var beta-var-name :equal-op #'%=% :order-op #'%>% :key-op #'%<%)))
+		     (t nil))))
+       (and info (push info (instans-ordered-index-nodes (node-instans join)))))
+      (t
+       (error* "Unknown ordered index type ~A" ordered-index-type)))
+    info))
+
+(defun make-join-ordered (join relop beta-expr alpha-expr &optional (ordered-index-type :avl-index))
+  (let ((beta (join-beta join))
+	(alpha (join-alpha join))
+	(instans (node-instans join))
+	(new-nodes nil))
+    (flet ((add-bind-between (prev bind-expr betap)
+	     (let* ((bind-var (canonize-sparql-var instans (make-sparql-var instans (format nil "~A-~:[ALPHA~;BETA~]-BIND" (node-name join) betap))))
+		    (bind (make-instance 'bind-node
+					 :instans instans :prev prev :variable bind-var :form bind-expr :form-parameters (collect-expression-variables bind-expr))))
+	       (setf (node-succ prev) (cons bind (remove join (node-succ prev))))
+	       (setf (node-succ bind) (list join))
+	       (cond ((not betap)
+		      (setf (join-alpha join) bind)
+		      (setf alpha-expr bind-var))
+		     (t
+		      (setf (join-beta join) bind)
+		      (setf beta-expr bind-var)))
+	       (push bind new-nodes))))
+      (unless (sparql-var-p beta-expr)
+	(add-bind-between beta beta-expr t))
+      (unless (sparql-var-p alpha-expr)
+	(add-bind-between alpha alpha-expr nil))
+      (add-ordered-join-index-info join (sparql-op-name relop) beta-expr alpha-expr ordered-index-type)
+      new-nodes)))
+
 (defun find-filter-non-relational-expression-move-targets (filter-node)
   (let* ((flattened (flatten-outermost-ands (filter-test filter-node)))
 	 (hits (loop for test-expr in (if (and (consp flattened) (eq (first flattened) (find-sparql-op "LOGICAL-AND"))) (rest flattened) (list flattened))
@@ -104,14 +159,14 @@
 	  nconc (loop for target in targets collect (add-filter-before target test-expr)) into new-nodes
 	  finally (return new-nodes))))
 
-(defun find-ordered-index-join-nodes (node expr)
+(defun find-ordered-index-join-nodes (node expr &optional verbosep)
   (let ((vars (collect-expression-variables expr))
 	(instans (node-instans node)))
-    (inform "  node ~A, succ ~A, def-prec ~A, vars ~A~%" node (node-succ node) (pretty-sparql-vars (node-def-prec node) instans) (pretty-sparql-var vars instans))
+    (when verbosep (inform "  node ~A, succ ~A~%  def-prec ~A~%  vars ~A~%" node (node-succ node) (pretty-sparql-vars (node-def-prec node) instans) (pretty-sparql-vars vars instans)))
     (cond ((and (= 1 (length (node-succ node))) (list-subset vars (node-def-prec node)))
   	   (cond ((join-node-p node)
   		  (multiple-value-bind (relop beta-expr alpha-expr)
-  		      (reorder-linear-inequality expr (node-all-vars-out (join-beta node)) (node-all-vars-out (join-alpha node)))
+  		      (reorder-linear-inequality expr (node-all-vars-out (join-beta node)) (node-all-vars-out (join-alpha node)) node)
   		    (if relop
   			(list (list node relop beta-expr alpha-expr))
   			(union (find-ordered-index-join-nodes (join-beta node) expr) (find-ordered-index-join-nodes (join-alpha node) expr) :test #'equal))))
@@ -120,43 +175,51 @@
   	  (t nil)))
   )
 
-(defun optimize-filter (node)
+(defun optimize-filter (node &optional (ordered-index-type :avl-index))
   (let* ((test (filter-test node))
   	 (flattened (flatten-outermost-ands test)))
-    (inform "Checking filter node ~A~%with test ~A:~%" node (pretty-sparql-expr test (node-instans node)))
+    ;; (inform "Checking filter node ~A~%with test ~A:~%" node (pretty-sparql-expr test (node-instans node)))
     (let ((targets (cond ((eq (first flattened) (find-sparql-op "LOGICAL-AND"))
-			  (inform "can be split into:~{~%~A~}~%" (mapcar #'pretty-sparql-expr (rest flattened)))
+			  ;; (inform "can be split into:~{~%~A~}~%" (mapcar #'(lambda (x) (pretty-sparql-expr x (node-instans node))) (rest flattened)))
 			  (loop for expr in (rest flattened)
-			        do (inform "  finding ordered index join node above ~A~%  for expr ~A" node (pretty-sparql-expr expr (node-instans node)))
+			        ;; do (inform "  finding ordered index join node above ~A~%  for expr ~A" node (pretty-sparql-expr expr (node-instans node)))
 				nconc (find-ordered-index-join-nodes (node-prev node) expr)))
 			 (t
-			  (inform "Cannot be split: ~A~%" (pretty-sparql-expr flattened))
+			  ;; (inform "Cannot be split: ~A~%" (pretty-sparql-expr flattened (node-instans node)))
 			  (find-ordered-index-join-nodes (node-prev node) flattened)))))
       (when targets
-	(inform "Ordered indices for nodes:")
-	(loop for (node relop beta-expr alpha-expr) in targets
+	;; (inform "Ordered indices for nodes:")
+	(loop for (join relop beta-expr alpha-expr) in targets
 	      do (inform "~%--ordered-index=~A:~A:~A:~A~%"
-			 (node-name node)
-			 (if (sparql-var-p beta-expr) (sparql-var-name (reverse-resolve-binding (node-instans node) beta-expr)) beta-expr)
+			 (node-name join)
+			 (if (sparql-var-p beta-expr) (sparql-var-name (reverse-resolve-binding (node-instans join) beta-expr)) beta-expr)
 			 (sparql-op-name relop)
-			 (if (sparql-var-p alpha-expr) (sparql-var-name (reverse-resolve-binding (node-instans node) alpha-expr)) alpha-expr))))))
-  (find-filter-non-relational-expression-move-targets node)
-  (inform "END checking filter node ~A~%" node))
+			 (if (sparql-var-p alpha-expr) (sparql-var-name (reverse-resolve-binding (node-instans join) alpha-expr)) alpha-expr))
+	      nconc (make-join-ordered join relop beta-expr alpha-expr ordered-index-type) into new-nodes
+	      finally (when new-nodes
+			(compute-node-vars (instans-nodes (node-instans node)))
+			(lisp-compile-nodes new-nodes))))))
+
+  (let ((new-nodes (find-filter-non-relational-expression-move-targets node)))
+    (when new-nodes
+      (compute-node-vars (node-instans node))
+      (lisp-compile-nodes new-nodes))))
 
 (defun optimize-filters (instans)
   (loop for node in (instans-nodes instans)
 	when (filter-node-p node)
-	nconc (optimize-filter node) into new-nodes
-        finally (when new-nodes
-		  (compute-node-vars (instans-nodes instans))
-		  (lisp-compile-nodes new-nodes))))
+	do (optimize-filter node)))
 
 (defun optimize-rete-network (instans)
   (declare (ignorable instans))
   ;; (inform "Nodes ~A" (instans-nodes instans))
+  ;; (inform "bindings ~A" (mapcar #'(lambda (b) (cons (sparql-var-name (car b)) (sparql-var-name (cdr b)))) (instans-bindings instans)))
   (when (instans-optimize-filters-p instans)
     (optimize-filters instans))
   )
+
+;;;
+
 
 ;;; Testing
 
