@@ -176,35 +176,38 @@
   	  (t nil)))
   )
 
-(defun optimize-filter (node &optional (ordered-index-type :avl-index))
-  (let* ((test (filter-test node))
-  	 (flattened (flatten-outermost-ands test)))
-    ;; (inform "Checking filter node ~A~%with test ~A:~%" node (pretty-sparql-expr test (node-instans node)))
-    (let ((targets (cond ((eq (first flattened) (find-sparql-op "LOGICAL-AND"))
-			  ;; (inform "can be split into:~{~%~A~}~%" (mapcar #'(lambda (x) (pretty-sparql-expr x (node-instans node))) (rest flattened)))
-			  (loop for expr in (rest flattened)
-			        ;; do (inform "  finding ordered index join node above ~A~%  for expr ~A" node (pretty-sparql-expr expr (node-instans node)))
-				nconc (find-ordered-index-join-nodes (node-prev node) expr)))
-			 (t
-			  ;; (inform "Cannot be split: ~A~%" (pretty-sparql-expr flattened (node-instans node)))
-			  (find-ordered-index-join-nodes (node-prev node) flattened)))))
-      (when targets
-	;; (inform "Ordered indices for nodes:")
-	(loop for (join relop beta-expr alpha-expr) in targets
-	      do (inform "~%--ordered-index=~A:~A:~A:~A~%"
-			 (node-name join)
-			 (if (sparql-var-p beta-expr) (sparql-var-name (reverse-resolve-binding (node-instans join) beta-expr)) beta-expr)
-			 (sparql-op-name relop)
-			 (if (sparql-var-p alpha-expr) (sparql-var-name (reverse-resolve-binding (node-instans join) alpha-expr)) alpha-expr))
-	      nconc (make-join-ordered join relop beta-expr alpha-expr ordered-index-type) into new-nodes
-	      finally (when new-nodes
-			(compute-node-vars (instans-nodes (node-instans node)))
-			(lisp-compile-nodes new-nodes))))))
-
-  (let ((new-nodes (find-filter-non-relational-expression-move-targets node)))
-    (when new-nodes
-      (compute-node-vars (node-instans node))
-      (lisp-compile-nodes new-nodes))))
+(defun optimize-filter (node &optional (ordered-index-type :avl-index) (optimize-non-relational-filter-exprs-p nil) (verbosep t))
+  (when ordered-index-type
+    (let* ((test (filter-test node))
+	   (flattened (flatten-outermost-ands test)))
+      ;; (inform "Checking filter node ~A~%with test ~A:~%" node (pretty-sparql-expr test (node-instans node)))
+      (let ((targets (cond ((eq (first flattened) (find-sparql-op "LOGICAL-AND"))
+			    ;; (inform "can be split into:~{~%~A~}~%" (mapcar #'(lambda (x) (pretty-sparql-expr x (node-instans node))) (rest flattened)))
+			    (loop for expr in (rest flattened)
+				  ;; do (inform "  finding ordered index join node above ~A~%  for expr ~A" node (pretty-sparql-expr expr (node-instans node)))
+				  nconc (find-ordered-index-join-nodes (node-prev node) expr)))
+			   (t
+			    ;; (inform "Cannot be split: ~A~%" (pretty-sparql-expr flattened (node-instans node)))
+			    (find-ordered-index-join-nodes (node-prev node) flattened)))))
+	(when targets
+	  ;; (inform "Ordered indices for nodes:")
+	  (loop for (join relop beta-expr alpha-expr) in targets
+		for new-nodes-for-target = (make-join-ordered join relop beta-expr alpha-expr ordered-index-type)
+		when new-nodes-for-target nconc new-nodes-for-target into new-nodes
+		when (and new-nodes-for-target verbosep)
+		do (inform "--ordered-index=~A:~A:~A:~A~%New nodes ~A~%"
+			   (node-name join)
+			   (if (sparql-var-p beta-expr) (sparql-var-name (reverse-resolve-binding (node-instans join) beta-expr)) beta-expr)
+			   (sparql-op-name relop)
+			   (if (sparql-var-p alpha-expr) (sparql-var-name (reverse-resolve-binding (node-instans join) alpha-expr)) alpha-expr) new-nodes-for-target)
+		finally (when new-nodes
+			  (compute-node-vars (instans-nodes (node-instans node)))
+			  (lisp-compile-nodes new-nodes)))))))
+  (when optimize-non-relational-filter-exprs-p
+    (let ((new-nodes (find-filter-non-relational-expression-move-targets node)))
+      (when new-nodes
+	(compute-node-vars (instans-nodes (node-instans node)))
+	(lisp-compile-nodes new-nodes)))))
 
 (defun optimize-filters (instans)
   (loop for node in (instans-nodes instans)
