@@ -1,0 +1,7 @@
+#!/bin/bash
+(cd `dirname $0`; ../scripts/new-version)
+make clean; make
+VERSION=`instans --version`
+git commit -am "$VERSION: $*"
+git push
+git log -1
