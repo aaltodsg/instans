@@ -79,7 +79,7 @@
       (version
        :options ("--version" #\v)
        :usage "Print version information and exit."
-       (format t "INSTANS version ~A~%" (instans-version))
+       (format t "INSTANS version ~A (~A)~%" (instans-version) (instans-version-datetime))
        (return-from command-loop))
       (commands
        :options ("--file" #\f :file)

@@ -5,12 +5,16 @@
 
 (in-package #:instans)
 
-(defvar *version* "0.4.0.6")
-(defvar *version-datetime* "2016-07-08T00:30:09")
+(defvar *version* "0.4.0.7")
+(defvar *version-datetime* "2016-07-08T00:33:12")
 
 (defun instans-version ()
-  (let ((hit (asdf::system-registered-p "instans")))
-    (and hit (slot-value (cdr hit) 'asdf::version))))
+  *version*)
+  ;; (let ((hit (asdf::system-registered-p "instans")))
+  ;;   (and hit (slot-value (cdr hit) 'asdf::version))))
+
+(defun instans-version-datetime ()
+  *version-datetime*)
 
 (defun instans-license ()
   (let ((hit (asdf::system-registered-p "instans")))
