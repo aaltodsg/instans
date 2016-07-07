@@ -5,8 +5,8 @@
 
 (in-package #:instans)
 
-(defvar *version* "0.4.0.7")
-(defvar *version-datetime* "2016-07-08T00:33:12")
+(defvar *version* "0.4.0.8")
+(defvar *version-datetime* "2016-07-08T00:35:02")
 
 (defun instans-version ()
   *version*)
