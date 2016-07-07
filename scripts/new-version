@@ -1,0 +1,28 @@
+#!/bin/bash
+
+ROOT=`dirname $0`/..
+ASDFILE=$ROOT/src/instans.asd
+VERSIONFILE=$ROOT/src/util/version.lisp
+
+VERSIONLINE=`egrep ':version "[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*"' $ASDFILE`
+LN=`echo $VERSIONLINE | sed -n '/:version "\([0-9][0-9]*\)\.\([0-9][0-9]*\)\.\([0-9][0-9]*\)\.\([0-9][0-9]*\)"/s//V1=\1;V2=\2;V3=\3;V4=\4/p'`
+eval $LN
+NV4=$(($V4+1))
+TMP1=ASDFILE_$$
+cp $ASDFILE $TMP1
+cat $TMP1 | sed "/:version \"$V1.$V2.$V3.$V4\"/s//:version \"$V1.$V2.$V3.$NV4\"/" > $ASDFILE
+diff $TMP1 $ASDFILE
+
+TMP2=VERSION_$$
+cp $VERSIONFILE $TMP2
+DT=`date "+%Y-%m-%dT%H:%M:%S"`
+sed -e "/(defvar \*version\* \".*\")/s//(defvar \*version\* \"$V1.$V2.$V3.$NV4\")/" -e "/(defvar \*version-datetime\* \".*\")/s//(defvar \*version-datetime\* \"$DT\")/" $TMP2 > $VERSIONFILE
+diff $TMP2 $VERSIONFILE
+rm -f $TMP1 $TMP2
+
+
+
+
+
+
+

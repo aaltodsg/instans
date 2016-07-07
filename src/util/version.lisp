@@ -5,6 +5,9 @@
 
 (in-package #:instans)
 
+(defvar *version* "0.4.0.4")
+(defvar *version-datetime* "2016-07-08T00:19:58")
+
 (defun instans-version ()
   (let ((hit (asdf::system-registered-p "instans")))
     (and hit (slot-value (cdr hit) 'asdf::version))))

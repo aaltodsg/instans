@@ -33,7 +33,7 @@
 
 (defsystem "instans"
   :description "A Standing SPARQL Query Evaluator"
-  :version "0.4.0.1"
+  :version "0.4.0.4"
   :author "Esko Nuutila <esko.nuutila@aalto.fi>"
   :licence "The MIT License (MIT). See the file LICENSE in .."
   :depends-on (#:cl-ppcre #:cl-ppcre-unicode)
