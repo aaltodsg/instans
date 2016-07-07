@@ -52,6 +52,12 @@
 (defun list-difference (list1 list2 &key (test #'eql))
   (filter #'(lambda (x) (not (member x list2 :test test))) list1))
 
+(defun list-subset (sub super &key (test #'eql))
+  (loop for x in sub
+        unless (member x super :test test)
+        return nil
+        finally (return t)))
+
 (defun maph (func hash-table)
   (let ((result nil)
 	(last nil))

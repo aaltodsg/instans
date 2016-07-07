@@ -24,7 +24,7 @@
     ;;; Note: graph will be first in args!
     (loop for (alpha . args) in (match-quad (instans-triple-pattern-matcher this) subj pred obj graph)
 	  do (setf (instans-current-op this) (list :rete-add subj pred obj graph))
-	  do (add-token alpha args)
+	  do (add-token alpha args nil)
 	  do (setf (instans-current-op this) nil)
 	 )))
 
@@ -43,7 +43,7 @@
     ;;; Note: graph will be first in args!
     (loop for (alpha . args) in (match-quad (instans-triple-pattern-matcher this) subj pred obj graph)
 	  do (setf (instans-current-op this) (list :rete-remove subj pred obj graph))
-	  do (remove-token alpha args)
+	  do (remove-token alpha args nil)
 	  do (setf (instans-current-op this) nil)
 	 )))
 
@@ -102,52 +102,65 @@
   (:method ((this join-node))
     ;; (inform "Checking if ~S has an ordered index parameters in ~S" (node-name this) (instans-ordered-index-nodes (node-instans this)))
     (let* ((instans (node-instans this))
-	   (hit (assoc (intern (node-name this)) (instans-ordered-index-nodes instans))))
-      (cond ((null hit)
-	     (setf (join-alpha-index-type this) (instans-join-hash-token-index-type instans))
-	     (setf (join-beta-index-type this) (instans-join-hash-token-index-type instans)))
-	    (t
+	   (ordered-index-info (assoc (intern (node-name this)) (instans-ordered-index-nodes instans)))
+	   (avl-index-info (assoc (intern (node-name this)) (instans-avl-index-nodes instans))))
+      (cond (ordered-index-info
 	     (setf (join-alpha-index-type this) 'ordered-list-token-index)
-	     (setf (join-alpha-index-init-args this) (getf (cdr hit) :alpha))
+	     (setf (join-alpha-index-init-args this) (getf (cdr ordered-index-info) :alpha))
 	     (setf (join-beta-index-type this) 'ordered-list-token-index)
-	     (setf (join-beta-index-init-args this) (getf (cdr hit) :beta))
-	     (inform "using ~S for ~S" (join-alpha-index-type this) (node-name this))
-	     ))
+	     (setf (join-beta-index-init-args this) (getf (cdr ordered-index-info) :beta))
+;	     (inform "using ~S for ~S~%" (join-alpha-index-type this) (node-name this))
+	     )
+	    (avl-index-info
+	     (setf (join-alpha-index-type this) 'avl-token-index)
+	     (setf (join-alpha-index-init-args this) (getf (cdr avl-index-info) :alpha))
+	     (setf (join-beta-index-type this) 'avl-token-index)
+	     (setf (join-beta-index-init-args this) (getf (cdr avl-index-info) :beta))
+;	     (inform "using ~S for ~S~%" (join-alpha-index-type this) (node-name this))
+	     ) 
+	    (t
+	     (setf (join-alpha-index-type this) (instans-join-hash-token-index-type instans))
+	     (setf (join-beta-index-type this) (instans-join-hash-token-index-type instans))))
       (let* ((key-var (getf (join-beta-index-init-args this) :var))
-	     (equal-op (getf (join-beta-index-init-args this) :equal-op))
-	     (order-op (getf (join-beta-index-init-args this) :order-op))
-	     (key-op (getf (join-beta-index-init-args this) :key-op))
+	     ;; (equal-op (getf (join-beta-index-init-args this) :equal-op))
+	     ;; (order-op (getf (join-beta-index-init-args this) :order-op))
+	     ;; (key-op (getf (join-beta-index-init-args this) :key-op))
 	     (key-vars (if key-var (list (resolve-binding instans (find-named-var instans (string-upcase key-var)))) (node-use this))))
-	;; (inform "beta-key-vars = ~S" key-vars)
+	;; (inform "beta-key-vars = ~S~%" key-vars)
 	(let ((beta-index
-	       (make-instance (join-beta-index-type this)
-			      :node this
-			      :key-vars key-vars
-			      :id (format nil "beta-index ~A" (node-number this))
-			      :var key-var
-			      :equal-op equal-op
-			      :order-op order-op
-			      :key-op key-op)))
-	  ;; (inform "beta-index = (~S)" beta-index)
+	       (apply #'make-token-index 
+		      (join-beta-index-type this)
+		      :node this
+		      :key-vars key-vars
+		      :id (format nil "beta-index ~A" (node-number this))
+			      ;; :var key-var
+			      ;; :equal-op equal-op
+			      ;; :order-op order-op
+			      ;; :key-op key-op
+		      (join-beta-index-init-args this)
+		      )))
+	  ;; (inform "beta-index = (~S)~%" beta-index)
 	  (setf (join-beta-index this) beta-index)
 	  ;; (describe beta-index)
 	  (push beta-index (instans-token-indices (node-instans this)))))
       (let* ((key-var (getf (join-alpha-index-init-args this) :var))
-	     (equal-op (getf (join-alpha-index-init-args this) :equal-op))
-	     (order-op (getf (join-alpha-index-init-args this) :order-op))
-	     (key-op (getf (join-alpha-index-init-args this) :key-op))
+	     ;; (equal-op (getf (join-alpha-index-init-args this) :equal-op))
+	     ;; (order-op (getf (join-alpha-index-init-args this) :order-op))
+	     ;; (key-op (getf (join-alpha-index-init-args this) :key-op))
 	     (key-vars (if key-var (list (resolve-binding instans (find-named-var instans (string-upcase key-var)))) (node-use this))))
-	;; (inform "alpha-key-vars = ~S" key-vars)
+	;; (inform "alpha-key-vars = ~S~%" key-vars)
 	(let ((alpha-index
-	       (make-instance (join-alpha-index-type this)
-			      :node this
-			      :key-vars key-vars
-			      :id (format nil "alpha-index ~A" (node-number this))
-			      :var key-var
-			      :equal-op equal-op
-			      :order-op order-op
-			      :key-op key-op)))
-	  ;; (inform "alpha-index = (~S)" alpha-index)
+	       (apply #' make-token-index (join-alpha-index-type this)
+			 :node this
+			 :key-vars key-vars
+			 :id (format nil "alpha-index ~A" (node-number this))
+			 ;; :var key-var
+			 ;; :equal-op equal-op
+			 ;; :order-op order-op
+			 ;; :key-op key-op
+			 (join-alpha-index-init-args this)
+			 )))
+	  ;; (inform "alpha-index = (~S)~%" alpha-index)
 	  (setf (join-alpha-index this) alpha-index)
 	  ;; (describe alpha-index)
 	  (push alpha-index (instans-token-indices (node-instans this)))))
@@ -180,11 +193,11 @@
 	     ;;; Order in the new token is ((nil key) (counter-var 0) (active-p nil) ..)
 ;	     (initial-token (make-token this (make-singleton-token) (list active-p-var counter-var) (list *sparql-unbound* *sparql-unbound*)))) ;;; Node is inactive; zero hits
 	     (initial-token (make-token this (make-singleton-token) (list counter-var) (list 0))))
-	(add-token this initial-token))))
+	(add-token this initial-token nil))))
   (:method ((this token-store))
     ;;; An EQL hashtable, since we are using integers as keys!
     (when (null (node-prev this))
-      (add-token this (make-singleton-token))))
+      (add-token this (make-singleton-token) nil)))
   ;;; Join creates indices for alpha/beta memories only if the alpha and beta parents share common variables, i.e., (not (null node-use this))
   (:method ((this join-node))
     (let ((beta-memory (join-beta this))
@@ -265,7 +278,7 @@
   (:method ((this instans))
     (loop for node in (filter #'datablock-node-p (instans-nodes this))
 	  do (loop for token in (datablock-tokens node)
-		   do (add-token node token)))))
+		   do (add-token node token nil)))))
 
 (defgeneric datablock-tokens (node)
   (:method ((this datablock-node))
@@ -542,81 +555,142 @@
 	(format stream "queue-construct-count = ~S~%" (rule-instance-queue-construct-count queue))
 	(format stream "queue-modify-count = ~S~%" (rule-instance-queue-modify-count queue))))))
 
-(defun call-succ-nodes (func node token stack)
-  (cond ((null stack)
-	 ;; (loop for rest on (node-succ node)
-	 ;;       do (assert* (not (member (car rest) (cdr rest))) "~%~S appears twice in (node-succ ~S) = ~S" (car rest) node (node-succ node)))
-	 (let* ((instans (node-instans node))
-		(reportp (operation-report-p instans :call-succ-nodes))
-		(output (instans-default-output instans))
-		(op (cond ((eq func #'add-token) :add-token)
-			  ((eq func #'remove-token) :remove-token)
-			  ((eq func #'add-alpha-token) :add-alpha-token)
-			  ((eq func #'remove-alpha-token) :remove-alpha-token)
-			  ((eq func #'add-beta-token) :add-beta-token)
-			  ((eq func #'remove-beta-token) :remove-beta-token)
-			  (t (error* "Unknown function ~S here" func)))))
-	   (when reportp (format output "~&~A: calling successors of ~A using function ~A~%" (instans-name instans) node func))
-	   (loop for succ in (node-succ node)
-		 when reportp do (format output "~%  ~(~A~) ~A~%" op succ)
-		 do (funcall func succ token nil))
-	   (when reportp (format output "~%~A: called successors of ~A using function ~A~%~%" (instans-name instans) node func))))
-	(t
-	 (funcall func (car stack) token (cdr stack)))))
+;; (defun call-succ-nodes (func node token stack)
+;;   (cond ((null stack)
+;; 	 ;; (loop for rest on (node-succ node)
+;; 	 ;;       do (assert* (not (member (car rest) (cdr rest))) "~%~S appears twice in (node-succ ~S) = ~S" (car rest) node (node-succ node)))
+;; 	 (let* ((instans (node-instans node))
+;; 		(reportp (operation-report-p instans :call-succ-nodes))
+;; 		(output (instans-default-output instans))
+;; 		(op (cond ((eq func #'add-token) :add-token)
+;; 			  ((eq func #'remove-token) :remove-token)
+;; 			  ((eq func #'add-alpha-token) :add-alpha-token)
+;; 			  ((eq func #'remove-alpha-token) :remove-alpha-token)
+;; 			  ((eq func #'add-beta-token) :add-beta-token)
+;; 			  ((eq func #'remove-beta-token) :remove-beta-token)
+;; 			  (t (error* "Unknown function ~S here" func)))))
+;; 	   (when reportp (format output "~&~A: calling successors of ~A using function ~A~%" (instans-name instans) node func))
+;; 	   (loop for succ in (node-succ node)
+;; 		 when reportp do (format output "~%  ~(~A~) ~A~%" op succ)
+;; 		 do (funcall func succ token nil))
+;; 	   (when reportp (format output "~%~A: called successors of ~A using function ~A~%~%" (instans-name instans) node func))))
+;; 	(t
+;; 	 (funcall func (car stack) token (cdr stack)))))
 
-(defgeneric add-token (node token &optional stack)
-  (:method ((this triple-pattern-node) values &optional stack)
+;; (defun call-succ-nodes (node op token stack)
+;;   (cond ((null stack)
+;; 	 ;; (loop for rest on (node-succ node)
+;; 	 ;;       do (assert* (not (member (car rest) (cdr rest))) "~%~S appears twice in (node-succ ~S) = ~S" (car rest) node (node-succ node)))
+;; 	 (let* ((instans (node-instans node))
+;; 		(reportp (operation-report-p instans :call-succ-nodes))
+;; 		(output (instans-default-output instans)))
+;; 	   (when reportp (format output "~&~A: calling ~A upon successors of ~A~%" (instans-name instans) node op))
+;; 	   (loop for succ in (node-succ node)
+;; 		 for func = (get-func-for-call-succ node succ op)
+;; 		 when reportp do (format output "~%  ~(~A~) ~A~%" func succ)
+;; 		 do (funcall func succ token nil))
+;; 	   (when reportp (format output "~&~A: called ~A upon successors of ~A~%" (instans-name instans) node op))))
+;; 	(t
+;; 	 (funcall (get-func-for-call-succ node (car stack) op) token (cdr stack)))))
+
+;; (defun get-func-for-call-succ (node succ op)
+;;   (cond ((typep succ 'join-node)
+;; 	 (cond ((eq node (join-alpha succ))
+;; 		(case op (:add #'add-alpha-token) (:remove #'remove-alpha-token)))
+;; 	       (t
+;; 		(case op (:add #'add-beta-token) (:remove #'remove-beta-token)))))
+;; 	(t
+;; 	 (case op (:add #'add-token) (:remove #'remove-token)))))
+
+
+(defgeneric add-token-in-successors (node token stack)
+  (:method ((this node) token stack)
+    (flet ((get-func-for-call (succ) (if (typep succ 'join-node) (if (eq this (join-alpha succ)) #'add-alpha-token #'add-beta-token) #'add-token)))
+      (cond ((null stack)
+	     ;; (loop for rest on (node-succ this)
+	     ;;       do (assert* (not (member (car rest) (cdr rest))) "~%~S appears twice in (node-succ ~S) = ~S" (car rest) this (node-succ this)))
+	     (let* ((instans (node-instans this))
+		    (reportp (operation-report-p instans :call-succ-nodes))
+		    (output (instans-default-output instans)))
+	       (when reportp (format output "~&~A: calling add-token-in-successors at ~A~%" (instans-name instans) this))
+	       (loop for succ in (node-succ this)
+		     for func = (get-func-for-call succ)
+		     when reportp do (format output "~%  ~(~A~) ~A~%" func succ)
+		     do (funcall func succ token nil))
+	       (when reportp (format output "~&~A: called add-token-in-successors at ~A~%" (instans-name instans) this))))
+	    (t
+	     (funcall (get-func-for-call (car stack)) token (cdr stack)))))))
+
+(defgeneric remove-token-in-successors (node token stack)
+  (:method ((this node) token stack)
+    (flet ((get-func-for-call (succ) (if (typep succ 'join-node) (if (eq this (join-alpha succ)) #'remove-alpha-token #'remove-beta-token) #'remove-token)))
+      (cond ((null stack)
+	     ;; (loop for rest on (node-succ this)
+	     ;;       do (assert* (not (member (car rest) (cdr rest))) "~%~S appears twice in (node-succ ~S) = ~S" (car rest) this (node-succ this)))
+	     (let* ((instans (node-instans this))
+		    (reportp (operation-report-p instans :call-succ-nodes))
+		    (output (instans-default-output instans)))
+	       (when reportp (format output "~&~A: calling :remove-token-in-successors at ~A~%" (instans-name instans) this))
+	       (loop for succ in (node-succ this)
+		     for func = (get-func-for-call succ)
+		     when reportp do (format output "~%  ~(~A~) ~A~%" func succ)
+		     do (funcall func succ token nil))
+	       (when reportp (format output "~&~A: called :remove-token-in-successors at ~A~%" (instans-name instans) this))))
+	    (t
+	     (funcall (get-func-for-call (car stack)) token (cdr stack)))))))
+
+(defgeneric add-token (node token stack)
+  (:method ((this triple-pattern-node) values stack)
     (assert (null stack))
     (let ((dataset (triple-pattern-node-dataset this))
 	  (graph (first values)))
       ;; (inform "add-token ~S, dataset = ~S, graph = ~S" values dataset graph)
       (cond ((rdf-iri-p dataset)
 	     (when (and (rdf-iri-p graph) (rdf-iri= dataset graph))
-	       (add-token (car (node-succ this)) (make-token this nil (alpha-node-variables this) (cdr values)))))
+	       (add-token-in-successors this (make-token this nil (alpha-node-variables this) (cdr values)) stack)))
 	    ((sparql-var-p dataset)
 	     (when (rdf-iri-p graph)
-	       (add-token (car (node-succ this)) (make-token this nil (cons dataset (alpha-node-variables this)) values)))) ; Drop graph
+	       (add-token-in-successors this (make-token this nil (cons dataset (alpha-node-variables this)) values) stack))) ; Drop graph
 	    ((null graph)
-	     (add-token (car (node-succ this)) (make-token this nil (alpha-node-variables this) (cdr values))))))) ; Drop graph
-  (:method ((this alpha-node) values &optional stack)
+	     (add-token-in-successors this (make-token this nil (alpha-node-variables this) (cdr values)) stack))))) ; Drop graph
+  (:method ((this alpha-node) values stack)
     (assert (null stack))
-    (add-token (car (node-succ this)) (make-token this nil (alpha-node-variables this) values)))
-  (:method ((this alpha-memory) token &optional stack)
+    ;; (add-token (car (node-succ this)) (make-token this nil (alpha-node-variables this) values))
+    (add-token-in-successors this (make-token this nil (alpha-node-variables this) values) stack))
+  (:method ((this alpha-memory) token stack)
     (assert (null stack))
     (when (token-store-put-if-missing this token)
-      (call-succ-nodes #'add-alpha-token this token nil)))
-  (:method ((this beta-memory) token &optional stack)
+      (add-token-in-successors this token stack)))
+  (:method ((this beta-memory) token stack)
     (when (token-store-put-if-missing this token)
-      (loop for next in (node-succ this)
-	    do (cond ((or (typep next 'join-node) (typep next 'minus-node))
-		      (add-beta-token next token stack))
-		     (t
-		      (add-token next token stack))))))
-  (:method ((this filter-node) token &optional stack)
+      (add-token-in-successors this token stack)))
+  (:method ((this filter-node) token stack)
     (let ((arguments (loop for var in (node-use this) collect (token-value this token var))))
 ;      (inform "~%in add-token ~S (calling ~S ~{~A~^ ~})~%" this (filter-test-func this) arguments)
       (when (eval-sparql-filter (filter-test-func this) arguments)
-	(call-succ-nodes #'add-token this token stack))))
+	(add-token-in-successors this token stack))))
   ;;; (add-token filter-with-previous-value)
-  (:method ((this filter-with-previous-value) token &optional stack)
+  (:method ((this filter-with-previous-value) token stack)
     (let ((new-value (eval-sparql-filter (filter-test-func this) (loop for var in (node-use this) collect (token-value this token var))))
 	  (token-map (filter-with-previous-value-token-map this)))
       (cond ((token-store-put-if-missing this token)
 	     (token-map-put token-map token new-value)
-	     (when new-value (call-succ-nodes #'add-token this token stack)))
+	     (when new-value (add-token-in-successors this token stack)))
 	    (t
 	     (let ((prev-value (token-map-get token-map token)))
 	       (unless (eq prev-value new-value)
 		 (token-map-put token-map token new-value)
-		 (call-succ-nodes (if new-value #'add-token #'remove-token) this token stack)))))))
-  (:method ((this bind-node) token &optional stack)
+		 (if new-value
+		     (add-token-in-successors this token stack)
+		     (remove-token-in-successors this token stack))))))))
+  (:method ((this bind-node) token stack)
     (let ((value (catch :sparql-error (apply (bind-form-func this) (loop for var in (node-use this) collect (token-value this token var))))))
       (unless (sparql-error-p value)
 	(setf token (make-token this token (list (bind-variable this)) (list value))))
-      (call-succ-nodes #'add-token this token stack)))
+      (add-token-in-successors this token stack)))
   ;;; Currently not handling order and slice
-  (:method ((this datablock-node) token &optional stack)
-    (call-succ-nodes #'add-token this token stack))
+  (:method ((this datablock-node) token stack)
+    (add-token-in-successors this token stack))
   ;;; add-token (exists-start-node)
   ;;; =============================
   ;;; Gets a token and stores that in token-store.
@@ -626,7 +700,7 @@
   ;;; Sets state.active-p nil
   ;;; If the exists gets activated calls the children of exists-end-node. In case of simple-exists and simple-not-exists
   ;;; the parameter is token, otherwise it is a new-token which contains the 
-  (:method ((this exists-start-node) token &optional stack)
+  (:method ((this exists-start-node) token stack)
     (let* ((hashkey-item (or (first token) (list nil (sxhash nil))))
 	   (counter-var (existence-counter-var this))
 	   (subgraph-token (cons hashkey-item (cons (list counter-var 0) token))))
@@ -644,19 +718,18 @@
 	    (let ((counter (existence-start-node-token-state-counter state)))
 	      (case (exists-kind this)
 		(:simple-exists
-		 (when (plusp counter) (call-succ-nodes #'add-token (subgraph-end-node this) token stack)))
+		 (when (plusp counter) (add-token-in-successors (subgraph-end-node this) token stack)))
 		(:simple-not-exists
-		 (when (zerop counter) (call-succ-nodes #'add-token (subgraph-end-node this) token stack)))
+		 (when (zerop counter) (add-token-in-successors (subgraph-end-node this) token stack)))
 		(t
 		 (let ((new-token (make-token this token (list counter-var) (list counter))))
-		   (call-succ-nodes #'add-token (subgraph-end-node this) new-token stack))))
-					;	  (instans-show-rete-status (node-instans this) this new-token "~%After children calls")
+		   (add-token-in-successors (subgraph-end-node this) new-token stack))))
 	      ))))))
   ;;; add-token (exists-end-node)
   ;;; ===========================
   ;;; Get the original token of exists-start-node. It can be revealed by going back token, until
   ;;; we find counter-var in the first item. After that we just get the cdr.
-  (:method ((this exists-end-node) token &optional stack)
+  (:method ((this exists-end-node) token stack)
     (let* ((start-node (subgraph-start-node this))
 	   (start-node-token (start-node-token this token))
 	   (state (token-map-get (existence-start-node-token-map start-node) start-node-token))
@@ -666,23 +739,23 @@
       (when (not active-p)
 	(case (exists-kind this)
 	  (:simple-exists
-	   (when (= 1 counter) (call-succ-nodes #'add-token this start-node-token stack)))
+	   (when (= 1 counter) (add-token-in-successors this start-node-token stack)))
 	  (:simple-not-exists
-	   (when (= 1 counter) (call-succ-nodes #'remove-token this start-node-token stack)))
+	   (when (= 1 counter) (remove-token-in-successors this start-node-token stack)))
 	  (t
 	   (let ((new-token (make-token this start-node-token (list (existence-counter-var start-node)) (list counter))))
-	     (call-succ-nodes #'add-token this new-token stack)))))))
-  (:method ((this aggregate-join-node) token &optional stack)
+	     (add-token-in-successors this new-token stack)))))))
+  (:method ((this aggregate-join-node) token stack)
       (multiple-value-bind (group newp) (aggregate-join-get-group this token)
 	(unless newp
-	  (call-succ-nodes #'remove-token this (group-token group) stack))
+	  (remove-token-in-successors this (group-token group) stack))
 ;	(describe (first (group-aggregates group)))
 	(let* ((aggr-args (loop for var in (aggregate-join-aggr-vars this) collect (token-value this token var))))
 ;	  (inform "calling aggregate-join-aggr-add-func in ~A.~%Group = ~A,~%aggr-vars = ~A,~%aggr-args = ~A~%" this group  (aggregate-join-aggr-vars this) aggr-args)
 	  (apply (aggregate-join-aggr-add-func this) (node-instans this) group aggr-args))
-	(call-succ-nodes #'add-token this (group-token group) stack)))
+	(add-token-in-successors this (group-token group) stack)))
   ;;; add-token (optional-start-node)
-  (:method ((this optional-start-node) token &optional stack)
+  (:method ((this optional-start-node) token stack)
     (let* ((hashkey-item (or (first token) (list nil (sxhash nil))))
 	   (counter-var (existence-counter-var this))
 	   (subgraph-token (cons hashkey-item (cons (list counter-var 0) token))))
@@ -696,23 +769,23 @@
 		   (add-token next subgraph-token stack)))
 	    (setf (existence-start-node-token-state-active-p state) nil) ;;; Deactivate this node
 	    (when (zerop (existence-start-node-token-state-counter state))
-	      (call-succ-nodes #'add-token (subgraph-end-node this) subgraph-token stack))
+	      (add-token-in-successors (subgraph-end-node this) subgraph-token stack))
 	    )))))
   ;;; add-token (optional-end-node)
-  (:method ((this optional-end-node) token &optional stack)
+  (:method ((this optional-end-node) token stack)
     (let* ((start-node (subgraph-start-node this))
 	   (start-node-token (start-node-token this token))
 	   (state (token-map-get (existence-start-node-token-map start-node) start-node-token)) ;;; Does not contain active-p and counter
 	   (active-p (existence-start-node-token-state-active-p state))
 	   (counter (incf (existence-start-node-token-state-counter state))))
       (when (and (not active-p) (= 1 counter))
-	(call-succ-nodes #'remove-token this start-node-token stack))
-      (call-succ-nodes #'add-token this token stack)))
-  (:method ((this union-start-node) token &optional stack)
-    (call-succ-nodes #'add-token this token stack))
-  (:method ((this union-end-node) token &optional stack)
-    (call-succ-nodes #'add-token this token stack))
-  (:method ((this service-node) token &optional stack)
+	(remove-token-in-successors this start-node-token stack))
+      (add-token-in-successors this token stack)))
+  (:method ((this union-start-node) token stack)
+    (add-token-in-successors this token stack))
+  (:method ((this union-end-node) token stack)
+    (add-token-in-successors this token stack))
+  (:method ((this service-node) token stack)
     (when (token-store-put-if-missing this token)
       (let ((key (service-node-index-key this token))
 	    (instans (node-instans this)))
@@ -756,15 +829,15 @@
 									  for binding = (assoc var service-token)
 									  collect (if binding (second binding) *sparql-unbound*)))
 ;	        do (inform "new-token = ~S" new-token)
-  	        do (call-succ-nodes #'add-token this new-token stack))))))
-  (:method ((this query-node) token &optional stack)
+  	        do (add-token-in-successors this new-token stack))))))
+  (:method ((this query-node) token stack)
     (when (token-store-put-if-missing this token)
       (cond ((not (solution-modifiers-distinct-p this))
 	     (cond ((null (node-succ this))
 		    (assert (null stack))
 		    (rete-add-rule-instance (node-instans this) this token))
 		   (t
-		    (call-succ-nodes #'add-token this token stack))))
+		    (add-token-in-successors this token stack))))
 	    (t
 	     (let ((key (loop for var in (solution-modifiers-project-vars this) collect (token-value this token var)))
 		   (index (solution-modifiers-project-index this)))
@@ -779,23 +852,23 @@
 			(assert (null stack))
 			(rete-add-rule-instance (node-instans this) this token))
 		       (t
-			(call-succ-nodes #'add-token this token stack)))))))))
-  (:method ((this modify-node) token &optional stack)
+			(add-token-in-successors this token stack)))))))))
+  (:method ((this modify-node) token stack)
     (assert (null stack))
     (rete-add-rule-instance (node-instans this) this token))
-  (:method ((this node) token &optional stack)
+  (:method ((this node) token stack)
     (declare (ignorable token stack))
     (error* "Don't know how to use node ~A" this)))
 
-(defgeneric add-alpha-token (join alpha-token &optional stack)
-  (:method ((this minus-node) alpha-token &optional stack)
+(defgeneric add-alpha-token (join alpha-token stack)
+  (:method ((this minus-node) alpha-token stack)
     (let ((key (join-alpha-key this alpha-token)))
 ;      (pop alpha-token) ; Drop hashkey
       (assert (node-use this))
       (index-put-token (join-alpha-index this) key alpha-token)
       (loop for beta-token in (index-get-tokens (join-beta-index this) key)
-	    do (call-succ-nodes #'remove-token this beta-token stack))))
-  (:method ((this join-node) alpha-token &optional stack)
+	    do (remove-token-in-successors this beta-token stack))))
+  (:method ((this join-node) alpha-token stack)
     (let ((key (join-alpha-key this alpha-token)))
       ;; (when (node-use this)
       (index-put-token (join-alpha-index this) key alpha-token)
@@ -807,16 +880,16 @@
 	    for new-token = (make-token this beta-token missing-vars (loop for var in missing-vars
 									   for binding = (assoc var alpha-token)
 									   collect (if binding (second binding) *sparql-unbound*)))
-	    do (call-succ-nodes #'add-token this new-token stack)))))
+	    do (add-token-in-successors this new-token stack)))))
 
-(defgeneric add-beta-token (join beta-token &optional stack)
-  (:method ((this minus-node) beta-token &optional stack)
+(defgeneric add-beta-token (join beta-token stack)
+  (:method ((this minus-node) beta-token stack)
     (let ((key (join-beta-key this beta-token)))
       (assert (node-use this))
       (index-put-token (join-beta-index this) key beta-token)
       (when (null (index-get-tokens (join-alpha-index this) key))
-	(call-succ-nodes #'add-token this beta-token stack))))
-  (:method ((this join-node) beta-token &optional stack)
+	(add-token-in-successors this beta-token stack))))
+  (:method ((this join-node) beta-token stack)
     (let ((key (join-beta-key this beta-token)))
       ;; (when (node-use this)
       (index-put-token (join-beta-index this) key beta-token)
@@ -828,49 +901,45 @@
 	    for new-token = (make-token this beta-token missing-vars (loop for var in missing-vars 
 									   for binding = (assoc var alpha-token)
 									   collect (if binding (second binding) *sparql-unbound*)))
-	    do (call-succ-nodes #'add-token this new-token stack)))))
+	    do (add-token-in-successors this new-token stack)))))
 
-(defgeneric remove-token (node token &optional stack)
-  (:method ((this triple-pattern-node) values &optional stack)
+(defgeneric remove-token (node token stack)
+  (:method ((this triple-pattern-node) values stack)
     (assert (null stack))
     (let ((dataset (triple-pattern-node-dataset this))
 	  (graph (first values)))
       (cond ((rdf-iri-p dataset)
 	     (when (and (rdf-iri-p graph) (rdf-iri= dataset graph))
-	       (remove-token (car (node-succ this)) (make-token this nil (alpha-node-variables this) (cdr values)))))
+	       (remove-token-in-successors this (make-token this nil (alpha-node-variables this) (cdr values)) stack)))
 	    ((sparql-var-p dataset)
 	     (when (rdf-iri-p graph)
-	       (remove-token (car (node-succ this)) (make-token this nil (cons dataset (alpha-node-variables this)) values)))) ; Drop graph
+	       (remove-token-in-successors this (make-token this nil (cons dataset (alpha-node-variables this)) values) stack))) ; Drop graph
 	    ((null graph)
-	     (remove-token (car (node-succ this)) (make-token this nil (alpha-node-variables this) (cdr values))))))) ; Drop graph
-  (:method ((this alpha-node) values &optional stack)
+	     (remove-token-in-successors this (make-token this nil (alpha-node-variables this) (cdr values)) stack))))) ; Drop graph
+  (:method ((this alpha-node) values stack)
     (assert (null stack))
-    (remove-token (car (node-succ this)) (make-token this nil (alpha-node-variables this) values)))
-  (:method ((this alpha-memory) token &optional stack)
+    (remove-token-in-successors this (make-token this nil (alpha-node-variables this) values) stack))
+  (:method ((this alpha-memory) token stack)
     (assert (null stack))
     (when (token-store-remove-if-exists this token)
-      (call-succ-nodes #'remove-alpha-token this token stack)))
-  (:method ((this beta-memory) token &optional stack)
+      (remove-token-in-successors this token stack)))
+  (:method ((this beta-memory) token stack)
     (when (token-store-remove-if-exists this token)
-      (loop for next in (node-succ this)
-	   do (cond ((typep next 'join-node)
-		     (remove-beta-token next token stack))
-		    (t
-		     (remove-token next token stack))))))
-  (:method ((this filter-node) token &optional stack)
+      (remove-token-in-successors this token stack)))
+  (:method ((this filter-node) token stack)
     (when (eval-sparql-filter (filter-test-func this) (loop for var in (node-use this) collect (token-value this token var)))
-      (call-succ-nodes #'remove-token this token stack)))
-  (:method ((this filter-with-previous-value) token &optional stack)
+      (remove-token-in-successors this token stack)))
+  (:method ((this filter-with-previous-value) token stack)
     (when (token-store-remove-if-exists this token)
-      (call-succ-nodes #'remove-token this token stack)))
-  (:method ((this bind-node) token &optional stack)
+      (remove-token-in-successors this token stack)))
+  (:method ((this bind-node) token stack)
     (let ((value (catch :sparql-error (apply (bind-form-func this) (loop for var in (node-use this) collect (token-value this token var))))))
       (unless (sparql-error-p value)
 	(setf token (make-token this token (list (bind-variable this)) (list value))))
-      (call-succ-nodes #'remove-token this token stack)))
+      (remove-token-in-successors this token stack)))
   ;;; Currently not handling order and slice
-  (:method ((this datablock-node) token &optional stack)
-    (call-succ-nodes #'remove-token this token stack))
+  (:method ((this datablock-node) token stack)
+    (remove-token-in-successors this token stack))
   ;;; remove-token (exists-start-node)
   ;;; ================================
   ;;; Gets a token and checks if that token is in token-store
@@ -880,7 +949,7 @@
   ;;; and calls children using this. Subgraph-token is used by the exists-end-node to reveal original token.
   ;;; Removes token -> state from token-map
   ;;; If the exists was activated, call the reverse operation remove-token
-  (:method ((this exists-start-node) token &optional stack)
+  (:method ((this exists-start-node) token stack)
     ;; (inform "remove-token ~A ~A" this token)
     (let* ((hashkey-item (or (first token) (list nil (sxhash nil))))
 	   (counter-var (existence-counter-var this))
@@ -899,15 +968,15 @@
 	    (token-map-remove token-map subgraph-token)
 	    (case (exists-kind this)
 	      (:simple-exists
-	       (when (plusp prev-counter-value) (call-succ-nodes #'remove-token (subgraph-end-node this) subgraph-token stack)))
+	       (when (plusp prev-counter-value) (remove-token-in-successors (subgraph-end-node this) subgraph-token stack)))
 	      (:simple-not-exists
-	       (when (zerop prev-counter-value) (call-succ-nodes #'remove-token (subgraph-end-node this) subgraph-token stack)))
+	       (when (zerop prev-counter-value) (remove-token-in-successors (subgraph-end-node this) subgraph-token stack)))
 	      (t
 	       (let ((new-token (make-token this token (list counter-var) (list (existence-start-node-token-state-counter state)))))
-		 (call-succ-nodes #'remove-token (subgraph-end-node this) new-token stack)))))))))
+		 (remove-token-in-successors (subgraph-end-node this) new-token stack)))))))))
   ;;; remove-token (exists-end-node)
   ;;; ==============================
-  (:method ((this exists-end-node) token &optional stack)
+  (:method ((this exists-end-node) token stack)
     (let* ((start-node (subgraph-start-node this))
 	   (start-node-token (start-node-token this token))
 	   (state (token-map-get (existence-start-node-token-map start-node) start-node-token))
@@ -916,20 +985,20 @@
       (when (not active-p)
 	(case (exists-kind this)
 	  (:simple-exists
-	   (when (zerop counter) (call-succ-nodes #'remove-token this start-node-token stack)))
+	   (when (zerop counter) (remove-token-in-successors this start-node-token stack)))
 	  (:simple-not-exists
-	   (when (zerop counter) (call-succ-nodes #'add-token this start-node-token stack)))
+	   (when (zerop counter) (add-token-in-successors this start-node-token stack)))
 	  (t (let ((new-token (make-token this start-node-token (list (existence-counter-var start-node)) (list counter))))
-	       (call-succ-nodes #'add-token this new-token stack)))))))
-  (:method ((this aggregate-join-node) token &optional stack)
+	       (add-token-in-successors this new-token stack)))))))
+  (:method ((this aggregate-join-node) token stack)
     (multiple-value-bind (group newp) (aggregate-join-get-group this token)
       (when newp (error* "Trying to access missing group"))
-      (call-succ-nodes #'remove-token this (group-token group) stack)
+      (remove-token-in-successors this (group-token group) stack)
       (let* ((aggr-args (loop for var in (aggregate-join-aggr-vars this) collect (token-value this token var))))
 	(apply (aggregate-join-aggr-remove-func this) (node-instans this) group aggr-args))
-      (call-succ-nodes #'add-token this (group-token group) stack)))
+      (add-token-in-successors this (group-token group) stack)))
   ;;; remove-token (optional-start-node)
-  (:method ((this optional-start-node) token &optional stack)
+  (:method ((this optional-start-node) token stack)
     (let* ((hashkey-item (or (first token) (list nil (sxhash nil))))
 	   (counter-var (existence-counter-var this))
 	   (subgraph-token (cons hashkey-item (cons (list counter-var 0) token))))
@@ -946,31 +1015,31 @@
 		   (remove-token next subgraph-token stack)))
 	    (token-map-remove token-map subgraph-token)
 	    (when (zerop prev-counter-value)
-	      (call-succ-nodes #'remove-token (subgraph-end-node this) subgraph-token stack)))))))
+	      (remove-token-in-successors (subgraph-end-node this) subgraph-token stack)))))))
   ;;; remove-token (optional-end-node)
-  (:method ((this optional-end-node) token &optional stack)
+  (:method ((this optional-end-node) token stack)
     (let* ((start-node (subgraph-start-node this))
 	   (start-node-token (start-node-token this token))
 	   (state (token-map-get (existence-start-node-token-map start-node) start-node-token))
 	   (active-p (existence-start-node-token-state-active-p state))
 	   (counter (decf (existence-start-node-token-state-counter state))))
-      (call-succ-nodes #'remove-token this token stack)
+      (remove-token-in-successors this token stack)
       (when (and (not active-p) (zerop counter))
-	(call-succ-nodes #'add-token this start-node-token stack))))
-  (:method ((this construct-node) token &optional stack)
+	(add-token-in-successors this start-node-token stack))))
+  (:method ((this construct-node) token stack)
     (declare (ignorable this token stack))
     (assert (null (node-succ this)))
     (assert (null stack))
     (rete-remove-rule-instance (node-instans this) this token))
-  (:method ((this union-start-node) token &optional stack)
+  (:method ((this union-start-node) token stack)
     (declare (special *oink*))
     (when *oink* (inform "add-token union-start-node ~A ~A" this token))
-    (call-succ-nodes #'remove-token this token stack))
-  (:method ((this union-end-node) token &optional stack)
+    (remove-token-in-successors this token stack))
+  (:method ((this union-end-node) token stack)
     (declare (special *oink*))
     (when *oink* (inform "add-token union-end-node ~A ~A" this token))
-    (call-succ-nodes #'remove-token this token stack))
-  (:method ((this service-node) token &optional stack)
+    (remove-token-in-successors this token stack))
+  (:method ((this service-node) token stack)
     (when (token-store-remove-if-exists this token)
       (let ((key (service-node-index-key this token)))
 	(multiple-value-bind (service-tokens definedp)
@@ -981,15 +1050,15 @@
 		for new-token = (make-token this token missing-vars (loop for var in missing-vars
 									  for binding = (assoc var service-token)
 									  collect (if binding (second binding) *sparql-unbound*)))
-		do (call-succ-nodes #'remove-token this new-token stack))))))
-  (:method ((this query-node) token &optional stack)
+		do (remove-token-in-successors this new-token stack))))))
+  (:method ((this query-node) token stack)
     (when (token-store-remove-if-exists this token)
       (cond ((not (solution-modifiers-distinct-p this))
 	     (cond ((null (node-succ this))
 		    (assert (null stack))
 		    (rete-remove-rule-instance (node-instans this) this token))
 		   (t
-		    (call-succ-nodes #'remove-token this token stack))))
+		    (remove-token-in-successors this token stack))))
 	    (t
 	     (let ((key (loop for var in (solution-modifiers-project-vars this) collect (token-value this token var)))
 		   (index (solution-modifiers-project-index this)))
@@ -1001,25 +1070,25 @@
 			(assert (null stack))
 			(rete-remove-rule-instance (node-instans this) this token))
 		       (t
-			(call-succ-nodes #'remove-token this token stack)))))))))
-  (:method ((this modify-node) token &optional stack)
+			(remove-token-in-successors this token stack)))))))))
+  (:method ((this modify-node) token stack)
     (assert (null stack))
     (rete-remove-rule-instance (node-instans this) this token)
     )
-  (:method ((this node) token &optional stack)
+  (:method ((this node) token stack)
     (declare (ignorable token stack))
     (error* "Don't know how to use node ~A" this)))
 
-(defgeneric remove-alpha-token (join alpha-token &optional stack)
-  (:method ((this minus-node) alpha-token &optional stack)
+(defgeneric remove-alpha-token (join alpha-token stack)
+  (:method ((this minus-node) alpha-token stack)
 ;    (pop alpha-token) ;;; Get rid of the hash key
     (let ((key (join-alpha-key this alpha-token)))
 ;      (pop alpha-token) ; Drop hashkey
       (assert (node-use this))
       (index-remove-token (join-alpha-index this) key alpha-token)
       (loop for beta-token in (index-get-tokens (join-beta-index this) key)
-	    do (call-succ-nodes #'add-token this beta-token stack))))
-  (:method ((this join-node) alpha-token &optional stack)
+	    do (add-token-in-successors this beta-token stack))))
+  (:method ((this join-node) alpha-token stack)
 ;    (pop alpha-token) ;;; Get rid of the hash key
     (let ((key (join-alpha-key this alpha-token)))
 ;      (pop alpha-token) ; Drop hashkey
@@ -1033,16 +1102,16 @@
 	    for new-token = (make-token this beta-token missing-vars (loop for var in missing-vars
 									   for binding = (assoc var alpha-token)
 									   collect (if binding (second binding) *sparql-unbound*)))
-	    do (call-succ-nodes #'remove-token this new-token stack)))))
+	    do (remove-token-in-successors this new-token stack)))))
 
-(defgeneric remove-beta-token (join beta-token &optional stack)
-  (:method ((this minus-node) beta-token &optional stack)
+(defgeneric remove-beta-token (join beta-token stack)
+  (:method ((this minus-node) beta-token stack)
     (let ((key (join-beta-key this beta-token)))
       (assert (node-use this))
       (index-remove-token (join-beta-index this) key beta-token)
       (unless (index-get-tokens (join-alpha-index this) key)
-	(call-succ-nodes #'remove-token this beta-token stack))))
-  (:method ((this join-node) beta-token &optional stack)
+	(remove-token-in-successors this beta-token stack))))
+  (:method ((this join-node) beta-token stack)
     (let ((key (join-beta-key this beta-token)))
       ;; (when (node-use this)
       (index-remove-token (join-beta-index this) key beta-token)
@@ -1054,7 +1123,7 @@
 	    for new-token = (make-token this beta-token missing-vars (loop for var in missing-vars
 									   for binding = (assoc var alpha-token)
 									   collect (if binding (second binding) *sparql-unbound*)))
-	    do (call-succ-nodes #'remove-token this new-token stack)))))
+	    do (remove-token-in-successors this new-token stack)))))
 
 (defun rule-instance-queue-empty-p (queue)
   (null (rule-instance-queue-head queue)))
@@ -1237,17 +1306,17 @@
   (trace initialize-execution initialize-stores-and-indices initialize-data
 	 rete-add rete-remove add-token remove-token add-alpha-token add-beta-token remove-alpha-token remove-beta-token match-quad
 	 join-beta-key join-alpha-key
-	 token-value make-token call-succ-nodes rete-add-rule-instance execute-rules rule-instance-queue-execute-instance execute-rule-node
+	 token-value make-token add-token-in-successor remove-token-in-successors rete-add-rule-instance execute-rules rule-instance-queue-execute-instance execute-rule-node
 	 select-output token-store-put token-store-put-if-missing token-store-get token-store-remove token-store-remove-if-exists token-store-tokens index-put-token index-get-tokens index-remove-token
 	 token-map-get token-map-put token-map-remove
 	 aggregate-get-value aggregate-add-value aggregate-remove-value start-node-token
-	 construct-output select-output))
+	 construct-output select-output make-token-index))
 
 (defvar *rete-profiled-functions*
   '(initialize-execution initialize-stores-and-indices initialize-data
     rete-add rete-remove add-token remove-token add-alpha-token add-beta-token remove-alpha-token remove-beta-token match-quad
     join-beta-key join-alpha-key
-    token-value make-token call-succ-nodes rete-add-rule-instance execute-rules rule-instance-queue-execute-instance execute-rule-node
+    token-value make-token add-token-in-successor remove-token-in-successors rete-add-rule-instance execute-rules rule-instance-queue-execute-instance execute-rule-node
     select-output token-store-put token-store-put-if-missing token-store-get token-store-remove token-store-remove-if-exists token-store-tokens index-put-token index-get-tokens index-remove-token
     token-map-get token-map-put token-map-remove
     aggregate-get-value aggregate-add-value aggregate-remove-value start-node-token

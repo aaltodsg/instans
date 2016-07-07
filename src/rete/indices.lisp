@@ -25,6 +25,9 @@
 (defun index-key-equal (k1 k2)
   (every #'(lambda (v1 v2) (or (eql v1 v2) (%=% v1 v2))) k1 k2))
 
+(defmethod initialize-instance :after ((this token-index) &key &allow-other-keys)
+	   )
+
 (defmethod initialize-instance :after ((this hash-token-index) &key &allow-other-keys)
   ;; (inform "initialize-instance :after ~S" this)
   (setf (hash-token-index-table this)
@@ -35,6 +38,22 @@
 ;; (defmethod initialize-instance :after ((this ordered-list-token-index) &key &allow-other-keys)
 ;;   (inform "initialize-instance :after ~S" this)
 ;;   (setf (ordered-list-token-index-alist this) (list nil)))
+
+(defmethod initialize-instance :after ((this avl-token-index) &key &allow-other-keys)
+  (setf (avl-token-index-tree this)
+	(make-instance 'avl-tree :key-compare #'%instans-compare% :value-equal #'token-equal)))
+
+(defun make-token-index (type &rest rest &key &allow-other-keys)
+  ;; (inform "Before make-index ~S ~S" type rest)
+  ;; (trace make-instance)
+  ;; (prog1
+  ;;     (handler-case
+ 	  (apply #'make-instance type rest)
+;; 	(t (e) (error e)))
+;;     (inform "after make-index ~S ~S" type rest)
+;; (untrace make-instance))
+)
+
 
 (defgeneric hash-token-index-key-item-values (token-index item)
   (:method ((this hash-token-index) item)
@@ -68,8 +87,11 @@
     (loop with key-op = (ordered-list-token-index-key-op this)
 	  for (k . vl) in (cdr (ordered-list-token-index-alist this))
 	  while (funcall key-op key k)
-	  nconc (copy-list vl))))
-
+	  nconc (copy-list vl)))
+  (:method ((this avl-token-index) key)
+    (setf key (car key))
+    (funcall (avl-token-index-range-getter this) (avl-token-index-tree this) key)))
+    
 ;; (defgeneric index-tokens (index)
 ;;   (:method ((this hash-token-index))
 ;;     (let ((r nil))
@@ -154,7 +176,10 @@
 			 (return nil))
 			(t
 			 (push (list key token) (cdr rest))
-			 (return t))))))
+			 (return t)))))
+  (:method ((this avl-token-index) key token)
+    (setf key (car key))
+    (avl-insert (avl-token-index-tree this) key token)))
 
 ;;; Returns T if this was the last token with this key
 (defgeneric index-remove-token (index key token)
@@ -241,7 +266,10 @@
 			       (t
 				nil)))
 			(t
-			 (error* "Trying to remove missing token ~S" token))))))
+			 (error* "Trying to remove missing token ~S" token)))))
+  (:method ((this avl-token-index) key token)
+    (setf key (car key))
+    (avl-delete (avl-token-index-tree this) key token)))
 
 (defgeneric index-count (index)
   (:method ((this hash-token-index))
@@ -273,7 +301,9 @@
 		 table))))
   (:method ((this ordered-list-token-index))
     (loop for item in (cdr (ordered-list-token-index-alist this))
-	  sum (length (cdr item)))))
+	  sum (length (cdr item))))
+  (:method ((this avl-token-index))
+    (avl-tree-value-count (avl-token-index-tree this))))
 
 (defgeneric index-clear (index)
   (:method ((this hash-token-index))

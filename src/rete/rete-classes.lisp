@@ -262,6 +262,14 @@
    (equal-op :accessor ordered-list-token-index-equal-op :initarg :equal-op)
    (key-op :accessor ordered-list-token-index-key-op :initarg :key-op)))
 
+(define-class avl-token-index (token-index)
+  ((tree :accessor avl-token-index-tree :initform nil)
+   (range-getter :accessor avl-token-index-range-getter :initarg :range-getter)))
+;;;
+;;; alpha ?x < ?y: (avl-get-range :lower-bound ?x :lower-bound-inclusive-p nil)
+;;; beta  ?x < ?y: (avl-get-range :upper-bound ?y :upper-bound-inclusive-p nil)
+
+
 ;; (define-class ordered-list-token-index (token-index)
 ;;   ((alist :accessor ordered-list-token-index-alist :initform (list nil))
 ;;    (var :accessor ordered-list-token-index-var :initarg :var)
@@ -390,7 +398,9 @@
    (colors :accessor instans-colors :initform nil)
    (join-hash-token-index-type :accessor instans-join-hash-token-index-type :initarg :join-hash-token-index-type :initform 'flexible-hash-token-index)
    (optimize-filters-p :accessor instans-optimize-filters-p :initarg :optimize-filters-p :initform nil)
-   (ordered-index-nodes :accessor instans-ordered-index-nodes :initform nil)))
+   (ordered-index-nodes :accessor instans-ordered-index-nodes :initform nil)
+   (avl-index-nodes :accessor instans-avl-index-nodes :initform nil)))
+   
 
 (define-class instans-status ()
   ((messages :accessor instans-status-messages :initarg :messages)))

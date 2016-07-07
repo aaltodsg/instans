@@ -116,3 +116,15 @@
 ;; inner-body-lambda (instans-iri1 triples1 &optional graph-iri1 base1 &rest args)
 
 
+;;; This is a compare function, which is not part of 
+(define-sparql-function "instans:compare" (:arguments ((a xsd-value) (b xsd-value)) :returns xsd-boolean-value)
+  (:method ((a xsd-number-value) (b xsd-number-value)) (- a b))
+  (:method ((a xsd-string-value) (b xsd-string-value)) (cond ((string< a b) -1)
+							     ((string> a b) 1)
+							     (t 0)))
+  (:method ((a xsd-boolean-value) (b xsd-boolean-value)) (cond ((and (not a) b) -1)
+							       ((and a (not b)) 1)
+							       (t 0)))
+  (:method ((a xsd-datetime-value) (b xsd-datetime-value)) (cond ((datetime< a b) -1)
+								 ((datetime> a b) 1)
+								 (t 0))))
